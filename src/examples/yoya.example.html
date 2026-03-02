@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic - 演示中心</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .header h1 {
+      color: white;
+      font-size: 48px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      color: rgba(255,255,255,0.9);
+      font-size: 18px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+
+    .card-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .card-desc {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      text-align: center;
+      color: rgba(255,255,255,0.8);
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* 文档链接卡片 */
+    .docs-section {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .docs-section h2 {
+      color: white;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .docs-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .docs-links a {
+      background: white;
+      color: #667eea;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .docs-links a:hover {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎨 Yoya.Basic</h1>
+      <p>浏览器原生的 HTML DSL 库</p>
+    </div>
+
+    <div class="docs-section">
+      <h2>📚 文档</h2>
+      <div class="docs-links">
+        <a href="/examples/yoya.basic.example.html">🎯 完整演示</a>
+        <a href="/examples/yoya.svg.example.html">🎨 SVG 演示</a>
+        <a href="/examples/yoya.layout.example.html">📐 布局演示</a>
+        <a href="/examples/yoya.card.example.html">📦 Card 演示</a>
+        <a href="/examples/yoya.menu.example.html">📋 Menu 演示</a>
+        <a href="/examples/yoya.message.example.html">💬 Message 演示</a>
+        <a href="/examples/yoya.components.example.html">🧩 UI 组件演示</a>
+        <a href="#" onclick="alert('查看 DESIGN.md 文件')">📖 设计文档</a>
+        <a href="#" onclick="alert('查看 CLAUDE.md 文件')">📝 使用说明</a>
+      </div>
+    </div>
+
+    <div class="cards">
+      <a href="/examples/yoya.basic.example.html" class="card">
+        <div class="card-icon">🎯</div>
+        <div class="card-title">完整演示</div>
+        <div class="card-desc">包含所有功能的完整演示页面，展示 Yoya.Basic 的核心 API 和使用方法。</div>
+      </a>
+
+      <a href="/examples/yoya.svg.example.html" class="card">
+        <div class="card-icon">🎨</div>
+        <div class="card-title">SVG 图形演示</div>
+        <div class="card-desc">SVG 矢量图形组件演示，包含基础形状、路径、渐变、滤镜和变换效果。</div>
+      </a>
+
+      <a href="/examples/yoya.layout.example.html" class="card">
+        <div class="card-icon">📐</div>
+        <div class="card-title">布局组件演示</div>
+        <div class="card-desc">Flex、Grid、Stack 等布局组件演示，包含响应式网格、卡片布局和导航栏示例。</div>
+      </a>
+
+      <a href="/examples/yoya.card.example.html" class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Card 卡片演示</div>
+        <div class="card-desc">Card 卡片组件演示，包含基础卡片、交互效果、内容卡片和特殊样式卡片。</div>
+      </a>
+
+      <a href="/examples/yoya.menu.example.html" class="card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">Menu 菜单演示</div>
+        <div class="card-desc">Menu 菜单组件演示，包含基础菜单、下拉菜单、右键菜单和导航菜单。</div>
+      </a>
+
+      <a href="/examples/yoya.message.example.html" class="card">
+        <div class="card-icon">💬</div>
+        <div class="card-title">Message 消息演示</div>
+        <div class="card-desc">Message 消息提示组件演示，包含成功、错误、警告、信息等多种消息类型。</div>
+      </a>
+
+      <a href="/examples/yoya.components.example.html" class="card">
+        <div class="card-icon">🧩</div>
+        <div class="card-title">UI 组件演示</div>
+        <div class="card-desc">Button、Form、Descriptions、Field 等 UI 组件演示，包含表单输入、详情展示、可编辑字段等。</div>
+      </a>
+
+      <a href="/examples/yoya.basic.example.html" class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">基础容器</div>
+        <div class="card-desc">div, span, p, section 等基础容器元素的使用方法。</div>
+      </a>
+
+      <a href="/examples/yoya.basic.example.html" class="card">
+        <div class="card-icon">📝</div>
+        <div class="card-title">表单元素</div>
+        <div class="card-desc">input, textarea, select, form 等表单元素的创建和绑定。</div>
+      </a>
+
+      <a href="/examples/yoya.basic.example.html" class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">表格布局</div>
+        <div class="card-desc">使用 table, tr, td 等元素创建数据表格，支持扩展方法。</div>
+      </a>
+
+      <a href="/examples/yoya.basic.example.html" class="card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">列表示表</div>
+        <div class="card-desc">ul, ol, li, dl, dt, dd 等列表元素的链式创建方法。</div>
+      </a>
+
+      <a href="/examples/yoya.basic.example.html" class="card">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">链式调用</div>
+        <div class="card-desc">体验流式 API 的魅力，优雅的链式调用语法。</div>
+      </a>
+
+      <a href="/examples/yoya.theme.example.html" class="card">
+        <div class="card-icon">🎨</div>
+        <div class="card-title">主题与状态</div>
+        <div class="card-desc">主题系统和状态机演示，包含状态管理、状态快照、主题切换等高级功能。</div>
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>Yoya.Basic - Browser-native HTML DSL Library</p>
+      <p style="margin-top: 10px;">
+        <a href="https://github.com" target="_blank">GitHub</a> ·
+        <a href="#" onclick="alert('查看 src/yoya/index.d.ts 文件')">TypeScript 类型定义</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    console.log('🚀 Yoya.Basic 演示中心已加载');
+  </script>
+</body>
+</html>

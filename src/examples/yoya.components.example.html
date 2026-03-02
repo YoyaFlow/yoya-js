@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic - UI 组件演示</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      color: white;
+      font-size: 36px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      color: rgba(255,255,255,0.9);
+      font-size: 16px;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      background: rgba(255,255,255,0.2);
+      padding: 10px 20px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+
+    .back-link:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* 演示 + 代码组合区域 */
+    .demo-with-code {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .demo-area {
+      padding: 30px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .demo-area h2 {
+      color: #333;
+      font-size: 20px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .demo-area h3 {
+      color: #666;
+      font-size: 16px;
+      margin: 20px 0 12px;
+    }
+
+    .demo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .demo-label {
+      min-width: 100px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* 代码展示区域 */
+    .code-area {
+      background: #1e1e1e;
+      padding: 20px;
+    }
+
+    .code-area code {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #d4d4d4;
+      display: block;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .code-header {
+      color: #007acc;
+      font-size: 14px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .token-comment { color: #6a9955; }
+    .token-keyword { color: #569cd6; }
+    .token-string { color: #ce9178; }
+    .token-function { color: #dcdcaa; }
+    .token-number { color: #b5cea8; }
+    .token-object { color: #4ec9b0; }
+    .token-property { color: #9cdcfe; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="/examples/yoya.example.html" class="back-link">← 返回首页</a>
+      <h1>🧩 UI 组件演示</h1>
+      <p>Button、Form、Detail、Field 等 UI 组件展示，每个演示附带源代码</p>
+    </div>
+
+    <!-- 演示区域 -->
+    <div id="app"></div>
+  </div>
+
+  <script type="module" src="./yoya.components.example.js"></script>
+</body>
+</html>

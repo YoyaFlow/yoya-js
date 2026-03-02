@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic - 状态机测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 40px;
+    }
+    .test-result {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .test-result h2 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .test-result pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 8px;
+      overflow: auto;
+      font-size: 13px;
+    }
+    .success { color: #28a745; }
+    .error { color: #dc3545; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { div, h1, p, pre, Tag } from '../yoya/index.js';
+
+    console.log('Testing State Machine...');
+    console.log('Tag:', typeof Tag);
+    console.log('Tag.prototype.registerStateAttrs:', typeof Tag.prototype.registerStateAttrs);
+
+    const results = [];
+
+    // 测试 1: Tag 是否已加载
+    results.push({
+      name: 'Tag 加载',
+      passed: typeof Tag === 'function',
+      message: typeof Tag === 'function' ? 'Tag 已正确加载' : 'Tag 未定义'
+    });
+
+    // 测试 2: Tag 原型是否有状态管理方法
+    const hasRegisterStateAttrs = typeof Tag.prototype.registerStateAttrs === 'function';
+    results.push({
+      name: 'registerStateAttrs 方法',
+      passed: hasRegisterStateAttrs,
+      message: hasRegisterStateAttrs ? '方法已定义' : '方法未定义'
+    });
+
+    // 测试 3: Tag 原型是否有 setState 方法
+    const hasSetState = typeof Tag.prototype.setState === 'function';
+    results.push({
+      name: 'setState 方法',
+      passed: hasSetState,
+      message: hasSetState ? '方法已定义' : '方法未定义'
+    });
+
+    // 测试 4: 创建 Tag 实例并测试状态功能
+    let stateTestPassed = false;
+    let stateTestMessage = '';
+    try {
+      const tag = new Tag('div');
+      tag.registerStateAttrs('disabled', { size: 'string' });
+      tag.setState('disabled', true);
+      tag.setState('size', 'large');
+      const states = tag.getAllStates();
+      stateTestPassed = states.disabled === true && states.size === 'large';
+      stateTestMessage = stateTestPassed
+        ? `状态设置成功：${JSON.stringify(states)}`
+        : `状态值不正确：${JSON.stringify(states)}`;
+    } catch (err) {
+      stateTestMessage = `错误：${err.message}`;
+    }
+    results.push({
+      name: '状态设置/获取',
+      passed: stateTestPassed,
+      message: stateTestMessage
+    });
+
+    // 渲染测试结果
+    const app = document.getElementById('app');
+
+    app.appendChild(div(root => {
+      root.h1(h => {
+        h.text('🧪 状态机测试');
+        h.styles({ color: 'white', textAlign: 'center', marginBottom: '20px' });
+      });
+
+      results.forEach(result => {
+        root.div(card => {
+          card.styles({
+            background: 'white',
+            padding: '20px',
+            borderRadius: '12px',
+            marginBottom: '20px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          });
+          card.h2(h => {
+            h.text(`${result.passed ? '✅' : '❌'} ${result.name}`);
+            h.styles({
+              color: result.passed ? '#28a745' : '#dc3545',
+              marginBottom: '10px',
+              fontSize: '18px'
+            });
+          });
+          card.p(p => {
+            p.text(result.message);
+            p.styles({ color: '#666' });
+          });
+        });
+      });
+
+      // 总结
+      const passedCount = results.filter(r => r.passed).length;
+      const totalCount = results.length;
+      root.div(summary => {
+        summary.styles({
+          background: passedCount === totalCount ? '#d4edda' : '#f8d7da',
+          padding: '20px',
+          borderRadius: '12px',
+          textAlign: 'center',
+          color: passedCount === totalCount ? '#155724' : '#721c24'
+        });
+        summary.p(p => {
+          p.text(`测试结果：${passedCount}/${totalCount} 通过`);
+          p.styles({ fontSize: '18px', fontWeight: 'bold' });
+        });
+      });
+    })._boundElement || app);
+
+    console.log('测试结果:', results);
+  </script>
+</body>
+</html>

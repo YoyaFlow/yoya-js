@@ -1,0 +1,1566 @@
+/**
+ * Yoya.Basic - Browser-native HTML DSL Library
+ * 提供类似 Kotlin HTML DSL 的声明式语法
+ */
+
+// ============================================
+// Tag 基类
+// ============================================
+
+class Tag {
+  constructor(tagName, setup = null) {
+    this._tagName = tagName;
+
+    // Q1 B: 立即创建 DOM 元素
+    this._el = document.createElement(tagName);
+    this._boundElement = this._el;  // 别名，保持向后兼容
+
+    // Q2 A: 保留虚拟属性
+    this._attrs = {};
+    this._styles = {};
+    this._classes = new Set();
+    this._events = {};
+    this._children = [];
+
+    // 状态管理
+    this._states = new Set();
+    this._stateStyles = {};
+    this._baseStyles = null;
+
+    // 渲染状态
+    this._rendered = false;
+    this._deleted = false;
+
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  // setup 统一初始化
+  setup(setup) {
+    if (typeof setup === 'function') {
+      setup(this);
+    } else if (typeof setup === 'string') {
+      this._addText(setup);
+    } else if (typeof setup === 'object' && setup !== null) {
+      this._setupObject(setup);
+    }
+    return this;
+  }
+
+  _setupObject(config) {
+    // 处理 class
+    if (config.class) {
+      if (Array.isArray(config.class)) {
+        this.class(...config.class);
+      } else {
+        this.class(config.class);
+      }
+    }
+
+    // 处理 style
+    if (config.style) {
+      for (const [key, value] of Object.entries(config.style)) {
+        this.style(key, value);
+      }
+    }
+
+    // 处理事件
+    for (const [key, value] of Object.entries(config)) {
+      if (key.startsWith('on') && typeof value === 'function') {
+        const eventName = key.slice(2).toLowerCase();
+        this.on(eventName, value);
+      }
+    }
+
+    // 处理子元素
+    if (config.children) {
+      this._addChildren(config.children);
+    }
+
+    // 处理其他属性
+    for (const [key, value] of Object.entries(config)) {
+      if (!['class', 'style', 'on', 'children'].includes(key) &&
+          !key.startsWith('on') &&
+          typeof value !== 'function') {
+        this.attr(key, value);
+      }
+    }
+  }
+
+  // 添加文本节点
+  _addText(content) {
+    const textNode = document.createTextNode(String(content));
+    this._el.appendChild(textNode);
+
+    // 创建虚拟 Text 节点
+    const textTag = new Text(content);
+    textTag._textNode = textNode;
+    textTag._el = textNode;
+    textTag._boundElement = textNode;
+    this._children.push(textTag);
+
+    return this;
+  }
+
+  // 属性操作：存储 + 同步到 _el
+  attr(name, value) {
+    if (value === undefined && typeof name === 'string') {
+      return this._attrs[name];
+    }
+
+    if (typeof name === 'object') {
+      for (const [k, v] of Object.entries(name)) {
+        this._attrs[k] = v;
+        this._applyAttrToEl(k, v);
+      }
+    } else {
+      this._attrs[name] = value;
+      this._applyAttrToEl(name, value);
+    }
+    return this;
+  }
+
+  _applyAttrToEl(name, value) {
+    if (value === null || value === undefined) {
+      this._el.removeAttribute(name);
+      return;
+    }
+
+    switch (name) {
+      case 'value':
+        this._el.value = value;
+        break;
+      case 'checked':
+        this._el.checked = true;
+        break;
+      case 'selected':
+        this._el.selected = true;
+        break;
+      case 'class':
+        this._el.className = value;
+        break;
+      case 'style':
+        this._el.cssText = value;
+        break;
+      default:
+        if (value === true) {
+          this._el.setAttribute(name, name);
+        } else {
+          this._el.setAttribute(name, value);
+        }
+    }
+  }
+
+  // 添加类：同步到 _el
+  class(...classes) {
+    classes.flat().forEach(cls => {
+      if (cls) {
+        this._classes.add(cls);
+        this._el.classList.add(cls);
+      }
+    });
+    return this;
+  }
+
+  // 样式操作：存储 + 同步到 _el
+  style(name, value) {
+    if (value === undefined && typeof name === 'string') {
+      return this._styles[name];
+    }
+
+    if (typeof name === 'object') {
+      // 对象形式：style({ color: 'red', fontSize: '14px' })
+      for (const [k, v] of Object.entries(name)) {
+        this._styles[k] = v;
+        this._el.style[k] = v;  // 同步到 _el
+      }
+    } else {
+      // 单一形式：style('color', 'red')
+      this._styles[name] = value;
+      this._el.style[name] = value;  // 同步到 _el
+    }
+    return this;
+  }
+
+  // 批量设置样式：存储 + 同步到 _el
+  styles(stylesObj) {
+    for (const [name, value] of Object.entries(stylesObj)) {
+      this._styles[name] = value;
+      this._el.style[name] = value;  // 同步到 _el
+    }
+    return this;
+  }
+
+  // ============================================
+  // Tag 原型扩展方法 - 通用属性
+  // 所有 HTML 元素都可以使用这些方法
+  // ============================================
+
+  id(value) {
+    if (value === undefined) return this.attr('id');
+    return this.attr('id', value);
+  }
+
+  name(value) {
+    if (value === undefined) return this.attr('name');
+    return this.attr('name', value);
+  }
+
+  // 绑定事件
+  on(event, handler) {
+    if (!this._events[event]) {
+      this._events[event] = [];
+    }
+    this._events[event].push(handler);
+    return this;
+  }
+
+  // 添加文本节点（作为子元素）
+  text(content) {
+    // 如果传入的是 Tag 对象（如 text('Hello')），直接添加为子元素
+    if (content instanceof Tag) {
+      this.child(content);
+      return this;
+    }
+    return this._addText(content);
+  }
+
+  // 添加 HTML
+  html(content) {
+    this._htmlContent = content;
+    return this;
+  }
+
+  // 添加子元素
+  child(...children) {
+    this._addChildren(children);
+    return this;
+  }
+
+  _addChildren(children) {
+    children.flat().forEach(child => {
+      if (child === null || child === undefined) {
+        return;
+      }
+      if (child instanceof Tag) {
+        this._children.push(child);
+        // 渲染子元素并添加到父元素的 _el
+        const childEl = child.renderDom();
+        if (childEl && childEl.parentNode === null) {
+          this._el.appendChild(childEl);
+        }
+      } else if (typeof child === 'string' || typeof child === 'number') {
+        this.text(child);
+      }
+    });
+  }
+
+  // 清空子元素
+  clear() {
+    this._children = [];
+    this._htmlContent = null;
+    // 同时清空真实 DOM 中的子元素
+    if (this._el) {
+      this._el.innerHTML = '';
+    }
+    return this;
+  }
+
+  // 绑定到 DOM
+  bindTo(target) {
+    const el = this.renderDom();
+    if (!el) return this;
+
+    if (typeof target === 'string') {
+      const parent = document.querySelector(target);
+      if (parent) parent.appendChild(el);
+    } else if (target instanceof Element) {
+      target.appendChild(el);
+    } else if (target instanceof Tag) {
+      target.child(this);
+      target.renderDom();
+    }
+    return this;
+  }
+
+  // Q6: renderDom 只处理子元素的智能增删，不重新应用属性
+  renderDom() {
+    if (this._deleted) return null;
+
+    // 首次渲染时应用事件
+    if (!this._rendered) {
+      this._applyEventsToEl();
+    }
+
+    // 智能更新子元素
+    const currentEls = Array.from(this._el.children);
+    const currentElSet = new Set(currentEls);
+
+    const newEls = [];
+    const childrenToAdd = [];
+
+    for (const child of this._children) {
+      if (child._deleted) continue;
+
+      const childEl = child.renderDom();
+      if (!childEl) continue;
+
+      newEls.push(childEl);
+
+      // 如果已存在，跳过
+      if (currentElSet.has(childEl)) {
+        currentElSet.delete(childEl);
+      } else {
+        childrenToAdd.push(childEl);
+      }
+    }
+
+    // 移除已删除的子元素
+    for (const el of currentEls) {
+      if (!newEls.includes(el)) {
+        this._el.removeChild(el);
+      }
+    }
+
+    // 添加新的子元素
+    for (const childEl of childrenToAdd) {
+      this._el.appendChild(childEl);
+    }
+
+    // 应用 HTML 内容（如果有）
+    if (this._htmlContent) {
+      // 清空并设置 HTML
+      this._el.innerHTML = this._htmlContent;
+    }
+
+    this._rendered = true;
+    return this._el;
+  }
+
+  // 事件同步到 _el（只在首次渲染时）
+  _applyEventsToEl() {
+    for (const [event, handlers] of Object.entries(this._events)) {
+      if (handlers.length === 0) continue;
+
+      // 绑定一个包装处理器，this 指向 Tag 实例
+      this._el.addEventListener(event, (e) => {
+        this._events[event]?.forEach(handler => handler(e));
+      });
+    }
+  }
+
+  // 销毁元素
+  destroy() {
+    this._deleted = true;
+
+    // 递归销毁子元素
+    for (const child of this._children) {
+      child.destroy();
+    }
+    this._children = [];
+
+    if (this._el && this._el.parentNode) {
+      this._el.parentNode.removeChild(this._el);
+    }
+
+    return this;
+  }
+
+  // ============================================
+  // 状态管理方法
+  // ============================================
+
+  /**
+   * 设置元素状态
+   * @param {string} state - 状态名称
+   * @param {boolean} enabled - 是否启用该状态
+   * @returns {this}
+   */
+  setState(state, enabled = true) {
+    if (enabled) {
+      this._states.add(state);
+    } else {
+      this._states.delete(state);
+    }
+    this._applyStateStyles();
+    return this;
+  }
+
+  /**
+   * 检查元素是否处于某个状态
+   * @param {string} state - 状态名称
+   * @returns {boolean}
+   */
+  hasState(state) {
+    return this._states.has(state);
+  }
+
+  /**
+   * 获取当前所有状态
+   * @returns {Set<string>}
+   */
+  getStates() {
+    return new Set(this._states);
+  }
+
+  /**
+   * 应用状态样式（由子类实现具体逻辑）
+   * 默认实现：根据状态应用内联样式
+   */
+  _applyStateStyles() {
+    // 组件可以通过覆盖此方法来自定义状态样式的处理方式
+    // 默认行为：应用 _stateStyles 中定义的样式
+    for (const state of this._states) {
+      const styles = this._stateStyles[state];
+      if (styles) {
+        this.styles(styles);
+      }
+    }
+  }
+
+  /**
+   * 设置状态样式映射
+   * @param {Object} stateStyles - 状态与样式的映射对象
+   * @returns {this}
+   */
+  setStateStyles(stateStyles) {
+    this._stateStyles = { ...this._stateStyles, ...stateStyles };
+    return this;
+  }
+
+  /**
+   * 清除所有状态
+   * @returns {this}
+   */
+  clearStates() {
+    this._states.clear();
+    this._applyStateStyles();
+    return this;
+  }
+
+  /**
+   * 保存基础样式快照（用于状态变更时恢复）
+   * @returns {this}
+   */
+  saveBaseStylesSnapshot() {
+    this._baseStyles = { ...this._styles };
+    return this;
+  }
+
+  /**
+   * 清空状态样式（恢复基础样式）
+   * @returns {this}
+   */
+  clearStateStyles() {
+    if (!this._baseStyles) return this;
+
+    // 清空 _el 的所有行内样式
+    this._el.style.cssText = '';
+
+    // 重新应用基础样式
+    for (const [name, value] of Object.entries(this._baseStyles)) {
+      this._el.style[name] = value;
+    }
+
+    // 重置虚拟样式
+    this._styles = { ...this._baseStyles };
+
+    return this;
+  }
+
+  // 转换为 HTML 字符串
+  toHTML() {
+    if (this._deleted) return '';
+
+    const attrs = Object.entries(this._attrs)
+      .filter(([k]) => k !== 'deleted')
+      .map(([k, v]) => `${k}="${v}"`)
+      .join(' ');
+
+    const styles = Object.entries(this._styles)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join('; ');
+
+    const classes = Array.from(this._classes).join(' ');
+
+    const tagStart = `<${this._tagName}${attrs ? ' ' + attrs : ''}${classes ? ' class="' + classes + '"' : ''}${styles ? ' style="' + styles + '"' : ''}>`;
+    const tagEnd = `</${this._tagName}>`;
+
+    const childrenHtml = this._children
+      .filter(c => !c._deleted)
+      .map(c => c.toHTML())
+      .join('');
+
+    const htmlContent = this._htmlContent || '';
+
+    return tagStart + htmlContent + childrenHtml + tagEnd;
+  }
+}
+
+// ============================================
+// 基础容器元素
+// ============================================
+
+/**
+ * 创建简单的 Tag 子类（无额外方法）
+ * @param {string} tagName - HTML 标签名
+ * @param {string} className - 类名
+ * @returns {Class} Tag 子类
+ */
+function createSimpleClass(tagName, className) {
+  return class extends Tag {
+    constructor(setup = null) {
+      super(tagName, setup);
+    }
+    static get name() { return className; }
+  };
+}
+
+/**
+ * 批量创建简单元素类和工厂函数
+ * @param {Object} definitions - 标签名到类名的映射
+ * @returns {Object} 包含所有类和工厂函数的对象
+ */
+function createSimpleElements(definitions) {
+  const result = {};
+  for (const [tagName, className] of Object.entries(definitions)) {
+    result[className] = createSimpleClass(tagName, className);
+    // 创建工厂函数（小写类名）
+    const factoryName = className.charAt(0).toLowerCase() + className.slice(1);
+    result[factoryName] = function(setup = null) {
+      return new result[className](setup);
+    };
+  }
+  return result;
+}
+
+// ============================================
+// 基础容器元素
+// ============================================
+
+const containerElements = createSimpleElements({
+  div: 'Div',
+  span: 'Span',
+  p: 'P',
+  section: 'Section',
+  article: 'Article',
+  header: 'Header',
+  footer: 'Footer',
+  nav: 'Nav',
+  aside: 'Aside',
+  main: 'Main',
+  h1: 'H1',
+  h2: 'H2',
+  h3: 'H3',
+  h4: 'H4',
+  h5: 'H5',
+  h6: 'H6'
+});
+
+const { Div, Span, P, Section, Article, Header, Footer, Nav, Aside, Main,
+        H1, H2, H3, H4, H5, H6 } = containerElements;
+
+// 工厂函数（直接引用）
+const { div, span, p, section, article, header, footer, nav, aside, main,
+        h1, h2, h3, h4, h5, h6 } = containerElements;
+
+// ============================================
+// Tag 原型扩展方法 - 基础容器
+// 任何元素都可以使用这些方法添加子元素
+// ============================================
+
+Tag.prototype.div = function(setup = null) {
+  const el = div(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.span = function(setup = null) {
+  const el = span(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.p = function(setup = null) {
+  const el = p(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.section = function(setup = null) {
+  const el = section(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.article = function(setup = null) {
+  const el = article(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.header = function(setup = null) {
+  const el = header(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.footer = function(setup = null) {
+  const el = footer(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.nav = function(setup = null) {
+  const el = nav(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.aside = function(setup = null) {
+  const el = aside(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.main = function(setup = null) {
+  const el = main(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.h1 = function(setup = null) {
+  const el = h1(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.h2 = function(setup = null) {
+  const el = h2(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.h3 = function(setup = null) {
+  const el = h3(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.h4 = function(setup = null) {
+  const el = h4(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.h5 = function(setup = null) {
+  const el = h5(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.h6 = function(setup = null) {
+  const el = h6(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 文本格式化元素
+// ============================================
+
+// A 类 - 有特殊方法
+class A extends Tag {
+  constructor(setup = null) {
+    super('a', setup);
+  }
+
+  href(value) {
+    if (value === undefined) return this.attr('href');
+    return this.attr('href', value);
+  }
+
+  target(value) {
+    if (value === undefined) return this.attr('target');
+    return this.attr('target', value);
+  }
+}
+
+const textElements = createSimpleElements({
+  strong: 'Strong',
+  em: 'Em',
+  code: 'Code',
+  pre: 'Pre',
+  blockquote: 'Blockquote'
+});
+
+const { Strong, Em, Code, Pre, Blockquote } = textElements;
+const { strong, em, code, pre, blockquote } = textElements;
+
+function a(setup = null) { return new A(setup); }
+
+// ============================================
+// Tag 原型扩展方法 - 文本格式化
+// ============================================
+
+Tag.prototype.a = function(setup = null) {
+  const el = a(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.strong = function(setup = null) {
+  const el = strong(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.em = function(setup = null) {
+  const el = em(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.code = function(setup = null) {
+  const el = code(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.pre = function(setup = null) {
+  const el = pre(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.blockquote = function(setup = null) {
+  const el = blockquote(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 表单元素
+// ============================================
+
+class Button extends Tag {
+  constructor(setup = null) {
+    super('button', setup);
+  }
+
+  type(value) {
+    if (value === undefined) return this.attr('type');
+    return this.attr('type', value);
+  }
+
+  disabled(value) {
+    if (value === undefined) return this.attr('disabled');
+    return this.attr('disabled', value);
+  }
+}
+
+Button.prototype.submit = function() {
+  return this.type('submit');
+};
+
+Button.prototype.large = function() {
+  return this.style('padding', '12px 24px').style('font-size', '16px');
+};
+
+class Input extends Tag {
+  constructor(setup = null) {
+    super('input', setup);
+  }
+
+  type(value) {
+    if (value === undefined) return this.attr('type');
+    return this.attr('type', value);
+  }
+
+  value(val) {
+    if (val === undefined) return this.attr('value');
+    return this.attr('value', val);
+  }
+
+  placeholder(value) {
+    if (value === undefined) return this.attr('placeholder');
+    return this.attr('placeholder', value);
+  }
+
+  disabled(value) {
+    if (value === undefined) return this.attr('disabled');
+    return this.attr('disabled', value);
+  }
+
+  readonly(value) {
+    if (value === undefined) return this.attr('readonly');
+    return this.attr('readonly', value);
+  }
+
+  focus() {
+    if (this._el && typeof this._el.focus === 'function') {
+      this._el.focus();
+    }
+    return this;
+  }
+
+  blur() {
+    if (this._el && typeof this._el.blur === 'function') {
+      this._el.blur();
+    }
+    return this;
+  }
+}
+
+class Textarea extends Tag {
+  constructor(setup = null) {
+    super('textarea', setup);
+  }
+
+  value(val) {
+    if (val === undefined) return this.attr('value');
+    return this.attr('value', val);
+  }
+
+  placeholder(value) {
+    if (value === undefined) return this.attr('placeholder');
+    return this.attr('placeholder', value);
+  }
+
+  rows(value) {
+    if (value === undefined) return this.attr('rows');
+    return this.attr('rows', value);
+  }
+
+  cols(value) {
+    if (value === undefined) return this.attr('cols');
+    return this.attr('cols', value);
+  }
+
+  disabled(value) {
+    if (value === undefined) return this.attr('disabled');
+    return this.attr('disabled', value);
+  }
+}
+
+class Select extends Tag {
+  constructor(setup = null) {
+    super('select', setup);
+  }
+
+  value(val) {
+    if (val === undefined) return this.attr('value');
+    return this.attr('value', val);
+  }
+
+  disabled(value) {
+    if (value === undefined) return this.attr('disabled');
+    return this.attr('disabled', value);
+  }
+}
+
+class Option extends Tag {
+  constructor(setup = null) {
+    super('option', setup);
+  }
+
+  value(val) {
+    if (val === undefined) return this.attr('value');
+    return this.attr('value', val);
+  }
+
+  selected(value) {
+    if (value === undefined) return this.attr('selected');
+    return this.attr('selected', value);
+  }
+
+  disabled(value) {
+    if (value === undefined) return this.attr('disabled');
+    return this.attr('disabled', value);
+  }
+}
+
+class Label extends Tag {
+  constructor(setup = null) {
+    super('label', setup);
+  }
+
+  for(value) {
+    if (value === undefined) return this.attr('for');
+    return this.attr('for', value);
+  }
+}
+
+class Form extends Tag {
+  constructor(setup = null) {
+    super('form', setup);
+  }
+
+  action(value) {
+    if (value === undefined) return this.attr('action');
+    return this.attr('action', value);
+  }
+
+  method(value) {
+    if (value === undefined) return this.attr('method');
+    return this.attr('method', value);
+  }
+
+  enctype(value) {
+    if (value === undefined) return this.attr('enctype');
+    return this.attr('enctype', value);
+  }
+}
+
+// 表单扩展方法
+Select.prototype.option = function(setup = null) {
+  const optionEl = option(setup);
+  this.child(optionEl);
+  return this;
+};
+
+Form.prototype.input = function(setup = null) {
+  const inputEl = input(setup);
+  this.child(inputEl);
+  return this;
+};
+
+Form.prototype.button = function(setup = null) {
+  const btnEl = button(setup);
+  this.child(btnEl);
+  return this;
+};
+
+Form.prototype.textarea = function(setup = null) {
+  const textareaEl = textarea(setup);
+  this.child(textareaEl);
+  return this;
+};
+
+Form.prototype.select = function(setup = null) {
+  const selectEl = select(setup);
+  this.child(selectEl);
+  return this;
+};
+
+function button(setup = null) { return new Button(setup); }
+function input(setup = null) { return new Input(setup); }
+function textarea(setup = null) { return new Textarea(setup); }
+function select(setup = null) { return new Select(setup); }
+function option(setup = null) { return new Option(setup); }
+function label(setup = null) { return new Label(setup); }
+function form(setup = null) { return new Form(setup); }
+
+// ============================================
+// Tag 原型扩展方法 - 表单
+// ============================================
+
+Tag.prototype.button = function(setup = null) {
+  const el = button(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.input = function(setup = null) {
+  const el = input(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.textarea = function(setup = null) {
+  const el = textarea(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.select = function(setup = null) {
+  const el = select(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.option = function(setup = null) {
+  const el = option(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.label = function(setup = null) {
+  const el = label(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.form = function(setup = null) {
+  const el = form(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 列表元素
+// ============================================
+
+const listElements = createSimpleElements({
+  ul: 'Ul',
+  ol: 'Ol',
+  li: 'Li',
+  dl: 'Dl',
+  dt: 'Dt',
+  dd: 'Dd'
+});
+
+const { Ul, Ol, Li, Dl, Dt, Dd } = listElements;
+const { ul, ol, li, dl, dt, dd } = listElements;
+
+// 列表扩展方法
+Ul.prototype.li = function(setup = null) {
+  const liEl = li(setup);
+  this.child(liEl);
+  return this;
+};
+
+Ol.prototype.li = function(setup = null) {
+  const liEl = li(setup);
+  this.child(liEl);
+  return this;
+};
+
+Dl.prototype.dt = function(setup = null) {
+  const dtEl = dt(setup);
+  this.child(dtEl);
+  return this;
+};
+
+Dl.prototype.dd = function(setup = null) {
+  const ddEl = dd(setup);
+  this.child(ddEl);
+  return this;
+};
+
+// ============================================
+// Tag 原型扩展方法 - 列表
+// ============================================
+
+Tag.prototype.ul = function(setup = null) {
+  const el = ul(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.ol = function(setup = null) {
+  const el = ol(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.li = function(setup = null) {
+  const el = li(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.dl = function(setup = null) {
+  const el = dl(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.dt = function(setup = null) {
+  const el = dt(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.dd = function(setup = null) {
+  const el = dd(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 表格元素
+// ============================================
+
+class Table extends Tag {
+  constructor(setup = null) {
+    super('table', setup);
+  }
+}
+
+class Tr extends Tag {
+  constructor(setup = null) {
+    super('tr', setup);
+  }
+}
+
+class Td extends Tag {
+  constructor(setup = null) {
+    super('td', setup);
+  }
+
+  colspan(value) {
+    if (value === undefined) return this.attr('colspan');
+    return this.attr('colspan', value);
+  }
+
+  rowspan(value) {
+    if (value === undefined) return this.attr('rowspan');
+    return this.attr('rowspan', value);
+  }
+}
+
+class Th extends Tag {
+  constructor(setup = null) {
+    super('th', setup);
+  }
+
+  colspan(value) {
+    if (value === undefined) return this.attr('colspan');
+    return this.attr('colspan', value);
+  }
+
+  rowspan(value) {
+    if (value === undefined) return this.attr('rowspan');
+    return this.attr('rowspan', value);
+  }
+
+  scope(value) {
+    if (value === undefined) return this.attr('scope');
+    return this.attr('scope', value);
+  }
+}
+
+const tableContainerElements = createSimpleElements({
+  thead: 'Thead',
+  tbody: 'Tbody',
+  tfoot: 'Tfoot'
+});
+
+const { Thead, Tbody, Tfoot } = tableContainerElements;
+const { thead, tbody, tfoot } = tableContainerElements;
+
+function table(setup = null) { return new Table(setup); }
+function tr(setup = null) { return new Tr(setup); }
+function td(setup = null) { return new Td(setup); }
+function th(setup = null) { return new Th(setup); }
+
+// 表格扩展方法
+Table.prototype.tr = function(setup = null) {
+  const trEl = tr(setup);
+  this.child(trEl);
+  return this;
+};
+
+Tr.prototype.td = function(setup = null) {
+  const tdEl = td(setup);
+  this.child(tdEl);
+  return this;
+};
+
+Tr.prototype.th = function(setup = null) {
+  const thEl = th(setup);
+  this.child(thEl);
+  return this;
+};
+
+Thead.prototype.tr = function(setup = null) {
+  const trEl = tr(setup);
+  this.child(trEl);
+  return this;
+};
+
+Tbody.prototype.tr = function(setup = null) {
+  const trEl = tr(setup);
+  this.child(trEl);
+  return this;
+};
+
+Tfoot.prototype.tr = function(setup = null) {
+  const trEl = tr(setup);
+  this.child(trEl);
+  return this;
+};
+
+// ============================================
+// Tag 原型扩展方法 - 表格
+// ============================================
+
+Tag.prototype.table = function(setup = null) {
+  const el = table(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.tr = function(setup = null) {
+  const el = tr(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.td = function(setup = null) {
+  const el = td(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.th = function(setup = null) {
+  const el = th(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.thead = function(setup = null) {
+  const el = thead(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.tbody = function(setup = null) {
+  const el = tbody(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.tfoot = function(setup = null) {
+  const el = tfoot(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 媒体元素
+// ============================================
+
+class Img extends Tag {
+  constructor(setup = null) {
+    super('img', setup);
+  }
+
+  src(value) {
+    if (value === undefined) return this.attr('src');
+    return this.attr('src', value);
+  }
+
+  alt(value) {
+    if (value === undefined) return this.attr('alt');
+    return this.attr('alt', value);
+  }
+
+  width(value) {
+    if (value === undefined) return this.attr('width');
+    return this.attr('width', value);
+  }
+
+  height(value) {
+    if (value === undefined) return this.attr('height');
+    return this.attr('height', value);
+  }
+}
+
+class Video extends Tag {
+  constructor(setup = null) {
+    super('video', setup);
+  }
+
+  src(value) {
+    if (value === undefined) return this.attr('src');
+    return this.attr('src', value);
+  }
+
+  width(value) {
+    if (value === undefined) return this.attr('width');
+    return this.attr('width', value);
+  }
+
+  height(value) {
+    if (value === undefined) return this.attr('height');
+    return this.attr('height', value);
+  }
+
+  controls(value) {
+    if (value === undefined) return this.attr('controls');
+    return this.attr('controls', value);
+  }
+
+  autoplay(value) {
+    if (value === undefined) return this.attr('autoplay');
+    return this.attr('autoplay', value);
+  }
+
+  loop(value) {
+    if (value === undefined) return this.attr('loop');
+    return this.attr('loop', value);
+  }
+}
+
+class Audio extends Tag {
+  constructor(setup = null) {
+    super('audio', setup);
+  }
+
+  src(value) {
+    if (value === undefined) return this.attr('src');
+    return this.attr('src', value);
+  }
+
+  controls(value) {
+    if (value === undefined) return this.attr('controls');
+    return this.attr('controls', value);
+  }
+
+  autoplay(value) {
+    if (value === undefined) return this.attr('autoplay');
+    return this.attr('autoplay', value);
+  }
+
+  loop(value) {
+    if (value === undefined) return this.attr('loop');
+    return this.attr('loop', value);
+  }
+}
+
+class Source extends Tag {
+  constructor(setup = null) {
+    super('source', setup);
+  }
+
+  src(value) {
+    if (value === undefined) return this.attr('src');
+    return this.attr('src', value);
+  }
+
+  type(value) {
+    if (value === undefined) return this.attr('type');
+    return this.attr('type', value);
+  }
+}
+
+function img(setup = null) { return new Img(setup); }
+function video(setup = null) { return new Video(setup); }
+function audio(setup = null) { return new Audio(setup); }
+function source(setup = null) { return new Source(setup); }
+
+// ============================================
+// Tag 原型扩展方法 - 媒体
+// ============================================
+
+Tag.prototype.img = function(setup = null) {
+  const el = img(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.video = function(setup = null) {
+  const el = video(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.audio = function(setup = null) {
+  const el = audio(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.source = function(setup = null) {
+  const el = source(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 其他元素
+// ============================================
+
+const otherElements = createSimpleElements({
+  br: 'Br',
+  hr: 'Hr'
+});
+
+const { Br, Hr } = otherElements;
+const { br, hr } = otherElements;
+
+// ============================================
+// Tag 原型扩展方法 - 其他
+// ============================================
+
+Tag.prototype.br = function(setup = null) {
+  const el = br(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.hr = function(setup = null) {
+  const el = hr(setup);
+  this.child(el);
+  return this;
+};
+
+class IFrame extends Tag {
+  constructor(setup = null) {
+    super('iframe', setup);
+  }
+
+  src(value) {
+    if (value === undefined) return this.attr('src');
+    return this.attr('src', value);
+  }
+
+  width(value) {
+    if (value === undefined) return this.attr('width');
+    return this.attr('width', value);
+  }
+
+  height(value) {
+    if (value === undefined) return this.attr('height');
+    return this.attr('height', value);
+  }
+
+  frameborder(value) {
+    if (value === undefined) return this.attr('frameborder');
+    return this.attr('frameborder', value);
+  }
+}
+
+class Canvas extends Tag {
+  constructor(setup = null) {
+    super('canvas', setup);
+  }
+
+  width(value) {
+    if (value === undefined) return this.attr('width');
+    return this.attr('width', value);
+  }
+
+  height(value) {
+    if (value === undefined) return this.attr('height');
+    return this.attr('height', value);
+  }
+}
+
+function iframe(setup = null) { return new IFrame(setup); }
+function canvas(setup = null) { return new Canvas(setup); }
+
+// ============================================
+// Tag 原型扩展方法 - IFrame, Canvas
+// ============================================
+
+Tag.prototype.iframe = function(setup = null) {
+  const el = iframe(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.canvas = function(setup = null) {
+  const el = canvas(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 通用 tag 工厂函数
+// ============================================
+
+function tag(name, setup = null) {
+  return new Tag(name, setup);
+}
+
+// ============================================
+// Text 文本节点封装
+// ============================================
+
+/**
+ * Text - 文本节点封装
+ * 注意：Text 不是真正的 DOM 元素，所以不使用 super() 创建
+ * 而是继承 Tag 并在 renderDom 时创建文本节点
+ */
+class Text extends Tag {
+  constructor(content = '', setup = null) {
+    // 使用 'span' 作为占位标签名，避免 createElement('#text') 错误
+    super('span');
+    this._tagName = '#text';  // 覆盖为正确的 tagName
+    this._content = '';
+
+    // 设置内容
+    if (typeof content === 'string' || typeof content === 'number') {
+      this._content = String(content);
+    } else if (typeof content === 'function') {
+      setup = content;
+    }
+
+    // 执行 setup
+    if (setup !== null) {
+      if (typeof setup === 'function') {
+        setup(this);
+      } else if (typeof setup === 'object' && setup !== null) {
+        this._setupObject(setup);
+      }
+    }
+  }
+
+  content(value) {
+    if (value === undefined) return this._content;
+    this._content = String(value);
+    return this;
+  }
+
+  renderDom() {
+    if (this._deleted) return null;
+    this._el.textContent = this._content;
+    this._rendered = true;
+    return this._el;
+  }
+
+  toHTML() {
+    return this._content || '';
+  }
+}
+
+function text(content) {
+  return new Text(content);
+}
+
+// ============================================
+// 导出
+// ============================================
+
+export {
+  // 基类
+  Tag,
+
+  // 基础容器
+  Div, Span, P, Section, Article, Header, Footer, Nav, Aside, Main,
+  H1, H2, H3, H4, H5, H6,
+
+  // 文本格式化
+  A, Strong, Em, Code, Pre, Blockquote,
+
+  // 表单
+  Button, Input, Textarea, Select, Option, Label, Form,
+
+  // 列表
+  Ul, Ol, Li, Dl, Dt, Dd,
+
+  // 表格
+  Table, Tr, Td, Th, Thead, Tbody, Tfoot,
+
+  // 媒体
+  Img, Video, Audio, Source,
+
+  // 其他
+  Br, Hr, IFrame, Canvas,
+
+  // 工厂函数
+  div, span, p, section, article, header, footer, nav, aside, main,
+  h1, h2, h3, h4, h5, h6,
+  a, strong, em, code, pre, blockquote,
+  button, input, textarea, select, option, label, form,
+  ul, ol, li, dl, dt, dd,
+  table, tr, td, th, thead, tbody, tfoot,
+  img, video, audio, source,
+  br, hr, iframe, canvas,
+  text,
+  tag
+};
