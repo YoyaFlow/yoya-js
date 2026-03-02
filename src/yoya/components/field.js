@@ -157,15 +157,16 @@ class VField extends Tag {
       // 绑定事件处理函数
       this._boundHandleMouseEnter = () => {
         if (!this.hasState('disabled') && !this.hasState('editing')) {
-          this._editIcon.style('opacity', '0.7');
+          this._editIcon.style('opacity', '1');
         }
       };
       
       this._boundHandleMouseLeave = () => {
         if (!this.hasState('editing')) {
           this._editIcon.style('opacity', '0');
+          this._showContainer.styles({});
         }
-      };
+      }
       
       // hover 显示图标
       s.on('mouseenter', this._boundHandleMouseEnter);
@@ -185,11 +186,10 @@ class VField extends Tag {
       };
       
       // 点击/双击进入编辑
-      s.on('click', this._boundHandleClick);
       s.on('dblclick', this._boundHandleDoubleClick);
     })
     this._showContainer.child(this._showEl)
-    this._showContainer.child(this._editIcon);;
+    this._showContainer.child(this._editIcon);
   }
   _buildEditEl(){
     // 编辑内容
@@ -283,7 +283,7 @@ class VField extends Tag {
 
     const setValue = (value) => {
       this._editValue = value;
-      if (this._autoSave) this._handleSave();
+      // if (this._autoSave) this._handleSave();
     };
 
     if (typeof this._editContentFn === 'function') {
@@ -294,8 +294,11 @@ class VField extends Tag {
   // ============================================
   // 保存/取消
   // ============================================
-
+  
   _handleSave() {
+    setTimeout(()=>this._doSave(),100);
+  }
+  _doSave(){
     // 验证 _editValue 是否为有效值（不是组件实例）
     if (this._editValue !== undefined && this._editValue !== null) {
       // 如果 _editValue 是对象且有 value 方法，则可能是组件实例
@@ -390,14 +393,14 @@ class VField extends Tag {
       this._updateShowContent();
     }
     return this;
-    if (this.hasState('editing')) {
-      this._editValue = value;
-      if (this._autoSave) this._handleSave();
-    } else {
-      this._value = value;
-      this._updateShowContent();
-    }
-    return this;
+    // if (this.hasState('editing')) {
+    //   this._editValue = value;
+    //   if (this._autoSave) this._handleSave();
+    // } else {
+    //   this._value = value;
+    //   this._updateShowContent();
+    // }
+    // return this;
   }
 
   autoSave(v = true) { this._autoSave = v; return this; }

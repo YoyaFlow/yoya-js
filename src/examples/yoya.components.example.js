@@ -398,7 +398,7 @@ export const fieldDemo = demoWithCode(
             i.value('张三');
             i.onInput((input) => {
               console.log(input.value())
-              // setValue();
+              setValue(input.value());
             });
           }));
         });
@@ -444,8 +444,8 @@ export const fieldDemo = demoWithCode(
           container.child(vInput(i => {
             i.placeholder('请输入内容');
             i.value('');
-            i.onInput((input) => {
-              
+            i.onChange((input) => {
+              toast.success(`自动保存：${input.value()}`);
               setValue(input.value());
             });
           }));
