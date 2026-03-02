@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>VField 修复验证测试</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+    .success { color: green; }
+    .error { color: red; }
+    button { margin: 5px; padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <h1>VField 修复验证测试</h1>
+  
+  <div class="test-case">
+    <h3>测试1: 基本保存功能</h3>
+    <div id="test1"></div>
+    <div id="result1">状态: 等待测试</div>
+    <button onclick="runTest1()">运行测试</button>
+  </div>
+  
+  <div class="test-case">
+    <h3>测试2: 鼠标悬停效果</h3>
+    <div id="test2"></div>
+    <div id="result2">状态: 等待测试</div>
+    <button onclick="runTest2()">运行测试</button>
+  </div>
+  
+  <div class="test-case">
+    <h3>测试3: 自动保存</h3>
+    <div id="test3"></div>
+    <div id="result3">状态: 等待测试</div>
+    <button onclick="runTest3()">运行测试</button>
+  </div>
+
+  <script type="module">
+    import { vField, vInput, toast } from './src/yoya/index.js';
+    
+    let test1Field = null;
+    let test2Field = null;
+    let test3Field = null;
+    
+    function runTest1() {
+      const result1 = document.getElementById('result1');
+      result1.innerHTML = '状态: 测试中...';
+      
+      try {
+        // 清理之前的测试
+        if (test1Field && test1Field.destroy) {
+          test1Field.destroy();
+        }
+        
+        const container = document.getElementById('test1');
+        container.innerHTML = '';
+        
+        // 创建VField
+        test1Field = vField(f => {
+          f.placeholder('点击编辑测试');
+          
+          f.showContent((container, value) => {
+            container.text(value || '未设置');
+          });
+          
+          f.editContent((container, setValue, host) => {
+            const input = vInput(i => {
+              i.type('text');
+              i.value(host.getValue() || '');
+              i.placeholder('输入测试内容');
+              i.styles({ width: '200px' });
+              i.onInput((instance) => {
+                console.log('onInput触发，值:', instance.value());
+                setValue(instance.value());
+              });
+            });
+            container.clear();
+            container.child(input);
+            setTimeout(() => input.focus(), 0);
+          });
+          
+          f.onSave((newValue, oldValue, host) => {
+            console.log('保存成功:', oldValue, '->', newValue);
+            toast.success('保存成功: ' + newValue);
+            result1.innerHTML = `<span class="success">✓ 测试通过! 保存的值: ${newValue}</span>`;
+            return true;
+          });
+        });
+        
+        container.appendChild(test1Field._el);
+        test1Field.setValue('初始值');
+        result1.innerHTML = '状态: 创建成功，请点击字段测试编辑和保存功能';
+        
+      } catch (error) {
+        result1.innerHTML = `<span class="error">✗ 测试失败: ${error.message}</span>`;
+        console.error('测试1错误:', error);
+      }
+    }
+    
+    function runTest2() {
+      const result2 = document.getElementById('result2');
+      result2.innerHTML = '状态: 测试中...';
+      
+      try {
+        // 清理之前的测试
+        if (test2Field && test2Field.destroy) {
+          test2Field.destroy();
+        }
+        
+        const container = document.getElementById('test2');
+        container.innerHTML = '';
+        
+        // 创建VField
+        test2Field = vField(f => {
+          f.placeholder('悬停测试');
+          f.setValue('悬停我查看效果');
+        });
+        
+        container.appendChild(test2Field._el);
+        result2.innerHTML = '<span class="success">✓ 测试创建成功，请将鼠标悬停在字段上查看编辑图标效果</span>';
+        
+      } catch (error) {
+        result2.innerHTML = `<span class="error">✗ 测试失败: ${error.message}</span>`;
+        console.error('测试2错误:', error);
+      }
+    }
+    
+    function runTest3() {
+      const result3 = document.getElementById('result3');
+      result3.innerHTML = '状态: 测试中...';
+      
+      try {
+        // 清理之前的测试
+        if (test3Field && test3Field.destroy) {
+          test3Field.destroy();
+        }
+        
+        const container = document.getElementById('test3');
+        container.innerHTML = '';
+        
+        // 创建VField，启用自动保存
+        test3Field = vField(f => {
+          f.placeholder('自动保存测试');
+          f.autoSave(true);
+          
+          f.showContent((container, value) => {
+            container.text(value || '未设置');
+          });
+          
+          f.editContent((container, setValue, host) => {
+            const input = vInput(i => {
+              i.type('text');
+              i.value(host.getValue() || '');
+              i.placeholder('输入后点击外部自动保存');
+              i.styles({ width: '200px' });
+              i.onInput((instance) => {
+                setValue(instance.value());
+              });
+            });
+            container.clear();
+            container.child(input);
+            setTimeout(() => input.focus(), 0);
+          });
+          
+          f.onSave((newValue, oldValue, host) => {
+            console.log('自动保存:', oldValue, '->', newValue);
+            toast.info('自动保存: ' + newValue);
+            result3.innerHTML = `<span class="success">✓ 自动保存成功! 值: ${newValue}</span>`;
+            return true;
+          });
+        });
+        
+        container.appendChild(test3Field._el);
+        test3Field.setValue('自动保存测试值');
+        result3.innerHTML = '状态: 创建成功，请点击字段编辑，然后点击外部区域测试自动保存';
+        
+      } catch (error) {
+        result3.innerHTML = `<span class="error">✗ 测试失败: ${error.message}</span>`;
+        console.error('测试3错误:', error);
+      }
+    }
+    
+    // 页面卸载时清理
+    window.addEventListener('beforeunload', () => {
+      [test1Field, test2Field, test3Field].forEach(field => {
+        if (field && field.destroy) {
+          field.destroy();
+        }
+      });
+    });
+    
+    console.log('VField修复验证测试已加载');
+  </script>
+</body>
+</html>
