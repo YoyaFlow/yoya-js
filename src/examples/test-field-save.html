@@ -47,7 +47,11 @@
           i.value(host.getValue() || '');
           i.placeholder('请输入姓名');
           i.styles({ width: '100%' });
-          i.onInput((val) => {
+          i.onInput((instance) => {
+            const val = instance.value();
+            log('onInput 触发：' + val);
+            setValue(val);
+          });
             log('onInput 触发：' + val);
             setValue(val);
           });

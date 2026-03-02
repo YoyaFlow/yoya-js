@@ -154,27 +154,39 @@ class VField extends Tag {
       });
 
       // hover 显示图标
-      s.on('mouseenter', () => {
+      // 绑定事件处理函数
+      this._boundHandleMouseEnter = () => {
         if (!this.hasState('disabled') && !this.hasState('editing')) {
           this._editIcon.style('opacity', '0.7');
         }
-      });
-      s.on('mouseleave', () => {
+      };
+      
+      this._boundHandleMouseLeave = () => {
         if (!this.hasState('editing')) {
           this._editIcon.style('opacity', '0');
         }
-      });
+      };
+      
+      // hover 显示图标
+      s.on('mouseenter', this._boundHandleMouseEnter);
+      s.on('mouseleave', this._boundHandleMouseLeave);
       // 点击/双击进入编辑
-      s.on('click', () => {
+      // 绑定点击事件处理函数
+      this._boundHandleClick = () => {
         if (!this.hasState('disabled') && !this.hasState('editing') && this._editable) {
           this.setState('editing', true);
         }
-      });
-      s.on('dblclick', () => {
+      };
+      
+      this._boundHandleDoubleClick = () => {
         if (!this.hasState('disabled') && !this.hasState('editing') && this._editable) {
           this.setState('editing', true);
         }
-      });
+      };
+      
+      // 点击/双击进入编辑
+      s.on('click', this._boundHandleClick);
+      s.on('dblclick', this._boundHandleDoubleClick);
     })
     this._showContainer.child(this._showEl)
     this._showContainer.child(this._editIcon);;
@@ -284,6 +296,15 @@ class VField extends Tag {
   // ============================================
 
   _handleSave() {
+    // 验证 _editValue 是否为有效值（不是组件实例）
+    if (this._editValue !== undefined && this._editValue !== null) {
+      // 如果 _editValue 是对象且有 value 方法，则可能是组件实例
+      if (typeof this._editValue === 'object' && this._editValue !== null && typeof this._editValue.value === 'function') {
+        console.warn('VField: _editValue appears to be a component instance, extracting value');
+        this._editValue = this._editValue.value();
+      }
+    }
+    
     const newValue = this._editValue !== undefined ? this._editValue : this._value;
     const oldValue = this._value;
 
@@ -319,12 +340,14 @@ class VField extends Tag {
   _setupGlobalClickHandler() {
     if (typeof document !== 'undefined' && !this._globalClickHandlerSetup) {
       this._globalClickHandlerSetup = true;
-      document.addEventListener('click', (e) => {
+      // 绑定全局点击事件处理函数
+      this._boundHandleGlobalClick = (e) => {
         if (this.hasState('editing') && !this._el.contains(e.target)) {
           if (this._autoSave) this._handleSave();
           else this._handleCancel();
         }
-      });
+      };
+      document.addEventListener('click', this._boundHandleGlobalClick);
     }
   }
 
@@ -349,6 +372,24 @@ class VField extends Tag {
   getValue() { return this._value; }
 
   setValue(value) {
+    // 验证值是否为有效值（不是组件实例）
+    let validatedValue = value;
+    if (value !== undefined && value !== null) {
+      // 如果 value 是对象且有 value 方法，则可能是组件实例
+      if (typeof value === 'object' && value !== null && typeof value.value === 'function') {
+        console.warn('VField.setValue: value appears to be a component instance, extracting value');
+        validatedValue = value.value();
+      }
+    }
+    
+    if (this.hasState('editing')) {
+      this._editValue = validatedValue;
+      if (this._autoSave) this._handleSave();
+    } else {
+      this._value = validatedValue;
+      this._updateShowContent();
+    }
+    return this;
     if (this.hasState('editing')) {
       this._editValue = value;
       if (this._autoSave) this._handleSave();
@@ -369,7 +410,25 @@ class VField extends Tag {
   disabled(v = true) { return this.setState('disabled', v); }
   loading(v = true) { return this.setState('loading', v); }
   editing(v = true) { return this.setState('editing', v); }
+  destroy() {
+    // 移除全局点击事件监听器
+    if (this._globalClickHandlerSetup) {
+      document.removeEventListener('click', this._boundHandleGlobalClick);
+      this._globalClickHandlerSetup = false;
+    }
+    
+    // 移除事件监听器引用
+    this._boundHandleMouseEnter = null;
+    this._boundHandleMouseLeave = null;
+    this._boundHandleClick = null;
+    this._boundHandleDoubleClick = null;
+    this._boundHandleGlobalClick = null;
+    
+    // 调用父类的destroy方法
+    super.destroy();
+  }
 }
+
 
 function vField(setup = null) {
   return new VField(setup);
