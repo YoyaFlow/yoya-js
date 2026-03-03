@@ -343,9 +343,12 @@ class Tag {
     for (const [event, handlers] of Object.entries(this._events)) {
       if (handlers.length === 0) continue;
 
-      // 绑定一个包装处理器，this 指向 Tag 实例
-      this._el.addEventListener(event, (e) => {
-        this._events[event]?.forEach(handler => handler(e));
+      // 绑定一个包装处理器，统一分发事件
+      this._el.addEventListener(event, (nativeEvent) => {
+        // 为原生事件对象附加_vnode 属性，指向虚拟元素
+        nativeEvent._vnode = this;
+        // 分发所有处理器
+        handlers.forEach(handler => handler(nativeEvent));
       });
     }
   }
