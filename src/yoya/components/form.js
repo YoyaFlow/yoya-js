@@ -301,7 +301,7 @@ class VInput extends Tag {
         if (e._boundElement) {
           this._value = e._boundElement.value;
         }
-        if (handler) handler(this);
+        if (handler) handler(e);  // 传递原生事件对象
       });
       // 如果已经渲染过，立即绑定事件到 DOM
       if (this._inputEl._rendered) {
@@ -799,7 +799,7 @@ class VTextarea extends Tag {
         if (e._boundElement) {
           this._value = e._boundElement.value;
         }
-        if (handler) handler(this);
+        if (handler) handler(e);  // 传递原生事件对象
       });
       // 如果已经渲染过，立即绑定事件到 DOM
       if (this._textareaEl._rendered) {
