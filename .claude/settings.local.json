@@ -67,7 +67,10 @@
       "Bash(node test-svg.js 2>&1)",
       "Bash(curl -s http://localhost:3002/yoya/index.js 2>&1 | head -20)",
       "Bash(curl -s \"http://localhost:3002/yoya/core/svg.js\" 2>&1 | head -20)",
-      "Bash(curl -s \"http://localhost:3002/examples/yoya.svg.example.js\" 2>&1 | head -15)"
+      "Bash(curl -s \"http://localhost:3002/examples/yoya.svg.example.js\" 2>&1 | head -15)",
+      "Bash(npm uninstall openclaw)",
+      "Bash(openclaw --version)",
+      "Bash(git add -A && git commit -m \"保存 VField 当前版本\n\n- 保留当前事件处理实现\n- 准备重构事件系统\")"
     ]
   },
   "enableAllProjectMcpServers": true,

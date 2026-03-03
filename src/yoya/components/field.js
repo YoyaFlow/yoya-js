@@ -281,22 +281,31 @@ class VField extends Tag {
     if (!this._editEl) return;
     this._editEl.clear();
 
-    const setValue = (value) => {
+    const setValueFn = (value) => {
       this._editValue = value;
-      // if (this._autoSave) this._handleSave();
+      // 判断当前状态：
+      // - 显示状态（!editing）：说明有异步保存动作没执行完，执行保存动作
+      // - 编辑状态（editing）：说明修改动作还没执行完，不执行保存动作
+      // 注意：在自动保存模式下，用户输入时处于编辑状态，不应触发保存
+      // 只有当从显示状态进入时（如异步保存场景中），才需要执行保存
+      if (!this.hasState('editing')) {
+        // 当前是显示状态，执行保存
+        if (this._autoSave) this._handleSave();
+      }
+      // 编辑状态下不执行保存，等待用户确认或失去焦点
     };
 
     if (typeof this._editContentFn === 'function') {
-      this._editContentFn(this._editEl, setValue, this);
+      this._editContentFn(this._editEl, setValueFn, this);
     }
   }
 
   // ============================================
   // 保存/取消
   // ============================================
-  
+
   _handleSave() {
-    setTimeout(()=>this._doSave(),100);
+    this._doSave();
   }
   _doSave(){
     // 验证 _editValue 是否为有效值（不是组件实例）
@@ -307,21 +316,27 @@ class VField extends Tag {
         this._editValue = this._editValue.value();
       }
     }
-    
+
     const newValue = this._editValue !== undefined ? this._editValue : this._value;
     const oldValue = this._value;
 
     if (this._onSave) {
       const result = this._onSave(newValue, oldValue, this);
       if (result && result.then) {
+        // 异步保存：立即退出编辑状态（进入显示状态），但保持 loading
+        // 这样 setValueFn 可以判断：显示状态=有异步保存没执行完，编辑状态=用户还在编辑
         this.setState('loading', true);
+        this.setState('editing', false);
         result.then(() => {
           this.setState('loading', false);
           this._value = newValue;
-          this.setState('editing', false);
           this._updateShowContent();
           if (this._onChange) this._onChange(newValue, oldValue, this);
-        }).catch(() => this.setState('loading', false));
+        }).catch(() => {
+          this.setState('loading', false);
+          // 保存失败时重新进入编辑状态
+          this.setState('editing', true);
+        });
       } else {
         this._value = newValue;
         this.setState('editing', false);

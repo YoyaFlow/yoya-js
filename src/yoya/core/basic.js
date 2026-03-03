@@ -811,6 +811,23 @@ class Input extends Tag {
     }
     return this;
   }
+
+  // 事件便捷方法
+  onChange(handler) {
+    return this.on('change', handler);
+  }
+
+  onInput(handler) {
+    return this.on('input', handler);
+  }
+
+  onFocus(handler) {
+    return this.on('focus', handler);
+  }
+
+  onBlur(handler) {
+    return this.on('blur', handler);
+  }
 }
 
 class Textarea extends Tag {
@@ -842,6 +859,15 @@ class Textarea extends Tag {
     if (value === undefined) return this.attr('disabled');
     return this.attr('disabled', value);
   }
+
+  // 事件便捷方法
+  onChange(handler) {
+    return this.on('change', handler);
+  }
+
+  onInput(handler) {
+    return this.on('input', handler);
+  }
 }
 
 class Select extends Tag {
@@ -857,6 +883,11 @@ class Select extends Tag {
   disabled(value) {
     if (value === undefined) return this.attr('disabled');
     return this.attr('disabled', value);
+  }
+
+  // 事件便捷方法
+  onChange(handler) {
+    return this.on('change', handler);
   }
 }
 

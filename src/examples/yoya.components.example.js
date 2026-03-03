@@ -444,10 +444,9 @@ export const fieldDemo = demoWithCode(
           container.child(vInput(i => {
             i.placeholder('请输入内容');
             i.value('');
-            i.onChange((input) => {
-              toast.success(`自动保存：${input.value()}`);
-              setValue(input.value());
-            });
+            i.onInput(e=>{
+              setValue(e.target.value)
+            })
           }));
         });
         f.onSave((newValue) => {
