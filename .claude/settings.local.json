@@ -78,7 +78,16 @@
       "Bash(git -C /home/join/code/cctest status --short)",
       "Bash(git -C /home/join/code/cctest ls-files --others --exclude-standard)",
       "Bash(git -C /home/join/code/cctest diff src/yoya/components/code.js | head -50)",
-      "Bash(git -C /home/join/code/cctest show HEAD:src/yoya/components/code.js 2>&1 | head -5)"
+      "Bash(git -C /home/join/code/cctest show HEAD:src/yoya/components/code.js 2>&1 | head -5)",
+      "mcp__playwright__browser_navigate",
+      "Bash(curl -s http://localhost:3000/v1/examples/ | head -20)",
+      "Bash(curl -s http://localhost:3000/v1/examples/button.html | head -20)",
+      "Bash(curl -s http://localhost:3000/v1/examples/entry.js | head -20)",
+      "Bash(curl -s http://localhost:3000/v1/yoya/index.js | head -20)",
+      "Bash(curl -s http://localhost:3000/v1/examples/entry.js 2>&1 | head -20)",
+      "Bash(curl -s http://localhost:3000/v1/examples/entry.js 2>&1 | head -15)",
+      "Bash(curl -s \"http://localhost:3000/v1/examples/\" 2>&1 | head -20)",
+      "Bash(git add -A && git status)"
     ]
   },
   "enableAllProjectMcpServers": true,

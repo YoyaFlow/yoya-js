@@ -7,17 +7,6 @@
 </head>
 <body>
   <div id="app"></div>
-
-  <script type="module">
-    import { createButtonPage } from './button.js';
-    import { themeManager } from './yoya/index.js';
-
-    // 初始化主题
-    themeManager.init('islands-light');
-
-    // 创建并渲染页面
-    const buttonPage = createButtonPage();
-    buttonPage.bindTo('#app');
-  </script>
+  <script type="module" src="./button-entry.js"></script>
 </body>
 </html>
