@@ -10,18 +10,90 @@ import { Tag, div } from '../core/basic.js';
 // ============================================
 
 class Card extends Tag {
+  static _stateAttrs = ['hoverable', 'bordered', 'noShadow'];
+
   constructor(setup = null) {
-    super('div', setup);
-    this.style('background', 'white');
-    this.style('borderRadius', '8px');
-    this.style('boxShadow', '0 2px 8px rgba(0,0,0,0.1)');
-    this.style('overflow', 'hidden');
+    super('div', null);
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      hoverable: false,
+      bordered: false,
+      noShadow: false,
+    });
+
+    // 3. 设置基础样式（使用主题变量）
+    this.styles({
+      background: 'var(--islands-card-bg, white)',
+      borderRadius: 'var(--islands-card-radius, 8px)',
+      boxShadow: 'var(--islands-card-shadow, 0 2px 8px rgba(0,0,0,0.1))',
+      overflow: 'hidden',
+      border: 'var(--islands-card-border, 1px solid transparent)',
+    });
+
+    // 4. 保存基础样式快照
+    this.saveBaseStylesSnapshot();
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  // 注册状态处理器
+  _registerStateHandlers() {
+    // hoverable 状态
+    this.registerStateHandler('hoverable', (enabled, host) => {
+      if (enabled) {
+        host.styles({
+          transition: 'box-shadow 0.3s, transform 0.2s',
+          cursor: 'pointer',
+        });
+        host.on('mouseenter', () => {
+          host.styles({
+            boxShadow: 'var(--islands-card-hover-shadow, 0 4px 16px rgba(0,0,0,0.15))',
+            transform: 'translateY(-2px)',
+          });
+        });
+        host.on('mouseleave', () => {
+          host.styles({
+            boxShadow: 'var(--islands-card-shadow, 0 2px 8px rgba(0,0,0,0.1))',
+            transform: 'translateY(0)',
+          });
+        });
+      }
+    });
+
+    // bordered 状态
+    this.registerStateHandler('bordered', (enabled, host) => {
+      if (enabled) {
+        host.styles({
+          border: 'var(--islands-card-border-color, 1px solid #e0e0e0)',
+          boxShadow: 'none',
+        });
+      } else {
+        host.styles({
+          border: 'var(--islands-card-border, 1px solid transparent)',
+          boxShadow: 'var(--islands-card-shadow, 0 2px 8px rgba(0,0,0,0.1))',
+        });
+      }
+    });
+
+    // noShadow 状态
+    this.registerStateHandler('noShadow', (enabled, host) => {
+      host.style('boxShadow', enabled ? 'none' : 'var(--islands-card-shadow, 0 2px 8px rgba(0,0,0,0.1))');
+    });
   }
 
   // 悬浮效果
   hoverable() {
-    return this.style('transition', 'box-shadow 0.3s')
-      .style('cursor', 'pointer');
+    return this.setState('hoverable', true);
   }
 
   // 无边框
@@ -31,13 +103,12 @@ class Card extends Tag {
 
   // 无边框阴影
   noShadow() {
-    return this.style('boxShadow', 'none');
+    return this.setState('noShadow', true);
   }
 
   // 边框
   bordered() {
-    return this.style('border', '1px solid #e0e0e0')
-      .style('boxShadow', 'none');
+    return this.setState('bordered', true);
   }
 
   // 子元素工厂方法
@@ -71,9 +142,14 @@ function card(setup = null) {
 class CardHeader extends Tag {
   constructor(setup = null) {
     super('div', setup);
-    this.style('padding', '16px');
-    this.style('borderBottom', '1px solid #e0e0e0');
-    this.style('fontWeight', '600');
+    this.styles({
+      padding: 'var(--islands-card-header-padding, 16px)',
+      borderBottom: 'var(--islands-card-header-border, 1px solid #e0e0e0)',
+      fontWeight: 'var(--islands-card-header-font-weight, 600)',
+      fontSize: 'var(--islands-card-header-font-size, 16px)',
+      color: 'var(--islands-card-header-color, var(--islands-text, #333))',
+      background: 'var(--islands-card-header-bg, transparent)',
+    });
   }
 }
 
@@ -88,7 +164,12 @@ function cardHeader(setup = null) {
 class CardBody extends Tag {
   constructor(setup = null) {
     super('div', setup);
-    this.style('padding', '16px');
+    this.styles({
+      padding: 'var(--islands-card-body-padding, 16px)',
+      fontSize: 'var(--islands-card-body-font-size, 14px)',
+      color: 'var(--islands-card-body-color, var(--islands-text, #333))',
+      background: 'var(--islands-card-body-bg, transparent)',
+    });
   }
 }
 
@@ -103,10 +184,15 @@ function cardBody(setup = null) {
 class CardFooter extends Tag {
   constructor(setup = null) {
     super('div', setup);
-    this.style('padding', '16px');
-    this.style('borderTop', '1px solid #e0e0e0');
-    this.style('display', 'flex');
-    this.style('gap', '8px');
+    this.styles({
+      padding: 'var(--islands-card-footer-padding, 16px)',
+      borderTop: 'var(--islands-card-footer-border, 1px solid #e0e0e0)',
+      display: 'flex',
+      gap: 'var(--islands-card-footer-gap, 8px)',
+      fontSize: 'var(--islands-card-footer-font-size, 14px)',
+      color: 'var(--islands-card-footer-color, var(--islands-text-secondary, #666))',
+      background: 'var(--islands-card-footer-bg, transparent)',
+    });
   }
 }
 

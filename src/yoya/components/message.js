@@ -46,28 +46,28 @@ class Message extends Tag {
     }
   }
 
-  // 应用类型样式
+  // 应用类型样式（使用主题变量）
   _applyTypeStyles() {
     const typeStyles = {
       success: {
-        background: 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
-        color: '#155724',
-        border: '1px solid #c3e6cb'
+        background: 'var(--islands-message-success-bg, linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%))',
+        color: 'var(--islands-message-success-color, #155724)',
+        border: 'var(--islands-message-success-border, 1px solid #c3e6cb)',
       },
       error: {
-        background: 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)',
-        color: '#721c24',
-        border: '1px solid #f5c6cb'
+        background: 'var(--islands-message-error-bg, linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%))',
+        color: 'var(--islands-message-error-color, #721c24)',
+        border: 'var(--islands-message-error-border, 1px solid #f5c6cb)',
       },
       warning: {
-        background: 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)',
-        color: '#856404',
-        border: '1px solid #ffeaa7'
+        background: 'var(--islands-message-warning-bg, linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%))',
+        color: 'var(--islands-message-warning-color, #856404)',
+        border: 'var(--islands-message-warning-border, 1px solid #ffeaa7)',
       },
       info: {
-        background: 'linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)',
-        color: '#0c5460',
-        border: '1px solid #bee5eb'
+        background: 'var(--islands-message-info-bg, linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%))',
+        color: 'var(--islands-message-info-color, #0c5460)',
+        border: 'var(--islands-message-info-border, 1px solid #bee5eb)',
       }
     };
 
@@ -92,9 +92,10 @@ class Message extends Tag {
     this.child(span(icon => {
       icon.text(this._getTypeIcon());
       icon.styles({
-        fontSize: '18px',
+        fontSize: 'var(--islands-message-icon-size, 18px)',
         fontWeight: 'bold',
-        flexShrink: '0'
+        flexShrink: '0',
+        marginRight: 'var(--islands-message-icon-margin, 10px)',
       });
     }));
 
@@ -103,8 +104,9 @@ class Message extends Tag {
       text.text(this._content);
       text.styles({
         flex: 1,
-        fontSize: '14px',
-        lineHeight: '1.5'
+        fontSize: 'var(--islands-message-font-size, 14px)',
+        lineHeight: 'var(--islands-message-line-height, 1.5)',
+        color: 'var(--islands-message-text-color, inherit)',
       });
     }));
 
@@ -113,18 +115,19 @@ class Message extends Tag {
       this.child(span(closeBtn => {
         closeBtn.text('×');
         closeBtn.styles({
-          fontSize: '20px',
+          fontSize: 'var(--islands-message-close-size, 20px)',
           cursor: 'pointer',
-          padding: '0 4px',
-          opacity: '0.7',
+          padding: 'var(--islands-message-close-padding, 0 4px)',
+          opacity: 'var(--islands-message-close-opacity, 0.7)',
           transition: 'opacity 0.2s',
-          flexShrink: '0'
+          flexShrink: '0',
+          color: 'var(--islands-message-close-color, inherit)',
         });
         closeBtn.on('mouseenter', () => {
-          closeBtn.style('opacity', '1');
+          closeBtn.style('opacity', 'var(--islands-message-close-hover-opacity, 1)');
         });
         closeBtn.on('mouseleave', () => {
-          closeBtn.style('opacity', '0.7');
+          closeBtn.style('opacity', 'var(--islands-message-close-opacity, 0.7)');
         });
         closeBtn.on('click', (e) => {
           e.stopPropagation();
@@ -218,15 +221,15 @@ class MessageContainer extends Tag {
     this._messages = [];
     this._maxVisible = 5;
 
-    // 应用基础样式
+    // 应用基础样式（使用主题变量）
     this.styles({
       position: 'fixed',
-      zIndex: '9999',
+      zIndex: 'var(--islands-message-z-index, 9999)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '10px',
-      padding: '16px',
-      maxWidth: '420px'
+      gap: 'var(--islands-message-gap, 10px)',
+      padding: 'var(--islands-message-container-padding, 16px)',
+      maxWidth: 'var(--islands-message-max-width, 420px)',
     });
 
     // 设置位置

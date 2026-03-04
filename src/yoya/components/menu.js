@@ -12,13 +12,15 @@ import { Tag, span, div } from '../core/basic.js';
 class Menu extends Tag {
   constructor(setup = null) {
     super('div', null);  // 先不执行 setup
-    this.style('display', 'inline-block');
-    this.style('background', 'var(--islands-bg, white)');
-    this.style('borderRadius', 'var(--islands-radius-md, 8px)');
-    this.style('boxShadow', 'var(--islands-shadow, 0 4px 12px rgba(0,0,0,0.15))');
-    this.style('padding', 'var(--islands-padding-sm, 8px) 0');
-    this.style('minWidth', '160px');
-    this.style('border', '1px solid var(--islands-border, #e0e0e0)');
+    this.styles({
+      display: 'inline-block',
+      background: 'var(--islands-menu-bg, white)',
+      borderRadius: 'var(--islands-menu-radius, var(--islands-radius-md, 8px))',
+      boxShadow: 'var(--islands-menu-shadow, var(--islands-shadow, 0 4px 12px rgba(0,0,0,0.15)))',
+      padding: 'var(--islands-menu-padding, var(--islands-padding-sm, 8px)) 0',
+      minWidth: 'var(--islands-menu-min-width, 160px)',
+      border: 'var(--islands-menu-border, 1px solid var(--islands-border, #e0e0e0))',
+    });
 
     // 执行 setup
     if (setup !== null) {
@@ -102,16 +104,18 @@ class MenuItem extends Tag {
     // 注册状态处理器
     this._registerStateHandlers();
 
-    // 设置基础样式
-    this.style('padding', 'var(--islands-padding-sm, 10px) var(--islands-padding-md, 16px)');
-    this.style('cursor', 'pointer');
-    this.style('alignItems', 'center');
-    this.style('gap', 'var(--islands-gap-sm, 10px)');
-    this.style('transition', 'background-color 0.2s');
-    this.style('borderRadius', 'var(--islands-radius-sm, 4px)');
-    this.style('color', 'var(--islands-text, #333)');
-    this.style('font-size', 'var(--islands-font-size-sm, 13px)');
-    this.style('background', 'transparent');
+    // 设置基础样式（使用主题变量）
+    this.styles({
+      padding: 'var(--islands-menu-item-padding, var(--islands-padding-sm, 10px)) var(--islands-menu-item-horizontal-padding, var(--islands-padding-md, 16px))',
+      cursor: 'pointer',
+      alignItems: 'center',
+      gap: 'var(--islands-menu-item-gap, var(--islands-gap-sm, 10px))',
+      transition: 'background-color 0.2s',
+      borderRadius: 'var(--islands-menu-item-radius, var(--islands-radius-sm, 4px))',
+      color: 'var(--islands-menu-item-color, var(--islands-text, #333))',
+      fontSize: 'var(--islands-menu-item-font-size, var(--islands-font-size-sm, 13px))',
+      background: 'transparent',
+    });
 
     // 保存样式快照（用于恢复）
     this.saveStateSnapshot('base');
@@ -150,23 +154,26 @@ class MenuItem extends Tag {
       const el = host._boundElement;
       if (enabled) {
         host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none'
+          opacity: 'var(--islands-menu-item-disabled-opacity, 0.5)',
+          cursor: 'var(--islands-menu-item-disabled-cursor, not-allowed)',
+          pointerEvents: 'none',
+          color: 'var(--islands-menu-item-disabled-color, var(--islands-text-secondary, #999))',
         });
         if (el) {
-          el.style.opacity = '0.5';
-          el.style.cursor = 'not-allowed';
+          el.style.opacity = 'var(--islands-menu-item-disabled-opacity, 0.5)';
+          el.style.cursor = 'var(--islands-menu-item-disabled-cursor, not-allowed)';
           el.style.pointerEvents = 'none';
         }
       } else {
         host.style('opacity', '');
         host.style('cursor', 'pointer');
         host.style('pointerEvents', '');
+        host.style('color', '');
         if (el) {
           el.style.opacity = '';
           el.style.cursor = 'pointer';
           el.style.pointerEvents = '';
+          el.style.color = '';
         }
       }
     });
@@ -176,19 +183,23 @@ class MenuItem extends Tag {
       const el = host._boundElement;
       if (enabled) {
         host.styles({
-          background: 'var(--islands-primary-alpha, rgba(102, 126, 234, 0.1))',
-          fontWeight: '500'
+          background: 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha, rgba(102, 126, 234, 0.1)))',
+          fontWeight: 'var(--islands-menu-item-active-font-weight, 500)',
+          color: 'var(--islands-menu-item-active-color, var(--islands-primary, #667eea))',
         });
         if (el) {
-          el.style.background = 'var(--islands-primary-alpha, rgba(102, 126, 234, 0.1))';
-          el.style.fontWeight = '500';
+          el.style.background = 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha, rgba(102, 126, 234, 0.1)))';
+          el.style.fontWeight = 'var(--islands-menu-item-active-font-weight, 500)';
+          el.style.color = 'var(--islands-menu-item-active-color, var(--islands-primary, #667eea))';
         }
       } else {
         host.style('background', '');
         host.style('fontWeight', '');
+        host.style('color', '');
         if (el) {
           el.style.background = '';
           el.style.fontWeight = '';
+          el.style.color = '';
         }
       }
     });
@@ -197,9 +208,9 @@ class MenuItem extends Tag {
     this.registerStateHandler('danger', (enabled, host) => {
       const el = host._boundElement;
       if (enabled) {
-        host.style('color', 'var(--islands-error, #dc3545)');
+        host.style('color', 'var(--islands-menu-item-danger-color, var(--islands-error, #dc3545))');
         if (el) {
-          el.style.color = 'var(--islands-error, #dc3545)';
+          el.style.color = 'var(--islands-menu-item-danger-color, var(--islands-error, #dc3545))';
         }
       } else {
         host.style('color', '');
@@ -236,12 +247,12 @@ class MenuItem extends Tag {
   _setupInteractions() {
     const self = this;  // 保存 MenuItem 引用
 
-    // hover 效果
+    // hover 效果（使用主题变量）
     this.on('mouseenter', () => {
       if (!self.hasState('disabled')) {
-        self.style('background', 'var(--islands-hover-bg, rgba(102, 126, 234, 0.05))');
+        self.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg, rgba(102, 126, 234, 0.05)))');
         if (self._boundElement) {
-          self._boundElement.style.background = 'var(--islands-hover-bg, rgba(102, 126, 234, 0.05))';
+          self._boundElement.style.background = 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg, rgba(102, 126, 234, 0.05)))';
         }
       }
     }).on('mouseleave', () => {
@@ -431,10 +442,12 @@ function menuItem(content = '', setup = null) {
 class MenuDivider extends Tag {
   constructor(setup = null) {
     super('hr', setup);
-    this.style('border', 'none');
-    this.style('height', '1px');
-    this.style('background', 'var(--islands-border, #e0e0e0)');
-    this.style('margin', 'var(--islands-margin-md, 8px) 0');
+    this.styles({
+      border: 'none',
+      height: 'var(--islands-menu-divider-height, 1px)',
+      background: 'var(--islands-menu-divider-bg, var(--islands-border, #e0e0e0))',
+      margin: 'var(--islands-menu-divider-margin, var(--islands-margin-md, 8px)) 0',
+    });
   }
 }
 
@@ -449,6 +462,10 @@ function menuDivider(setup = null) {
 class MenuGroup extends Tag {
   constructor(setup = null) {
     super('div', setup);
+    this.styles({
+      display: 'flex',
+      flexDirection: 'column',
+    });
   }
 
   // 组标题
@@ -484,12 +501,12 @@ class MenuGroup extends Tag {
         label.text(this._label);
         label.styles({
           display: 'block',
-          padding: '8px 16px 4px',
-          fontSize: '12px',
-          color: '#999',
-          fontWeight: '500',
+          padding: 'var(--islands-menu-group-label-padding, 8px 16px 4px)',
+          fontSize: 'var(--islands-menu-group-label-font-size, 12px)',
+          color: 'var(--islands-menu-group-label-color, #999)',
+          fontWeight: 'var(--islands-menu-group-label-font-weight, 500)',
           textTransform: 'uppercase',
-          letterSpacing: '0.5px'
+          letterSpacing: 'var(--islands-menu-group-label-letter-spacing, 0.5px)',
         });
         label._isLabel = true;
       });
@@ -568,18 +585,25 @@ class DropdownMenu extends Tag {
     // 清空子元素
     this.clear();
 
-    // 触发器容器
+    // 触发器容器（使用主题变量）
     this._triggerWrap = div(wrap => {
       wrap.styles({
         cursor: 'pointer',
-        padding: '8px 16px',
-        background: '#667eea',
-        color: 'white',
-        borderRadius: '6px',
+        padding: 'var(--islands-dropdown-trigger-padding, 8px 16px)',
+        background: 'var(--islands-dropdown-trigger-bg, #667eea)',
+        color: 'var(--islands-dropdown-trigger-color, white)',
+        borderRadius: 'var(--islands-dropdown-trigger-radius, 6px)',
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '6px',
-        userSelect: 'none'
+        gap: 'var(--islands-dropdown-trigger-gap, 6px)',
+        userSelect: 'none',
+        transition: 'all 0.2s',
+      });
+      wrap.on('mouseenter', () => {
+        wrap.style('background', 'var(--islands-dropdown-trigger-hover-bg, #5a6fd6)');
+      });
+      wrap.on('mouseleave', () => {
+        wrap.style('background', 'var(--islands-dropdown-trigger-bg, #667eea)');
       });
 
       // 触发器内容
@@ -593,8 +617,8 @@ class DropdownMenu extends Tag {
       wrap.span(arrow => {
         arrow.text('▼');
         arrow.styles({
-          fontSize: '10px',
-          transition: 'transform 0.2s'
+          fontSize: 'var(--islands-dropdown-arrow-size, 10px)',
+          transition: 'transform 0.2s',
         });
         this._arrow = arrow;
       });
@@ -613,15 +637,15 @@ class DropdownMenu extends Tag {
       this._menuContainer = div(menuWrap => {
         menuWrap.styles({
           position: 'absolute',
-          top: '100%',
+          top: 'calc(100% + var(--islands-dropdown-menu-offset, 4px))',
           left: '0',
-          minWidth: '160px',
-          background: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          padding: '8px 0',
-          zIndex: '1000',
-          display: 'none'
+          minWidth: 'var(--islands-dropdown-menu-min-width, 160px)',
+          background: 'var(--islands-dropdown-menu-bg, white)',
+          borderRadius: 'var(--islands-dropdown-menu-radius, var(--islands-radius-md, 8px))',
+          boxShadow: 'var(--islands-dropdown-menu-shadow, 0 4px 12px rgba(0,0,0,0.15))',
+          padding: 'var(--islands-dropdown-menu-padding, 8px) 0',
+          zIndex: 'var(--islands-dropdown-z-index, 1000)',
+          display: 'none',
         });
 
         // 添加菜单子元素
@@ -666,14 +690,17 @@ function dropdownMenu(setup = null) {
 class ContextMenu extends Tag {
   constructor(setup = null) {
     super('div', null);  // 先不执行 setup
-    this.style('position', 'fixed');
-    this.style('zIndex', '9999');
-    this.style('display', 'none');
-    this.style('background', 'white');
-    this.style('borderRadius', '8px');
-    this.style('boxShadow', '0 4px 12px rgba(0,0,0,0.15)');
-    this.style('padding', '8px 0');
-    this.style('minWidth', '160px');
+    this.styles({
+      position: 'fixed',
+      zIndex: 'var(--islands-context-menu-z-index, 9999)',
+      display: 'none',
+      background: 'var(--islands-context-menu-bg, white)',
+      borderRadius: 'var(--islands-context-menu-radius, var(--islands-radius-md, 8px))',
+      boxShadow: 'var(--islands-context-menu-shadow, 0 4px 12px rgba(0,0,0,0.15))',
+      padding: 'var(--islands-context-menu-padding, 8px) 0',
+      minWidth: 'var(--islands-context-menu-min-width, 160px)',
+      border: 'var(--islands-context-menu-border, 1px solid var(--islands-border, #e0e0e0))',
+    });
     this._target = null;
     this._menu = null;
     this._built = false;

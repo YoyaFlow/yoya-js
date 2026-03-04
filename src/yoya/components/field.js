@@ -67,13 +67,15 @@ class VField extends Tag {
     this.styles({
       display: 'inline-flex',
       alignItems: 'center',
-      gap: '6px',
+      gap: 'var(--islands-field-gap, 6px)',
       padding: '0',
-      minWidth: '80px',
-      minHeight: '32px',
+      minWidth: 'var(--islands-field-min-width, 80px)',
+      minHeight: 'var(--islands-field-min-height, 32px)',
       position: 'relative',
       boxSizing: 'border-box',
       cursor: 'pointer',
+      fontSize: 'var(--islands-field-font-size, 14px)',
+      color: 'var(--islands-field-text-color, var(--islands-text, #333))',
     });
   }
 
@@ -92,15 +94,24 @@ class VField extends Tag {
     this.registerStateHandler('disabled', (disabled, host) => {
       host.clearStateStyles();
       if (disabled) {
-        host.styles({ opacity: '0.5', cursor: 'not-allowed', pointerEvents: 'none' });
+        host.styles({
+          opacity: 'var(--islands-field-disabled-opacity, 0.5)',
+          cursor: 'var(--islands-field-disabled-cursor, not-allowed)',
+          pointerEvents: 'none',
+        });
       } else {
-        host.styles({ opacity: '1', cursor: 'pointer', pointerEvents: 'auto' });
+        host.styles({
+          opacity: '1',
+          cursor: 'pointer',
+          pointerEvents: 'auto',
+        });
       }
     });
 
     this.registerStateHandler('loading', (loading, host) => {
       host.clearStateStyles();
       host.style('pointerEvents', loading ? 'none' : 'auto');
+      host.style('opacity', loading ? 'var(--islands-field-loading-opacity, 0.7)' : '1');
     });
   }
 
@@ -115,7 +126,8 @@ class VField extends Tag {
         minWidth: 0,
         display: 'flex',
         alignItems: 'center',
-        fontSize: '14px',
+        fontSize: 'inherit',
+        color: 'inherit',
       });
     });
   }
@@ -123,11 +135,11 @@ class VField extends Tag {
     // 编辑图标
     this._editIcon = span(e => {
       e.styles({
-        fontSize: '12px',
-        color: '#999',
+        fontSize: 'var(--islands-field-edit-icon-size, 12px)',
+        color: 'var(--islands-field-edit-icon-color, #999)',
         opacity: '0',
         transition: 'opacity 0.2s',
-        marginLeft: '6px',
+        marginLeft: 'var(--islands-field-edit-icon-margin, 6px)',
         cursor: 'pointer',
       });
       e.html('✏️');
@@ -144,13 +156,14 @@ class VField extends Tag {
       s.styles({
         display: 'flex',
         alignItems: 'center',
-        gap: '4px',
-        height: '32px',
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid transparent',
-        background: 'transparent',
+        gap: 'var(--islands-field-show-gap, 4px)',
+        height: 'var(--islands-field-show-height, 32px)',
+        padding: 'var(--islands-field-show-padding, 8px 12px)',
+        borderRadius: 'var(--islands-field-radius, 6px)',
+        border: 'var(--islands-field-show-border, 1px solid transparent)',
+        background: 'var(--islands-field-show-bg, transparent)',
         boxSizing: 'border-box',
+        transition: 'background-color 0.2s, border-color 0.2s',
       });
 
       // hover 显示图标
@@ -158,16 +171,23 @@ class VField extends Tag {
       this._boundHandleMouseEnter = () => {
         if (!this.hasState('disabled') && !this.hasState('editing')) {
           this._editIcon.style('opacity', '1');
+          this._showContainer.styles({
+            background: 'var(--islands-field-show-hover-bg, rgba(0,0,0,0.03))',
+            borderColor: 'var(--islands-field-show-hover-border, var(--islands-border, #e0e0e0))',
+          });
         }
       };
-      
+
       this._boundHandleMouseLeave = () => {
         if (!this.hasState('editing')) {
           this._editIcon.style('opacity', '0');
-          this._showContainer.styles({});
+          this._showContainer.styles({
+            background: 'var(--islands-field-show-bg, transparent)',
+            borderColor: 'var(--islands-field-show-border, 1px solid transparent)',
+          });
         }
       }
-      
+
       // hover 显示图标
       s.on('mouseenter', this._boundHandleMouseEnter);
       s.on('mouseleave', this._boundHandleMouseLeave);
@@ -178,13 +198,13 @@ class VField extends Tag {
           this.setState('editing', true);
         }
       };
-      
+
       this._boundHandleDoubleClick = () => {
         if (!this.hasState('disabled') && !this.hasState('editing') && this._editable) {
           this.setState('editing', true);
         }
       };
-      
+
       // 点击/双击进入编辑
       s.on('dblclick', this._boundHandleDoubleClick);
     })
@@ -199,31 +219,58 @@ class VField extends Tag {
         minWidth: 0,
         display: 'flex',
         alignItems: 'center',
+        fontSize: 'inherit',
+        color: 'inherit',
       });
     });
   }
   _buildBtnContainer(){
     let that = this;
     this._btnContainer = div(a => {
-      a.styles({ display: 'flex', gap: '4px' });
+      a.styles({
+        display: 'flex',
+        gap: 'var(--islands-field-btn-gap, 4px)',
+      });
       a.child(button(save => {
         save.styles({
-          minWidth: '24px', height: '24px', padding: '0 6px',
-          border: '1px solid #28a745', borderRadius: '4px',
-          background: '#28a745', color: 'white',
-          fontSize: '11px', cursor: 'pointer',
+          minWidth: 'var(--islands-field-btn-size, 24px)',
+          height: 'var(--islands-field-btn-size, 24px)',
+          padding: 'var(--islands-field-btn-padding, 0 6px)',
+          border: 'var(--islands-field-save-border, 1px solid #28a745)',
+          borderRadius: 'var(--islands-field-btn-radius, 4px)',
+          background: 'var(--islands-field-save-bg, #28a745)',
+          color: 'var(--islands-field-save-color, white)',
+          fontSize: 'var(--islands-field-btn-font-size, 11px)',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
         });
         save.text('✓');
+        save.on('mouseenter', () => {
+          save.styles({
+            background: 'var(--islands-field-save-hover-bg, #218838)',
+          });
+        });
         save.on('click', (ev) => { ev.stopPropagation(); that._handleSave(); });
       }));
       a.child(button(cancel => {
         cancel.styles({
-          minWidth: '24px', height: '24px', padding: '0 6px',
-          border: '1px solid #e0e0e0', borderRadius: '4px',
-          background: 'white', color: '#666',
-          fontSize: '11px', cursor: 'pointer',
+          minWidth: 'var(--islands-field-btn-size, 24px)',
+          height: 'var(--islands-field-btn-size, 24px)',
+          padding: 'var(--islands-field-btn-padding, 0 6px)',
+          border: 'var(--islands-field-cancel-border, 1px solid #e0e0e0)',
+          borderRadius: 'var(--islands-field-btn-radius, 4px)',
+          background: 'var(--islands-field-cancel-bg, white)',
+          color: 'var(--islands-field-cancel-color, #666)',
+          fontSize: 'var(--islands-field-btn-font-size, 11px)',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
         });
         cancel.text('✕');
+        cancel.on('mouseenter', () => {
+          cancel.styles({
+            background: 'var(--islands-field-cancel-hover-bg, #f5f5f5)',
+          });
+        });
         cancel.on('click', (ev) => { ev.stopPropagation(); that._handleCancel(); });
       }));
     });
@@ -235,9 +282,14 @@ class VField extends Tag {
       e.styles({
         display: 'none',
         alignItems: 'center',
-        gap: '6px',
+        gap: 'var(--islands-field-edit-gap, 6px)',
         width: '100%',
         boxSizing: 'border-box',
+        padding: 'var(--islands-field-edit-padding, 4px)',
+        background: 'var(--islands-field-edit-bg, white)',
+        borderRadius: 'var(--islands-field-radius, 6px)',
+        border: 'var(--islands-field-edit-border, 1px solid var(--islands-border, #e0e0e0))',
+        boxShadow: 'var(--islands-field-edit-shadow, 0 2px 8px rgba(0,0,0,0.1))',
       });
       e.child(this._editEl);
       // 按钮（手动保存模式）
@@ -399,23 +451,18 @@ class VField extends Tag {
         validatedValue = value.value();
       }
     }
-    
+
     if (this.hasState('editing')) {
       this._editValue = validatedValue;
+      // 编辑状态下也同时更新显示内容，实现实时预览
+      this._value = validatedValue;
+      this._updateShowContent();
       if (this._autoSave) this._handleSave();
     } else {
       this._value = validatedValue;
       this._updateShowContent();
     }
     return this;
-    // if (this.hasState('editing')) {
-    //   this._editValue = value;
-    //   if (this._autoSave) this._handleSave();
-    // } else {
-    //   this._value = value;
-    //   this._updateShowContent();
-    // }
-    // return this;
   }
 
   autoSave(v = true) { this._autoSave = v; return this; }

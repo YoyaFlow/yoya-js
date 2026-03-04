@@ -4,6 +4,20 @@
  */
 
 import { themeManager, Theme } from '../core/theme.js';
+import {
+  allVariables,
+  baseVariables,
+  cardVariables,
+  buttonVariables,
+  menuVariables,
+  messageVariables,
+  codeVariables,
+  fieldVariables,
+  descriptionsVariables,
+  applyVariables,
+  applyGlobalVariables,
+  createDarkTheme,
+} from './variables.js';
 
 // 主题注册表
 const themeRegistry = new Map();
@@ -350,3 +364,19 @@ export function saveLanguageToStorage(lang) {
 
 // 导出主题管理器
 export { themeManager };
+
+// 导出主题变量
+export {
+  allVariables,
+  baseVariables,
+  cardVariables,
+  buttonVariables,
+  menuVariables,
+  messageVariables,
+  codeVariables,
+  fieldVariables,
+  descriptionsVariables,
+  applyVariables,
+  applyGlobalVariables,
+  createDarkTheme,
+};

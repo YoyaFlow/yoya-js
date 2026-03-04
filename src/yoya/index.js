@@ -99,13 +99,20 @@ export {
   // Button 组件
   VButton, vButton,
 
+  // Code 组件
+  VCode, vCode,
+  CodeBlock, codeBlock,
+
   // Form 组件
   VInput, vInput,
   VSelect, vSelect,
   VTextarea, vTextarea,
   VCheckbox, vCheckbox,
+  VCheckboxes, vCheckboxes,
   VSwitch, vSwitch,
   VForm, vForm,
+  VTimer, vTimer,
+  VTimer2, vTimer2,
 
   // Descriptions 组件
   VDetail, vDetail,
@@ -142,6 +149,19 @@ export {
   getRegisteredThemes,
   registerTheme,
   getTheme,
+  // 主题变量
+  allVariables,
+  baseVariables,
+  cardVariables,
+  buttonVariables,
+  menuVariables,
+  messageVariables,
+  codeVariables,
+  fieldVariables,
+  descriptionsVariables,
+  applyVariables,
+  applyGlobalVariables,
+  createDarkTheme as createDarkThemeVars,
 } from './theme/index.js';
 
 // 导出 Islands 主题系列

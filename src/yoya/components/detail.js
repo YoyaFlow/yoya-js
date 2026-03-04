@@ -38,6 +38,7 @@ class VDetail extends Tag {
       width: '100%',
       fontSize: 'var(--islands-descriptions-font-size, 14px)',
       color: 'var(--islands-descriptions-text, var(--islands-text, #333))',
+      background: 'var(--islands-descriptions-bg, transparent)',
     });
   }
 
@@ -51,8 +52,9 @@ class VDetail extends Tag {
         t.styles({
           padding: 'var(--islands-descriptions-title-padding, 12px 0)',
           fontSize: 'var(--islands-descriptions-title-size, 16px)',
-          fontWeight: '600',
+          fontWeight: 'var(--islands-descriptions-title-font-weight, 600)',
           color: 'var(--islands-descriptions-title-color, var(--islands-text, #333))',
+          marginBottom: 'var(--islands-descriptions-title-margin, 12px)',
         });
         t.text(this._title);
       });
@@ -97,7 +99,7 @@ class VDetail extends Tag {
                 ? 'var(--islands-descriptions-label-bg, var(--islands-bg-secondary, #f7f8fa))'
                 : 'transparent',
               color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
-              fontWeight: '500',
+              fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
               textAlign: 'left',
               width: 'var(--islands-descriptions-label-width, 120px)',
               boxSizing: 'border-box',
