@@ -240,25 +240,27 @@ export function codeDemo(title, demoContent, codeString) {
     });
 
     c.cardBody(content => {
-      content.gap('16px');
+      content.child(vstack(inner => {
+        inner.gap('16px');
 
-      // 演示区域
-      content.child(flex(demo => {
-        demo.styles({
-          padding: '20px',
-          background: 'var(--islands-doc-example-demo-bg, #f8f9fa)',
-          borderRadius: 'var(--islands-radius-md, 6px)',
-        });
-        demo.child(demoContent);
-      }));
-
-      // 代码区域
-      if (codeString) {
-        content.child(vCode(c => {
-          c.content(codeString);
-          c.showLineNumbers(true);
+        // 演示区域
+        inner.child(flex(demo => {
+          demo.styles({
+            padding: '20px',
+            background: 'var(--islands-doc-example-demo-bg, #f8f9fa)',
+            borderRadius: 'var(--islands-radius-md, 6px)',
+          });
+          demo.child(demoContent);
         }));
-      }
+
+        // 代码区域
+        if (codeString) {
+          inner.child(vCode(c => {
+            c.content(codeString);
+            c.showLineNumbers(true);
+          }));
+        }
+      }));
     });
   });
 }
