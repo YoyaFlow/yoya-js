@@ -5,73 +5,80 @@
 import { Tag, Setup } from '../core/basic';
 
 // ============================================
-// Card 卡片布局
+// VCard 卡片布局
 // ============================================
 
-declare class Card extends Tag {
-  constructor(setup?: Setup<Card>);
+declare class VCard extends Tag {
+  constructor(setup?: Setup<VCard>);
   hoverable(): this;
   noBorder(): this;
   noShadow(): this;
   bordered(): this;
+  vCardHeader(setup?: Setup<VCardHeader>): this;
+  vCardBody(setup?: Setup<VCardBody>): this;
+  vCardFooter(setup?: Setup<VCardFooter>): this;
+  // 兼容旧方法
+  cardHeader(setup?: Setup<VCardHeader>): this;
+  cardBody(setup?: Setup<VCardBody>): this;
+  cardFooter(setup?: Setup<VCardFooter>): this;
 }
 
-declare function card(setup?: Setup<Card>): Card;
+declare function vCard(setup?: Setup<VCard>): VCard;
 
 // ============================================
-// CardHeader 卡片头部
+// VCardHeader 卡片头部
 // ============================================
 
-declare class CardHeader extends Tag {
-  constructor(setup?: Setup<CardHeader>);
+declare class VCardHeader extends Tag {
+  constructor(setup?: Setup<VCardHeader>);
 }
 
-declare function cardHeader(setup?: Setup<CardHeader>): CardHeader;
+declare function vCardHeader(setup?: Setup<VCardHeader>): VCardHeader;
 
 // ============================================
-// CardBody 卡片内容
+// VCardBody 卡片内容
 // ============================================
 
-declare class CardBody extends Tag {
-  constructor(setup?: Setup<CardBody>);
+declare class VCardBody extends Tag {
+  constructor(setup?: Setup<VCardBody>);
 }
 
-declare function cardBody(setup?: Setup<CardBody>): CardBody;
+declare function vCardBody(setup?: Setup<VCardBody>): VCardBody;
 
 // ============================================
-// CardFooter 卡片底部
+// VCardFooter 卡片底部
 // ============================================
 
-declare class CardFooter extends Tag {
-  constructor(setup?: Setup<CardFooter>);
+declare class VCardFooter extends Tag {
+  constructor(setup?: Setup<VCardFooter>);
 }
 
-declare function cardFooter(setup?: Setup<CardFooter>): CardFooter;
+declare function vCardFooter(setup?: Setup<VCardFooter>): VCardFooter;
 
 // ============================================
-// Menu 菜单
+// VMenu 菜单
 // ============================================
 
-declare class Menu extends Tag {
-  constructor(setup?: Setup<Menu>);
+declare class VMenu extends Tag {
+  constructor(setup?: Setup<VMenu>);
   vertical(): this;
   horizontal(): this;
   compact(): this;
   noShadow(): this;
   bordered(): this;
-  item(content?: string, setup?: Setup<MenuItem>): MenuItem;
-  divider(setup?: Setup<MenuDivider>): this;
-  group(setup?: Setup<MenuGroup>): this;
+  item(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
+  divider(setup?: Setup<VMenuDivider>): this;
+  group(setup?: Setup<VMenuGroup>): this;
 }
 
-declare function menu(setup?: Setup<Menu>): Menu;
+declare function vMenu(setup?: Setup<VMenu>): VMenu;
 
 // ============================================
-// MenuItem 菜单项
+// VMenuItem 菜单项
 // ============================================
 
-declare class MenuItem extends Tag {
-  constructor(content?: string, setup?: Setup<MenuItem>);
+declare class VMenuItem extends Tag {
+  constructor(content?: string, setup?: Setup<VMenuItem>);
   text(content: string): this;
   icon(content: string): this;
   disabled(): this;
@@ -81,9 +88,8 @@ declare class MenuItem extends Tag {
   danger(): this;
   hoverable(): this;
   shortcut(key: string): this;
-  onclick(fn: (item: MenuItem) => void): this;
+  onclick(fn: (item: VMenuItem) => void): this;
   toggleState(stateName: string): this;
-  // 状态管理方法（继承自 Tag）
   setState(state: string, enabled?: boolean): this;
   hasState(state: string): boolean;
   getState(state: string): boolean;
@@ -95,67 +101,67 @@ declare class MenuItem extends Tag {
   deinitializeStates(): this;
 }
 
-declare function menuItem(content?: string, setup?: Setup<MenuItem>): MenuItem;
+declare function vMenuItem(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
 
 // ============================================
-// MenuDivider 菜单分割线
+// VMenuDivider 菜单分割线
 // ============================================
 
-declare class MenuDivider extends Tag {
-  constructor(setup?: Setup<MenuDivider>);
+declare class VMenuDivider extends Tag {
+  constructor(setup?: Setup<VMenuDivider>);
 }
 
-declare function menuDivider(setup?: Setup<MenuDivider>): MenuDivider;
+declare function vMenuDivider(setup?: Setup<VMenuDivider>): VMenuDivider;
 
 // ============================================
-// MenuGroup 菜单组
+// VMenuGroup 菜单组
 // ============================================
 
-declare class MenuGroup extends Tag {
-  constructor(setup?: Setup<MenuGroup>);
+declare class VMenuGroup extends Tag {
+  constructor(setup?: Setup<VMenuGroup>);
   label(text: string): this;
-  item(content?: string, setup?: Setup<MenuItem>): MenuItem;
-  divider(setup?: Setup<MenuDivider>): this;
+  item(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
+  divider(setup?: Setup<VMenuDivider>): this;
 }
 
-declare function menuGroup(setup?: Setup<MenuGroup>): MenuGroup;
+declare function vMenuGroup(setup?: Setup<VMenuGroup>): VMenuGroup;
 
 // ============================================
-// DropdownMenu 下拉菜单
+// VDropdownMenu 下拉菜单
 // ============================================
 
-declare class DropdownMenu extends Tag {
-  constructor(setup?: Setup<DropdownMenu>);
+declare class VDropdownMenu extends Tag {
+  constructor(setup?: Setup<VDropdownMenu>);
   trigger(content: string | Tag): this;
-  menuContent(menu: Menu): this;
+  menuContent(menu: VMenu): this;
   closeOnClickOutside(): this;
 }
 
-declare function dropdownMenu(setup?: Setup<DropdownMenu>): DropdownMenu;
+declare function vDropdownMenu(setup?: Setup<VDropdownMenu>): VDropdownMenu;
 
 // ============================================
-// ContextMenu 右键菜单
+// VContextMenu 右键菜单
 // ============================================
 
-declare class ContextMenu extends Tag {
-  constructor(setup?: Setup<ContextMenu>);
+declare class VContextMenu extends Tag {
+  constructor(setup?: Setup<VContextMenu>);
   target(element: HTMLElement): this;
-  menuContent(menu: Menu): this;
+  menuContent(menu: VMenu): this;
   show(x: number, y: number): this;
   hide(): this;
 }
 
-declare function contextMenu(setup?: Setup<ContextMenu>): ContextMenu;
+declare function vContextMenu(setup?: Setup<VContextMenu>): VContextMenu;
 
 // ============================================
-// Message 消息提示
+// VMessage 消息提示
 // ============================================
 
 type MessageType = 'success' | 'error' | 'warning' | 'info';
 type MessagePosition = 'top-left' | 'top-right' | 'top-center' | 'bottom-left' | 'bottom-right' | 'bottom-center';
 
-declare class Message extends Tag {
-  constructor(content?: string, type?: MessageType, setup?: Setup<Message>);
+declare class VMessage extends Tag {
+  constructor(content?: string, type?: MessageType, setup?: Setup<VMessage>);
   content(text: string): this;
   closable(value: boolean): this;
   duration(ms: number): this;
@@ -164,48 +170,48 @@ declare class Message extends Tag {
   stopTimer(): void;
 }
 
-declare function message(content?: string, type?: MessageType, setup?: Setup<Message>): Message;
+declare function vMessage(content?: string, type?: MessageType, setup?: Setup<VMessage>): VMessage;
 
 // ============================================
-// MessageContainer 消息容器
+// VMessageContainer 消息容器
 // ============================================
 
-declare class MessageContainer extends Tag {
-  constructor(position?: MessagePosition, setup?: Setup<MessageContainer>);
-  add(content: string, type?: MessageType, duration?: number): Message;
-  success(content: string, duration?: number): Message;
-  error(content: string, duration?: number): Message;
-  warning(content: string, duration?: number): Message;
-  info(content: string, duration?: number): Message;
+declare class VMessageContainer extends Tag {
+  constructor(position?: MessagePosition, setup?: Setup<VMessageContainer>);
+  add(content: string, type?: MessageType, duration?: number): VMessage;
+  success(content: string, duration?: number): VMessage;
+  error(content: string, duration?: number): VMessage;
+  warning(content: string, duration?: number): VMessage;
+  info(content: string, duration?: number): VMessage;
   clear(): void;
   maxVisible(count: number): this;
 }
 
-declare function messageContainer(position?: MessagePosition, setup?: Setup<MessageContainer>): MessageContainer;
+declare function vMessageContainer(position?: MessagePosition, setup?: Setup<VMessageContainer>): VMessageContainer;
 
 // ============================================
-// MessageManager 消息管理器
+// VMessageManager 消息管理器
 // ============================================
 
-declare class MessageManager {
+declare class VMessageManager {
   constructor();
-  success(content: string, duration?: number): Message;
-  error(content: string, duration?: number): Message;
-  warning(content: string, duration?: number): Message;
-  info(content: string, duration?: number): Message;
+  success(content: string, duration?: number): VMessage;
+  error(content: string, duration?: number): VMessage;
+  warning(content: string, duration?: number): VMessage;
+  info(content: string, duration?: number): VMessage;
   clear(): void;
   setPosition(position: MessagePosition): this;
   maxVisible(count: number): this;
 }
 
-declare const messageManager: MessageManager;
+declare const vMessageManager: VMessageManager;
 
-declare function toast(content: string, type?: MessageType, duration?: number): Message;
+declare function toast(content: string, type?: MessageType, duration?: number): VMessage;
 declare namespace toast {
-  export function success(content: string, duration?: number): Message;
-  export function error(content: string, duration?: number): Message;
-  export function warning(content: string, duration?: number): Message;
-  export function info(content: string, duration?: number): Message;
+  export function success(content: string, duration?: number): VMessage;
+  export function error(content: string, duration?: number): VMessage;
+  export function warning(content: string, duration?: number): VMessage;
+  export function info(content: string, duration?: number): VMessage;
   export function clear(): void;
 }
 
@@ -379,20 +385,20 @@ declare function vField(setup?: Setup<VField>): VField;
 // ============================================
 
 export {
-  // Card
-  Card, CardHeader, CardBody, CardFooter,
-  card, cardHeader, cardBody, cardFooter,
+  // VCard
+  VCard, VCardHeader, VCardBody, VCardFooter,
+  vCard, vCardHeader, vCardBody, vCardFooter,
 
-  // Menu
-  Menu, MenuItem, MenuDivider, MenuGroup, DropdownMenu, ContextMenu,
-  menu, menuItem, menuDivider, menuGroup, dropdownMenu, contextMenu,
+  // VMenu
+  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VDropdownMenu, VContextMenu,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vDropdownMenu, vContextMenu,
 
-  // Message
-  Message, MessageContainer, MessageManager,
-  message, messageContainer,
-  messageManager, toast,
+  // VMessage
+  VMessage, VMessageContainer, VMessageManager,
+  vMessage, vMessageContainer,
+  vMessageManager, toast,
 
-  // Button
+  // VButton
   VButton, vButton,
 
   // Form
@@ -403,10 +409,10 @@ export {
   VSwitch, vSwitch,
   VForm, vForm,
 
-  // Detail
+  // VDetail
   VDetail, vDetail,
   VDetailItem, vDetailItem,
 
-  // Field
+  // VField
   VField, vField,
 };
