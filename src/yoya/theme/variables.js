@@ -349,6 +349,37 @@ export const descriptionsVariables = {
 };
 
 // ============================================
+// Body 页面背景组件变量
+// ============================================
+
+export const bodyVariables = {
+  // 背景
+  '--islands-body-bg': 'var(--islands-bg, white)',
+  '--islands-body-bg-color': 'var(--islands-body-bg, var(--islands-bg, white))',
+
+  // 尺寸
+  '--islands-body-min-height': '100vh',
+  '--islands-body-width': '100%',
+
+  // 布局
+  '--islands-body-display': 'flex',
+  '--islands-body-flex-direction': 'column',
+  '--islands-body-align-items': 'stretch',
+  '--islands-body-justify-content': 'flex-start',
+
+  // 间距
+  '--islands-body-padding': '0',
+  '--islands-body-margin': '0',
+
+  // 过渡
+  '--islands-body-transition': 'background-color 0.3s ease, min-height 0.3s ease',
+
+  // 全屏模式
+  '--islands-body-fullscreen-min-height': '100vh',
+  '--islands-body-fullscreen-width': '100%',
+};
+
+// ============================================
 // 导出所有变量
 // ============================================
 
@@ -361,6 +392,7 @@ export const allVariables = {
   ...codeVariables,
   ...fieldVariables,
   ...descriptionsVariables,
+  ...bodyVariables,
 };
 
 // ============================================

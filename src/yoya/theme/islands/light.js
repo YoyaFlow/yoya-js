@@ -649,6 +649,19 @@ export function createLightTheme() {
         transition: 'all 0.2s',
       },
     },
+
+    // 页面背景
+    VBody: {
+      stateStyles: {},
+      baseStyles: {
+        display: 'flex',
+        flexDirection: 'column',
+        background: colors.background,
+        minHeight: '100vh',
+        width: '100%',
+        transition: 'background-color 0.3s ease',
+      },
+    },
   };
 
   return theme;

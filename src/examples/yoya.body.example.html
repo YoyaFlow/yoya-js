@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VBody 组件测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import {
+      vBody,
+      vButton,
+      card,
+      cardHeader,
+      cardBody,
+      cardFooter,
+      h1,
+      p,
+      div,
+      createLightTheme,
+      createDarkTheme,
+      applyTheme,
+    } from '../yoya/index.js';
+
+    let isDark = false;
+
+    // 创建 VBody 并绑定到 body
+    const body = vBody(b => {
+      b.id('main-body');
+      b.padding('20px');
+
+      // 添加标题
+      b.child(
+        h1(h => {
+          h.text('VBody 组件测试');
+          h.style('marginBottom', '20px');
+        })
+      );
+
+      // 添加说明
+      b.child(
+        p(p => {
+          p.text('VBody 组件用于页面整体背景区域，支持主题配置。');
+          p.style('marginBottom', '20px');
+          p.style('color', 'var(--islands-text-secondary, #666)');
+        })
+      );
+
+      // 添加主题切换按钮
+      b.child(
+        div(d => {
+          d.style('marginBottom', '20px');
+          d.child(
+            vButton(btn => {
+              btn.text('切换到深色主题');
+              btn.onclick(() => {
+                isDark = !isDark;
+                applyTheme(isDark ? createDarkTheme() : createLightTheme());
+                btn.text(isDark ? '切换到浅色主题' : '切换到深色主题');
+              });
+            })
+          );
+        })
+      );
+
+      // 添加卡片示例
+      b.child(
+        card(c => {
+          c.cardHeader(h => {
+            h.text('卡片标题');
+          });
+          c.cardBody(b => {
+            b.text('这是一个测试卡片，用于验证 VBody 组件的背景效果。');
+            b.child(
+              p(p => {
+                p.text('当切换主题时，VBody 的背景色会自动跟随主题变化。');
+              })
+            );
+          });
+          c.cardFooter(f => {
+            f.child(
+              vButton(btn => {
+                btn.text('操作按钮');
+              })
+            );
+          });
+        })
+      );
+    });
+
+    // 绑定到 #app
+    body.bindTo('#app');
+
+    // 初始化浅色主题
+    applyTheme(createLightTheme());
+  </script>
+</body>
+</html>

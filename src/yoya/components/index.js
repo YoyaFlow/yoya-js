@@ -48,14 +48,23 @@ export {
   vButton,
 } from './button.js';
 
+// Code 代码展示组件
+export {
+  VCode, vCode,
+  CodeBlock, codeBlock,
+} from './code.js';
+
 // Form 表单组件
 export {
   VInput, vInput,
   VSelect, vSelect,
   VTextarea, vTextarea,
   VCheckbox, vCheckbox,
+  VCheckboxes, vCheckboxes,
   VSwitch, vSwitch,
   VForm, vForm,
+  VTimer, vTimer,
+  VTimer2, vTimer2,
 } from './form.js';
 
 // Detail 详情展示组件
@@ -68,3 +77,9 @@ export {
 export {
   VField, vField,
 } from './field.js';
+
+// Body 页面背景组件
+export {
+  VBody, vBody,
+  createBody,
+} from './body.js';

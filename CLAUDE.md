@@ -92,7 +92,7 @@ import { div, button, ... } from '../yoya/index.js';
 
 - **基础容器**：Div, Span, P, H1-H6, Section, Article, Header, Footer, Nav, Aside, Main
 - **文本格式化**：A, Strong, Em, Code, Pre, Blockquote
-- **表单**：Button, Input, Textarea, Select, Option, Label, Form
+- **表单**：Button, Input, Textarea, Select, Option, Label, Form, Checkboxes
 - **列表**：Ul, Ol, Li, Dl, Dt, Dd
 - **表格**：Table, Tr, Td, Th, Thead, Tbody, Tfoot
 - **媒体**：Img, Video, Audio, Source
@@ -368,6 +368,230 @@ ctxMenu.target(document.getElementById('target'));
 - `MenuGroup` - 带标签的菜单组
 - `DropdownMenu` - 下拉菜单
 - `ContextMenu` - 右键菜单
+
+## VCheckboxes 复选框组组件（src/yoya/components/form.js）
+
+VCheckboxes 组件提供一组复选框，支持单选/多选模式和多种布局方式：
+
+### 基础用法
+
+```javascript
+import { vCheckboxes } from '../yoya/index.js';
+
+// 多选模式
+vCheckboxes(cb => {
+  cb.options([
+    { value: 'apple', label: '苹果' },
+    { value: 'banana', label: '香蕉' },
+    { value: 'orange', label: '橙子' },
+  ]);
+  cb.multiple(true);  // 多选模式
+  cb.value(['apple', 'banana']);
+  cb.onChange((values) => {
+    console.log('选中：', values);
+  });
+});
+
+// 单选模式
+vCheckboxes(cb => {
+  cb.options([
+    { value: 'red', label: '红色' },
+    { value: 'green', label: '绿色' },
+    { value: 'blue', label: '蓝色' },
+  ]);
+  cb.multiple(false);  // 单选模式
+  cb.value('red');
+  cb.onChange((value) => {
+    console.log('选中：', value);
+  });
+});
+```
+
+### 布局方式
+
+```javascript
+// 垂直排列（默认）
+vCheckboxes(cb => {
+  cb.options(options);
+  cb.layout('column');
+});
+
+// 水平排列
+vCheckboxes(cb => {
+  cb.options(options);
+  cb.layout('row');
+});
+
+// 网格布局
+vCheckboxes(cb => {
+  cb.options(options);
+  cb.layout('grid');
+  cb.columns(3);  // 3 列
+});
+```
+
+### API 方法
+
+| 方法 | 说明 | 返回值 |
+|------|------|--------|
+| `options(arr)` | 设置选项数组 | this |
+| `value(val)` | 设置/获取选中值 | this / value |
+| `multiple(bool)` | 设置单选/多选模式 | this |
+| `layout(type)` | 设置布局方式：column, row, grid | this |
+| `columns(n)` | 设置 grid 布局的列数 | this |
+| `disabled(bool)` | 禁用/启用组件 | this |
+| `error(bool)` | 设置错误状态 | this |
+| `onChange(fn)` | 设置变化事件回调 | this |
+
+## VTimer/VTimer2 日期选择器组件（src/yoya/components/form.js）
+
+VTimer 组件是日历选择器，支持日期、时间、日期时间等选择；VTimer2 组件用于选择日期/时间范围：
+
+### 基础用法
+
+```javascript
+import { vTimer, vTimer2 } from '../yoya/index.js';
+
+// 日期选择器
+vTimer(t => {
+  t.value('2024-03-15');
+  t.onChange((value) => {
+    console.log('选中日期：', value);
+  });
+});
+
+// 日期范围选择器
+vTimer2(t2 => {
+  t2.value({
+    start: '2024-03-01',  // 开始日期
+    end: '2024-03-31'     // 结束日期
+  });
+  t2.onChange((range) => {
+    console.log('日期范围：', range.start, '-', range.end);
+  });
+});
+```
+
+### 支持的选择器类型
+
+```javascript
+// 日期选择器（默认）
+vTimer(t => {
+  t.type('date');  // 默认值
+  t.value('2024-03-15');
+});
+
+// 日期时间选择器
+vTimer(t => {
+  t.type('datetime-local');
+  t.value('2024-03-15T14:30');
+});
+
+// 时间选择器
+vTimer(t => {
+  t.type('time');
+  t.value('14:30');
+});
+
+// 月份选择器
+vTimer(t => {
+  t.type('month');
+  t.value('2024-03');
+});
+
+// 周选择器
+vTimer(t => {
+  t.type('week');
+  t.value('2024-W11');
+});
+```
+
+### API 方法
+
+#### VTimer 方法
+
+| 方法 | 说明 | 返回值 |
+|------|------|--------|
+| `type(str)` | 设置类型：date, datetime-local, time, month, week | this |
+| `value(val)` | 设置/获取日期时间值 | this / string |
+| `disabled(bool)` | 禁用/启用组件 | this |
+| `readonly(bool)` | 只读/可编辑 | this |
+| `error(bool)` | 设置错误状态 | this |
+| `min(val)` | 设置最小值 | this |
+| `max(val)` | 设置最大值 | this |
+| `step(num)` | 设置步进值 | this |
+| `onChange(fn)` | 设置变化事件回调 | this |
+
+#### VTimer2 方法
+
+| 方法 | 说明 | 返回值 |
+|------|------|--------|
+| `type(str)` | 设置类型：date, datetime-local, time, month, week | this |
+| `value(obj)` | 设置/获取日期范围 { start, end } | this / object |
+| `disabled(bool)` | 禁用/启用组件 | this |
+| `readonly(bool)` | 只读/可编辑 | this |
+| `error(bool)` | 设置错误状态 | this |
+| `min(val)` | 设置开始和结束的最小值 | this |
+| `max(val)` | 设置开始和结束的最大值 | this |
+| `startMin(val)` | 设置开始日期的最小值 | this |
+| `startMax(val)` | 设置开始日期的最大值 | this |
+| `endMin(val)` | 设置结束日期的最小值 | this |
+| `endMax(val)` | 设置结束日期的最大值 | this |
+| `onChange(fn)` | 设置变化事件回调 | this |
+
+## VCode 代码展示组件（src/yoya/components/code.js）
+
+VCode 组件用于展示代码，支持语法高亮和一键复制功能：
+
+### 基础用法
+
+```javascript
+import { vCode, toast } from '../yoya/index.js';
+
+// 基础代码展示
+vCode(c => {
+  c.content(`
+const hello = (name) => {
+  console.log('Hello, ' + name);
+};
+hello('World');
+  `);
+  c.title('💻 JavaScript 示例');
+  c.onCopy(() => {
+    toast.success('代码已复制');
+  });
+});
+```
+
+### 不带标题栏
+
+```javascript
+vCode(c => {
+  c.content('console.log("Hello");');
+  c.showCopyButton(false);      // 隐藏复制按钮
+  c.showLineNumbers(false);     // 隐藏行号
+});
+```
+
+### API 方法
+
+| 方法 | 说明 | 返回值 |
+|------|------|--------|
+| `content(str)` | 设置/获取代码内容 | this / string |
+| `language(lang)` | 设置语言类型 | this |
+| `title(str)` | 设置标题 | this |
+| `showLineNumbers(bool)` | 是否显示行号 | this |
+| `showCopyButton(bool)` | 是否显示复制按钮 | this |
+| `onCopy(fn)` | 设置复制完成回调 | this |
+
+### CodeBlock 简化组件
+
+```javascript
+import { codeBlock } from '../yoya/index.js';
+
+// 快速创建带标题的代码块
+codeBlock('示例代码', `const x = 1;`);
+```
 
 ## Message 组件（src/yoya/components/message.js）
 

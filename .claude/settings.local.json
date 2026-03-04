@@ -70,7 +70,15 @@
       "Bash(curl -s \"http://localhost:3002/examples/yoya.svg.example.js\" 2>&1 | head -15)",
       "Bash(npm uninstall openclaw)",
       "Bash(openclaw --version)",
-      "Bash(git add -A && git commit -m \"保存 VField 当前版本\n\n- 保留当前事件处理实现\n- 准备重构事件系统\")"
+      "Bash(git add -A && git commit -m \"保存 VField 当前版本\n\n- 保留当前事件处理实现\n- 准备重构事件系统\")",
+      "Bash(curl -s http://localhost:3004/test-vcode.html | head -30)",
+      "Bash(curl -s http://localhost:3004/test-vcode.html 2>&1 | head -50)",
+      "Bash(sleep 3 && curl -s http://localhost:3004/test-vcode.html 2>&1 | head -30)",
+      "Bash(curl -s http://localhost:3000/test-vcode.html 2>&1 | head -50)",
+      "Bash(git -C /home/join/code/cctest status --short)",
+      "Bash(git -C /home/join/code/cctest ls-files --others --exclude-standard)",
+      "Bash(git -C /home/join/code/cctest diff src/yoya/components/code.js | head -50)",
+      "Bash(git -C /home/join/code/cctest show HEAD:src/yoya/components/code.js 2>&1 | head -5)"
     ]
   },
   "enableAllProjectMcpServers": true,

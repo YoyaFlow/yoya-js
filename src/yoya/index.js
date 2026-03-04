@@ -120,6 +120,10 @@ export {
 
   // Field 组件
   VField, vField,
+
+  // Body 组件
+  VBody, vBody,
+  createBody,
 } from './components/index.js';
 
 // 导出主题系统

@@ -942,7 +942,7 @@ class VCheckbox extends Tag {
     // 点击复选框时切换状态
     this._checkboxEl.on('change', (e) => {
       if (!this.hasState('disabled')) {
-        const checked = e._boundElement ? e._boundElement.checked : true;
+        const checked = e._boundElement ? e._boundElement.checked : e.target.checked;
         this.setState('checked', checked);
         // 触发 onChange 回调
         if (this._onChange) {
@@ -1273,6 +1273,267 @@ Tag.prototype.vForm = function(setup = null) {
 };
 
 // ============================================
+// VCheckboxes 复选框组组件
+// ============================================
+
+class VCheckboxes extends Tag {
+  static _stateAttrs = ['disabled', 'error'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    // 内部复选框列表
+    this._checkboxes = [];
+    this._options = [];
+    this._value = [];  // 多选模式使用数组
+    this._singleValue = '';  // 单选模式使用单个值
+    this._multiple = false;  // 是否多选
+    this._layout = 'column';  // 布局方式：column, row, grid
+    this._columns = 2;  // grid 布局时的列数
+    this._onChange = null;
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      disabled: false,
+      error: false,
+    });
+
+    // 3. 设置基础样式
+    this._setupBaseStyles();
+
+    // 4. 保存基础样式快照
+    this.saveBaseStylesSnapshot();
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+
+    // 7. 创建内部元素
+    this._updateContent();
+  }
+
+  _setupBaseStyles() {
+    this.styles({
+      display: 'flex',
+      gap: 'var(--islands-gap, 12px)',
+      fontSize: 'var(--islands-checkbox-font-size, 14px)',
+      color: 'var(--islands-checkbox-text, var(--islands-text, #333))',
+    });
+  }
+
+  _registerStateHandlers() {
+    this.registerStateHandler('disabled', (enabled, host) => {
+      host.clearStateStyles();
+
+      if (enabled) {
+        host.styles({
+          opacity: '0.5',
+          cursor: 'not-allowed',
+        });
+        // 禁用所有复选框
+        host._checkboxes.forEach(cb => {
+          if (cb._checkboxEl) {
+            cb._checkboxEl.attr('disabled', 'disabled');
+          }
+        });
+      } else {
+        host.styles({
+          opacity: '1',
+          cursor: 'pointer',
+        });
+        // 启用所有复选框
+        host._checkboxes.forEach(cb => {
+          if (cb._checkboxEl) {
+            cb._checkboxEl.attr('disabled', null);
+          }
+        });
+      }
+    });
+
+    this.registerStateHandler('error', (hasError, host) => {
+      host.clearStateStyles();
+
+      if (hasError) {
+        host.style('borderColor', 'var(--islands-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+      } else {
+        host.style('borderColor', '');
+        host.style('boxShadow', '');
+      }
+    });
+  }
+
+  _updateContent() {
+    // 清空现有复选框
+    this.clear();
+    this._checkboxes = [];
+
+    // 根据布局方式设置容器样式
+    this._applyLayoutStyles();
+
+    // 创建复选框
+    this._options.forEach((opt, index) => {
+      const cb = vCheckbox(opt.label, c => {
+        c.value(opt.value);
+        // 根据模式设置选中状态
+        if (this._multiple) {
+          c.checked(this._value.includes(opt.value));
+        } else {
+          c.checked(opt.value === this._singleValue);
+        }
+
+        // 禁用状态
+        if (this.hasState('disabled')) {
+          c.disabled();
+        }
+
+        // 变化事件
+        c.onChange((checked) => {
+          if (this._multiple) {
+            // 多选模式：重新遍历所有 checkboxes 构建值数组
+            this._value = this._checkboxes
+              .filter(cb => cb.hasState('checked'))
+              .map(cb => cb.value());
+          } else {
+            // 单选模式
+            if (checked) {
+              this._singleValue = opt.value;
+              // 取消其他选项的选中状态
+              this._checkboxes.forEach((otherCb, otherIndex) => {
+                if (otherIndex !== index) {
+                  otherCb.setState('checked', false);
+                }
+              });
+            } else {
+              this._singleValue = '';
+            }
+          }
+          // 触发 onChange 回调
+          if (this._onChange) {
+            this._onChange(this._multiple ? this._value : this._singleValue);
+          }
+        });
+      });
+
+      this._checkboxes.push(cb);
+      this.child(cb);
+    });
+  }
+
+  _applyLayoutStyles() {
+    const layoutStyles = {
+      column: {
+        flexDirection: 'column',
+        gap: 'var(--islands-gap, 12px)',
+      },
+      row: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 'var(--islands-gap, 12px)',
+      },
+      grid: {
+        display: 'grid',
+        gridTemplateColumns: `repeat(${this._columns}, 1fr)`,
+        gap: 'var(--islands-gap, 12px)',
+      },
+    };
+
+    this.styles(layoutStyles[this._layout] || layoutStyles.column);
+  }
+
+  // ============================================
+  // 链式方法
+  // ============================================
+
+  options(arr) {
+    if (arr === undefined) return this._options;
+    this._options = arr;
+    this._updateContent();
+    return this;
+  }
+
+  value(val) {
+    if (val === undefined) {
+      return this._multiple ? this._value : this._singleValue;
+    }
+    if (this._multiple) {
+      this._value = Array.isArray(val) ? val : (val ? [val] : []);
+      // 更新复选框状态
+      this._checkboxes.forEach(cb => {
+        cb.setState('checked', this._value.includes(cb.value()));
+      });
+    } else {
+      this._singleValue = val;
+      // 更新复选框状态
+      this._checkboxes.forEach(cb => {
+        cb.setState('checked', cb.value() === val);
+      });
+    }
+    return this;
+  }
+
+  multiple(v = true) {
+    this._multiple = v;
+    if (!this._multiple) {
+      // 切换到单选模式时，只保留第一个值
+      this._singleValue = this._value[0] || '';
+    } else {
+      // 切换到多选模式时，转换为数组
+      if (this._singleValue) {
+        this._value = [this._singleValue];
+      }
+    }
+    return this;
+  }
+
+  layout(v) {
+    if (v === undefined) return this._layout;
+    this._layout = v;
+    this._applyLayoutStyles();
+    return this;
+  }
+
+  columns(v) {
+    if (v === undefined) return this._columns;
+    this._columns = v;
+    if (this._layout === 'grid') {
+      this._applyLayoutStyles();
+    }
+    return this;
+  }
+
+  disabled(v = true) {
+    return this.setState('disabled', v);
+  }
+
+  error(v = true) {
+    return this.setState('error', v);
+  }
+
+  onChange(handler) {
+    this._onChange = handler;
+    return this;
+  }
+}
+
+function vCheckboxes(setup = null) {
+  return new VCheckboxes(setup);
+}
+
+Tag.prototype.vCheckboxes = function(setup = null) {
+  const checkboxes = vCheckboxes(setup);
+  this.child(checkboxes);
+  return this;
+};
+
+// ============================================
 // 导出
 // ============================================
 
@@ -1281,6 +1542,490 @@ export {
   VSelect, vSelect,
   VTextarea, vTextarea,
   VCheckbox, vCheckbox,
+  VCheckboxes, vCheckboxes,
   VSwitch, vSwitch,
   VForm, vForm,
+  VTimer, vTimer,
+  VTimer2, vTimer2,
+};
+
+// ============================================
+// VTimer 日期选择器组件（日历选择器）
+// ============================================
+
+class VTimer extends Tag {
+  static _stateAttrs = ['disabled', 'error', 'readonly'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    this._inputEl = null;
+    this._type = 'date';  // date, datetime-local, time, month, week
+    this._value = '';
+    this._onChange = null;
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      disabled: false,
+      error: false,
+      readonly: false,
+    });
+
+    // 3. 设置基础样式
+    this._setupBaseStyles();
+
+    // 4. 保存基础样式快照
+    this.saveBaseStylesSnapshot();
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+
+    // 7. 创建内部元素
+    this._createInternalElements();
+  }
+
+  _setupBaseStyles() {
+    this.styles({
+      display: 'inline-block',
+    });
+  }
+
+  _registerStateHandlers() {
+    this.registerStateHandler('disabled', (enabled, host) => {
+      host.clearStateStyles();
+      if (enabled) {
+        host.styles({ opacity: '0.5', cursor: 'not-allowed', pointerEvents: 'none' });
+        if (host._inputEl) host._inputEl.attr('disabled', 'disabled');
+      } else {
+        host.styles({ opacity: '1', cursor: 'pointer' });
+        if (host._inputEl) host._inputEl.attr('disabled', null);
+      }
+    });
+
+    this.registerStateHandler('error', (hasError, host) => {
+      host.clearStateStyles();
+      if (hasError) {
+        host.style('borderColor', 'var(--islands-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+      } else {
+        host.style('borderColor', '');
+        host.style('boxShadow', '');
+      }
+    });
+
+    this.registerStateHandler('readonly', (readonly, host) => {
+      if (host._inputEl) {
+        if (readonly) {
+          host._inputEl.attr('readonly', 'readonly');
+        } else {
+          host._inputEl.attr('readonly', null);
+        }
+      }
+    });
+  }
+
+  _createInternalElements() {
+    this._inputEl = input(i => {
+      i.attr('type', this._type);
+      i.styles({
+        padding: '8px 12px',
+        borderRadius: '6px',
+        border: '1px solid var(--islands-border, #d1d5db)',
+        background: 'white',
+        fontSize: '14px',
+        color: 'var(--islands-text, #333)',
+        outline: 'none',
+        cursor: 'pointer',
+      });
+      if (this._value) i.value(this._value);
+      i.on('change', () => this._onValueChange());
+      i.on('input', () => this._onValueChange());
+    });
+
+    this.child(this._inputEl);
+  }
+
+  _onValueChange() {
+    this._value = this._inputEl && this._inputEl._boundElement ? this._inputEl._boundElement.value : '';
+    if (this._onChange) {
+      this._onChange(this._value, this._inputEl);
+    }
+  }
+
+  // ============================================
+  // 链式方法
+  // ============================================
+
+  type(t) {
+    if (t === undefined) return this._type;
+    this._type = t;
+    if (this._inputEl) {
+      this._inputEl.attr('type', t);
+    }
+    return this;
+  }
+
+  value(val) {
+    if (val === undefined) return this._value;
+    this._value = val;
+    if (this._inputEl) {
+      this._inputEl.value(val);
+    }
+    return this;
+  }
+
+  disabled(v = true) {
+    return this.setState('disabled', v);
+  }
+
+  error(v = true) {
+    return this.setState('error', v);
+  }
+
+  readonly(v = true) {
+    return this.setState('readonly', v);
+  }
+
+  min(val) {
+    if (this._inputEl) {
+      this._inputEl.attr('min', val);
+    }
+    return this;
+  }
+
+  max(val) {
+    if (this._inputEl) {
+      this._inputEl.attr('max', val);
+    }
+    return this;
+  }
+
+  step(val) {
+    if (this._inputEl) {
+      this._inputEl.attr('step', val);
+    }
+    return this;
+  }
+
+  placeholder(val) {
+    if (this._inputEl) {
+      this._inputEl.attr('placeholder', val);
+    }
+    return this;
+  }
+
+  onChange(handler) {
+    this._onChange = handler;
+    return this;
+  }
+}
+
+function vTimer(setup = null) {
+  return new VTimer(setup);
+}
+
+// ============================================
+// VTimer2 日期范围选择器组件
+// ============================================
+
+class VTimer2 extends Tag {
+  static _stateAttrs = ['disabled', 'error', 'readonly'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    this._startInputEl = null;
+    this._endInputEl = null;
+    this._type = 'date';
+    this._value = { start: '', end: '' };
+    this._onChange = null;
+    this._startMin = null;
+    this._startMax = null;
+    this._endMin = null;
+    this._endMax = null;
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      disabled: false,
+      error: false,
+      readonly: false,
+    });
+
+    // 3. 设置基础样式
+    this._setupBaseStyles();
+
+    // 4. 保存基础样式快照
+    this.saveBaseStylesSnapshot();
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+
+    // 7. 创建内部元素
+    this._createInternalElements();
+  }
+
+  _setupBaseStyles() {
+    this.styles({
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '12px',
+    });
+  }
+
+  _registerStateHandlers() {
+    this.registerStateHandler('disabled', (enabled, host) => {
+      host.clearStateStyles();
+      if (enabled) {
+        host.styles({ opacity: '0.5', cursor: 'not-allowed', pointerEvents: 'none' });
+        if (host._startInputEl) host._startInputEl.attr('disabled', 'disabled');
+        if (host._endInputEl) host._endInputEl.attr('disabled', 'disabled');
+      } else {
+        host.styles({ opacity: '1', cursor: 'pointer' });
+        if (host._startInputEl) host._startInputEl.attr('disabled', null);
+        if (host._endInputEl) host._endInputEl.attr('disabled', null);
+      }
+    });
+
+    this.registerStateHandler('error', (hasError, host) => {
+      host.clearStateStyles();
+      if (hasError) {
+        host.style('borderColor', 'var(--islands-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+      } else {
+        host.style('borderColor', '');
+        host.style('boxShadow', '');
+      }
+    });
+
+    this.registerStateHandler('readonly', (readonly, host) => {
+      if (host._startInputEl) {
+        host._startInputEl.attr('readonly', readonly ? 'readonly' : null);
+      }
+      if (host._endInputEl) {
+        host._endInputEl.attr('readonly', readonly ? 'readonly' : null);
+      }
+    });
+  }
+
+  _createInternalElements() {
+    // 开始时间输入
+    this._startInputEl = input(i => {
+      i.attr('type', this._type);
+      i.attr('placeholder', '开始日期');
+      i.styles({
+        padding: '8px 12px',
+        borderRadius: '6px',
+        border: '1px solid var(--islands-border, #d1d5db)',
+        background: 'white',
+        fontSize: '14px',
+        color: 'var(--islands-text, #333)',
+        outline: 'none',
+        cursor: 'pointer',
+      });
+      if (this._value.start) i.value(this._value.start);
+      i.on('change', () => this._onValueChange());
+      i.on('input', () => this._onValueChange());
+    });
+
+    // 分隔符
+    const separator = span(s => {
+      s.text('至');
+      s.styles({ color: '#999', fontSize: '14px' });
+    });
+
+    // 结束时间输入
+    this._endInputEl = input(i => {
+      i.attr('type', this._type);
+      i.attr('placeholder', '结束日期');
+      i.styles({
+        padding: '8px 12px',
+        borderRadius: '6px',
+        border: '1px solid var(--islands-border, #d1d5db)',
+        background: 'white',
+        fontSize: '14px',
+        color: 'var(--islands-text, #333)',
+        outline: 'none',
+        cursor: 'pointer',
+      });
+      if (this._value.end) i.value(this._value.end);
+      i.on('change', () => this._onValueChange());
+      i.on('input', () => this._onValueChange());
+    });
+
+    this.child(this._startInputEl);
+    this.child(separator);
+    this.child(this._endInputEl);
+  }
+
+  _onValueChange() {
+    const start = this._startInputEl && this._startInputEl._boundElement ? this._startInputEl._boundElement.value : '';
+    const end = this._endInputEl && this._endInputEl._boundElement ? this._endInputEl._boundElement.value : '';
+
+    // 确保开始时间不晚于结束时间
+    if (start && end && start > end) {
+      // 如果开始时间晚于结束时间，将结束时间设置为开始时间
+      this._endInputEl._boundElement.value = start;
+      this._value = { start, end: start };
+    } else {
+      this._value = { start, end };
+    }
+
+    // 动态更新结束时间的最小值为开始时间
+    if (start && this._endInputEl) {
+      this._endInputEl.attr('min', start);
+    }
+
+    // 动态更新开始时间的最大值为结束时间
+    if (end && this._startInputEl) {
+      this._startInputEl.attr('max', end);
+    }
+
+    if (this._onChange) {
+      this._onChange(this._value, this._startInputEl, this._endInputEl);
+    }
+  }
+
+  // ============================================
+  // 链式方法
+  // ============================================
+
+  type(t) {
+    if (t === undefined) return this._type;
+    this._type = t;
+    if (this._startInputEl) {
+      this._startInputEl.attr('type', t);
+    }
+    if (this._endInputEl) {
+      this._endInputEl.attr('type', t);
+    }
+    return this;
+  }
+
+  value(val) {
+    if (val === undefined) return this._value;
+    if (val.start !== undefined) {
+      this._value.start = val.start;
+      if (this._startInputEl) {
+        this._startInputEl.value(val.start);
+      }
+    }
+    if (val.end !== undefined) {
+      this._value.end = val.end;
+      if (this._endInputEl) {
+        this._endInputEl.value(val.end);
+      }
+    }
+    return this;
+  }
+
+  disabled(v = true) {
+    return this.setState('disabled', v);
+  }
+
+  error(v = true) {
+    return this.setState('error', v);
+  }
+
+  readonly(v = true) {
+    return this.setState('readonly', v);
+  }
+
+  min(val) {
+    if (val === undefined) return { start: this._startMin, end: this._endMin };
+    this._startMin = val;
+    this._endMin = val;
+    if (this._startInputEl) {
+      this._startInputEl.attr('min', val);
+    }
+    if (this._endInputEl) {
+      this._endInputEl.attr('min', val);
+    }
+    return this;
+  }
+
+  max(val) {
+    if (val === undefined) return { start: this._startMax, end: this._endMax };
+    this._startMax = val;
+    this._endMax = val;
+    if (this._startInputEl) {
+      this._startInputEl.attr('max', val);
+    }
+    if (this._endInputEl) {
+      this._endInputEl.attr('max', val);
+    }
+    return this;
+  }
+
+  startMin(val) {
+    if (val === undefined) return this._startMin;
+    this._startMin = val;
+    if (this._startInputEl) {
+      this._startInputEl.attr('min', val);
+    }
+    return this;
+  }
+
+  startMax(val) {
+    if (val === undefined) return this._startMax;
+    this._startMax = val;
+    if (this._startInputEl) {
+      this._startInputEl.attr('max', val);
+    }
+    return this;
+  }
+
+  endMin(val) {
+    if (val === undefined) return this._endMin;
+    this._endMin = val;
+    if (this._endInputEl) {
+      this._endInputEl.attr('min', val);
+    }
+    return this;
+  }
+
+  endMax(val) {
+    if (val === undefined) return this._endMax;
+    this._endMax = val;
+    if (this._endInputEl) {
+      this._endInputEl.attr('max', val);
+    }
+    return this;
+  }
+
+  onChange(handler) {
+    this._onChange = handler;
+    return this;
+  }
+}
+
+function vTimer2(setup = null) {
+  return new VTimer2(setup);
+}
+
+Tag.prototype.vTimer = function(setup = null) {
+  const timer = vTimer(setup);
+  this.child(timer);
+  return this;
+};
+
+Tag.prototype.vTimer2 = function(setup = null) {
+  const timer2 = vTimer2(setup);
+  this.child(timer2);
+  return this;
 };
