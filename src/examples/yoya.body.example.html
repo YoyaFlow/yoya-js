@@ -60,7 +60,7 @@
           header.child(
             vButton(btn => {
               btn.text('🌓 切换主题');
-              btn.onclick(() => {
+              btn.on('click', () => {
                 isDark = !isDark;
                 applyTheme(isDark ? createDarkTheme() : createLightTheme());
               });

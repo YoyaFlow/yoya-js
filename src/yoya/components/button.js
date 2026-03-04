@@ -317,6 +317,11 @@ class VButton extends Tag {
   ghost(value = true) {
     return this.setState('ghost', value);
   }
+
+  onclick(handler) {
+    this.on('click', handler);
+    return this;
+  }
 }
 
 function vButton(content = '', setup = null) {
