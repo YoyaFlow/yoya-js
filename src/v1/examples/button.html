@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Button 按钮 - Yoya.Basic V1</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { createButtonPage } from './button.js';
+    import { themeManager } from './yoya/index.js';
+
+    // 初始化主题
+    themeManager.init('islands-light');
+
+    // 创建并渲染页面
+    const buttonPage = createButtonPage();
+    buttonPage.bindTo('#app');
+  </script>
+</body>
+</html>
