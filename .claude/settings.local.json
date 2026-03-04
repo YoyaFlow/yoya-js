@@ -87,7 +87,10 @@
       "Bash(curl -s http://localhost:3000/v1/examples/entry.js 2>&1 | head -20)",
       "Bash(curl -s http://localhost:3000/v1/examples/entry.js 2>&1 | head -15)",
       "Bash(curl -s \"http://localhost:3000/v1/examples/\" 2>&1 | head -20)",
-      "Bash(git add -A && git status)"
+      "Bash(git add -A && git status)",
+      "Bash(curl -s \"http://localhost:3000/v1/examples/button.html\" 2>&1 | head -15)",
+      "Bash(curl -s \"http://localhost:3000/v1/examples/entry.js\" 2>&1 | head -20)",
+      "Bash(curl -s \"http://localhost:3000/v1/examples/layout.js\" 2>&1 | head -10)"
     ]
   },
   "enableAllProjectMcpServers": true,
