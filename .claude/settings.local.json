@@ -92,7 +92,8 @@
       "Bash(curl -s \"http://localhost:3000/v1/examples/entry.js\" 2>&1 | head -20)",
       "Bash(curl -s \"http://localhost:3000/v1/examples/layout.js\" 2>&1 | head -10)",
       "Bash(curl -s \"http://localhost:3000/v1/examples/entry.js\" 2>&1 | head -15)",
-      "Bash(git add -A && git commit -m \"fix: 修复 codeDemo 中 content.gap 错误，改用 vstack 包装内容\")"
+      "Bash(git add -A && git commit -m \"fix: 修复 codeDemo 中 content.gap 错误，改用 vstack 包装内容\")",
+      "Bash(git add -A && git commit -m \"feat: 添加 Form、Card、Menu 演示页面\")"
     ]
   },
   "enableAllProjectMcpServers": true,

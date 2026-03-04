@@ -1,0 +1,339 @@
+/**
+ * Yoya.Basic V1 - Card Demo Page
+ * Card 卡片演示页面
+ */
+
+import {
+  flex, grid, responsiveGrid, vstack, hstack,
+  card, cardHeader, cardBody, cardFooter,
+  menu, menuItem, vButton, vCode, toast,
+} from '../../yoya/index.js';
+
+import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';
+
+/**
+ * 创建 Card 演示页面
+ */
+export function createCardPage() {
+  return appLayout({
+    // 左侧菜单
+    sidebar: (sidebar) => {
+      sidebar.child(sidebarGroup('开始', [
+        sidebarItem('介绍', 'index.html'),
+        sidebarItem('快速开始', 'quickstart.html'),
+      ]));
+      sidebar.child(sidebarGroup('基础组件', [
+        sidebarItem('Button 按钮', 'button.html'),
+        sidebarItem('Form 表单', 'form.html'),
+        sidebarItem('Card 卡片', 'card.html', true),
+      ]));
+      sidebar.child(sidebarGroup('导航组件', [
+        sidebarItem('Menu 菜单', 'menu.html'),
+        sidebarItem('Tabs 标签页', 'tabs.html'),
+      ]));
+      sidebar.child(sidebarGroup('反馈组件', [
+        sidebarItem('Message 消息', 'message.html'),
+        sidebarItem('Toast 提示', 'toast.html'),
+      ]));
+    },
+
+    // 中间内容
+    content: (content) => {
+      // 页面标题
+      content.child(vstack(header => {
+        header.gap('8px');
+        header.styles({ marginBottom: '24px' });
+
+        header.child(menuItem('Card 卡片', h1 => {
+          h1.styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' });
+        }));
+
+        header.child(menuItem('卡片容器用于分组和展示相关内容，支持头部、内容区和底部的组合。', desc => {
+          desc.styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
+        }));
+      }));
+
+      // 基础卡片
+      content.child(docSection('basic', '基础卡片', [
+        codeDemo('简单卡片',
+          card(c => {
+            c.styles({ width: '300px' });
+            c.cardBody('这是一个简单的卡片，只包含内容区域。');
+          }),
+          `card(c => {
+  c.cardBody('这是一个简单的卡片')
+})`
+        ),
+
+        codeDemo('带边框卡片',
+          card(c => {
+            c.styles({ width: '300px', border: '1px solid var(--islands-border, #e0e0e0)', boxShadow: 'none' });
+            c.cardBody('带边框的卡片，去除了阴影效果。');
+          }),
+          `card(c => {
+  c.styles({
+    border: '1px solid var(--islands-border, #e0e0e0)',
+    boxShadow: 'none'
+  })
+  c.cardBody('带边框的卡片')
+})`
+        ),
+      ]));
+
+      // 完整卡片
+      content.child(docSection('complete', '完整卡片', [
+        codeDemo('标准卡片（头部 + 内容 + 底部）',
+          card(c => {
+            c.styles({ width: '350px' });
+            c.cardHeader(h => {
+              h.styles({ fontSize: '16px', fontWeight: '600' });
+              h.text('卡片标题');
+            });
+            c.cardBody(b => {
+              b.styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' });
+              b.text('这是卡片的内容区域，可以放置文本、图片、表格等各种内容。卡片组件支持灵活的内容组织方式。');
+            });
+            c.cardFooter(f => {
+              f.child(flex(btns => {
+                btns.gap('8px');
+                btns.child(vButton(b => {
+                  b.text('取消');
+                  b.ghost();
+                  b.size('small');
+                }));
+                btns.child(vButton(b => {
+                  b.text('确定');
+                  b.type('primary');
+                  b.size('small');
+                  b.onclick(() => toast.success('确定'));
+                }));
+              }));
+            });
+          }),
+          `card(c => {
+  c.cardHeader(h => {
+    h.styles({ fontSize: '16px', fontWeight: '600' })
+    h.text('卡片标题')
+  })
+  c.cardBody(b => {
+    b.text('这是卡片的内容区域')
+  })
+  c.cardFooter(f => {
+    f.child(vButton(b => {
+      b.text('取消')
+      b.ghost()
+    }))
+    f.child(vButton(b => {
+      b.text('确定')
+      b.type('primary')
+    }))
+  })
+})`
+        ),
+      ]));
+
+      // 只有头部的卡片
+      content.child(docSection('header-only', '带头部的卡片', [
+        codeDemo('仅头部 + 内容',
+          card(c => {
+            c.styles({ width: '350px' });
+            c.cardHeader(h => {
+              h.styles({ fontSize: '16px', fontWeight: '600' });
+              h.text('通知消息');
+            });
+            c.cardBody(b => {
+              b.child(vstack(stack => {
+                stack.gap('8px');
+                stack.child(menuItem('📢 系统将于今晚 22:00 进行维护升级。', msg => {
+                  msg.styles({ fontSize: '14px' });
+                }));
+                stack.child(menuItem('预计维护时间 2 小时，请提前保存数据。', msg => {
+                  msg.styles({ fontSize: '13px', color: 'var(--islands-text-secondary, #666)' });
+                }));
+              }));
+            });
+          }),
+          `card(c => {
+  c.cardHeader(h => {
+    h.styles({ fontSize: '16px', fontWeight: '600' })
+    h.text('通知消息')
+  })
+  c.cardBody(b => {
+    b.text('系统将于今晚 22:00 进行维护升级')
+  })
+})`
+        ),
+      ]));
+
+      // 只有底部的卡片
+      content.child(docSection('footer-only', '带底部的卡片', [
+        codeDemo('内容 + 底部操作',
+          card(c => {
+            c.styles({ width: '350px' });
+            c.cardBody(b => {
+              b.child(vstack(stack => {
+                stack.gap('12px');
+                stack.child(menuItem('确认删除此项目吗？', msg => {
+                  msg.styles({ fontSize: '14px' });
+                }));
+                stack.child(menuItem('此操作不可撤销，请谨慎操作。', warn => {
+                  warn.styles({ fontSize: '13px', color: 'var(--islands-error, #dc3545)' });
+                }));
+              }));
+            });
+            c.cardFooter(f => {
+              f.child(flex(btns => {
+                btns.gap('8px');
+                btns.child(vButton(b => {
+                  b.text('取消');
+                  b.ghost();
+                  b.size('small');
+                }));
+                btns.child(vButton(b => {
+                  b.text('删除');
+                  b.type('danger');
+                  b.size('small');
+                  b.onclick(() => toast.error('已删除'));
+                }));
+              }));
+            });
+          }),
+          `card(c => {
+  c.cardBody(b => {
+    b.text('确认删除此项目吗？')
+  })
+  c.cardFooter(f => {
+    f.child(vButton(b => {
+      b.text('取消')
+      b.ghost()
+    }))
+    f.child(vButton(b => {
+      b.text('删除')
+      b.type('danger')
+    }))
+  })
+})`
+        ),
+      ]));
+
+      // 卡片网格
+      content.child(docSection('grid', '卡片网格布局', [
+        card(c => {
+          c.cardBody(b => {
+            b.child(responsiveGrid(g => {
+              g.minSize('200px');
+              g.gap('16px');
+
+              // 卡片 1
+              g.child(card(c1 => {
+                c1.cardHeader(h => { h.styles({ fontSize: '14px', fontWeight: '600' }); h.text('📊 数据统计'); });
+                c1.cardBody(p => { p.styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-primary, #667eea)' }); p.text('1,234'); });
+                c1.cardFooter(f => { f.child(menuItem('较昨日 +12%', m => { m.styles({ fontSize: '12px', color: 'var(--islands-success, #28a745)' }); })); });
+              }));
+
+              // 卡片 2
+              g.child(card(c2 => {
+                c2.cardHeader(h => { h.styles({ fontSize: '14px', fontWeight: '600' }); h.text('👥 用户数'); });
+                c2.cardBody(p => { p.styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-success, #28a745)' }); p.text('8,567'); });
+                c2.cardFooter(f => { f.child(menuItem('较昨日 +5%', m => { m.styles({ fontSize: '12px', color: 'var(--islands-success, #28a745)' }); })); });
+              }));
+
+              // 卡片 3
+              g.child(card(c3 => {
+                c3.cardHeader(h => { h.styles({ fontSize: '14px', fontWeight: '600' }); h.text('💰 收入'); });
+                c3.cardBody(p => { p.styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-warning, #ffc107)' }); p.text('¥45,678'); });
+                c3.cardFooter(f => { f.child(menuItem('较昨日 -3%', m => { m.styles({ fontSize: '12px', color: 'var(--islands-error, #dc3545)' }); })); });
+              }));
+
+              // 卡片 4
+              g.child(card(c4 => {
+                c4.cardHeader(h => { h.styles({ fontSize: '14px', fontWeight: '600' }); h.text('📝 订单'); });
+                c4.cardBody(p => { p.styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-info, #17a2b8)' }); p.text('342'); });
+                c4.cardFooter(f => { f.child(menuItem('较昨日 +8%', m => { m.styles({ fontSize: '12px', color: 'var(--islands-success, #28a745)' }); })); });
+              }));
+            }));
+          });
+        }),
+      ]));
+
+      // 嵌套卡片
+      content.child(docSection('nested', '嵌套卡片', [
+        card(c => {
+          c.styles({ width: '400px' });
+          c.cardHeader(h => {
+            h.styles({ fontSize: '16px', fontWeight: '600' });
+            h.text('外层卡片');
+          });
+          c.cardBody(b => {
+            b.child(vstack(stack => {
+              stack.gap('16px');
+              stack.child(menuItem('这是外层卡片的内容', m => {
+                m.styles({ fontSize: '14px', color: 'var(--islands-text-secondary, #666)' });
+              }));
+
+              // 内层卡片
+              stack.child(card(inner => {
+                inner.styles({ background: 'var(--islands-bg-secondary, #f8f9fa)' });
+                inner.cardHeader(h => { h.styles({ fontSize: '14px', fontWeight: '600' }); h.text('内层卡片'); });
+                inner.cardBody(p => { p.styles({ fontSize: '13px' }); p.text('这是内嵌的卡片内容'); });
+              }));
+            }));
+          });
+        }),
+      ]));
+
+      // API
+      content.child(docSection('api', 'API', [
+        card(c => {
+          c.cardBody(api => {
+            api.child(menu(apiMenu => {
+              apiMenu.vertical();
+
+              const apiItems = [
+                { name: 'card', desc: '卡片容器', props: 'setup(回调函数)' },
+                { name: 'cardHeader', desc: '卡片头部', props: 'setup(回调函数) / text(文本)' },
+                { name: 'cardBody', desc: '卡片内容', props: 'setup(回调函数) / text(文本)' },
+                { name: 'cardFooter', desc: '卡片底部', props: 'setup(回调函数) / child(子元素)' },
+              ];
+
+              apiItems.forEach(item => {
+                apiMenu.item(it => {
+                  it.child(flex(apiRow => {
+                    apiRow.justifyBetween();
+                    apiRow.styles({ width: '100%', padding: '8px 0' });
+                    apiRow.child(menuItem(item.name, name => {
+                      name.styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '120px' });
+                    }));
+                    apiRow.child(menuItem(item.desc, desc => {
+                      desc.styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 });
+                    }));
+                    apiRow.child(menuItem(item.props, type => {
+                      type.styles({ fontFamily: 'monospace', fontSize: '11px', color: '#999' });
+                    }));
+                  }));
+                });
+              });
+            }));
+          });
+        }),
+      ]));
+    },
+
+    // 右侧目录
+    toc: (toc) => {
+      toc.child(menuItem('本页目录', title => {
+        title.styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' });
+      }));
+      toc.child(vstack(links => {
+        links.gap('4px');
+        links.child(tocItem('基础卡片', '#basic'));
+        links.child(tocItem('完整卡片', '#complete'));
+        links.child(tocItem('带头部', '#header-only'));
+        links.child(tocItem('带底部', '#footer-only'));
+        links.child(tocItem('网格布局', '#grid'));
+        links.child(tocItem('嵌套卡片', '#nested'));
+        links.child(tocItem('API', '#api'));
+      }));
+    },
+  });
+}
