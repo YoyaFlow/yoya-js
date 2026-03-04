@@ -13,7 +13,7 @@ import {
   vCode,
   toast,
   // 主题
-  themeManager, switchTheme, getCurrentThemeId,
+  setThemeMode, getThemeMode, getEffectiveThemeMode,
 } from '../../yoya/index.js';
 
 /**
@@ -75,15 +75,21 @@ export function appLayout(setup) {
       // 右侧：主题切换
       navbar.child(flex(right => {
         right.alignItems('center');
-        right.gap('12px');
+        right.gap('8px');
+
+        // 主题 mode 切换按钮
         right.child(vButton(btn => {
           btn.ghost();
           btn.size('small');
-          btn.text('🌙');
+          const mode = getThemeMode();
+          const icons = { auto: '🔄', light: '☀️', dark: '🌙' };
+          btn.text(icons[mode] || '🌙');
           btn.on('click', () => {
-            const current = getCurrentThemeId();
-            const next = current === 'islands:light' ? 'islands:dark' : 'islands:light';
-            switchTheme(next);
+            const current = getThemeMode();
+            const next = current === 'auto' ? 'light' : current === 'light' ? 'dark' : 'auto';
+            setThemeMode(next);
+            btn.text(icons[next]);
+            toast.info(`主题模式：${next === 'auto' ? '跟随系统' : next === 'light' ? '浅色' : '深色'}`);
           });
         }));
       }));

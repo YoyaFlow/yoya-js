@@ -149,6 +149,9 @@ export {
   initTheme,
   applyTheme,
   switchTheme,
+  setThemeMode,     // 设置 mode (auto|light|dark)
+  getThemeMode,     // 获取当前 mode
+  getEffectiveThemeMode, // 获取生效的 mode
   getCurrentThemeId,
   getRegisteredThemes,
   registerTheme,

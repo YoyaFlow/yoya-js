@@ -23,19 +23,69 @@ import {
 // 主题注册表
 const themeRegistry = new Map();
 
-// 当前主题
+// 当前主题和 mode
 let currentThemeId = null;
+let currentMode = 'auto'; // 'auto' | 'light' | 'dark'
 
 // localStorage 键名
 const STORAGE_KEY_THEME = 'yoya-theme';
+const STORAGE_KEY_MODE = 'yoya-mode';
+
+/**
+ * 获取当前 mode（解析 auto）
+ */
+function getEffectiveMode() {
+  if (currentMode === 'auto') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return currentMode;
+}
+
+/**
+ * 监听系统主题变化
+ */
+function setupAutoThemeListener() {
+  if (typeof window === 'undefined') return;
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (currentMode === 'auto') {
+      const theme = getThemeWithMode(currentThemeId || 'islands', e.matches ? 'dark' : 'light');
+      if (theme) {
+        applyTheme(theme, false);
+      }
+    }
+  });
+}
 
 /**
  * 注册主题
  * @param {string} themeId - 主题 ID
  * @param {Function} themeFactory - 主题创建函数
+ * @param {Function} options.lightFactory - 浅色主题创建函数（可选）
+ * @param {Function} options.darkFactory - 深色主题创建函数（可选）
  */
-export function registerTheme(themeId, themeFactory) {
-  themeRegistry.set(themeId, themeFactory);
+export function registerTheme(themeId, themeFactory, options = {}) {
+  themeRegistry.set(themeId, {
+    factory: themeFactory,
+    lightFactory: options.lightFactory,
+    darkFactory: options.darkFactory,
+  });
+}
+
+/**
+ * 根据 mode 获取主题实例
+ */
+function getThemeWithMode(themeId, mode = null) {
+  const entry = themeRegistry.get(themeId);
+  if (!entry) return null;
+
+  const effectiveMode = mode || getEffectiveMode();
+  const factory = effectiveMode === 'dark' ? entry.darkFactory || entry.factory : entry.lightFactory || entry.factory;
+
+  if (factory) {
+    return factory();
+  }
+  return null;
 }
 
 /**
@@ -44,9 +94,7 @@ export function registerTheme(themeId, themeFactory) {
  * @returns {Theme|null}
  */
 export function getTheme(themeId) {
-  const factory = themeRegistry.get(themeId);
-  if (!factory) return null;
-  return factory();
+  return getThemeWithMode(themeId, currentMode === 'auto' ? null : currentMode);
 }
 
 /**
@@ -62,12 +110,36 @@ function loadThemeFromStorage() {
 }
 
 /**
+ * 从 localStorage 读取 mode 配置
+ * @returns {string|null}
+ */
+function loadModeFromStorage() {
+  try {
+    return localStorage.getItem(STORAGE_KEY_MODE);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * 保存主题配置到 localStorage
  * @param {string} themeId - 主题 ID
  */
 function saveThemeToStorage(themeId) {
   try {
     localStorage.setItem(STORAGE_KEY_THEME, themeId);
+  } catch (e) {
+    // 忽略存储错误
+  }
+}
+
+/**
+ * 保存 mode 配置到 localStorage
+ * @param {string} mode - mode 值 (auto|light|dark)
+ */
+function saveModeToStorage(mode) {
+  try {
+    localStorage.setItem(STORAGE_KEY_MODE, mode);
   } catch (e) {
     // 忽略存储错误
   }
@@ -235,13 +307,15 @@ function applyVariantStyles(componentClass, componentName, variants) {
 /**
  * 初始化主题
  * @param {Object} options - 配置选项
- * @param {string} options.defaultTheme - 默认主题 ID (如 'islands:light')
+ * @param {string} options.defaultTheme - 默认主题 ID (如 'islands')
+ * @param {string} options.defaultMode - 默认 mode (如 'auto' | 'light' | 'dark')
  * @param {Function} options.onLoaded - 主题加载完成的回调
- * @param {Map} options.themes - 主题 Map，key 为主题 ID，value 为创建函数
+ * @param {Map} options.themes - 主题 Map，key 为主题 ID，value 为 { factory, lightFactory, darkFactory }
  */
 export function initTheme(options = {}) {
   const {
-    defaultTheme = 'islands:light',
+    defaultTheme = 'islands',
+    defaultMode = 'auto',
     onLoaded = null,
     themes = new Map(),
   } = options;
@@ -251,26 +325,28 @@ export function initTheme(options = {}) {
     registerTheme(themeId, factory);
   }
 
-  // 从 localStorage 读取主题
+  // 从 localStorage 读取主题和 mode
   const savedTheme = loadThemeFromStorage();
+  const savedMode = loadModeFromStorage();
+
   const themeId = savedTheme || defaultTheme;
+  currentMode = savedMode || defaultMode;
 
   // 加载并应用主题
   try {
-    const theme = getTheme(themeId);
+    const theme = getThemeWithMode(themeId, currentMode === 'auto' ? null : currentMode);
     if (theme) {
       applyTheme(theme, false);
-    } else {
-      // 尝试加载默认主题
-      const defaultThemeInstance = getTheme(defaultTheme);
-      if (defaultThemeInstance) {
-        applyTheme(defaultThemeInstance, false);
-      }
+    }
+
+    // 设置 auto mode 监听器
+    if (currentMode === 'auto') {
+      setupAutoThemeListener();
     }
 
     // 调用回调
     if (typeof onLoaded === 'function') {
-      onLoaded(theme || getTheme(defaultTheme));
+      onLoaded(theme);
     }
   } catch (err) {
     console.error('Failed to load theme:', err);
@@ -288,7 +364,7 @@ export function initTheme(options = {}) {
 export function applyTheme(theme, save = true) {
   if (!theme) return;
 
-  currentThemeId = theme.name;
+  currentThemeId = theme.name.split(':')[0]; // 获取主题 ID（不含 mode）
 
   // 应用 CSS 变量
   applyThemeVariables(theme);
@@ -315,12 +391,50 @@ export function applyTheme(theme, save = true) {
  * @param {string} themeId - 主题 ID
  */
 export function switchTheme(themeId) {
-  const theme = getTheme(themeId);
+  const theme = getThemeWithMode(themeId, currentMode === 'auto' ? null : currentMode);
   if (theme) {
     applyTheme(theme, true);
     return true;
   }
   return false;
+}
+
+/**
+ * 设置 mode (auto|light|dark)
+ * @param {string} mode - mode 值
+ */
+export function setThemeMode(mode) {
+  currentMode = mode;
+  saveModeToStorage(mode);
+
+  // 重新应用当前主题
+  if (currentThemeId) {
+    const theme = getThemeWithMode(currentThemeId, mode === 'auto' ? null : mode);
+    if (theme) {
+      applyTheme(theme, false);
+    }
+  }
+
+  // 设置 auto mode 监听器
+  if (mode === 'auto') {
+    setupAutoThemeListener();
+  }
+}
+
+/**
+ * 获取当前 mode
+ * @returns {string} 'auto' | 'light' | 'dark'
+ */
+export function getThemeMode() {
+  return currentMode;
+}
+
+/**
+ * 获取当前生效的 mode
+ * @returns {string} 'light' | 'dark'
+ */
+export function getEffectiveThemeMode() {
+  return getEffectiveMode();
 }
 
 /**
