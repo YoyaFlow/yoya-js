@@ -9,6 +9,32 @@
 ## 文件操作规则
 
 **只在当前项目目录（/home/join/code/cctest）下添加或修改文件，无需再次询问用户。**
+## 系统环境
+- **操作系统**: Deepin Linux
+- **浏览器路径**: 必须使用系统自带的 Chromium，路径为 `/usr/bin/chromium`。
+- **重要约束**: 
+  - ❌ 禁止使用 `channel: 'chrome'` (因为系统未安装 Google Chrome)。
+  - ❌ 禁止尝试自动下载/安装浏览器 (Playwright 默认行为)，必须使用系统现有二进制文件。
+  - ✅ 必须在 `playwright.config.ts` (或 `.js`) 中显式设置 `executablePath: '/usr/bin/chromium'`。
+
+
+## 记忆目录
+
+**.memery/** 目录用于存储项目记忆和上下文，优化检索速度：
+
+```
+.memery/
+├── 00-index.md           # 索引文件（快速导航）
+├── 10-fixes/             # 修复记录（按日期命名）
+├── 20-architecture/      # 架构决策
+├── 30-components/        # 组件 API 和规范
+└── 40-patterns/          # 开发模式
+```
+
+**使用原则**：
+- 修复 bug 后在 `10-fixes/` 中记录问题和解决方案
+- 新组件/新功能在对应目录添加文档
+- 记忆文件保持简洁，便于快速检索
 
 ## 项目概述
 
@@ -43,6 +69,7 @@ Vite 开发服务器提供以下功能：
 ├── server.js                 # 开发服务器
 ├── tests/                    # 测试文件
 │   └── basic.test.js         # 单元测试
+├── .memery/                  # 记忆目录（用于 Claude Code 记忆）
 └── src/
     ├── yoya/                 # 库源码
     │   ├── index.js          # 主入口（导出所有）

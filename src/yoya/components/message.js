@@ -6,10 +6,10 @@
 import { Tag, div, span } from '../core/basic.js';
 
 // ============================================
-// Message 消息提示
+// VMessage 消息提示
 // ============================================
 
-class Message extends Tag {
+class VMessage extends Tag {
   constructor(content = '', type = 'info', setup = null) {
     super('div', null);
 
@@ -20,7 +20,6 @@ class Message extends Tag {
     this._timer = null;
     this._closed = false;
 
-    // 应用基础样式
     this.styles({
       display: 'flex',
       alignItems: 'center',
@@ -34,19 +33,14 @@ class Message extends Tag {
       position: 'relative'
     });
 
-    // 根据类型设置样式
     this._applyTypeStyles();
-
-    // 构建内容
     this._buildContent();
 
-    // 执行 setup
     if (setup !== null) {
       this.setup(setup);
     }
   }
 
-  // 应用类型样式（使用主题变量）
   _applyTypeStyles() {
     const typeStyles = {
       success: {
@@ -75,7 +69,6 @@ class Message extends Tag {
     this.styles(styles);
   }
 
-  // 获取类型图标
   _getTypeIcon() {
     const icons = {
       success: '✓',
@@ -86,9 +79,7 @@ class Message extends Tag {
     return icons[this._type] || icons.info;
   }
 
-  // 构建内容
   _buildContent() {
-    // 图标
     this.child(span(icon => {
       icon.text(this._getTypeIcon());
       icon.styles({
@@ -99,7 +90,6 @@ class Message extends Tag {
       });
     }));
 
-    // 文本内容
     this.child(span(text => {
       text.text(this._content);
       text.styles({
@@ -110,7 +100,6 @@ class Message extends Tag {
       });
     }));
 
-    // 关闭按钮
     if (this._closable) {
       this.child(span(closeBtn => {
         closeBtn.text('×');
@@ -137,31 +126,26 @@ class Message extends Tag {
     }
   }
 
-  // 设置消息内容
   content(text) {
     this._content = text;
     return this;
   }
 
-  // 设置是否可关闭
   closable(value) {
     this._closable = value;
     return this;
   }
 
-  // 设置自动关闭时间（毫秒），0 表示不自动关闭
   duration(ms) {
     this._duration = ms;
     return this;
   }
 
-  // 关闭消息
   close() {
     if (this._closed) return;
 
     this._closed = true;
 
-    // 添加淡出动画
     if (this._boundElement) {
       this._boundElement.style.animation = 'slideOut 0.3s ease forwards';
       setTimeout(() => {
@@ -171,14 +155,12 @@ class Message extends Tag {
       this.destroy();
     }
 
-    // 清除定时器
     if (this._timer) {
       clearTimeout(this._timer);
       this._timer = null;
     }
   }
 
-  // 启动自动关闭定时器
   startTimer() {
     if (this._duration > 0 && !this._timer) {
       this._timer = setTimeout(() => {
@@ -187,7 +169,6 @@ class Message extends Tag {
     }
   }
 
-  // 停止自动关闭定时器
   stopTimer() {
     if (this._timer) {
       clearTimeout(this._timer);
@@ -195,7 +176,6 @@ class Message extends Tag {
     }
   }
 
-  // 渲染后启动定时器
   renderDom() {
     const element = super.renderDom();
     if (element && this._duration > 0) {
@@ -205,15 +185,15 @@ class Message extends Tag {
   }
 }
 
-function message(content = '', type = 'info', setup = null) {
-  return new Message(content, type, setup);
+function vMessage(content = '', type = 'info', setup = null) {
+  return new VMessage(content, type, setup);
 }
 
 // ============================================
-// MessageContainer 消息容器
+// VMessageContainer 消息容器
 // ============================================
 
-class MessageContainer extends Tag {
+class VMessageContainer extends Tag {
   constructor(position = 'top-right', setup = null) {
     super('div', null);
 
@@ -221,7 +201,6 @@ class MessageContainer extends Tag {
     this._messages = [];
     this._maxVisible = 5;
 
-    // 应用基础样式（使用主题变量）
     this.styles({
       position: 'fixed',
       zIndex: 'var(--islands-message-z-index, 9999)',
@@ -232,16 +211,13 @@ class MessageContainer extends Tag {
       maxWidth: 'var(--islands-message-max-width, 420px)',
     });
 
-    // 设置位置
     this._applyPosition();
 
-    // 执行 setup
     if (setup !== null) {
       this.setup(setup);
     }
   }
 
-  // 应用位置样式
   _applyPosition() {
     const positions = {
       'top-left': { top: '0', left: '0' },
@@ -256,16 +232,14 @@ class MessageContainer extends Tag {
     this.styles(pos);
   }
 
-  // 添加消息
   add(content, type = 'info', duration = 3000) {
-    const msg = message(content, type);
+    const msg = vMessage(content, type);
     msg.closable(true);
     msg.duration(duration);
 
     this._messages.push(msg);
     this.child(msg);
 
-    // 如果容器已经渲染，将消息添加到 DOM
     if (this._boundElement) {
       const msgEl = msg.renderDom();
       if (msgEl) {
@@ -273,7 +247,6 @@ class MessageContainer extends Tag {
       }
     }
 
-    // 限制最大显示数量
     if (this._messages.length > this._maxVisible) {
       const oldMsg = this._messages.shift();
       if (oldMsg && !oldMsg._closed) {
@@ -284,146 +257,133 @@ class MessageContainer extends Tag {
     return msg;
   }
 
-  // 成功消息
   success(content, duration = 3000) {
     return this.add(content, 'success', duration);
   }
 
-  // 错误消息
   error(content, duration = 3000) {
     return this.add(content, 'error', duration);
   }
 
-  // 警告消息
   warning(content, duration = 3000) {
     return this.add(content, 'warning', duration);
   }
 
-  // 信息消息
   info(content, duration = 3000) {
     return this.add(content, 'info', duration);
   }
 
-  // 清空所有消息
   clear() {
     this._messages.forEach(msg => msg.close());
     this._messages = [];
-    // 清空子元素引用（不删除 DOM，由 close() 方法处理）
     this._children = [];
   }
 
-  // 设置最大显示数量
   maxVisible(count) {
     this._maxVisible = count;
     return this;
   }
 }
 
-function messageContainer(position = 'top-right', setup = null) {
-  return new MessageContainer(position, setup);
+function vMessageContainer(position = 'top-right', setup = null) {
+  return new VMessageContainer(position, setup);
 }
 
 // ============================================
-// MessageManager 消息管理器（单例）
+// VMessageManager 消息管理器（单例）
 // ============================================
 
-class MessageManager {
+class VMessageManager {
   constructor() {
-    if (MessageManager._instance) {
-      return MessageManager._instance;
+    if (VMessageManager._instance) {
+      return VMessageManager._instance;
     }
     this._container = null;
-    MessageManager._instance = this;
+    VMessageManager._instance = this;
   }
 
-  // 获取或创建容器
   _getContainer() {
     if (!this._container) {
-      this._container = messageContainer('top-right');
+      this._container = vMessageContainer('top-right');
       document.body.appendChild(this._container.renderDom());
     }
     return this._container;
   }
 
-  // 添加消息
   add(content, type = 'info', duration = 3000) {
     return this._getContainer().add(content, type, duration);
   }
 
-  // 成功消息
   success(content, duration = 3000) {
     return this._getContainer().success(content, duration);
   }
 
-  // 错误消息
   error(content, duration = 3000) {
     return this._getContainer().error(content, duration);
   }
 
-  // 警告消息
   warning(content, duration = 3000) {
     return this._getContainer().warning(content, duration);
   }
 
-  // 信息消息
   info(content, duration = 3000) {
     return this._getContainer().info(content, duration);
   }
 
-  // 清空所有消息
   clear() {
     if (this._container) {
       this._container.clear();
     }
   }
 
-  // 设置容器位置
   setPosition(position) {
     if (this._container) {
       this._container.destroy();
       this._container = null;
     }
-    this._container = messageContainer(position);
+    this._container = vMessageContainer(position);
     document.body.appendChild(this._container.renderDom());
     return this;
   }
 
-  // 设置最大显示数量
   maxVisible(count) {
     this._getContainer().maxVisible(count);
     return this;
   }
 }
 
-// 创建全局单例
-const messageManager = new MessageManager();
+const vMessageManager = new VMessageManager();
 
 // 便捷方法
 function toast(content, type = 'info', duration = 3000) {
-  return messageManager.add(content, type, duration);
+  return vMessageManager.add(content, type, duration);
 }
 
-toast.success = (content, duration) => messageManager.success(content, duration);
-toast.error = (content, duration) => messageManager.error(content, duration);
-toast.warning = (content, duration) => messageManager.warning(content, duration);
-toast.info = (content, duration) => messageManager.info(content, duration);
-toast.clear = () => messageManager.clear();
+toast.success = (content, duration) => vMessageManager.success(content, duration);
+toast.error = (content, duration) => vMessageManager.error(content, duration);
+toast.warning = (content, duration) => vMessageManager.warning(content, duration);
+toast.info = (content, duration) => vMessageManager.info(content, duration);
+toast.clear = () => vMessageManager.clear();
 
 // ============================================
 // Tag 原型扩展方法
 // ============================================
 
-Tag.prototype.message = function(content, type = 'info', setup = null) {
-  const el = message(content, type, setup);
+Tag.prototype.vMessage = function(content, type = 'info', setup = null) {
+  const el = vMessage(content, type, setup);
   this.child(el);
   return this;
 };
 
-Tag.prototype.messageContainer = function(position = 'top-right', setup = null) {
-  const el = messageContainer(position, setup);
+Tag.prototype.vMessageContainer = function(position = 'top-right', setup = null) {
+  const el = vMessageContainer(position, setup);
   this.child(el);
   return this;
 };
+
+// 兼容旧方法名
+Tag.prototype.message = Tag.prototype.vMessage;
+Tag.prototype.messageContainer = Tag.prototype.vMessageContainer;
 
 // ============================================
 // 添加动画样式
@@ -466,16 +426,11 @@ if (typeof document !== 'undefined') {
 // ============================================
 
 export {
-  // 类
-  Message,
-  MessageContainer,
-  MessageManager,
-
-  // 工厂函数
-  message,
-  messageContainer,
-
-  // 全局管理器
-  messageManager,
+  VMessage,
+  VMessageContainer,
+  VMessageManager,
+  vMessage,
+  vMessageContainer,
+  vMessageManager,
   toast
 };

@@ -93,7 +93,11 @@
       "Bash(curl -s \"http://localhost:3000/v1/examples/layout.js\" 2>&1 | head -10)",
       "Bash(curl -s \"http://localhost:3000/v1/examples/entry.js\" 2>&1 | head -15)",
       "Bash(git add -A && git commit -m \"fix: 修复 codeDemo 中 content.gap 错误，改用 vstack 包装内容\")",
-      "Bash(git add -A && git commit -m \"feat: 添加 Form、Card、Menu 演示页面\")"
+      "Bash(git add -A && git commit -m \"feat: 添加 Form、Card、Menu 演示页面\")",
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s http://localhost:3000/v1/examples/form.html | head -100)",
+      "Bash(npx playwright install chromium --force 2>&1 | tail -30)",
+      "Bash(timeout 10 /usr/bin/chromium --headless --dump-dom http://localhost:3000/v1/examples/form.html 2>/dev/null | grep -i \"开启通知\\\\|自动同步\" | head -3)"
     ]
   },
   "enableAllProjectMcpServers": true,

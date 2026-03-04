@@ -5,40 +5,40 @@
 
 // Card 卡片组件
 export {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  card,
-  cardHeader,
-  cardBody,
-  cardFooter
+  VCard,
+  VCardHeader,
+  VCardBody,
+  VCardFooter,
+  vCard,
+  vCardHeader,
+  vCardBody,
+  vCardFooter
 } from './card.js';
 
 // Menu 菜单组件
 export {
-  Menu,
-  MenuItem,
-  MenuDivider,
-  MenuGroup,
-  DropdownMenu,
-  ContextMenu,
-  menu,
-  menuItem,
-  menuDivider,
-  menuGroup,
-  dropdownMenu,
-  contextMenu
+  VMenu,
+  VMenuItem,
+  VMenuDivider,
+  VMenuGroup,
+  VDropdownMenu,
+  VContextMenu,
+  vMenu,
+  vMenuItem,
+  vMenuDivider,
+  vMenuGroup,
+  vDropdownMenu,
+  vContextMenu
 } from './menu.js';
 
 // Message 消息组件
 export {
-  Message,
-  MessageContainer,
-  MessageManager,
-  message,
-  messageContainer,
-  messageManager,
+  VMessage,
+  VMessageContainer,
+  VMessageManager,
+  vMessage,
+  vMessageContainer,
+  vMessageManager,
   toast
 } from './message.js';
 

@@ -84,17 +84,17 @@ export {
 // 导出 UI 组件
 export {
   // Card 组件
-  Card, CardHeader, CardBody, CardFooter,
-  card, cardHeader, cardBody, cardFooter,
+  VCard, VCardHeader, VCardBody, VCardFooter,
+  vCard, vCardHeader, vCardBody, vCardFooter,
 
   // Menu 组件
-  Menu, MenuItem, MenuDivider, MenuGroup, DropdownMenu, ContextMenu,
-  menu, menuItem, menuDivider, menuGroup, dropdownMenu, contextMenu,
+  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VDropdownMenu, VContextMenu,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vDropdownMenu, vContextMenu,
 
   // Message 组件
-  Message, MessageContainer, MessageManager,
-  message, messageContainer,
-  messageManager, toast,
+  VMessage, VMessageContainer, VMessageManager,
+  vMessage, vMessageContainer,
+  vMessageManager, toast,
 
   // Button 组件
   VButton, vButton,

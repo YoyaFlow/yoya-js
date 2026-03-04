@@ -6,12 +6,12 @@
 import { Tag, span, div } from '../core/basic.js';
 
 // ============================================
-// Menu 菜单
+// VMenu 菜单
 // ============================================
 
-class Menu extends Tag {
+class VMenu extends Tag {
   constructor(setup = null) {
-    super('div', null);  // 先不执行 setup
+    super('div', null);
     this.styles({
       display: 'inline-block',
       background: 'var(--islands-menu-bg, white)',
@@ -22,18 +22,15 @@ class Menu extends Tag {
       border: 'var(--islands-menu-border, 1px solid var(--islands-border, #e0e0e0))',
     });
 
-    // 执行 setup
     if (setup !== null) {
       this.setup(setup);
     }
   }
 
-  // 垂直菜单（默认）
   vertical() {
     return this.style('flexDirection', 'column');
   }
 
-  // 水平菜单
   horizontal() {
     this.style('display', 'flex');
     this.style('flexDirection', 'row');
@@ -43,68 +40,58 @@ class Menu extends Tag {
     return this;
   }
 
-  // 紧凑模式
   compact() {
     return this.style('padding', '4px 0');
   }
 
-  // 无边框阴影
   noShadow() {
     return this.style('boxShadow', 'none');
   }
 
-  // 带边框
   bordered() {
     return this.style('border', '1px solid #e0e0e0');
   }
 
-  // 子元素工厂方法
   item(content = '', setup = null) {
-    const el = menuItem(content, setup);
+    const el = vMenuItem(content, setup);
     this.child(el);
-    return el;  // 返回 MenuItem 实例，支持链式调用
+    return el;
   }
 
   divider(setup = null) {
-    const el = menuDivider(setup);
+    const el = vMenuDivider(setup);
     this.child(el);
     return this;
   }
 
   group(setup = null) {
-    const el = menuGroup(setup);
+    const el = vMenuGroup(setup);
     this.child(el);
     return this;
   }
 }
 
-function menu(setup = null) {
-  return new Menu(setup);
+function vMenu(setup = null) {
+  return new VMenu(setup);
 }
 
 // ============================================
-// MenuItem 菜单项
+// VMenuItem 菜单项
 // ============================================
 
-class MenuItem extends Tag {
-  // 状态属性列表
+class VMenuItem extends Tag {
   static _stateAttrs = ['disabled', 'active', 'danger', 'hoverable'];
 
   constructor(content = '', setup = null) {
-    // 如果 content 是函数，则它是 setup
     if (typeof content === 'function') {
       setup = content;
       content = '';
     }
 
-    // 初始化状态机
     super('div', null);
     this.registerStateAttrs(...this.constructor._stateAttrs);
-
-    // 注册状态处理器
     this._registerStateHandlers();
 
-    // 设置基础样式（使用主题变量）
     this.styles({
       padding: 'var(--islands-menu-item-padding, var(--islands-padding-sm, 10px)) var(--islands-menu-item-horizontal-padding, var(--islands-padding-md, 16px))',
       cursor: 'pointer',
@@ -117,21 +104,14 @@ class MenuItem extends Tag {
       background: 'transparent',
     });
 
-    // 保存样式快照（用于恢复）
     this.saveStateSnapshot('base');
-
-    // 注册 hover 拦截器
     this._registerHoverInterceptor();
-
-    // 设置交互处理器
     this._setupInteractions();
 
-    // 执行 setup
     if (setup !== null) {
       this.setup(setup);
     }
 
-    // 初始化状态
     this.initializeStates({
       disabled: false,
       active: false,
@@ -144,12 +124,7 @@ class MenuItem extends Tag {
     }
   }
 
-  /**
-   * 注册状态处理器
-   * @private
-   */
   _registerStateHandlers() {
-    // disabled 状态处理器
     this.registerStateHandler('disabled', (enabled, host) => {
       const el = host._boundElement;
       if (enabled) {
@@ -178,7 +153,6 @@ class MenuItem extends Tag {
       }
     });
 
-    // active 状态处理器
     this.registerStateHandler('active', (enabled, host) => {
       const el = host._boundElement;
       if (enabled) {
@@ -204,7 +178,6 @@ class MenuItem extends Tag {
       }
     });
 
-    // danger 状态处理器
     this.registerStateHandler('danger', (enabled, host) => {
       const el = host._boundElement;
       if (enabled) {
@@ -220,34 +193,23 @@ class MenuItem extends Tag {
       }
     });
 
-    // hoverable 状态处理器（仅标记，实际效果由拦截器处理）
     this.registerStateHandler('hoverable', () => {
       // hoverable 状态的视觉效果由拦截器动态处理
     });
   }
 
-  /**
-   * 注册 hover 拦截器
-   * @private
-   */
   _registerHoverInterceptor() {
     this.registerStateInterceptor((stateName, value) => {
-      // 如果处于禁用状态，拦截所有状态变更
       if (this.hasState('disabled') && stateName !== 'disabled') {
-        return null;  // 取消操作
+        return null;
       }
       return { stateName, value };
     });
   }
 
-  /**
-   * 设置交互处理器
-   * @private
-   */
   _setupInteractions() {
-    const self = this;  // 保存 MenuItem 引用
+    const self = this;
 
-    // hover 效果（使用主题变量）
     this.on('mouseenter', () => {
       if (!self.hasState('disabled')) {
         self.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg, rgba(102, 126, 234, 0.05)))');
@@ -264,22 +226,17 @@ class MenuItem extends Tag {
       }
     });
 
-    // 点击选中效果
     this.on('click', () => {
       if (!self.hasState('disabled')) {
-        // 清除所有菜单项的激活状态（包括当前项）
         const parent = self._boundElement?.parentNode;
         if (parent) {
           Array.from(parent.children).forEach(child => {
-            if (child._menuItem) {
-              child._menuItem.setState('active', false);
+            if (child._vMenuItem) {
+              child._vMenuItem.setState('active', false);
             }
           });
         }
-        // 设置当前菜单项为激活状态
         self.setState('active', true);
-
-        // 触发用户自定义点击事件
         if (self._onclick) {
           self._onclick(self);
         }
@@ -287,14 +244,12 @@ class MenuItem extends Tag {
     });
   }
 
-  // 设置文本内容
   text(content) {
     this._text = content;
     this._updateContent();
     return this;
   }
 
-  // 图标
   icon(content) {
     this._icon = content;
     this._ensureIconBox();
@@ -304,82 +259,63 @@ class MenuItem extends Tag {
     return this;
   }
 
-  // 设置点击回调
   onclick(fn) {
     this._onclick = fn;
     return this;
   }
 
-  // 禁用状态
   disabled() {
     return this.setState('disabled', true);
   }
 
-  // 启用状态（禁用状态的逆向操作）
   enabled() {
     return this.setState('disabled', false);
   }
 
-  // 激活状态
   active() {
     return this.setState('active', true);
   }
 
-  // 取消激活
   inactive() {
     return this.setState('active', false);
   }
 
-  // 危险项（删除等）
   danger() {
     return this.setState('danger', true);
   }
 
-  // 悬停效果
   hoverable() {
     return this.setState('hoverable', true);
   }
 
-  // 快捷键
   shortcut(key) {
     this._shortcut = key;
     this._updateContent();
     return this;
   }
 
-  /**
-   * 切换状态
-   * @param {string} stateName - 状态名
-   * @returns {this}
-   */
   toggleState(stateName) {
     return this.setState(stateName, !this.hasState(stateName));
   }
 
-  // 确保图标容器存在
   _ensureIconBox() {
     if (this._iconBox) return;
-
     this._iconBox = span(iconEl => {
       iconEl.styles({ display: 'inline-flex', alignItems: 'center', color: 'inherit', pointerEvents: 'none' });
     });
     this.child(this._iconBox);
   }
 
-  // 确保文本容器存在
   _ensureTextBox() {
     if (this._textBox) return;
-
     this._textBox = span(textEl => {
       textEl.styles({ flex: 1, color: 'inherit', pointerEvents: 'none' });
     });
     this.child(this._textBox);
   }
 
-  // 确保快捷键容器存在
   _ensureShortcutBox() {
     if (this._shortcutBox) return;
-
     this._shortcutBox = span(shortcutEl => {
       shortcutEl.styles({
         fontSize: '12px',
@@ -394,52 +330,45 @@ class MenuItem extends Tag {
   }
 
   _updateContent() {
-    // 清空子元素和缓存引用
     this.clear();
     this._iconBox = null;
     this._textBox = null;
     this._shortcutBox = null;
 
-    // 图标
     if (this._icon) {
       this._ensureIconBox();
       this._iconBox.html(this._icon);
     }
 
-    // 文本
     if (this._text) {
       this._ensureTextBox();
       this._textBox.text(this._text);
     }
 
-    // 快捷键
     if (this._shortcut) {
       this._ensureShortcutBox();
       this._shortcutBox.text(this._shortcut);
     }
   }
 
-  /**
-   * 重写 renderDom 方法，在渲染后设置引用
-   */
   renderDom() {
     const element = super.renderDom();
     if (element) {
-      element._menuItem = this;  // 绑定 MenuItem 引用到 DOM 元素
+      element._vMenuItem = this;
     }
     return element;
   }
 }
 
-function menuItem(content = '', setup = null) {
-  return new MenuItem(content, setup);
+function vMenuItem(content = '', setup = null) {
+  return new VMenuItem(content, setup);
 }
 
 // ============================================
-// MenuDivider 菜单分割线
+// VMenuDivider 菜单分割线
 // ============================================
 
-class MenuDivider extends Tag {
+class VMenuDivider extends Tag {
   constructor(setup = null) {
     super('hr', setup);
     this.styles({
@@ -451,15 +380,15 @@ class MenuDivider extends Tag {
   }
 }
 
-function menuDivider(setup = null) {
-  return new MenuDivider(setup);
+function vMenuDivider(setup = null) {
+  return new VMenuDivider(setup);
 }
 
 // ============================================
-// MenuGroup 菜单组
+// VMenuGroup 菜单组
 // ============================================
 
-class MenuGroup extends Tag {
+class VMenuGroup extends Tag {
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -468,34 +397,30 @@ class MenuGroup extends Tag {
     });
   }
 
-  // 组标题
   label(text) {
     this._label = text;
     this._updateContent();
     return this;
   }
 
-  // 子元素工厂方法
   item(content = '', setup = null) {
-    const el = menuItem(content, setup);
+    const el = vMenuItem(content, setup);
     this.child(el);
-    return el;  // 返回 MenuItem 实例，支持链式调用
+    return el;
   }
 
   divider(setup = null) {
-    const el = menuDivider(setup);
+    const el = vMenuDivider(setup);
     this.child(el);
     return this;
   }
 
   _updateContent() {
-    // 移除旧的标签元素（如果有）
     const labelEl = this._children.find(c => c._isLabel);
     if (labelEl) {
       this._children = this._children.filter(c => c !== labelEl);
     }
 
-    // 如果有标签，在开头添加标签元素
     if (this._label) {
       const newLabelEl = span(label => {
         label.text(this._label);
@@ -511,24 +436,23 @@ class MenuGroup extends Tag {
         label._isLabel = true;
       });
 
-      // 在第一个位置插入标签元素
       const nonLabelChildren = this._children.filter(c => !c._isLabel);
       this._children = [newLabelEl, ...nonLabelChildren];
     }
   }
 }
 
-function menuGroup(setup = null) {
-  return new MenuGroup(setup);
+function vMenuGroup(setup = null) {
+  return new VMenuGroup(setup);
 }
 
 // ============================================
-// DropdownMenu 下拉菜单
+// VDropdownMenu 下拉菜单
 // ============================================
 
-class DropdownMenu extends Tag {
+class VDropdownMenu extends Tag {
   constructor(setup = null) {
-    super('div', null);  // 先不执行 setup
+    super('div', null);
     this.style('position', 'relative');
     this.style('display', 'inline-block');
     this._triggerContent = null;
@@ -538,28 +462,23 @@ class DropdownMenu extends Tag {
     this._arrow = null;
     this._built = false;
 
-    // 执行 setup（允许用户设置 _triggerContent 和 _menu）
     if (setup !== null) {
       this.setup(setup);
     }
 
-    // setup 完成后构建结构
     this._buildStructure();
   }
 
-  // 触发器内容
   trigger(content) {
     this._triggerContent = content;
     return this;
   }
 
-  // 菜单内容
   menuContent(menu) {
     this._menu = menu;
     return this;
   }
 
-  // 点击外部关闭
   closeOnClickOutside() {
     this._closeOnClickOutside = true;
     return this;
@@ -568,7 +487,6 @@ class DropdownMenu extends Tag {
   _toggle() {
     if (!this._menuContainer || !this._arrow) return;
 
-    // 获取真实 DOM 元素
     const menuEl = this._menuContainer._boundElement;
     const arrowEl = this._arrow._boundElement;
 
@@ -582,10 +500,8 @@ class DropdownMenu extends Tag {
   _buildStructure() {
     if (this._built) return;
 
-    // 清空子元素
     this.clear();
 
-    // 触发器容器（使用主题变量）
     this._triggerWrap = div(wrap => {
       wrap.styles({
         cursor: 'pointer',
@@ -606,24 +522,18 @@ class DropdownMenu extends Tag {
         wrap.style('background', 'var(--islands-dropdown-trigger-bg, #667eea)');
       });
 
-      // 触发器内容
       if (typeof this._triggerContent === 'string') {
         wrap.span(this._triggerContent);
       } else if (this._triggerContent && this._triggerContent.renderDom) {
         wrap.child(this._triggerContent);
       }
 
-      // 下拉箭头
       wrap.span(arrow => {
         arrow.text('▼');
-        arrow.styles({
-          fontSize: 'var(--islands-dropdown-arrow-size, 10px)',
-          transition: 'transform 0.2s',
-        });
+        arrow.styles({ fontSize: 'var(--islands-dropdown-arrow-size, 10px)', transition: 'transform 0.2s' });
         this._arrow = arrow;
       });
 
-      // 点击切换事件
       wrap.on('click', (e) => {
         e.stopPropagation();
         this._toggle();
@@ -632,7 +542,6 @@ class DropdownMenu extends Tag {
 
     this.child(this._triggerWrap);
 
-    // 菜单容器
     if (this._menu) {
       this._menuContainer = div(menuWrap => {
         menuWrap.styles({
@@ -648,12 +557,9 @@ class DropdownMenu extends Tag {
           display: 'none',
         });
 
-        // 添加菜单子元素
         if (this._menu._children) {
           this._menu._children.forEach(child => {
-            if (child) {
-              menuWrap.child(child);
-            }
+            if (child) menuWrap.child(child);
           });
         }
       });
@@ -661,7 +567,6 @@ class DropdownMenu extends Tag {
       this.child(this._menuContainer);
     }
 
-    // 点击外部关闭
     if (this._closeOnClickOutside) {
       const closeHandler = (e) => {
         const element = this._boundElement;
@@ -679,17 +584,17 @@ class DropdownMenu extends Tag {
   }
 }
 
-function dropdownMenu(setup = null) {
-  return new DropdownMenu(setup);
+function vDropdownMenu(setup = null) {
+  return new VDropdownMenu(setup);
 }
 
 // ============================================
-// ContextMenu 右键菜单
+// VContextMenu 右键菜单
 // ============================================
 
-class ContextMenu extends Tag {
+class VContextMenu extends Tag {
   constructor(setup = null) {
-    super('div', null);  // 先不执行 setup
+    super('div', null);
     this.styles({
       position: 'fixed',
       zIndex: 'var(--islands-context-menu-z-index, 9999)',
@@ -705,23 +610,19 @@ class ContextMenu extends Tag {
     this._menu = null;
     this._built = false;
 
-    // 执行 setup（允许用户设置 _menu）
     if (setup !== null) {
       this.setup(setup);
     }
 
-    // setup 完成后构建内容
     this._buildContent();
   }
 
-  // 绑定目标元素
   target(element) {
     this._target = element;
     this._bindTarget();
     return this;
   }
 
-  // 菜单内容
   menuContent(menu) {
     this._menu = menu;
     return this;
@@ -735,15 +636,8 @@ class ContextMenu extends Tag {
       this.show(e.clientX, e.clientY);
     });
 
-    // 点击外部关闭
-    document.addEventListener('click', () => {
-      this.hide();
-    });
-
-    // 滚动时关闭
-    window.addEventListener('scroll', () => {
-      this.hide();
-    });
+    document.addEventListener('click', () => { this.hide(); });
+    window.addEventListener('scroll', () => { this.hide(); });
   }
 
   show(x, y) {
@@ -752,7 +646,6 @@ class ContextMenu extends Tag {
       this._boundElement.style.left = `${x}px`;
       this._boundElement.style.top = `${y}px`;
 
-      // 确保菜单不超出视口
       const rect = this._boundElement.getBoundingClientRect();
       if (rect.right > window.innerWidth) {
         this._boundElement.style.left = `${x - rect.width}px`;
@@ -774,15 +667,11 @@ class ContextMenu extends Tag {
   _buildContent() {
     if (this._built) return;
 
-    // 清空子元素
     this.clear();
 
-    // 添加菜单子元素
     if (this._menu && this._menu._children) {
       this._menu._children.forEach(child => {
-        if (child) {
-          this.child(child);
-        }
+        if (child) this.child(child);
       });
     }
 
@@ -790,56 +679,59 @@ class ContextMenu extends Tag {
   }
 }
 
-function contextMenu(setup = null) {
-  return new ContextMenu(setup);
+function vContextMenu(setup = null) {
+  return new VContextMenu(setup);
 }
 
 // ============================================
 // Tag 原型扩展方法
 // ============================================
 
-Tag.prototype.menu = function(setup = null) {
-  const el = menu(setup);
+Tag.prototype.vMenu = function(setup = null) {
+  const el = vMenu(setup);
   this.child(el);
   return this;
 };
 
-Tag.prototype.menuItem = function(content = '', setup = null) {
-  const el = menuItem(content, setup);
+Tag.prototype.vMenuItem = function(content = '', setup = null) {
+  const el = vMenuItem(content, setup);
   this.child(el);
   return this;
 };
 
-Tag.prototype.menuDivider = function(setup = null) {
-  const el = menuDivider(setup);
+Tag.prototype.vMenuDivider = function(setup = null) {
+  const el = vMenuDivider(setup);
   this.child(el);
   return this;
 };
 
-Tag.prototype.dropdownMenu = function(setup = null) {
-  const el = dropdownMenu(setup);
+Tag.prototype.vDropdownMenu = function(setup = null) {
+  const el = vDropdownMenu(setup);
   this.child(el);
   return this;
 };
+
+// 兼容旧方法名
+Tag.prototype.menu = Tag.prototype.vMenu;
+Tag.prototype.menuItem = Tag.prototype.vMenuItem;
+Tag.prototype.menuDivider = Tag.prototype.vMenuDivider;
+Tag.prototype.dropdownMenu = Tag.prototype.vDropdownMenu;
 
 // ============================================
 // 导出
 // ============================================
 
 export {
-  // 类
-  Menu,
-  MenuItem,
-  MenuDivider,
-  MenuGroup,
-  DropdownMenu,
-  ContextMenu,
-
-  // 工厂函数
-  menu,
-  menuItem,
-  menuDivider,
-  menuGroup,
-  dropdownMenu,
-  contextMenu
+  VMenu,
+  VMenuItem,
+  VMenuDivider,
+  VMenuGroup,
+  VDropdownMenu,
+  VContextMenu,
+  vMenu,
+  vMenuItem,
+  vMenuDivider,
+  vMenuGroup,
+  vDropdownMenu,
+  vContextMenu
 };

@@ -121,8 +121,7 @@ vInput(i => {
               ]);
             }));
             stack.child(vSelect(s => {
-              s.placeholder('请选择水果（可多选）');
-              s.multiple();
+              s.placeholder('请选择水果');
               s.options([
                 { value: 'apple', label: '苹果' },
                 { value: 'banana', label: '香蕉' },
@@ -139,8 +138,7 @@ vInput(i => {
 })
 
 vSelect(s => {
-  s.placeholder('请选择水果（可多选）')
-  s.multiple()
+  s.placeholder('请选择水果')
   s.options([...])
 })`
         ),

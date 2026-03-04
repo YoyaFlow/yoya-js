@@ -6,10 +6,10 @@
 import { Tag, div } from '../core/basic.js';
 
 // ============================================
-// Card 卡片布局
+// VCard 卡片布局
 // ============================================
 
-class Card extends Tag {
+class VCard extends Tag {
   static _stateAttrs = ['hoverable', 'bordered', 'noShadow'];
 
   constructor(setup = null) {
@@ -112,34 +112,39 @@ class Card extends Tag {
   }
 
   // 子元素工厂方法
-  cardHeader(setup = null) {
-    const el = cardHeader(setup);
+  vCardHeader(setup = null) {
+    const el = vCardHeader(setup);
     this.child(el);
     return this;
   }
 
-  cardBody(setup = null) {
-    const el = cardBody(setup);
+  vCardBody(setup = null) {
+    const el = vCardBody(setup);
     this.child(el);
     return this;
   }
 
-  cardFooter(setup = null) {
-    const el = cardFooter(setup);
+  vCardFooter(setup = null) {
+    const el = vCardFooter(setup);
     this.child(el);
     return this;
   }
+
+  // 兼容旧方法名
+  cardHeader(setup = null) { return this.vCardHeader(setup); }
+  cardBody(setup = null) { return this.vCardBody(setup); }
+  cardFooter(setup = null) { return this.vCardFooter(setup); }
 }
 
-function card(setup = null) {
-  return new Card(setup);
+function vCard(setup = null) {
+  return new VCard(setup);
 }
 
 // ============================================
-// CardHeader 卡片头部
+// VCardHeader 卡片头部
 // ============================================
 
-class CardHeader extends Tag {
+class VCardHeader extends Tag {
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -153,15 +158,15 @@ class CardHeader extends Tag {
   }
 }
 
-function cardHeader(setup = null) {
-  return new CardHeader(setup);
+function vCardHeader(setup = null) {
+  return new VCardHeader(setup);
 }
 
 // ============================================
-// CardBody 卡片内容
+// VCardBody 卡片内容
 // ============================================
 
-class CardBody extends Tag {
+class VCardBody extends Tag {
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -173,15 +178,15 @@ class CardBody extends Tag {
   }
 }
 
-function cardBody(setup = null) {
-  return new CardBody(setup);
+function vCardBody(setup = null) {
+  return new VCardBody(setup);
 }
 
 // ============================================
-// CardFooter 卡片底部
+// VCardFooter 卡片底部
 // ============================================
 
-class CardFooter extends Tag {
+class VCardFooter extends Tag {
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -196,49 +201,55 @@ class CardFooter extends Tag {
   }
 }
 
-function cardFooter(setup = null) {
-  return new CardFooter(setup);
+function vCardFooter(setup = null) {
+  return new VCardFooter(setup);
 }
 
 // ============================================
 // Tag 原型扩展方法
 // ============================================
 
-Tag.prototype.card = function(setup = null) {
-  const el = card(setup);
+Tag.prototype.vCard = function(setup = null) {
+  const el = vCard(setup);
   this.child(el);
   return this;
 };
 
-Tag.prototype.cardHeader = function(setup = null) {
-  const el = cardHeader(setup);
+Tag.prototype.vCardHeader = function(setup = null) {
+  const el = vCardHeader(setup);
   this.child(el);
   return this;
 };
 
-Tag.prototype.cardBody = function(setup = null) {
-  const el = cardBody(setup);
+Tag.prototype.vCardBody = function(setup = null) {
+  const el = vCardBody(setup);
   this.child(el);
   return this;
 };
 
-Tag.prototype.cardFooter = function(setup = null) {
-  const el = cardFooter(setup);
+Tag.prototype.vCardFooter = function(setup = null) {
+  const el = vCardFooter(setup);
   this.child(el);
   return this;
 };
+
+// 兼容旧方法名
+Tag.prototype.card = Tag.prototype.vCard;
+Tag.prototype.cardHeader = Tag.prototype.vCardHeader;
+Tag.prototype.cardBody = Tag.prototype.vCardBody;
+Tag.prototype.cardFooter = Tag.prototype.vCardFooter;
 
 // ============================================
 // 导出
 // ============================================
 
 export {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  card,
-  cardHeader,
-  cardBody,
-  cardFooter
+  VCard,
+  VCardHeader,
+  VCardBody,
+  VCardFooter,
+  vCard,
+  vCardHeader,
+  vCardBody,
+  vCardFooter
 };

@@ -344,6 +344,7 @@ class VSelect extends Tag {
     this._selectEl = null;
     this._options = [];
     this._value = undefined;
+    this._placeholder = undefined;
 
     // 1. 注册状态属性
     this.registerStateAttrs(...this.constructor._stateAttrs);
@@ -424,26 +425,7 @@ class VSelect extends Tag {
 
   _updateOptions() {
     if (!this._selectEl) return;
-
-    // 清空选项（使用 clear 方法）
-    this._selectEl.clear();
-
-    // 重新添加选项
-    this._options.forEach(opt => {
-      const optEl = option(o => {
-        o.attr('value', opt.value);
-        o.text(opt.label);
-        if (opt.value === this._value) {
-          o.attr('selected', 'selected');
-        }
-      });
-      this._selectEl.child(optEl);
-    });
-
-    // 同步值到 select 元素
-    if (this._value !== undefined && this._selectEl) {
-      this._selectEl.attr('value', this._value);
-    }
+    this._updateOptionsWithPlaceholder();
   }
 
   _registerStateHandlers() {
@@ -491,20 +473,7 @@ class VSelect extends Tag {
     if (opts === undefined) return this._options;
     this._options = opts;
     if (this._selectEl) {
-      // 使用 clear 方法清空，然后通过 child 添加
-      this._selectEl.clear();
-      opts.forEach(opt => {
-        const optEl = option(o => {
-          o.attr('value', opt.value);
-          o.text(opt.label);
-          if (opt.value === this._value) {
-            o.attr('selected', 'selected');
-          }
-        });
-        this._selectEl.child(optEl);
-      });
-      // 同步值到 select 元素
-      this._selectEl.attr('value', this._value);
+      this._updateOptionsWithPlaceholder();
     }
     return this;
   }
@@ -527,6 +496,51 @@ class VSelect extends Tag {
       this._selectEl.attr('name', value);
     }
     return this;
+  }
+
+  placeholder(value) {
+    if (value === undefined) return this._placeholder;
+    this._placeholder = value;
+    if (this._selectEl) {
+      // 对于 select 元素，placeholder 通过添加一个禁用的默认选项实现
+      this._updateOptionsWithPlaceholder();
+    }
+    return this;
+  }
+
+  _updateOptionsWithPlaceholder() {
+    if (!this._selectEl) return;
+
+    // 清空选项
+    this._selectEl.clear();
+
+    // 添加 placeholder 选项（如果设置了）
+    if (this._placeholder) {
+      const placeholderOpt = option(o => {
+        o.text(this._placeholder);
+        o.attr('value', '');
+        o.attr('disabled', 'disabled');
+        o.attr('selected', 'selected');
+      });
+      this._selectEl.child(placeholderOpt);
+    }
+
+    // 添加其他选项
+    this._options.forEach(opt => {
+      const optEl = option(o => {
+        o.attr('value', opt.value);
+        o.text(opt.label);
+        if (opt.value === this._value) {
+          o.attr('selected', 'selected');
+        }
+      });
+      this._selectEl.child(optEl);
+    });
+
+    // 同步值到 select 元素
+    if (this._value !== undefined) {
+      this._selectEl.attr('value', this._value);
+    }
   }
 
   disabled(value = true) {
@@ -1032,6 +1046,10 @@ class VSwitch extends Tag {
 
     // 内部状态
     this._checked = false;
+    this._label = null;
+    this._wrapper = null;
+    this._labelEl = null;
+    this._switchEl = null;
 
     // 1. 注册状态属性
     this.registerStateAttrs(...this.constructor._stateAttrs);
@@ -1042,101 +1060,128 @@ class VSwitch extends Tag {
       checked: false,
     });
 
-    // 3. 设置基础样式
-    this._setupBaseStyles();
-
-    // 4. 保存基础样式快照
-    this.saveBaseStylesSnapshot();
-
-    // 5. 注册状态处理器
+    // 3. 注册状态处理器
     this._registerStateHandlers();
 
-    // 6. 执行 setup
+    // 4. 执行 setup
     if (setup !== null) {
       this.setup(setup);
     }
 
-    // 7. 创建滑块
-    this._updateKnob();
+    // 5. 创建内部结构
+    this._createInternalElements();
   }
 
-  _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      width: 'var(--islands-switch-width, 44px)',
-      height: 'var(--islands-switch-height, 22px)',
-      borderRadius: 'var(--islands-switch-radius, 11px)',
-      background: 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))',
-      padding: '2px',
-      cursor: 'pointer',
-      transition: 'all 0.2s',
-      position: 'relative',
-      boxSizing: 'border-box',
+  _createInternalElements() {
+    // 创建滑块
+    const knob = span(k => {
+      k._isKnob = true;
+      k.styles({
+        display: 'inline-block',
+        width: '18px',
+        height: '18px',
+        borderRadius: '50%',
+        background: 'white',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+        transition: 'transform 0.2s',
+        transform: this._checked ? 'translateX(22px)' : 'translateX(0)',
+      });
     });
 
-    // 创建滑块
-    this._updateKnob();
+    // 创建 switch 按钮容器
+    this._switchEl = div(s => {
+      s.styles({
+        display: 'inline-flex',
+        alignItems: 'center',
+        width: 'var(--islands-switch-width, 44px)',
+        height: 'var(--islands-switch-height, 22px)',
+        borderRadius: 'var(--islands-switch-radius, 11px)',
+        background: this._checked ? 'var(--islands-primary, #667eea)' : 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))',
+        padding: '2px',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        position: 'relative',
+        boxSizing: 'border-box',
+      });
+      s.child(knob);
+    });
+
+    // 如果有 label，创建 wrapper
+    if (this._label) {
+      this._wrapper = div(w => {
+        w.styles({
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          cursor: this.hasState('disabled') ? 'not-allowed' : 'pointer',
+        });
+        w.child(this._switchEl);
+        w.child(this._labelEl = span(s => {
+          s.text(this._label);
+          s.styles({
+            fontSize: '14px',
+            color: 'inherit',
+            userSelect: 'none',
+          });
+        }));
+      });
+      this.child(this._wrapper);
+    } else {
+      this.child(this._switchEl);
+    }
+
+    // 绑定点击事件
+    this._switchEl.on('click', () => {
+      if (!this.hasState('disabled')) {
+        const newChecked = !this._checked;
+        this.setState('checked', newChecked);
+        if (this._onChangeHandler) this._onChangeHandler(newChecked);
+      }
+    });
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
-      if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        });
-      } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-        });
+      if (host._switchEl) {
+        host._switchEl.style('cursor', enabled ? 'not-allowed' : 'pointer');
+      }
+      if (host._wrapper) {
+        host._wrapper.style('cursor', enabled ? 'not-allowed' : 'pointer');
+      }
+      if (host._labelEl) {
+        host._labelEl.style('opacity', enabled ? '0.5' : '1');
       }
     });
 
     this.registerStateHandler('checked', (checked, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
-      this._checked = checked;
-      if (checked) {
-        host.style('background', 'var(--islands-primary, #667eea)');
-      } else {
-        host.style('background', 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))');
+      host._checked = checked;
+      if (host._switchEl) {
+        host._switchEl.style('background',
+          checked ? 'var(--islands-primary, #667eea)' : 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))');
       }
-      host._updateKnob();
+      // 更新滑块位置
+      const knob = host._switchEl?._children?.find(c => c._isKnob);
+      if (knob) {
+        knob.style('transform', checked ? 'translateX(22px)' : 'translateX(0)');
+      }
     });
   }
 
-  _updateKnob() {
-    // 找到或创建滑块
-    let knob = this._children.find(c => c._isKnob);
-    if (!knob) {
-      knob = span(k => {
-        k._isKnob = true;
-        k.styles({
-          display: 'inline-block',
-          // 滑块是圆形，宽高都等于容器高度 - 上下 padding
-          width: '18px',
-          height: '18px',
-          borderRadius: '50%',
-          background: 'white',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-          transition: 'transform 0.2s',
-          transform: 'translateX(0)',
-        });
-      });
-      this.child(knob);
-    } else {
-      // 根据 checked 状态移动滑块
-      knob.style('transform', this._checked ? 'translateX(22px)' : 'translateX(0)');
-    }
-  }
+  _onChangeHandler = null;
 
   // ============================================
   // 链式方法
   // ============================================
+
+  label(value) {
+    if (value === undefined) return this._label;
+    this._label = value;
+    // 如果已经创建了内部元素，需要更新 label
+    if (this._labelEl) {
+      this._labelEl.text(value);
+    }
+    return this;
+  }
 
   checked(value = true) {
     return this.setState('checked', value);
@@ -1162,13 +1207,7 @@ class VSwitch extends Tag {
   }
 
   onChange(handler) {
-    this.on('click', () => {
-      if (!this.hasState('disabled')) {
-        const newChecked = !this._checked;
-        this.setState('checked', newChecked);
-        if (handler) handler(newChecked);
-      }
-    });
+    this._onChangeHandler = handler;
     return this;
   }
 }
@@ -1204,6 +1243,12 @@ class VForm extends Tag {
   // ============================================
   // 链式方法
   // ============================================
+
+  gap(value) {
+    if (value === undefined) return this.style('gap');
+    this.style('gap', value);
+    return this;
+  }
 
   action(value) {
     if (value === undefined) return this._action;

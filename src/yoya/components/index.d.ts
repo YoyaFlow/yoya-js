@@ -257,6 +257,7 @@ declare class VSelect extends Tag {
   options(opts: Array<{ value: string | number; label: string }>): this;
   value(val?: string | number): this | string | number;
   name(value: string): this | string;
+  placeholder(value: string): this | string;
   disabled(value?: boolean): this | boolean;
   error(value?: boolean): this | boolean;
   size(value: 'large' | 'default' | 'small'): this | string;
