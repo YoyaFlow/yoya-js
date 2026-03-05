@@ -156,3 +156,101 @@ codeDemo('setup 函数',
 1. setupString（第一个展示，推荐）
 2. setupObject（第二个展示）
 3. setup 函数（最后展示，标注适用场景）
+
+## 演示界面开发规范
+
+在 `/src/v1/examples` 演示界面开发中，**尽可能使用基础库提供的链式调用快捷方法**：
+
+### 优先使用 Tag 原型扩展方法
+
+```javascript
+// ✅ 推荐：使用 Tag 原型扩展的快捷方法
+vCard(c => {
+  c.div('内容区');
+  c.span('文本');
+  c.button('提交');
+  c.h2('标题');
+});
+
+// ❌ 不推荐：每次都导入基础元素
+vCard(c => {
+  c.child(div('内容区'));
+  c.child(span('文本'));
+  c.child(button('提交'));
+});
+```
+
+### 优先使用组件快捷方法
+
+```javascript
+// ✅ 推荐：使用组件提供的快捷方法
+vMenu(m => {
+  m.item('菜单项 1');
+  m.item('菜单项 2');
+  m.divider();
+  m.group(g => {
+    g.label('分组');
+    g.item('项目 1');
+  });
+});
+
+// ❌ 不推荐：手动创建子元素
+vMenu(m => {
+  m.child(vMenuItem('菜单项 1'));
+  m.child(vMenuItem('菜单项 2'));
+  m.child(vMenuDivider());
+});
+```
+
+### 优先使用 vStack/hStack 等布局方法
+
+```javascript
+// ✅ 推荐：使用快捷布局方法
+content.child(vstack(s => {
+  s.gap('16px');
+  s.div('上');
+  s.div('下');
+}));
+
+// ❌ 不推荐：手动创建 Flex 布局
+content.child(flex(f => {
+  f.direction('column');
+  f.gap('16px');
+  f.div('上');
+  f.div('下');
+}));
+```
+
+### 导入语句精简
+
+```javascript
+// ✅ 推荐：只导入需要的组件和快捷方法
+import {
+  vCard, vCardHeader, vCardBody, vCardFooter,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup,
+  vstack, hstack, flex,
+  vButton, toast,
+} from '../../yoya/index.js';
+
+// 无需导入 div, span, button 等基础方法
+// 它们可以通过 Tag 原型方法调用
+```
+
+### 代码对比
+
+| 场景 | 推荐写法 | 不推荐写法 |
+|------|----------|------------|
+| 添加子元素 | `c.div('内容')` | `c.child(div('内容'))` |
+| 菜单项 | `m.item('文本')` | `m.child(vMenuItem('文本'))` |
+| 垂直堆叠 | `vstack(s => {...})` | `flex(f => { f.column(); ... })` |
+| 添加按钮 | `f.child(vButton('提交'))` | `f.child(button(b => b.text('提交')))` |
+
+### 好处
+
+| 好处 | 说明 |
+|------|------|
+| 代码简洁 | 减少嵌套和冗余调用 |
+| 可读性高 | 链式调用更流畅 |
+| 导入精简 | 减少 import 语句数量 |
+| 风格统一 | 演示代码风格一致 |
+| 示范作用 | 向用户展示最佳实践 |
