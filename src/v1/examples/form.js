@@ -6,7 +6,7 @@
 import {
   flex, vstack, vCard, vCardBody,
   vMenu, vMenuItem, vButton, vCode, toast,
-  vForm, vInput, vTextarea, vSelect, vOption, vCheckbox, vCheckboxes, label,
+  vForm, vInput, vTextarea, vSelect, vCheckbox, vCheckboxes, label,
 } from '../../yoya/index.js';
 
 import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';
@@ -141,16 +141,20 @@ vTextarea(t => { t.rows(4); t.placeholder('请输入描述'); })`
           vstack(stack => {
             stack.gap('12px');
             stack.child(vSelect(s => {
-              s.option('请选择选项');
-              s.option('选项 1');
-              s.option('选项 2');
-              s.option('选项 3');
+              s.options([
+                { value: '', label: '请选择选项' },
+                { value: '1', label: '选项 1' },
+                { value: '2', label: '选项 2' },
+                { value: '3', label: '选项 3' },
+              ]);
             }));
           }),
           `vSelect(s => {
-  s.option('请选择选项')
-  s.option('选项 1')
-  s.option('选项 2')
+  s.options([
+    { value: '', label: '请选择选项' },
+    { value: '1', label: '选项 1' },
+    { value: '2', label: '选项 2' },
+  ])
 })`
         ),
       ]));
