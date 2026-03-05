@@ -27,6 +27,7 @@
 ### 开发模式
 - [链式 API 模式](./40-patterns/chain-api-pattern.md)
 - [状态处理器模式](./40-patterns/state-handler-pattern.md)
+- [工厂函数 Setup 优先级](./40-patterns/factory-setup-preference.md)
 
 ## 检索技巧
 
