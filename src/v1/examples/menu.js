@@ -57,16 +57,13 @@ export function createMenuPage() {
         codeDemo('垂直菜单（默认）',
           vMenu(m => {
             m.item(it => {
-              .text('📋 菜单项 1')
-              .onClick(() => toast.info('点击了菜单项 1'));
+              it.text('📋 菜单项 1').onClick(() => toast.info('点击了菜单项 1'));
             });
             m.item(it => {
-              .text('📁 菜单项 2')
-              .onClick(() => toast.info('点击了菜单项 2'));
+              it.text('📁 菜单项 2').onClick(() => toast.info('点击了菜单项 2'));
             });
             m.item(it => {
-              .text('⚙️ 设置')
-              .onClick(() => toast.info('点击了设置'));
+              it.text('⚙️ 设置').onClick(() => toast.info('点击了设置'));
             });
           }),
           `vMenu(m => {
@@ -89,16 +86,13 @@ export function createMenuPage() {
           vMenu(m => {
             m.horizontal();
             m.item(it => {
-              .text('首页')
-              .active();
+              it.text('首页').active();
             });
             m.item(it => {
-              .text('产品')
-              .onClick(() => toast.info('产品'));
+              it.text('产品').onClick(() => toast.info('产品'));
             });
             m.item(it => {
-              .text('关于')
-              .onClick(() => toast.info('关于'));
+              it.text('关于').onClick(() => toast.info('关于'));
             });
           }),
           `vMenu(m => {
@@ -119,21 +113,17 @@ export function createMenuPage() {
         codeDemo('菜单分割线',
           vMenu(m => {
             m.item(it => {
-              .text('📄 新建')
-              .onClick(() => toast.info('新建'));
+              it.text('📄 新建').onClick(() => toast.info('新建'));
             });
             m.item(it => {
-              .text('📂 打开')
-              .onClick(() => toast.info('打开'));
+              it.text('📂 打开').onClick(() => toast.info('打开'));
             });
             m.divider();
             m.item(it => {
-              .text('💾 保存')
-              .onClick(() => toast.info('保存'));
+              it.text('💾 保存').onClick(() => toast.info('保存'));
             });
             m.item(it => {
-              .text('🗑️ 删除')
-              .onClick(() => toast.info('删除'));
+              it.text('🗑️ 删除').onClick(() => toast.info('删除'));
             });
           }),
           `vMenu(m => {
@@ -200,21 +190,17 @@ export function createMenuPage() {
         codeDemo('激活、禁用、危险状态',
           vMenu(m => {
             m.item(it => {
-              .text('🏠 首页')
-              .active();
+              it.text('🏠 首页').active();
             });
             m.item(it => {
-              .text('📦 产品')
-              .onClick(() => toast.info('产品'));
+              it.text('📦 产品').onClick(() => toast.info('产品'));
             });
             m.item(it => {
-              .text('🔒 禁用项')
-              .disabled();
+              it.text('🔒 禁用项').disabled();
             });
             m.divider();
             m.item(it => {
-              .text('🗑️ 删除')
-              .danger();
+              it.text('🗑️ 删除').danger();
               it.onClick(() => toast.error('删除操作'));
             });
           }),
@@ -244,18 +230,15 @@ export function createMenuPage() {
         codeDemo('菜单项快捷键',
           vMenu(m => {
             m.item(it => {
-              .text('📄 新建')
-              .shortcut('Ctrl+N');
+              it.text('📄 新建').shortcut('Ctrl+N');
               it.onClick(() => toast.info('新建'));
             });
             m.item(it => {
-              .text('🔍 查找')
-              .shortcut('Ctrl+F');
+              it.text('🔍 查找').shortcut('Ctrl+F');
               it.onClick(() => toast.info('查找'));
             });
             m.item(it => {
-              .text('💾 保存')
-              .shortcut('Ctrl+S');
+              it.text('💾 保存').shortcut('Ctrl+S');
               it.onClick(() => toast.info('保存'));
             });
           }),
@@ -291,19 +274,16 @@ export function createMenuPage() {
                 d.trigger('下拉菜单 ▼');
                 d.menuContent(vMenu(m => {
                   m.item(it => {
-                    .text('📋 选项 1')
-                    .onClick(() => {
+                    it.text('📋 选项 1').onClick(() => {
                       toast.info('选项 1');
                     });
                   });
                   m.item(it => {
-                    .text('📁 选项 2')
-                    .onClick(() => toast.info('选项 2'));
+                    it.text('📁 选项 2').onClick(() => toast.info('选项 2'));
                   });
                   m.divider();
                   m.item(it => {
-                    .text('⚙️ 设置')
-                    .onClick(() => toast.info('设置'));
+                    it.text('⚙️ 设置').onClick(() => toast.info('设置'));
                   });
                 }));
                 d.closeOnClickOutside();
@@ -314,17 +294,14 @@ export function createMenuPage() {
                 d.trigger('更多操作 ▼');
                 d.menuContent(vMenu(m => {
                   m.item(it => {
-                    .text('✏️ 编辑')
-                    .onClick(() => toast.info('编辑'));
+                    it.text('✏️ 编辑').onClick(() => toast.info('编辑'));
                   });
                   m.item(it => {
-                    .text('📤 分享')
-                    .onClick(() => toast.info('分享'));
+                    it.text('📤 分享').onClick(() => toast.info('分享'));
                   });
                   m.divider();
                   m.item(it => {
-                    .text('🗑️ 删除')
-                    .danger();
+                    it.text('🗑️ 删除').danger();
                     it.onClick(() => toast.error('删除'));
                   });
                 }));
@@ -375,23 +352,20 @@ export function createMenuPage() {
             demo.child(vContextMenu(ctx => {
               ctx.menuContent(vMenu(m => {
                 m.item(it => {
-                  .text('✏️ 编辑')
-                  .onClick(() => {
+                  it.text('✏️ 编辑').onClick(() => {
                     toast.info('编辑');
                     ctx.hide();
                   });
                 });
                 m.item(it => {
-                  .text('📤 导出')
-                  .onClick(() => {
+                  it.text('📤 导出').onClick(() => {
                     toast.info('导出');
                     ctx.hide();
                   });
                 });
                 m.divider();
                 m.item(it => {
-                  .text('🗑️ 删除')
-                  .danger();
+                  it.text('🗑️ 删除').danger();
                   it.onClick(() => {
                     toast.error('删除');
                     ctx.hide();
