@@ -10,7 +10,7 @@ import { Tag, div, span, button } from '../core/basic.js';
 // ============================================
 
 class VField extends Tag {
-  static _stateAttrs = ['editing', 'disabled', 'loading'];
+  static _stateAttrs = ['editing', 'disabled', 'loading', 'hovered'];
 
   constructor(setup = null) {
     super('div', null);
@@ -40,6 +40,7 @@ class VField extends Tag {
       editing: false,
       disabled: false,
       loading: false,
+      hovered: false,
     });
 
     // 2. 设置基础样式
@@ -84,10 +85,28 @@ class VField extends Tag {
       if (editing) {
         host._showContainer && host._showContainer.style('display', 'none');
         host._editContainer && host._editContainer.style('display', 'flex');
+        // 进入编辑状态时重置 hover 状态
+        host.setState('hovered', false);
         if (host._onEdit) host._onEdit({ value: host._value, target: host });
       } else {
         host._showContainer && host._showContainer.style('display', 'flex');
         host._editContainer && host._editContainer.style('display', 'none');
+      }
+    });
+
+    this.registerStateHandler('hovered', (hovered, host) => {
+      if (hovered && !host.hasState('disabled') && !host.hasState('editing')) {
+        host._editIcon && host._editIcon.style('opacity', '1');
+        host._showContainer && host._showContainer.styles({
+          background: 'var(--islands-field-show-hover-bg, rgba(0,0,0,0.03))',
+          border: 'var(--islands-field-show-hover-border, 1px solid var(--islands-border, #e0e0e0))',
+        });
+      } else {
+        host._editIcon && host._editIcon.style('opacity', '0');
+        host._showContainer && host._showContainer.styles({
+          background: 'var(--islands-field-show-bg, transparent)',
+          border: 'var(--islands-field-show-border, 1px solid transparent)',
+        });
       }
     });
 
@@ -169,23 +188,11 @@ class VField extends Tag {
       // hover 显示图标
       // 绑定事件处理函数
       this._boundHandleMouseEnter = () => {
-        if (!this.hasState('disabled') && !this.hasState('editing')) {
-          this._editIcon.style('opacity', '1');
-          this._showContainer.styles({
-            background: 'var(--islands-field-show-hover-bg, rgba(0,0,0,0.03))',
-            borderColor: 'var(--islands-field-show-hover-border, var(--islands-border, #e0e0e0))',
-          });
-        }
+        this.setState('hovered', true);
       };
 
       this._boundHandleMouseLeave = () => {
-        if (!this.hasState('editing')) {
-          this._editIcon.style('opacity', '0');
-          this._showContainer.styles({
-            background: 'var(--islands-field-show-bg, transparent)',
-            border: 'var(--islands-field-show-border, 1px solid transparent)',
-          });
-        }
+        this.setState('hovered', false);
       }
 
       // hover 显示图标
