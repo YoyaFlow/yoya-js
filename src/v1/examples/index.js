@@ -61,9 +61,9 @@ export function createHomePage() {
             s.p('这是段落内容');
           }),
           `// ✅ 推荐：简单文本直接用字符串
-vCard('卡片内容')
-vButton('按钮文本')
-div('文本内容')`
+div('这是 div 的文本内容')
+span('这是 span 的内容')
+p('这是段落内容')`
         ),
 
         codeDemo('setupObject - 对象配置方式（适合简单配置）',
@@ -78,7 +78,11 @@ div('文本内容')`
             }, '提交');
           }),
           `// ✅ 推荐：简单属性和事件用对象配置
-vButton({
+div({
+  onclick: () => toast('点击')
+}, '点击我')
+
+button({
   onclick: () => toast('提交')
 }, '提交')`
         ),

@@ -67,15 +67,16 @@ vInput('请输入密码')`
             }));
           }),
           `// ✅ 推荐：配置属性和事件用对象
-// 仅配置模式：第一个参数为对象
 vInput({
   placeholder: '请输入邮箱',
   type: 'email',
   onchange: (e) => toast(e.target.value)
 })
 
-// 配置 + 内容模式：第一个参数为对象，第二个参数为内容
-vCard({ class: 'custom-card' }, '卡片内容')`
+vTextarea({
+  placeholder: '请输入内容',
+  rows: 3
+})`
         ),
 
         codeDemo('setupFunction + 链式调用',
@@ -90,13 +91,13 @@ vCard({ class: 'custom-card' }, '卡片内容')`
           }),
           `// ✅ 推荐：复杂逻辑用函数 + 链式
 vInput(i => {
-  i.placeholder('用户名')
+  i.placeholder('请输入用户名')
   i.type('text')
   i.on('change', (e) => toast(e.target.value))
 })
 
 // 或更简洁的链式
-vInput('密码').type('password')`
+vInput('请输入密码').type('password')`
         ),
       ]));
 

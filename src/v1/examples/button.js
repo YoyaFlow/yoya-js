@@ -50,7 +50,8 @@ export function createButtonPage() {
           }),
           `// ✅ 推荐：文本直接用字符串
 vButton('默认')
-vButton('主要').type('primary')`
+vButton('主要').type('primary')
+vButton('成功').type('success')`
         ),
 
         codeDemo('setupObject - 对象配置',
@@ -66,7 +67,7 @@ vButton('主要').type('primary')`
           `// ✅ 推荐：简单配置用对象
 vButton({
   onclick: () => toast('点击')
-}, '按钮')`
+}, '对象配置')`
         ),
 
         codeDemo('setupFunction + 链式调用（最常用）',
