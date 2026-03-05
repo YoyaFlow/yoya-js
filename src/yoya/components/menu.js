@@ -20,6 +20,7 @@ class VMenu extends Tag {
       padding: 'var(--islands-menu-padding, var(--islands-padding-sm, 8px)) 0',
       minWidth: 'var(--islands-menu-min-width, 160px)',
       border: 'var(--islands-menu-border, 1px solid var(--islands-border, #e0e0e0))',
+      pointerEvents: 'auto',
     });
 
     if (setup !== null) {
@@ -71,82 +72,62 @@ class VMenu extends Tag {
   }
 
   submenu(title, setup = null) {
-    // 创建子菜单容器项
-    const wrapper = div(w => {
-      w.styles({
-        display: 'flex',
-        flexDirection: 'column',
-      });
-    });
-    
-    // 创建子菜单标题项（可点击展开/折叠）
+    // 创建子菜单标题项（使用 VMenuItem 的 expanded 状态）
     const titleItem = vMenuItem(title, item => {
       item.styles({
         fontWeight: '500',
       });
-    });
-    
-    // 添加展开箭头
-    const arrow = span(a => {
-      a.styles({
-        marginLeft: 'auto',
-        fontSize: '10px',
-        transition: 'transform 0.2s',
+      
+      // 添加展开箭头
+      item._arrowEl = span(arrow => {
+        arrow.styles({
+          marginLeft: 'auto',
+          fontSize: '10px',
+          transition: 'transform 0.2s',
+          opacity: '0.5',
+          display: 'inline-block',
+        });
+        arrow.text('▶');
       });
-      a.text('▶');
-    });
-    titleItem.child(arrow);
-    
-    // 创建子菜单内容容器
-    const submenuContainer = div(container => {
-      container.styles({
-        display: 'none',
-        flexDirection: 'column',
-        marginLeft: '16px',
-        paddingLeft: '8px',
-        borderLeft: '1px solid var(--islands-border, #e0e0e0)',
-        marginTop: '4px',
+      item.child(item._arrowEl);
+      
+      // 创建子菜单内容容器
+      item._submenuContainer = div(container => {
+        container.styles({
+          display: 'none',
+          flexDirection: 'column',
+          marginLeft: '16px',
+          paddingLeft: '8px',
+          borderLeft: '1px solid var(--islands-border, #e0e0e0)',
+          marginTop: '4px',
+        });
       });
-    });
-    
-    // 执行 setup 添加子菜单项
-    if (typeof setup === 'function') {
-      setup({
-        item: (content, opts) => {
-          const itemEl = vMenuItem(content, opts);
-          // 缩进子菜单项
-          itemEl.styles({ paddingLeft: '24px' });
-          submenuContainer.child(itemEl);
-          return itemEl;
-        },
-        divider: () => {
-          const dividerEl = vMenuDivider();
-          dividerEl.styles({ marginLeft: '16px' });
-          submenuContainer.child(dividerEl);
-          return dividerEl;
-        },
-      });
-    }
-    
-    // 点击标题切换展开/折叠
-    let expanded = false;
-    titleItem.on('click', (e) => {
-      e.stopPropagation();
-      expanded = !expanded;
-      if (expanded) {
-        submenuContainer.style('display', 'flex');
-        arrow.style('transform', 'rotate(90deg)');
-      } else {
-        submenuContainer.style('display', 'none');
-        arrow.style('transform', '');
+      
+      // 执行 setup 添加子菜单项
+      if (typeof setup === 'function') {
+        setup({
+          item: (content, opts) => {
+            const itemEl = vMenuItem(content, opts);
+            itemEl.styles({ paddingLeft: '24px' });
+            item._submenuContainer.child(itemEl);
+            return itemEl;
+          },
+          divider: () => {
+            const dividerEl = vMenuDivider();
+            dividerEl.styles({ marginLeft: '16px' });
+            item._submenuContainer.child(dividerEl);
+            return dividerEl;
+          },
+        });
       }
+      
+      // 添加子菜单容器到子元素
+      item.child(item._submenuContainer);
     });
     
-    wrapper.child(titleItem);
-    wrapper.child(submenuContainer);
-    this.child(wrapper);
+    this.child(titleItem);
     
-    return wrapper;
+    return titleItem;
   }
 }
 
@@ -159,7 +140,7 @@ function vMenu(setup = null) {
 // ============================================
 
 class VMenuItem extends Tag {
-  static _stateAttrs = ['disabled', 'active', 'danger', 'hoverable'];
+  static _stateAttrs = ['disabled', 'active', 'danger', 'hoverable', 'expanded'];
 
   constructor(content = '', setup = null) {
     if (typeof content === 'function') {
@@ -195,7 +176,8 @@ class VMenuItem extends Tag {
       disabled: false,
       active: false,
       danger: false,
-      hoverable: false
+      hoverable: false,
+      expanded: false,
     });
 
     if (content) {
@@ -275,6 +257,19 @@ class VMenuItem extends Tag {
     this.registerStateHandler('hoverable', () => {
       // hoverable 状态的视觉效果由拦截器动态处理
     });
+
+    // expanded 状态 - 用于子菜单展开/折叠
+    this.registerStateHandler('expanded', (expanded, host) => {
+      if (host._submenuContainer && host._arrowEl) {
+        if (expanded) {
+          host._submenuContainer.style('display', 'flex');
+          host._arrowEl.style('transform', 'rotate(90deg)');
+        } else {
+          host._submenuContainer.style('display', 'none');
+          host._arrowEl.style('transform', 'rotate(0deg)');
+        }
+      }
+    });
   }
 
   _registerHoverInterceptor() {
@@ -307,6 +302,14 @@ class VMenuItem extends Tag {
 
     this.on('click', (e) => {
       if (!self.hasState('disabled')) {
+        // 如果有子菜单，切换展开状态，不触发 active
+        if (self._submenuContainer) {
+          e.stopPropagation();
+          const isExpanded = self.getState('expanded') || false;
+          self.setState('expanded', !isExpanded);
+          return;
+        }
+        
         const parent = self._boundElement?.parentNode;
         if (parent) {
           Array.from(parent.children).forEach(child => {
@@ -331,67 +334,47 @@ class VMenuItem extends Tag {
   }
 
   _ensureSubmenuStructure() {
-    if (!this._submenuWrapper) {
-      // 创建子菜单容器
-      this._submenuWrapper = div(wrap => {
-        wrap.styles({
-          display: 'none',
-          marginLeft: 'var(--islands-submenu-margin-left, 16px)',
-          paddingLeft: 'var(--islands-submenu-padding-left, 8px)',
-          borderLeft: 'var(--islands-submenu-border, 1px solid var(--islands-border, #e0e0e0))',
-          marginTop: 'var(--islands-submenu-margin-top, 4px)',
-        });
+    // 创建子菜单容器
+    this._submenuContainer = div(container => {
+      container.styles({
+        display: 'none',
+        marginLeft: 'var(--islands-submenu-margin-left, 16px)',
+        paddingLeft: 'var(--islands-submenu-padding-left, 8px)',
+        borderLeft: 'var(--islands-submenu-border, 1px solid var(--islands-border, #e0e0e0))',
+        marginTop: 'var(--islands-submenu-margin-top, 4px)',
+        flexDirection: 'column',
       });
       
-      // 添加展开/折叠箭头
-      this._arrowEl = span(arrow => {
-        arrow.styles({
-          marginLeft: 'auto',
-          fontSize: '10px',
-          transition: 'transform 0.2s',
-          opacity: '0.5',
-          display: 'inline-block',
+      // 将子菜单添加到容器中
+      if (this._submenu && this._submenu._children) {
+        this._submenu._children.forEach(child => {
+          if (child) container.child(child);
         });
-        arrow.text('▶');
-      });
-      
-      // 点击时切换子菜单显示
-      this.on('click', (e) => {
-        e.stopPropagation();
-        this._toggleSubmenu();
-      });
-    }
+      }
+    });
     
-    // 添加子菜单内容
-    if (this._submenu && this._submenu._children) {
-      this._submenuWrapper.clear();
-      this._submenu._children.forEach(child => {
-        if (child) this._submenuWrapper.child(child);
+    // 添加展开/折叠箭头
+    this._arrowEl = span(arrow => {
+      arrow.styles({
+        marginLeft: 'auto',
+        fontSize: '10px',
+        transition: 'transform 0.2s',
+        opacity: '0.5',
+        display: 'inline-block',
       });
-    }
-  }
-
-  _toggleSubmenu() {
-    if (!this._submenuWrapper || !this._arrowEl) return;
+      arrow.text('▶');
+    });
     
-    const isExpanded = this._submenuWrapper._boundElement?.style.display === 'block';
-    
-    if (isExpanded) {
-      this._submenuWrapper.style('display', 'none');
-      this._arrowEl.style('transform', 'rotate(0deg)');
-    } else {
-      this._submenuWrapper.style('display', 'block');
-      this._arrowEl.style('transform', 'rotate(90deg)');
-    }
+    // 在 renderDom 时添加子菜单容器和箭头
+    return this;
   }
 
   _renderSubmenu() {
-    if (this._submenu && this._submenuWrapper) {
-      // 在 renderDom 时添加子菜单容器
-      const children = this._children || [];
-      if (!children.includes(this._submenuWrapper)) {
-        this._children.push(this._submenuWrapper);
-      }
+    if (this._submenuContainer && !this._children.includes(this._submenuContainer)) {
+      this._children.push(this._submenuContainer);
+    }
+    if (this._arrowEl && !this._children.includes(this._arrowEl)) {
+      this._children.push(this._arrowEl);
     }
   }
 
@@ -509,6 +492,9 @@ class VMenuItem extends Tag {
   }
 
   renderDom() {
+    // 渲染子菜单结构
+    this._renderSubmenu();
+    
     const element = super.renderDom();
     if (element) {
       element._vMenuItem = this;
