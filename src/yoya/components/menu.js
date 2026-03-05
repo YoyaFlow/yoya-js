@@ -72,62 +72,10 @@ class VMenu extends Tag {
   }
 
   submenu(title, setup = null) {
-    // 创建子菜单标题项（使用 VMenuItem 的 expanded 状态）
-    const titleItem = vMenuItem(title, item => {
-      item.styles({
-        fontWeight: '500',
-      });
-      
-      // 添加展开箭头
-      item._arrowEl = span(arrow => {
-        arrow.styles({
-          marginLeft: 'auto',
-          fontSize: '10px',
-          transition: 'transform 0.2s',
-          opacity: '0.5',
-          display: 'inline-block',
-        });
-        arrow.text('▶');
-      });
-      item.child(item._arrowEl);
-      
-      // 创建子菜单内容容器
-      item._submenuContainer = div(container => {
-        container.styles({
-          display: 'none',
-          flexDirection: 'column',
-          marginLeft: '16px',
-          paddingLeft: '8px',
-          borderLeft: '1px solid var(--islands-border, #e0e0e0)',
-          marginTop: '4px',
-        });
-      });
-      
-      // 执行 setup 添加子菜单项
-      if (typeof setup === 'function') {
-        setup({
-          item: (content, opts) => {
-            const itemEl = vMenuItem(content, opts);
-            itemEl.styles({ paddingLeft: '24px' });
-            item._submenuContainer.child(itemEl);
-            return itemEl;
-          },
-          divider: () => {
-            const dividerEl = vMenuDivider();
-            dividerEl.styles({ marginLeft: '16px' });
-            item._submenuContainer.child(dividerEl);
-            return dividerEl;
-          },
-        });
-      }
-      
-      // 添加子菜单容器到子元素
-      item.child(item._submenuContainer);
-    });
-    
-    this.child(titleItem);
-    
-    return titleItem;
+    // 使用 vSubMenu 创建子菜单
+    const subMenu = vSubMenu(title, setup);
+    this.child(subMenu);
+    return subMenu;
   }
 }
 
@@ -155,6 +103,7 @@ class VMenuItem extends Tag {
     this.styles({
       padding: 'var(--islands-menu-item-padding, var(--islands-padding-sm, 10px)) var(--islands-menu-item-horizontal-padding, var(--islands-padding-md, 16px))',
       cursor: 'pointer',
+      display: 'flex',
       alignItems: 'center',
       gap: 'var(--islands-menu-item-gap, var(--islands-gap-sm, 10px))',
       transition: 'background-color 0.2s',
@@ -260,15 +209,19 @@ class VMenuItem extends Tag {
 
     // expanded 状态 - 用于子菜单展开/折叠
     this.registerStateHandler('expanded', (expanded, host) => {
-      if (host._submenuContainer && host._arrowEl) {
+      // 获取子菜单容器引用（从 titleItem 上获取）
+      const submenuContainer = host._submenuContainer;
+      const arrowEl = host._arrowEl;
+      
+      if (submenuContainer && arrowEl && submenuContainer._boundElement && arrowEl._boundElement) {
         if (expanded) {
-          host._submenuContainer.style('display', 'flex');
-          host._arrowEl.style('transform', 'rotate(90deg)');
+          submenuContainer._boundElement.style.display = 'flex';
+          arrowEl._boundElement.style.transform = 'rotate(90deg)';
           // 展开时高亮父菜单项
           host.style('background', 'var(--islands-menu-item-hover-bg, rgba(102, 126, 234, 0.05))');
         } else {
-          host._submenuContainer.style('display', 'none');
-          host._arrowEl.style('transform', 'rotate(0deg)');
+          submenuContainer._boundElement.style.display = 'none';
+          arrowEl._boundElement.style.transform = 'rotate(0deg)';
           // 折叠时恢复背景（如果没有 active）
           if (!host.hasState('active')) {
             host.style('background', 'transparent');
@@ -309,7 +262,7 @@ class VMenuItem extends Tag {
     this.on('click', (e) => {
       if (!self.hasState('disabled')) {
         // 有子菜单：只能展开/折叠，不能选中
-        if (self._submenuContainer) {
+        if (self._submenuContainer || self._arrowEl) {
           e.stopPropagation();
           const isExpanded = self.getState('expanded') || false;
           self.setState('expanded', !isExpanded);
@@ -907,38 +860,120 @@ export {
 // ============================================
 
 class VSubMenu extends Tag {
+  static _stateAttrs = ['expanded'];
+  
   constructor(title = '', setup = null) {
     super('div', null);
     
     this._title = title;
-    this._expanded = false;
-    this._children = [];
+    this._submenuItems = [];
+    this._arrowEl = null;
+    this._headerItem = null;
     
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+    
+    // 2. 初始化状态
+    this.initializeStates({ expanded: false });
+    
+    // 3. 创建标题项（带箭头）
+    this._headerItem = vMenuItem(title, item => {
+      item.styles({ fontWeight: '500' });
+      
+      // 添加展开箭头
+      item._arrowEl = span(arrow => {
+        arrow.styles({
+          marginLeft: 'auto',
+          fontSize: '10px',
+          transition: 'transform 0.2s',
+          opacity: '0.5',
+          display: 'inline-block',
+          flexShrink: '0',
+        });
+        arrow.text('▶');
+      });
+      this._arrowEl = item._arrowEl;
+      item.child(item._arrowEl);
+      
+      // 点击标题切换展开/折叠
+      item.on('click', (e) => {
+        e.stopPropagation();
+        const isExpanded = this.getState('expanded') || false;
+        this.setState('expanded', !isExpanded);
+      });
     });
     
+    // 4. 创建子菜单容器
+    this._container = div(container => {
+      container.styles({
+        display: 'none',
+        flexDirection: 'column',
+        marginLeft: '16px',
+        paddingLeft: '8px',
+        borderLeft: '1px solid var(--islands-border, #e0e0e0)',
+        marginTop: '4px',
+      });
+    });
+    
+    // 5. 注册 expanded 状态处理器
+    this.registerStateHandler('expanded', (expanded, host) => {
+      if (host._container?._boundElement && host._arrowEl?._boundElement) {
+        if (expanded) {
+          host._container._boundElement.style.display = 'flex';
+          host._arrowEl._boundElement.style.transform = 'rotate(90deg)';
+        } else {
+          host._container._boundElement.style.display = 'none';
+          host._arrowEl._boundElement.style.transform = 'rotate(0deg)';
+        }
+      }
+    });
+    
+    // 6. 执行 setup
     if (setup !== null) {
-      this.setup(setup);
+      if (typeof setup === 'function') {
+        setup(this);
+      } else if (typeof setup === 'object' && setup !== null) {
+        this._setupObject(setup);
+      }
     }
   }
   
-  title(text) {
-    this._title = text;
-    return this;
+  _setupObject(config) {
+    // 处理对象配置
+    if (config.items && Array.isArray(config.items)) {
+      config.items.forEach(itemConfig => {
+        this.item(itemConfig);
+      });
+    }
   }
   
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
-    this.child(el);
-    return this;
+    el.styles({ paddingLeft: '24px' });
+    this._container.child(el);
+    this._submenuItems.push(el);
+    return el;
   }
   
   divider() {
     const el = vMenuDivider();
-    this.child(el);
-    return this;
+    el.styles({ marginLeft: '16px' });
+    this._container.child(el);
+    return el;
+  }
+  
+  renderDom() {
+    if (this._deleted) return null;
+    
+    // 确保子元素按正确顺序添加
+    if (!this._children.includes(this._headerItem)) {
+      this._children.unshift(this._headerItem);
+    }
+    if (!this._children.includes(this._container)) {
+      this._children.push(this._container);
+    }
+    
+    return super.renderDom();
   }
 }
 
