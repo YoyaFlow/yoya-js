@@ -143,28 +143,23 @@ export function createMenuPage() {
             m.group(g => {
               g.label('文件操作');
               g.item(it => {
-                .text('📄 新建')
-                .onClick(() => toast.info('新建'));
+                it.text('📄 新建').onClick(() => toast.info('新建'));
               });
               g.item(it => {
-                .text('📂 打开')
-                .onClick(() => toast.info('打开'));
+                it.text('📂 打开').onClick(() => toast.info('打开'));
               });
             });
             m.divider();
             m.group(g => {
               g.label('编辑');
               g.item(it => {
-                .text('✂️ 剪切')
-                .onClick(() => toast.info('剪切'));
+                it.text('✂️ 剪切').onClick(() => toast.info('剪切'));
               });
               g.item(it => {
-                .text('📋 复制')
-                .onClick(() => toast.info('复制'));
+                it.text('📋 复制').onClick(() => toast.info('复制'));
               });
               g.item(it => {
-                .text('📌 粘贴')
-                .onClick(() => toast.info('粘贴'));
+                it.text('📌 粘贴').onClick(() => toast.info('粘贴'));
               });
             });
           }),
