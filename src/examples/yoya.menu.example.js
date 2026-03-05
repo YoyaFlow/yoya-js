@@ -6,8 +6,8 @@
 import {
   div, span, p, h1, h2, h3, h4, section, br, footer, button,
   flex, hstack, vstack, spacer,
-  menu, menuItem, menuDivider, menuGroup,
-  dropdownMenu, contextMenu,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup,
+  vDropdownMenu, vContextMenu,
   toast
 } from '../yoya/index.js';
 

@@ -717,11 +717,25 @@ Tag.prototype.vDropdownMenu = function(setup = null) {
   return this;
 };
 
+Tag.prototype.vMenuGroup = function(setup = null) {
+  const el = vMenuGroup(setup);
+  this.child(el);
+  return this;
+};
+
+Tag.prototype.vContextMenu = function(setup = null) {
+  const el = vContextMenu(setup);
+  this.child(el);
+  return this;
+};
+
 // 兼容旧方法名
 Tag.prototype.menu = Tag.prototype.vMenu;
 Tag.prototype.menuItem = Tag.prototype.vMenuItem;
 Tag.prototype.menuDivider = Tag.prototype.vMenuDivider;
 Tag.prototype.dropdownMenu = Tag.prototype.vDropdownMenu;
+Tag.prototype.menuGroup = Tag.prototype.vMenuGroup;
+Tag.prototype.contextMenu = Tag.prototype.vContextMenu;
 
 // ============================================
 // 导出

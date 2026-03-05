@@ -3,8 +3,8 @@
  */
 
 import {
-  div, h1, h2, h3, h4, p, span, button, card, cardHeader, cardBody, cardFooter,
-  menu, menuItem, menuDivider,
+  div, h1, h2, h3, h4, p, span, button, vCard, vCardHeader, vCardBody, vCardFooter,
+  vMenu, vMenuItem, vMenuDivider,
   select, option, label, input,
   toast,
   // 主题相关

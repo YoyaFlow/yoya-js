@@ -5,7 +5,7 @@
 
 import {
   div, button, h1, p, section, pre, code,
-  menu, menuItem, menuDivider, menuGroup
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup
 } from '../yoya/index.js';
 
 // ============================================
