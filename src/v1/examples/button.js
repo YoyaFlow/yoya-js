@@ -41,13 +41,10 @@ export function createButtonPage() {
       // 页面标题
       content.child(vstack(header => {
         header.gap('8px');
-        header.styles({ marginBottom: '24px' });
 
-        header.child(vMenuItem('Button 按钮')
-          .styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' }));
-
-        header.child(vMenuItem('按钮用于触发一个操作。支持多种类型、尺寸、状态，以及加载效果。')
-          .styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' }));
+        // 页面标题 - 使用 layout.js 中的默认样式
+        header.child(vMenuItem('Button 按钮'));
+        header.child(vMenuItem('按钮用于触发一个操作。支持多种类型、尺寸、状态，以及加载效果。'));
       }));
 
       // 基础用法
@@ -161,13 +158,9 @@ vButton('主要禁用').type('primary').disabled()`
                 apiMenu.item(it => {
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
-                    apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(vMenuItem(item.name)
-                      .styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '100px' }));
-                    apiRow.child(vMenuItem(item.desc)
-                      .styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 }));
-                    apiRow.child(vMenuItem(item.type)
-                      .styles({ fontFamily: 'monospace', fontSize: '12px', color: '#999' }));
+                    apiRow.child(vMenuItem(item.name));
+                    apiRow.child(vMenuItem(item.desc));
+                    apiRow.child(vMenuItem(item.type));
                   }));
                 });
               });
@@ -179,8 +172,7 @@ vButton('主要禁用').type('primary').disabled()`
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(vMenuItem('本页目录')
-        .styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' }));
+      toc.child(vMenuItem('本页目录'));
       toc.child(vstack(links => {
         links.gap('4px');
         links.child(tocItem('基础用法', '#basic'));

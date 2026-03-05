@@ -257,9 +257,7 @@ export function createMenuPage() {
       // 下拉菜单
       content.child(docSection('dropdown', '下拉菜单', [
         vCard(c => {
-          c.styles({ marginBottom: '24px' });
-          c.vCardHeader('下拉菜单演示')
-            .styles({ fontSize: '14px', fontWeight: '600' });
+          c.vCardHeader('下拉菜单演示');
           c.vCardBody(demo => {
             demo.child(flex(row => {
               row.gap('16px');
@@ -310,9 +308,7 @@ export function createMenuPage() {
       // 右键菜单
       content.child(docSection('context', '右键菜单', [
         vCard(c => {
-          c.styles({ marginBottom: '24px' });
-          c.vCardHeader('右键菜单演示')
-            .styles({ fontSize: '14px', fontWeight: '600' });
+          c.vCardHeader('右键菜单演示');
           c.vCardBody(demo => {
             demo.child(vstack(stack => {
               stack.gap('12px');
@@ -417,8 +413,7 @@ export function createMenuPage() {
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(vMenuItem('本页目录')
-        .styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' }));
+      toc.child(vMenuItem('本页目录'));
       toc.child(vstack(links => {
         links.gap('4px');
         links.child(tocItem('基础菜单', '#basic'));

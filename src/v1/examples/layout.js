@@ -217,13 +217,7 @@ export function docSection(id, title, children) {
     // 章节标题
     section.child(flex(titleRow => {
       titleRow.alignItems('center');
-      titleRow.child(vMenuItem(title, h2 => {
-        h2.styles({
-          fontSize: '24px',
-          fontWeight: '600',
-          color: 'var(--islands-text, #333)',
-        });
-      }));
+      titleRow.child(vMenuItem(title));
     }));
 
     // 章节内容
@@ -240,9 +234,7 @@ export function codeDemo(title, demoContent, codeString) {
   return vCard(c => {
     c.styles({ marginBottom: '24px' });
 
-    // setupString：标题直接用字符串
-    c.vCardHeader(title || '示例')
-      .styles({ fontSize: '14px', fontWeight: '600' });
+    c.vCardHeader(title || '示例');
 
     c.vCardBody(content => {
       content.child(vstack(inner => {

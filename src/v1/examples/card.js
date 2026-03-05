@@ -44,18 +44,14 @@ export function createCardPage() {
         header.gap('8px');
         header.styles({ marginBottom: '24px' });
 
-        header.child(vMenuItem('Card 卡片')
-          .styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' }));
-
-        header.child(vMenuItem('卡片容器用于分组和展示相关内容，支持头部、内容区和底部的组合。')
-          .styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' }));
+        header.child(vMenuItem('Card 卡片'));
+        header.child(vMenuItem('卡片容器用于分组和展示相关内容，支持头部、内容区和底部的组合。'));
       }));
 
       // 基础卡片
       content.child(docSection('basic', '基础卡片', [
         codeDemo('简单卡片',
           vCard(c => {
-            c.styles({ width: '300px' });
             c.vCardBody('这是一个简单的卡片，只包含内容区域。');
           }),
           `vCard(c => {
@@ -65,7 +61,7 @@ export function createCardPage() {
 
         codeDemo('带边框卡片',
           vCard(c => {
-            c.styles({ width: '300px', border: '1px solid var(--islands-border, #e0e0e0)', boxShadow: 'none' });
+            c.styles({ border: '1px solid var(--islands-border, #e0e0e0)', boxShadow: 'none' });
             c.vCardBody('带边框的卡片，去除了阴影效果。');
           }),
           `vCard(c => {
@@ -82,11 +78,8 @@ export function createCardPage() {
       content.child(docSection('complete', '完整卡片', [
         codeDemo('标准卡片（头部 + 内容 + 底部）',
           vCard(c => {
-            c.styles({ width: '350px' });
-            c.vCardHeader('卡片标题')
-              .styles({ fontSize: '16px', fontWeight: '600' });
-            c.vCardBody('这是卡片的内容区域，可以放置文本、图片、表格等各种内容。卡片组件支持灵活的内容组织方式。')
-              .styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' });
+            c.vCardHeader('卡片标题');
+            c.vCardBody('这是卡片的内容区域，可以放置文本、图片、表格等各种内容。卡片组件支持灵活的内容组织方式。');
             c.vCardFooter(f => {
               f.child(flex(btns => {
                 btns.gap('8px');
@@ -110,16 +103,12 @@ export function createCardPage() {
       content.child(docSection('header-only', '带头部的卡片', [
         codeDemo('仅头部 + 内容',
           vCard(c => {
-            c.styles({ width: '350px' });
-            c.vCardHeader('通知消息')
-              .styles({ fontSize: '16px', fontWeight: '600' });
+            c.vCardHeader('通知消息');
             c.vCardBody(b => {
               b.child(vstack(stack => {
                 stack.gap('8px');
-                stack.child(vMenuItem('📢 系统将于今晚 22:00 进行维护升级。')
-                  .styles({ fontSize: '14px' }));
-                stack.child(vMenuItem('预计维护时间 2 小时，请提前保存数据。')
-                  .styles({ fontSize: '13px', color: 'var(--islands-text-secondary, #666)' }));
+                stack.child(vMenuItem('📢 系统将于今晚 22:00 进行维护升级。'));
+                stack.child(vMenuItem('预计维护时间 2 小时，请提前保存数据。'));
               }));
             });
           }),
@@ -136,14 +125,11 @@ export function createCardPage() {
       content.child(docSection('footer-only', '带底部的卡片', [
         codeDemo('内容 + 底部操作',
           vCard(c => {
-            c.styles({ width: '350px' });
             c.vCardBody(b => {
               b.child(vstack(stack => {
                 stack.gap('12px');
-                stack.child(vMenuItem('确认删除此项目吗？')
-                  .styles({ fontSize: '14px' }));
-                stack.child(vMenuItem('此操作不可撤销，请谨慎操作。')
-                  .styles({ fontSize: '13px', color: 'var(--islands-error, #dc3545)' }));
+                stack.child(vMenuItem('确认删除此项目吗？'));
+                stack.child(vMenuItem('此操作不可撤销，请谨慎操作。'));
               }));
             });
             c.vCardFooter(f => {
@@ -176,38 +162,30 @@ export function createCardPage() {
 
               // 卡片 1
               g.child(vCard(c1 => {
-                c1.vCardHeader('📊 数据统计')
-                  .styles({ fontSize: '14px', fontWeight: '600' });
-                c1.vCardBody('1,234')
-                  .styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-primary, #667eea)' });
-                c1.vCardFooter(f => { f.child(vMenuItem('较昨日 +12%').styles({ fontSize: '12px', color: 'var(--islands-success, #28a745)' })); });
+                c1.vCardHeader('📊 数据统计');
+                c1.vCardBody('1,234');
+                c1.vCardFooter(f => { f.child(vMenuItem('较昨日 +12%')); });
               }));
 
               // 卡片 2
               g.child(vCard(c2 => {
-                c2.vCardHeader('👥 用户数')
-                  .styles({ fontSize: '14px', fontWeight: '600' });
-                c2.vCardBody('8,567')
-                  .styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-success, #28a745)' });
-                c2.vCardFooter(f => { f.child(vMenuItem('较昨日 +5%').styles({ fontSize: '12px', color: 'var(--islands-success, #28a745)' })); });
+                c2.vCardHeader('👥 用户数');
+                c2.vCardBody('8,567');
+                c2.vCardFooter(f => { f.child(vMenuItem('较昨日 +5%')); });
               }));
 
               // 卡片 3
               g.child(vCard(c3 => {
-                c3.vCardHeader('💰 收入')
-                  .styles({ fontSize: '14px', fontWeight: '600' });
-                c3.vCardBody('¥45,678')
-                  .styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-warning, #ffc107)' });
-                c3.vCardFooter(f => { f.child(vMenuItem('较昨日 -3%').styles({ fontSize: '12px', color: 'var(--islands-error, #dc3545)' })); });
+                c3.vCardHeader('💰 收入');
+                c3.vCardBody('¥45,678');
+                c3.vCardFooter(f => { f.child(vMenuItem('较昨日 -3%')); });
               }));
 
               // 卡片 4
               g.child(vCard(c4 => {
-                c4.vCardHeader('📝 订单')
-                  .styles({ fontSize: '14px', fontWeight: '600' });
-                c4.vCardBody('342')
-                  .styles({ fontSize: '24px', fontWeight: '700', color: 'var(--islands-info, #17a2b8)' });
-                c4.vCardFooter(f => { f.child(vMenuItem('较昨日 +8%').styles({ fontSize: '12px', color: 'var(--islands-success, #28a745)' })); });
+                c4.vCardHeader('📝 订单');
+                c4.vCardBody('342');
+                c4.vCardFooter(f => { f.child(vMenuItem('较昨日 +8%')); });
               }));
             }));
           });
@@ -217,22 +195,16 @@ export function createCardPage() {
       // 嵌套卡片
       content.child(docSection('nested', '嵌套卡片', [
         vCard(c => {
-          c.styles({ width: '400px' });
-          c.vCardHeader('外层卡片')
-            .styles({ fontSize: '16px', fontWeight: '600' });
+          c.vCardHeader('外层卡片');
           c.vCardBody(b => {
             b.child(vstack(stack => {
               stack.gap('16px');
-              stack.child(vMenuItem('这是外层卡片的内容')
-                .styles({ fontSize: '14px', color: 'var(--islands-text-secondary, #666)' }));
+              stack.child(vMenuItem('这是外层卡片的内容'));
 
               // 内层卡片
               stack.child(vCard(inner => {
-                inner.styles({ background: 'var(--islands-bg-secondary, #f8f9fa)' });
-                inner.vCardHeader('内层卡片')
-                  .styles({ fontSize: '14px', fontWeight: '600' });
-                inner.vCardBody('这是内嵌的卡片内容')
-                  .styles({ fontSize: '13px' });
+                inner.vCardHeader('内层卡片');
+                inner.vCardBody('这是内嵌的卡片内容');
               }));
             }));
           });
@@ -257,13 +229,9 @@ export function createCardPage() {
                 apiMenu.item(it => {
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
-                    apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(vMenuItem(item.name)
-                      .styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '120px' }));
-                    apiRow.child(vMenuItem(item.desc)
-                      .styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 }));
-                    apiRow.child(vMenuItem(item.props)
-                      .styles({ fontFamily: 'monospace', fontSize: '11px', color: '#999' }));
+                    apiRow.child(vMenuItem(item.name));
+                    apiRow.child(vMenuItem(item.desc));
+                    apiRow.child(vMenuItem(item.props));
                   }));
                 });
               });
@@ -275,8 +243,7 @@ export function createCardPage() {
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(vMenuItem('本页目录')
-        .styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' }));
+      toc.child(vMenuItem('本页目录'));
       toc.child(vstack(links => {
         links.gap('4px');
         links.child(tocItem('基础卡片', '#basic'));

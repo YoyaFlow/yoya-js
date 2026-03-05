@@ -272,10 +272,7 @@ vTimer(t => {
       // 完整表单示例
       content.child(docSection('example', '完整表单示例', [
         vCard(c => {
-          c.styles({ marginBottom: '24px' });
-
-          c.vCardHeader('用户注册表单')
-            .styles({ fontSize: '14px', fontWeight: '600' });
+          c.vCardHeader('用户注册表单');
 
           c.vCardBody(form => {
             form.child(vForm(f => {
@@ -376,9 +373,7 @@ vTimer(t => {
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(vMenuItem('本页目录', title => {
-        title.styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' });
-      }));
+      toc.child(vMenuItem('本页目录'));
       toc.child(vstack(links => {
         links.gap('4px');
         links.child(tocItem('输入框', '#input'));
