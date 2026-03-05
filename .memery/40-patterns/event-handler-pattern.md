@@ -420,41 +420,89 @@ onchange(handler) {
 ## 类型定义
 
 ```typescript
-// 事件回调类型定义
-interface VButton {
-  onclick(handler: (e: MouseEvent) => void): this;
+// Tag 基类事件类型
+interface EventContext {
+  event: Event | MouseEvent | KeyboardEvent | FocusEvent | ClipboardEvent;
+  target: Tag;
 }
 
-interface VInput {
-  onchange(handler: (value: string, e: Event) => void): this;
-  oninput(handler: (value: string, e: Event) => void): this;
+interface ValueEventContext<T = any> extends EventContext {
+  value: T;
+  oldValue?: T;
 }
 
-interface VSelect {
-  onchange(handler: (value: string, e: Event) => void): this;
+interface KeyEventContext extends EventContext {
+  key: string;
+  code: string;
 }
 
-interface VCheckbox {
-  onchange(handler: (checked: boolean, e: Event) => void): this;
+// Tag 基类
+declare class Tag {
+  onClick(handler: (e: { event: MouseEvent; target: Tag }) => void): this;
+  onChangeValue(handler: (e: { event: Event; value: any; oldValue?: any; target: Tag }) => void): this;
+  onInputValue(handler: (e: { event: Event; value: any; target: Tag }) => void): this;
+  onToggle(handler: (e: { event: Event; value: boolean; oldValue?: boolean; target: Tag }) => void): this;
+  onFocus(handler: (e: { event: FocusEvent; target: Tag }) => void): this;
+  onBlur(handler: (e: { event: FocusEvent; target: Tag }) => void): this;
+  onKey(handler: (e: { event: KeyboardEvent; key: string; code: string; target: Tag }) => void): this;
+  onMouseEnter(handler: (e: { event: MouseEvent; target: Tag }) => void): this;
+  onMouseLeave(handler: (e: { event: MouseEvent; target: Tag }) => void): this;
 }
 
-interface VSwitch {
-  onchange(handler: (checked: boolean) => void): this;
+// VButton - 点击事件
+interface VButton extends Tag {
+  onClick(handler: (e: { event: MouseEvent; target: VButton }) => void): this;
 }
 
-interface VMenuItem {
-  onclick(handler: (item: VMenuItem, e: MouseEvent) => void): this;
+// VInput - 值变化/输入事件
+interface VInput extends Tag {
+  onChange(handler: (e: { event: Event; value: string; oldValue?: string; target: VInput }) => void): this;
+  onInput(handler: (e: { event: Event; value: string; target: VInput }) => void): this;
 }
 
-interface VCode {
-  oncopy(handler: (code: string) => void): this;
+// VSelect - 值变化事件
+interface VSelect extends Tag {
+  onChange(handler: (e: { event: Event; value: string | number; oldValue?: string | number; target: VSelect }) => void): this;
+}
+
+// VTextarea - 值变化/输入事件
+interface VTextarea extends Tag {
+  onChange(handler: (e: { event: Event; value: string; oldValue?: string; target: VTextarea }) => void): this;
+  onInput(handler: (e: { event: Event; value: string; target: VTextarea }) => void): this;
+}
+
+// VCheckbox - 值变化事件
+interface VCheckbox extends Tag {
+  onChange(handler: (e: { event: Event; value: boolean; oldValue?: boolean; target: VCheckbox }) => void): this;
+}
+
+// VSwitch - 值变化事件
+interface VSwitch extends Tag {
+  onChange(handler: (e: { event: Event; value: boolean; oldValue?: boolean; target: VSwitch }) => void): this;
+}
+
+// VMenuItem - 点击事件
+interface VMenuItem extends Tag {
+  onClick(handler: (e: { event: MouseEvent; text: string; icon?: string; target: VMenuItem }) => void): this;
+}
+
+// VCode - 复制事件
+interface VCode extends Tag {
+  onCopy(handler: (e: { event: ClipboardEvent; value: string; target: VCode }) => void): this;
+}
+
+// VForm - 提交事件
+interface VForm extends Tag {
+  onSubmit(handler: (e: { event: Event; target: VForm }) => void): this;
 }
 ```
 
 ## 相关文件
 
+- `src/yoya/core/basic.js` - Tag 基类和统一事件包装器
+- `src/yoya/index.d.ts` - Tag 基类类型定义
 - `src/yoya/components/button.js` - 按钮组件
 - `src/yoya/components/form.js` - 表单组件
 - `src/yoya/components/menu.js` - 菜单组件
 - `src/yoya/components/code.js` - 代码组件
-- `src/yoya/components/index.d.ts` - 类型定义
+- `src/yoya/components/index.d.ts` - 组件类型定义

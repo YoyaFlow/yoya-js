@@ -49,6 +49,20 @@ declare class Tag {
   // 事件绑定
   on(event: string, handler: (e: Event) => void): this;
 
+  // 统一事件包装器（内部方法）
+  _wrapHandler(handler: Function, buildContext?: (e: Event, host: Tag) => Record<string, any>): (e: Event) => void;
+
+  // 标准事件方法 - 统一单对象参数格式
+  onClick(handler: (e: { event: MouseEvent; target: Tag }) => void): this;
+  onChangeValue(handler: (e: { event: Event; value: any; oldValue?: any; target: Tag }) => void): this;
+  onInputValue(handler: (e: { event: Event; value: any; target: Tag }) => void): this;
+  onToggle(handler: (e: { event: Event; value: boolean; oldValue?: boolean; target: Tag }) => void): this;
+  onFocus(handler: (e: { event: FocusEvent; target: Tag }) => void): this;
+  onBlur(handler: (e: { event: FocusEvent; target: Tag }) => void): this;
+  onKey(handler: (e: { event: KeyboardEvent; key: string; code: string; target: Tag }) => void): this;
+  onMouseEnter(handler: (e: { event: MouseEvent; target: Tag }) => void): this;
+  onMouseLeave(handler: (e: { event: MouseEvent; target: Tag }) => void): this;
+
   // 文本节点（作为子元素）
   text(content: string | number): this;
 

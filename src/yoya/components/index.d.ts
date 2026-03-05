@@ -88,17 +88,16 @@ declare class VMenuItem extends Tag {
   danger(): this;
   hoverable(): this;
   shortcut(key: string): this;
-  onclick(fn: (item: VMenuItem) => void): this;
+  onClick(handler: (e: { event: MouseEvent; text: string; icon?: string; target: VMenuItem }) => void): this;
   toggleState(stateName: string): this;
   setState(state: string, enabled?: boolean): this;
   hasState(state: string): boolean;
   getState(state: string): boolean;
   getAllStates(): Record<string, boolean>;
-  resetStates(): this;
-  saveStateSnapshot(name?: string): this;
-  restoreStateSnapshot(name?: string): this;
   initializeStates(defaultStates?: Record<string, boolean>): this;
   deinitializeStates(): this;
+  saveStateSnapshot(name?: string): this;
+  restoreStateSnapshot(name?: string): this;
 }
 
 declare function vMenuItem(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
@@ -227,6 +226,7 @@ declare class VButton extends Tag {
   loading(value?: boolean): this | boolean;
   block(value?: boolean): this | boolean;
   ghost(value?: boolean): this | boolean;
+  onClick(handler: (e: { event: MouseEvent; target: VButton }) => void): this;
 }
 
 declare function vButton(content?: string, setup?: Setup<VButton>): VButton;
@@ -246,8 +246,8 @@ declare class VInput extends Tag {
   error(value?: boolean): this | boolean;
   loading(value?: boolean): this | boolean;
   size(value: 'large' | 'default' | 'small'): this | string;
-  onChange(handler: (e: Event) => void): this;
-  onInput(handler: (e: Event) => void): this;
+  onChange(handler: (e: { event: Event; value: string; oldValue?: string; target: VInput }) => void): this;
+  onInput(handler: (e: { event: Event; value: string; target: VInput }) => void): this;
   focus(): this;
   blur(): this;
 }
@@ -267,7 +267,7 @@ declare class VSelect extends Tag {
   disabled(value?: boolean): this | boolean;
   error(value?: boolean): this | boolean;
   size(value: 'large' | 'default' | 'small'): this | string;
-  onChange(handler: (e: Event) => void): this;
+  onChange(handler: (e: { event: Event; value: string | number; oldValue?: string | number; target: VSelect }) => void): this;
 }
 
 declare function vSelect(setup?: Setup<VSelect>): VSelect;
@@ -285,8 +285,8 @@ declare class VTextarea extends Tag {
   disabled(value?: boolean): this | boolean;
   readonly(value?: boolean): this | boolean;
   error(value?: boolean): this | boolean;
-  onChange(handler: (e: Event) => void): this;
-  onInput(handler: (e: Event) => void): this;
+  onChange(handler: (e: { event: Event; value: string; oldValue?: string; target: VTextarea }) => void): this;
+  onInput(handler: (e: { event: Event; value: string; target: VTextarea }) => void): this;
 }
 
 declare function vTextarea(setup?: Setup<VTextarea>): VTextarea;
@@ -303,7 +303,7 @@ declare class VCheckbox extends Tag {
   error(value?: boolean): this | boolean;
   name(value: string): this | string;
   value(value: string): this | string;
-  onChange(handler: (e: Event) => void): this;
+  onChange(handler: (e: { event: Event; value: boolean; oldValue?: boolean; target: VCheckbox }) => void): this;
 }
 
 declare function vCheckbox(labelText?: string, setup?: Setup<VCheckbox>): VCheckbox;
@@ -317,7 +317,7 @@ declare class VSwitch extends Tag {
   checked(value?: boolean): this | boolean;
   disabled(value?: boolean): this | boolean;
   size(value: 'large' | 'default' | 'small'): this | string;
-  onChange(handler: (checked: boolean) => void): this;
+  onChange(handler: (e: { event: Event; value: boolean; oldValue?: boolean; target: VSwitch }) => void): this;
 }
 
 declare function vSwitch(setup?: Setup<VSwitch>): VSwitch;
@@ -330,10 +330,36 @@ declare class VForm extends Tag {
   constructor(setup?: Setup<VForm>);
   action(value: string): this | string;
   method(value: string): this | string;
-  onSubmit(handler: (e: Event) => void): this;
+  onSubmit(handler: (e: { event: Event; target: VForm }) => void): this;
 }
 
 declare function vForm(setup?: Setup<VForm>): VForm;
+
+// ============================================
+// VCode 代码展示组件
+// ============================================
+
+declare class VCode extends Tag {
+  constructor(setup?: Setup<VCode>);
+  content(c?: string): this | string;
+  language(lang: string): this;
+  showLineNumbers(show: boolean): this;
+  showCopyButton(show: boolean): this;
+  title(t: string): this;
+  onCopy(handler: (e: { event: ClipboardEvent; value: string; target: VCode }) => void): this;
+}
+
+declare function vCode(setup?: Setup<VCode>): VCode;
+
+// ============================================
+// CodeBlock 简化代码块
+// ============================================
+
+declare class CodeBlock extends Tag {
+  constructor(title?: string, content?: string, setup?: Setup<CodeBlock>);
+}
+
+declare function codeBlock(title?: string, content?: string, setup?: Setup<CodeBlock>): CodeBlock;
 
 // ============================================
 // VDetail 详情展示组件
@@ -408,6 +434,10 @@ export {
   VCheckbox, vCheckbox,
   VSwitch, vSwitch,
   VForm, vForm,
+
+  // VCode
+  VCode, vCode,
+  CodeBlock, codeBlock,
 
   // VDetail
   VDetail, vDetail,
