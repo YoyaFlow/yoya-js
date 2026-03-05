@@ -350,6 +350,7 @@ class VMenuItem extends Tag {
           fontSize: '10px',
           transition: 'transform 0.2s',
           opacity: '0.5',
+          display: 'inline-block',
         });
         arrow.text('▶');
       });
@@ -377,7 +378,7 @@ class VMenuItem extends Tag {
     
     if (isExpanded) {
       this._submenuWrapper.style('display', 'none');
-      this._arrowEl.style('transform', '');
+      this._arrowEl.style('transform', 'rotate(0deg)');
     } else {
       this._submenuWrapper.style('display', 'block');
       this._arrowEl.style('transform', 'rotate(90deg)');
