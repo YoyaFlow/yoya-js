@@ -6,7 +6,7 @@
 import {
   flex, vstack, vCard, vCardBody,
   vMenu, vMenuItem, vButton, vCode, toast,
-  vForm, vInput, vTextarea, vSelect, vOption, vCheckbox, input, label,
+  vForm, vInput, vTextarea, vSelect, vOption, vCheckbox, vCheckboxes, label,
 } from '../../yoya/index.js';
 
 import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';
@@ -179,12 +179,26 @@ vCheckbox('选项 2')`
         codeDemo('单选框',
           vstack(stack => {
             stack.gap('8px');
-            stack.child(input({ type: 'radio' }, '单选 1').name('radio-group'));
-            stack.child(input({ type: 'radio' }, '单选 2').name('radio-group'));
-            stack.child(input({ type: 'radio' }, '单选 3').name('radio-group'));
+            stack.child(vCheckboxes(cb => {
+              cb.multiple(false);  // 单选模式
+              cb.options([
+                { value: '1', label: '单选 1' },
+                { value: '2', label: '单选 2' },
+                { value: '3', label: '单选 3' },
+              ]);
+              cb.value('1');
+              cb.onChange((value) => toast.info('选中：' + value));
+            }));
           }),
-          `input({ type: 'radio' }, '单选 1').name('group')
-input({ type: 'radio' }, '单选 2').name('group')`
+          `vCheckboxes(cb => {
+  cb.multiple(false)  // 单选模式
+  cb.options([
+    { value: '1', label: '单选 1' },
+    { value: '2', label: '单选 2' },
+  ])
+  cb.value('1')
+  cb.onChange((value) => toast('选中：' + value))
+})`
         ),
       ]));
 
@@ -234,8 +248,7 @@ input({ type: 'radio' }, '单选 2').name('group')`
                 { name: 'vTextarea', desc: '文本域', props: 'rows, cols, value' },
                 { name: 'vSelect', desc: '下拉选择', props: 'value, multiple' },
                 { name: 'vCheckbox', desc: '复选框', props: 'checked, value' },
-                { name: 'input', desc: '输入框/单选框', props: 'checked, name, value' },
-                { name: 'label', desc: '标签', props: 'for' },
+                { name: 'vCheckboxes', desc: '复选框组', props: 'options, multiple, value, onChange' },
               ];
 
               apiItems.forEach(item => {
