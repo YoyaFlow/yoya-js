@@ -112,3 +112,47 @@ vCard(c => {
 
 - `src/yoya/core/basic.js` - Tag 基类和工厂函数
 - `src/yoya/components/` - 各组件定义
+
+## 演示页面规范
+
+在 `/src/v1/examples` 演示界面中，**要对三种 setup 方式都要进行演示**：
+
+```javascript
+// 演示页面中应包含三种用法的示例
+codeDemo('setupString',
+  vButton('点击我'),
+  `vButton('点击我')`
+);
+
+codeDemo('setupObject',
+  vButton({ text: '提交', type: 'primary' }),
+  `vButton({ text: '提交', type: 'primary' })`
+);
+
+codeDemo('setup 函数',
+  vButton(btn => {
+    btn.text('提交');
+    btn.type('primary');
+    btn.onclick(handleSubmit);
+  }),
+  `vButton(btn => {
+  btn.text('提交')
+  btn.type('primary')
+})`
+);
+```
+
+### 演示目的
+
+| 目的 | 说明 |
+|------|------|
+| 教育用户 | 让用户了解三种初始化方式 |
+| 对比展示 | 直观看到不同方式的代码差异 |
+| 引导最佳实践 | 通过示例顺序引导用户使用推荐方式 |
+
+### 示例顺序
+
+演示页面应按照优先级顺序展示：
+1. setupString（第一个展示，推荐）
+2. setupObject（第二个展示）
+3. setup 函数（最后展示，标注适用场景）
