@@ -87,7 +87,7 @@ function createBasicMenuDemo() {
         card.div(demo => {
           demo.styles(pageStyles.demoArea);
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.item(it => {
               it.text('📋 菜单项 1')
                 .onClick(() => toast.info('点击了菜单项 1'));
@@ -111,7 +111,7 @@ function createBasicMenuDemo() {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 垂直菜单
-menu(m => {
+vMenu(m => {
   m.item('📋 菜单项 1');
   m.item('📁 菜单项 2');
   m.item('⚙️ 菜单项 3');
@@ -128,7 +128,7 @@ menu(m => {
         card.div(demo => {
           demo.styles(pageStyles.demoArea);
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.item(it => {
               it.text('✂️ 剪切')
                 .onClick(() => toast.info('剪切'));
@@ -158,7 +158,7 @@ menu(m => {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 带分割线
-menu(m => {
+vMenu(m => {
   m.item('✂️ 剪切');
   m.item('📋 复制');
   m.item('📌 粘贴');
@@ -178,7 +178,7 @@ menu(m => {
         card.div(demo => {
           demo.styles(pageStyles.demoArea);
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.group(g => {
               g.label('文件操作');
               g.item(it => {
@@ -213,7 +213,7 @@ menu(m => {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 分组菜单
-menu(m => {
+vMenu(m => {
   m.group(g => {
     g.label('文件操作');
     g.item('📄 新建');
@@ -256,7 +256,7 @@ function createMenuStateDemo() {
         card.div(demo => {
           demo.styles(pageStyles.demoArea);
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.item(it => {
               it.text('🏠 首页')
                 .active()
@@ -281,7 +281,7 @@ function createMenuStateDemo() {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 激活状态
-menu(m => {
+vMenu(m => {
   m.item('🏠 首页').active();
   m.item('📊 数据');
   m.item('👤 个人');
@@ -298,7 +298,7 @@ menu(m => {
         card.div(demo => {
           demo.styles(pageStyles.demoArea);
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.item(it => {
               it.text('📄 新建')
                 .onClick(() => toast.info('新建'));
@@ -323,7 +323,7 @@ menu(m => {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 禁用状态
-menu(m => {
+vMenu(m => {
   m.item('📄 新建');
   m.item('📂 打开').disabled();
   m.item('💾 保存');
@@ -342,7 +342,7 @@ menu(m => {
         card.div(demo => {
           demo.styles(pageStyles.demoArea);
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.item(it => {
               it.text('✏️ 编辑')
                 .onClick(() => toast.info('编辑'));
@@ -369,7 +369,7 @@ menu(m => {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 危险项
-menu(m => {
+vMenu(m => {
   m.item('✏️ 编辑');
   m.item('📋 复制');
   m.divider();
@@ -406,7 +406,7 @@ function createDropdownMenuDemo() {
 
           demo.dropdownMenu(d => {
             d.trigger('点击我');
-            d.menuContent(menu(m => {
+            d.menuContent(vMenu(m => {
               m.item(it => {
                 it.text('📋 选项 1')
                   .onClick(() => toast.info('选项 1'));
@@ -429,7 +429,7 @@ function createDropdownMenuDemo() {
             c.text(`// 下拉菜单
 dropdownMenu(d => {
   d.trigger('点击我');
-  d.menuContent(menu(m => {
+  d.menuContent(vMenu(m => {
     m.item('📋 选项 1');
     m.item('📁 选项 2');
     m.item('⚙️ 选项 3');
@@ -449,7 +449,7 @@ dropdownMenu(d => {
 
           demo.dropdownMenu(d => {
             d.trigger('操作');
-            d.menuContent(menu(m => {
+            d.menuContent(vMenu(m => {
               m.item(it => {
                 it.text('✂️ 剪切')
                   .shortcut('Ctrl+X')
@@ -481,7 +481,7 @@ dropdownMenu(d => {
             c.text(`// 带快捷键
 dropdownMenu(d => {
   d.trigger('操作');
-  d.menuContent(menu(m => {
+  d.menuContent(vMenu(m => {
     m.item('✂️ 剪切').shortcut('Ctrl+X');
     m.item('📋 复制').shortcut('Ctrl+C');
     m.item('📌 粘贴').shortcut('Ctrl+V');
@@ -501,7 +501,7 @@ dropdownMenu(d => {
 
           demo.dropdownMenu(d => {
             d.trigger('👤 用户');
-            d.menuContent(menu(m => {
+            d.menuContent(vMenu(m => {
               m.item(it => {
                 it.text('👤 个人资料')
                   .onClick(() => toast.info('个人资料'));
@@ -527,7 +527,7 @@ dropdownMenu(d => {
             c.text(`// 用户菜单
 dropdownMenu(d => {
   d.trigger('👤 用户');
-  d.menuContent(menu(m => {
+  d.menuContent(vMenu(m => {
     m.item('👤 个人资料');
     m.item('⚙️ 账户设置');
     m.divider();
@@ -564,7 +564,7 @@ function createNavMenuDemo() {
         card.div(demo => {
           demo.styles({ ...pageStyles.demoArea, minHeight: '100px', display: 'block' });
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.horizontal();
             m.styles({
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -603,7 +603,7 @@ function createNavMenuDemo() {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 水平导航菜单
-menu(m => {
+vMenu(m => {
   m.horizontal();  // 水平布局
   m.style('background', gradient);
   m.style('gap', '8px');
@@ -624,7 +624,7 @@ menu(m => {
         card.div(demo => {
           demo.styles({ ...pageStyles.demoArea, minHeight: '250px', display: 'block' });
 
-          demo.menu(m => {
+          demo.vMenu(m => {
             m.styles({
               width: '200px',
               background: '#f8f9fa',
@@ -667,7 +667,7 @@ menu(m => {
           pre.styles(pageStyles.codeBlock);
           pre.code(c => {
             c.text(`// 侧边栏菜单
-menu(m => {
+vMenu(m => {
   m.style('width', '200px');
   m.style('background', '#f8f9fa');
 
@@ -728,9 +728,9 @@ function createContextMenuDemo() {
           pre.code(c => {
             c.text(`// 右键菜单
 const target = document.getElementById('demo');
-const ctxMenu = contextMenu(ctx => {
+const ctxMenu = vContextMenu(ctx => {
   ctx.target(target);
-  ctx.menuContent(menu(m => {
+  ctx.menuContent(vMenu(m => {
     m.item('✏️ 编辑');
     m.item('📋 复制');
     m.item('🗑️ 删除').danger();
@@ -833,8 +833,8 @@ function initContextMenu() {
   const target = document.getElementById('context-menu-target');
   if (!target) return;
 
-  const ctxMenu = contextMenu(ctx => {
-    ctx.menuContent(menu(m => {
+  const ctxMenu = vContextMenu(ctx => {
+    ctx.menuContent(vMenu(m => {
       m.item('✏️ 编辑').onClick(() => {
         toast.info('编辑');
         ctxMenu.hide();
