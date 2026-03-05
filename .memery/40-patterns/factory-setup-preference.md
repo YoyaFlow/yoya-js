@@ -254,3 +254,104 @@ import {
 | 导入精简 | 减少 import 语句数量 |
 | 风格统一 | 演示代码风格一致 |
 | 示范作用 | 向用户展示最佳实践 |
+
+## 链式调用书写规范
+
+在设置属性时，**优先使用链式调用**，并**注意优化换行**：
+
+### 属性设置链式调用
+
+```javascript
+// ✅ 推荐：链式调用，一行写完
+vButton('提交').type('primary').size('large').onclick(handler);
+
+// ✅ 推荐：链式调用，多行时换行优化
+vButton('提交')
+  .type('primary')
+  .size('large')
+  .onclick(handler);
+
+// ❌ 不推荐：每个方法单独一行，浪费空间
+vButton('提交')
+  .type('primary')
+  .size('large')
+  .onclick(handler);
+
+// ❌ 不推荐：不使用链式
+const btn = vButton('提交');
+btn.type('primary');
+btn.size('large');
+btn.onclick(handler);
+```
+
+### 容器内容链式调用
+
+```javascript
+// ✅ 推荐：简单内容一行写完
+vStack(s => s.gap('16px').div('上').div('下'));
+
+// ✅ 推荐：多内容时优化换行
+vStack(s => {
+  s.gap('16px');
+  s.div('顶部');
+  s.div('中间');
+  s.div('底部');
+});
+
+// ❌ 不推荐：每个方法都换行
+vStack(s => {
+  s
+    .gap('16px')
+    .div('顶部')
+    .div('中间')
+    .div('底部');
+});
+```
+
+### 换行优化原则
+
+| 情况 | 写法 | 示例 |
+|------|------|------|
+| 2-3 个方法 | 一行写完 | `btn.type('primary').size('large')` |
+| 4+ 个方法 | 多行，每行一个方法 | 每个方法独立一行 |
+| 简单内容 | 单行 | `vStack(s => s.gap().div())` |
+| 复杂内容 | 多行花括号 | `vStack(s => { s.gap(); s.div(); })` |
+
+### 嵌套链式调用
+
+```javascript
+// ✅ 推荐：嵌套链式，层次清晰
+vCard(c => {
+  c.vCardHeader('标题').vCardBody('内容').vCardFooter(f => {
+    f.gap('8px').div('左').div('右');
+  });
+});
+
+// ✅ 推荐：复杂嵌套换行
+vCard(c => {
+  c.vCardHeader('标题');
+  c.vCardBody('内容');
+  c.vCardFooter(f => {
+    f.gap('8px');
+    f.div('左侧按钮');
+    f.div('右侧按钮');
+  });
+});
+```
+
+### 代码对比
+
+| 场景 | 推荐写法 | 不推荐写法 |
+|------|----------|------------|
+| 按钮属性 | `vButton('提交').type('primary').onclick(fn)` | 分多行写 |
+| 容器内容 | `vStack(s => s.gap().div())` | 每个方法换行 |
+| 卡片组合 | `c.vCardHeader().vCardBody().vCardFooter()` | 每个方法单独调用 |
+
+### 好处
+
+| 好处 | 说明 |
+|------|------|
+| 代码紧凑 | 减少不必要的换行 |
+| 可读性高 | 链式调用体现操作顺序 |
+| 易于维护 | 添加/删除方法方便 |
+| 风格统一 | 团队代码一致 |
