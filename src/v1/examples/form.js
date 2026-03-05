@@ -45,8 +45,8 @@ export function createFormPage() {
         codeDemo('setupString - 简单输入框',
           vstack(s => {
             s.gap('12px');
-            s.vInput('请输入用户名');
-            s.vInput('请输入密码');
+            s.child(vInput('请输入用户名'));
+            s.child(vInput('请输入密码'));
           }),
           `// ✅ 推荐：placeholder 直接用字符串
 vInput('请输入用户名')
@@ -56,17 +56,15 @@ vInput('请输入密码')`
         codeDemo('setupObject - 对象配置',
           vstack(s => {
             s.gap('12px');
-            s.vInput({
+            s.child(vInput({
               placeholder: '请输入邮箱',
               type: 'email',
-              class: 'email-input',
               onchange: (e) => toast.info(e.target.value),
-            });
-            s.vTextarea({
+            }));
+            s.child(vTextarea({
               placeholder: '请输入内容',
               rows: 3,
-              class: 'content-area',
-            });
+            }));
           }),
           `// ✅ 推荐：配置属性和事件用对象
 vInput({
@@ -79,15 +77,12 @@ vInput({
         codeDemo('setupFunction + 链式调用',
           vstack(s => {
             s.gap('12px');
-            s.vInput(i => {
+            s.child(vInput(i => {
               i.placeholder('请输入用户名');
               i.type('text');
-              i.class('username-input');
               i.on('change', (e) => toast.info(e.target.value));
-            });
-            s.vInput('请输入密码')
-              .type('password')
-              .class('password-input');
+            }));
+            s.child(vInput('请输入密码').type('password'));
           }),
           `// ✅ 推荐：复杂逻辑用函数 + 链式
 vInput(i => {
@@ -97,9 +92,7 @@ vInput(i => {
 })
 
 // 或更简洁的链式
-vInput('密码')
-  .type('password')
-  .class('password-input')`
+vInput('密码').type('password')`
         ),
       ]));
 
@@ -109,12 +102,11 @@ vInput('密码')
           vstack(stack => {
             stack.gap('12px');
             stack.child(vInput('请输入用户名'));
-            stack.child(vInput('请输入密码').type('password'));
-            stack.child(vInput('请输入邮箱').type('email'));
+            stack.child(vInput(i => { i.type('password'); i.placeholder('请输入密码'); }));
+            stack.child(vInput(i => { i.type('email'); i.placeholder('请输入邮箱'); }));
           }),
           `vInput('请输入用户名')
-vInput('请输入密码').type('password')
-vInput('请输入邮箱').type('email')`
+vInput(i => { i.type('password'); i.placeholder('请输入密码'); })`
         ),
 
         codeDemo('带标签的输入框',
@@ -123,7 +115,7 @@ vInput('请输入邮箱').type('email')`
             stack.child(label('用户名'));
             stack.child(vInput('请输入用户名'));
             stack.child(label('密码'));
-            stack.child(vInput('请输入密码').type('password'));
+            stack.child(vInput(i => { i.type('password'); i.placeholder('请输入密码'); }));
           }),
           `label('用户名')
 vInput('请输入用户名')`
@@ -136,10 +128,10 @@ vInput('请输入用户名')`
           vstack(stack => {
             stack.gap('12px');
             stack.child(vTextarea('请输入内容'));
-            stack.child(vTextarea('请输入描述').rows(4));
+            stack.child(vTextarea(t => { t.rows(4); t.placeholder('请输入描述'); }));
           }),
           `vTextarea('请输入内容')
-vTextarea('请输入描述').rows(4)`
+vTextarea(t => { t.rows(4); t.placeholder('请输入描述'); })`
         ),
       ]));
 
