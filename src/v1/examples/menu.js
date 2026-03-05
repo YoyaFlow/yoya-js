@@ -60,29 +60,29 @@ export function createMenuPage() {
           vMenu(m => {
             m.item(it => {
               it.text('📋 菜单项 1');
-              it.onclick(() => toast.info('点击了菜单项 1'));
+              it.onClick(() => toast.info('点击了菜单项 1'));
             });
             m.item(it => {
               it.text('📁 菜单项 2');
-              it.onclick(() => toast.info('点击了菜单项 2'));
+              it.onClick(() => toast.info('点击了菜单项 2'));
             });
             m.item(it => {
               it.text('⚙️ 设置');
-              it.onclick(() => toast.info('点击了设置'));
+              it.onClick(() => toast.info('点击了设置'));
             });
           }),
           `vMenu(m => {
   m.item(it => {
     it.text('📋 菜单项 1')
-    it.onclick(() => toast.info('菜单项 1'))
+    it.onClick(() => toast.info('菜单项 1'))
   })
   m.item(it => {
     it.text('📁 菜单项 2')
-    it.onclick(() => toast.info('菜单项 2'))
+    it.onClick(() => toast.info('菜单项 2'))
   })
   m.item(it => {
     it.text('⚙️ 设置')
-    it.onclick(() => toast.info('设置'))
+    it.onClick(() => toast.info('设置'))
   })
 })`
         ),
@@ -96,11 +96,11 @@ export function createMenuPage() {
             });
             m.item(it => {
               it.text('产品');
-              it.onclick(() => toast.info('产品'));
+              it.onClick(() => toast.info('产品'));
             });
             m.item(it => {
               it.text('关于');
-              it.onclick(() => toast.info('关于'));
+              it.onClick(() => toast.info('关于'));
             });
           }),
           `vMenu(m => {
@@ -122,20 +122,20 @@ export function createMenuPage() {
           vMenu(m => {
             m.item(it => {
               it.text('📄 新建');
-              it.onclick(() => toast.info('新建'));
+              it.onClick(() => toast.info('新建'));
             });
             m.item(it => {
               it.text('📂 打开');
-              it.onclick(() => toast.info('打开'));
+              it.onClick(() => toast.info('打开'));
             });
             m.divider();
             m.item(it => {
               it.text('💾 保存');
-              it.onclick(() => toast.info('保存'));
+              it.onClick(() => toast.info('保存'));
             });
             m.item(it => {
               it.text('🗑️ 删除');
-              it.onclick(() => toast.info('删除'));
+              it.onClick(() => toast.info('删除'));
             });
           }),
           `vMenu(m => {
@@ -156,11 +156,11 @@ export function createMenuPage() {
               g.label('文件操作');
               g.item(it => {
                 it.text('📄 新建');
-                it.onclick(() => toast.info('新建'));
+                it.onClick(() => toast.info('新建'));
               });
               g.item(it => {
                 it.text('📂 打开');
-                it.onclick(() => toast.info('打开'));
+                it.onClick(() => toast.info('打开'));
               });
             });
             m.divider();
@@ -168,15 +168,15 @@ export function createMenuPage() {
               g.label('编辑');
               g.item(it => {
                 it.text('✂️ 剪切');
-                it.onclick(() => toast.info('剪切'));
+                it.onClick(() => toast.info('剪切'));
               });
               g.item(it => {
                 it.text('📋 复制');
-                it.onclick(() => toast.info('复制'));
+                it.onClick(() => toast.info('复制'));
               });
               g.item(it => {
                 it.text('📌 粘贴');
-                it.onclick(() => toast.info('粘贴'));
+                it.onClick(() => toast.info('粘贴'));
               });
             });
           }),
@@ -207,7 +207,7 @@ export function createMenuPage() {
             });
             m.item(it => {
               it.text('📦 产品');
-              it.onclick(() => toast.info('产品'));
+              it.onClick(() => toast.info('产品'));
             });
             m.item(it => {
               it.text('🔒 禁用项');
@@ -217,7 +217,7 @@ export function createMenuPage() {
             m.item(it => {
               it.text('🗑️ 删除');
               it.danger();
-              it.onclick(() => toast.error('删除操作'));
+              it.onClick(() => toast.error('删除操作'));
             });
           }),
           `vMenu(m => {
@@ -248,17 +248,17 @@ export function createMenuPage() {
             m.item(it => {
               it.text('📄 新建');
               it.shortcut('Ctrl+N');
-              it.onclick(() => toast.info('新建'));
+              it.onClick(() => toast.info('新建'));
             });
             m.item(it => {
               it.text('🔍 查找');
               it.shortcut('Ctrl+F');
-              it.onclick(() => toast.info('查找'));
+              it.onClick(() => toast.info('查找'));
             });
             m.item(it => {
               it.text('💾 保存');
               it.shortcut('Ctrl+S');
-              it.onclick(() => toast.info('保存'));
+              it.onClick(() => toast.info('保存'));
             });
           }),
           `vMenu(m => {
@@ -296,18 +296,18 @@ export function createMenuPage() {
                 d.menuContent(vMenu(m => {
                   m.item(it => {
                     it.text('📋 选项 1');
-                    it.onclick(() => {
+                    it.onClick(() => {
                       toast.info('选项 1');
                     });
                   });
                   m.item(it => {
                     it.text('📁 选项 2');
-                    it.onclick(() => toast.info('选项 2'));
+                    it.onClick(() => toast.info('选项 2'));
                   });
                   m.divider();
                   m.item(it => {
                     it.text('⚙️ 设置');
-                    it.onclick(() => toast.info('设置'));
+                    it.onClick(() => toast.info('设置'));
                   });
                 }));
                 d.closeOnClickOutside();
@@ -319,17 +319,17 @@ export function createMenuPage() {
                 d.menuContent(vMenu(m => {
                   m.item(it => {
                     it.text('✏️ 编辑');
-                    it.onclick(() => toast.info('编辑'));
+                    it.onClick(() => toast.info('编辑'));
                   });
                   m.item(it => {
                     it.text('📤 分享');
-                    it.onclick(() => toast.info('分享'));
+                    it.onClick(() => toast.info('分享'));
                   });
                   m.divider();
                   m.item(it => {
                     it.text('🗑️ 删除');
                     it.danger();
-                    it.onclick(() => toast.error('删除'));
+                    it.onClick(() => toast.error('删除'));
                   });
                 }));
                 d.closeOnClickOutside();
@@ -382,14 +382,14 @@ export function createMenuPage() {
               ctx.menuContent(vMenu(m => {
                 m.item(it => {
                   it.text('✏️ 编辑');
-                  it.onclick(() => {
+                  it.onClick(() => {
                     toast.info('编辑');
                     ctx.hide();
                   });
                 });
                 m.item(it => {
                   it.text('📤 导出');
-                  it.onclick(() => {
+                  it.onClick(() => {
                     toast.info('导出');
                     ctx.hide();
                   });
@@ -398,7 +398,7 @@ export function createMenuPage() {
                 m.item(it => {
                   it.text('🗑️ 删除');
                   it.danger();
-                  it.onclick(() => {
+                  it.onClick(() => {
                     toast.error('删除');
                     ctx.hide();
                   });
@@ -425,7 +425,7 @@ export function createMenuPage() {
 
               const apiItems = [
                 { name: 'vMenu', desc: '菜单容器', props: 'vertical() / horizontal()' },
-                { name: 'vMenuItem', desc: '菜单项', props: 'text, icon, shortcut, onclick, active, disabled, danger' },
+                { name: 'vMenuItem', desc: '菜单项', props: 'text, icon, shortcut, onClick, active, disabled, danger' },
                 { name: 'vMenuDivider', desc: '分割线', props: '-' },
                 { name: 'vMenuGroup', desc: '菜单分组', props: 'label(分组标题)' },
                 { name: 'vDropdownMenu', desc: '下拉菜单', props: 'trigger, menuContent, closeOnClickOutside' },

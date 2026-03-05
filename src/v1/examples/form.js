@@ -191,7 +191,7 @@ vSelect(s => {
             ]);
             cb.multiple();
             cb.value(['read', 'music']);
-            cb.onChange((values) => {
+            cb.onChange(({ value: values }) => {
               toast.info('选中：' + values.join(', '));
             });
           }),
@@ -202,8 +202,8 @@ vSelect(s => {
   ])
   cb.multiple()
   cb.value(['read', 'music'])
-  cb.onChange((values) => {
-    console.log('选中：', values)
+  cb.onChange(({ value }) => {
+    console.log('选中：', value)
   })
 })`
         ),
@@ -217,8 +217,8 @@ vSelect(s => {
             stack.child(vSwitch(s => {
               s.label('开启通知');
               s.checked();
-              s.onChange((checked) => {
-                toast.info(checked ? '通知已开启' : '通知已关闭');
+              s.onChange(({ value }) => {
+                toast.info(value ? '通知已开启' : '通知已关闭');
               });
             }));
             stack.child(vSwitch(s => {
@@ -229,8 +229,8 @@ vSelect(s => {
           `vSwitch(s => {
   s.label('开启通知')
   s.checked()
-  s.onChange((checked) => {
-    toast.info(checked ? '通知已开启' : '通知已关闭')
+  s.onChange(({ value }) => {
+    toast.info(value ? '通知已开启' : '通知已关闭')
   })
 })`
         ),
@@ -244,13 +244,13 @@ vSelect(s => {
             stack.child(vTimer(t => {
               t.type('date');
               t.value(new Date().toISOString().split('T')[0]);
-              t.onChange((value) => {
+              t.onChange(({ value }) => {
                 toast.info('选中日期：' + value);
               });
             }));
             stack.child(vTimer(t => {
               t.type('time');
-              t.onChange((value) => {
+              t.onChange(({ value }) => {
                 toast.info('选中时间：' + value);
               });
             }));
@@ -258,7 +258,7 @@ vSelect(s => {
           `vTimer(t => {
   t.type('date')
   t.value('2024-03-15')
-  t.onChange((value) => {
+  t.onChange(({ value }) => {
     console.log('选中日期：', value)
   })
 })
@@ -327,7 +327,7 @@ vTimer(t => {
                 btns.child(vButton(b => {
                   b.text('注册');
                   b.type('primary');
-                  b.onclick(() => {
+                  b.onClick(() => {
                     toast.success('注册成功！');
                   });
                 }));

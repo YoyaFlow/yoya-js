@@ -105,7 +105,7 @@ export function createCardPage() {
                   b.text('确定');
                   b.type('primary');
                   b.size('small');
-                  b.onclick(() => toast.success('确定'));
+                  b.onClick(() => toast.success('确定'));
                 }));
               }));
             });
@@ -193,7 +193,7 @@ export function createCardPage() {
                   b.text('删除');
                   b.type('danger');
                   b.size('small');
-                  b.onclick(() => toast.error('已删除'));
+                  b.onClick(() => toast.error('已删除'));
                 }));
               }));
             });
