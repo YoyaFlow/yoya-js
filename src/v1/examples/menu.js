@@ -229,38 +229,28 @@ vMenu(m => {
 
       // 下拉菜单
       content.child(docSection('dropdown', '下拉菜单', [
-        vCard(c => {
-          c.vCardHeader('下拉菜单演示');
-          c.vCardBody(demo => {
-            demo.child(flex(row => {
-              row.gap('16px');
-
-              // 基础下拉菜单
-              row.child(vDropdownMenu(d => {
-                d.trigger('下拉菜单 ▼');
-                d.menuContent(vMenu(m => {
-                  m.item('📋 选项 1').onClick(() => toast.info('选项 1'));
-                  m.item('📁 选项 2').onClick(() => toast.info('选项 2'));
-                  m.divider();
-                  m.item('⚙️ 设置').onClick(() => toast.info('设置'));
-                }));
-                d.closeOnClickOutside();
-              }));
-
-              // 带图标的下拉菜单
-              row.child(vDropdownMenu(d => {
-                d.trigger('更多操作 ▼');
-                d.menuContent(vMenu(m => {
-                  m.item('✏️ 编辑').onClick(() => toast.info('编辑'));
-                  m.item('📤 分享').onClick(() => toast.info('分享'));
-                  m.divider();
-                  m.item('🗑️ 删除').danger().onClick(() => toast.error('删除'));
-                }));
-                d.closeOnClickOutside();
-              }));
+        codeDemo('基础下拉菜单',
+          vDropdownMenu(d => {
+            d.trigger('下拉菜单');
+            d.menuContent(vMenu(m => {
+              m.item('📋 选项 1').onClick(() => toast.info('选项 1'));
+              m.item('📁 选项 2').onClick(() => toast.info('选项 2'));
+              m.divider();
+              m.item('⚙️ 设置').onClick(() => toast.info('设置'));
             }));
-          });
-        }),
+            d.closeOnClickOutside();
+          }),
+          `vDropdownMenu(d => {
+  d.trigger('下拉菜单')
+  d.menuContent(vMenu(m => {
+    m.item('📋 选项 1').onClick(() => toast('选项 1'))
+    m.item('📁 选项 2').onClick(() => toast('选项 2'))
+    m.divider()
+    m.item('⚙️ 设置').onClick(() => toast('设置'))
+  }))
+  d.closeOnClickOutside()
+})`
+        ),
       ]));
 
       // API
