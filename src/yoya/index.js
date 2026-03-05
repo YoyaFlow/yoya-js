@@ -105,7 +105,7 @@ export {
 
   // Form 组件
   VInput, vInput,
-  VSelect, vSelect,
+  VSelect, vSelect, VOption, vOption,
   VTextarea, vTextarea,
   VCheckbox, vCheckbox,
   VCheckboxes, vCheckboxes,

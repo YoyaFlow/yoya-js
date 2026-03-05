@@ -6,7 +6,7 @@
 import {
   flex, vstack, vCard, vCardBody,
   vMenu, vMenuItem, vButton, vCode, toast,
-  vForm, vInput, vTextarea, vSelect, option, vCheckbox, vCheckboxes, label,
+  vForm, vInput, vTextarea, vSelect, vOption, vCheckbox, vCheckboxes, label,
 } from '../../yoya/index.js';
 
 import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';

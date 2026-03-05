@@ -1098,6 +1098,7 @@ function input(setup = null) { return new Input(setup); }
 function textarea(setup = null) { return new Textarea(setup); }
 function select(setup = null) { return new Select(setup); }
 function option(setup = null) { return new Option(setup); }
+function vOption(setup = null) { return new Option(setup); }
 function label(setup = null) { return new Label(setup); }
 function form(setup = null) { return new Form(setup); }
 
