@@ -58,18 +58,19 @@ vMenu(m => {
 
         codeDemo('setupObject - 对象配置菜单项',
           vMenu(m => {
-            m.item({
+            m.item('📋 自定义类', {
               onclick: () => toast.info('自定义类'),
-            }, '📋 自定义类');
-            m.item({
+            });
+            m.item('🔴 红色菜单', {
               onclick: () => toast.info('点击菜单'),
-            }, '🔴 红色菜单');
+            });
           }),
           `// ✅ 推荐：配置属性和事件用对象
+// 第一个参数为文本，第二个参数为对象配置
 vMenu(m => {
-  m.item({
+  m.item('菜单项', {
     onclick: () => toast('点击')
-  }, '自定义类')
+  })
 })`
         ),
 
