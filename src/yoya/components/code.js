@@ -264,7 +264,7 @@ class VCode extends Tag {
       navigator.clipboard.writeText(this._codeContent).then(() => {
         this.setState('copied', true);
         if (this._onCopy) {
-          this._onCopy(this._codeContent);
+          this._onCopy({ event: new ClipboardEvent('copy'), value: this._codeContent, target: this });
         }
       }).catch(() => {
         this._fallbackCopy();
@@ -286,7 +286,7 @@ class VCode extends Tag {
       document.execCommand('copy');
       this.setState('copied', true);
       if (this._onCopy) {
-        this._onCopy(this._codeContent);
+        this._onCopy({ event: new ClipboardEvent('copy'), value: this._codeContent, target: this });
       }
     } catch (err) {
       console.error('复制失败:', err);

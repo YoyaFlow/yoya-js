@@ -226,7 +226,7 @@ class VMenuItem extends Tag {
       }
     });
 
-    this.on('click', () => {
+    this.on('click', (e) => {
       if (!self.hasState('disabled')) {
         const parent = self._boundElement?.parentNode;
         if (parent) {
@@ -238,7 +238,7 @@ class VMenuItem extends Tag {
         }
         self.setState('active', true);
         if (self._onclick) {
-          self._onclick(self);
+          self._onclick({ event: e, text: self._text, icon: self._icon, target: self });
         }
       }
     });
@@ -261,6 +261,12 @@ class VMenuItem extends Tag {
 
   onclick(fn) {
     this._onclick = fn;
+    return this;
+  }
+
+  // 统一事件格式的方法
+  onClick(handler) {
+    this._onclick = handler;
     return this;
   }
 
