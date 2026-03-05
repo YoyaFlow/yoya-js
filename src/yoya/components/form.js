@@ -286,10 +286,14 @@ class VInput extends Tag {
     return this;
   }
 
-  // 事件绑定
+  // 事件绑定 - 使用统一事件包装器
   onChange(handler) {
     if (this._inputEl) {
-      this._inputEl.on('change', handler);
+      const oldValue = this._value;
+      this._inputEl.on('change', (e) => {
+        const newValue = this._inputEl._el?.value || this._value;
+        handler({ event: e, value: newValue, oldValue, target: this });
+      });
     }
     return this;
   }
@@ -298,10 +302,9 @@ class VInput extends Tag {
     if (this._inputEl) {
       this._inputEl.on('input', (e) => {
         // 同步值到内部 _value
-        if (e._boundElement) {
-          this._value = e._boundElement.value;
-        }
-        if (handler) handler(e);  // 传递原生事件对象
+        const value = e.target?.value || this._value;
+        this._value = value;
+        handler({ event: e, value, target: this });
       });
       // 如果已经渲染过，立即绑定事件到 DOM
       if (this._inputEl._rendered) {
@@ -578,12 +581,10 @@ class VSelect extends Tag {
 
   onChange(handler) {
     if (this._selectEl) {
+      const oldValue = this._value;
       this._selectEl.on('change', (e) => {
-        // 同步值到内部 _value
-        if (e._boundElement) {
-          this._value = e._boundElement.value;
-        }
-        if (handler) handler(e);
+        const newValue = this._selectEl._el?.value || this._value;
+        handler({ event: e, value: newValue, oldValue, target: this });
       });
     }
     return this;
@@ -801,7 +802,11 @@ class VTextarea extends Tag {
 
   onChange(handler) {
     if (this._textareaEl) {
-      this._textareaEl.on('change', handler);
+      const oldValue = this._value;
+      this._textareaEl.on('change', (e) => {
+        const newValue = this._textareaEl._el?.value || this._value;
+        handler({ event: e, value: newValue, oldValue, target: this });
+      });
     }
     return this;
   }
@@ -809,11 +814,9 @@ class VTextarea extends Tag {
   onInput(handler) {
     if (this._textareaEl) {
       this._textareaEl.on('input', (e) => {
-        // 同步值到内部 _value
-        if (e._boundElement) {
-          this._value = e._boundElement.value;
-        }
-        if (handler) handler(e);  // 传递原生事件对象
+        const value = e.target?.value || this._value;
+        this._value = value;
+        handler({ event: e, value, target: this });
       });
       // 如果已经渲染过，立即绑定事件到 DOM
       if (this._textareaEl._rendered) {
@@ -957,10 +960,11 @@ class VCheckbox extends Tag {
     this._checkboxEl.on('change', (e) => {
       if (!this.hasState('disabled')) {
         const checked = e._boundElement ? e._boundElement.checked : e.target.checked;
+        const oldValue = this.hasState('checked');
         this.setState('checked', checked);
-        // 触发 onChange 回调
+        // 触发 onChange 回调 - 使用统一事件对象格式
         if (this._onChange) {
-          this._onChange(checked);
+          this._onChange({ event: e, value: checked, oldValue, target: this });
         }
       }
     });
@@ -1131,11 +1135,15 @@ class VSwitch extends Tag {
     }
 
     // 绑定点击事件
-    this._switchEl.on('click', () => {
+    this._switchEl.on('click', (e) => {
       if (!this.hasState('disabled')) {
         const newChecked = !this._checked;
+        const oldValue = this._checked;
         this.setState('checked', newChecked);
-        if (this._onChangeHandler) this._onChangeHandler(newChecked);
+        // 触发 onChange 回调 - 使用统一事件对象格式
+        if (this._onChangeHandler) {
+          this._onChangeHandler({ event: e, value: newChecked, oldValue, target: this });
+        }
       }
     });
   }
@@ -1439,8 +1447,10 @@ class VCheckboxes extends Tag {
           c.disabled();
         }
 
-        // 变化事件
-        c.onChange((checked) => {
+        // 变化事件 - 使用统一事件对象格式
+        c.onChange((e) => {
+          const checked = e.value;
+          const oldValue = e.oldValue;
           if (this._multiple) {
             // 多选模式：重新遍历所有 checkboxes 构建值数组
             this._value = this._checkboxes
@@ -1460,9 +1470,14 @@ class VCheckboxes extends Tag {
               this._singleValue = '';
             }
           }
-          // 触发 onChange 回调
+          // 触发 onChange 回调 - 使用统一事件对象格式
           if (this._onChange) {
-            this._onChange(this._multiple ? this._value : this._singleValue);
+            this._onChange({
+              event: e.event,
+              value: this._multiple ? this._value : this._singleValue,
+              oldValue: this._multiple ? this._value : this._singleValue,
+              target: this,
+            });
           }
         });
       });
@@ -1699,9 +1714,15 @@ class VTimer extends Tag {
   }
 
   _onValueChange() {
+    const oldValue = this._value;
     this._value = this._inputEl && this._inputEl._boundElement ? this._inputEl._boundElement.value : '';
     if (this._onChange) {
-      this._onChange(this._value, this._inputEl);
+      this._onChange({
+        event: new Event('change'),
+        value: this._value,
+        oldValue,
+        target: this,
+      });
     }
   }
 
@@ -1919,6 +1940,7 @@ class VTimer2 extends Tag {
   }
 
   _onValueChange() {
+    const oldValue = { ...this._value };
     const start = this._startInputEl && this._startInputEl._boundElement ? this._startInputEl._boundElement.value : '';
     const end = this._endInputEl && this._endInputEl._boundElement ? this._endInputEl._boundElement.value : '';
 
@@ -1942,7 +1964,12 @@ class VTimer2 extends Tag {
     }
 
     if (this._onChange) {
-      this._onChange(this._value, this._startInputEl, this._endInputEl);
+      this._onChange({
+        event: new Event('change'),
+        value: this._value,
+        oldValue,
+        target: this,
+      });
     }
   }
 
