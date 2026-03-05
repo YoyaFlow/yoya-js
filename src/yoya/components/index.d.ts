@@ -397,8 +397,9 @@ declare class VField extends Tag {
   showContent(content: string | Tag | ((container: Tag) => void)): this;
   editContent(content: string | Tag | ((container: Tag) => void)): this;
   placeholder(value: string): this | string;
-  onSave(handler: () => void | Promise<void>): this;
-  onChange(handler: () => void): this;
+  onSave(handler: (e: { value: any; oldValue?: any; target: VField }) => void | Promise<void>): this;
+  onChange(handler: (e: { value: any; oldValue?: any; target: VField }) => void): this;
+  onEdit(handler: (e: { value: any; target: VField }) => void): this;
   disabled(value?: boolean): this | boolean;
   loading(value?: boolean): this | boolean;
   editing(value?: boolean): this | boolean;

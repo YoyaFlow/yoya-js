@@ -84,7 +84,7 @@ class VField extends Tag {
       if (editing) {
         host._showContainer && host._showContainer.style('display', 'none');
         host._editContainer && host._editContainer.style('display', 'flex');
-        if (host._onEdit) host._onEdit(host._value, host);
+        if (host._onEdit) host._onEdit({ value: host._value, target: host });
       } else {
         host._showContainer && host._showContainer.style('display', 'flex');
         host._editContainer && host._editContainer.style('display', 'none');
@@ -373,7 +373,7 @@ class VField extends Tag {
     const oldValue = this._value;
 
     if (this._onSave) {
-      const result = this._onSave(newValue, oldValue, this);
+      const result = this._onSave({ value: newValue, oldValue, target: this });
       if (result && result.then) {
         // 异步保存：立即退出编辑状态（进入显示状态），但保持 loading
         // 这样 setValueFn 可以判断：显示状态=有异步保存没执行完，编辑状态=用户还在编辑
@@ -383,7 +383,7 @@ class VField extends Tag {
           this.setState('loading', false);
           this._value = newValue;
           this._updateShowContent();
-          if (this._onChange) this._onChange(newValue, oldValue, this);
+          if (this._onChange) this._onChange({ value: newValue, oldValue, target: this });
         }).catch(() => {
           this.setState('loading', false);
           // 保存失败时重新进入编辑状态
@@ -393,13 +393,13 @@ class VField extends Tag {
         this._value = newValue;
         this.setState('editing', false);
         this._updateShowContent();
-        if (this._onChange) this._onChange(newValue, oldValue, this);
+        if (this._onChange) this._onChange({ value: newValue, oldValue, target: this });
       }
     } else {
       this._value = newValue;
       this.setState('editing', false);
       this._updateShowContent();
-      if (this._onChange) this._onChange(newValue, oldValue, this);
+      if (this._onChange) this._onChange({ value: newValue, oldValue, target: this });
     }
   }
 
@@ -468,9 +468,16 @@ class VField extends Tag {
   autoSave(v = true) { this._autoSave = v; return this; }
   placeholder(v) { if (v === undefined) return this._placeholder; this._placeholder = v; return this; }
   editable(v = true) { this._editable = v; return this; }
+
+  // 事件方法 - 统一格式
   onEdit(fn) { this._onEdit = fn; return this; }
   onSave(fn) { this._onSave = fn; return this; }
   onChange(fn) { this._onChange = fn; return this; }
+
+  // 别名方法（大驼峰命名）
+  onEditValue(fn) { this._onEdit = fn; return this; }
+  onSaveValue(fn) { this._onSave = fn; return this; }
+  onChangeValue(fn) { this._onChange = fn; return this; }
 
   disabled(v = true) { return this.setState('disabled', v); }
   loading(v = true) { return this.setState('loading', v); }

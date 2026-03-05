@@ -1275,7 +1275,7 @@ class VForm extends Tag {
   onSubmit(handler) {
     this.on('submit', (e) => {
       e.preventDefault();
-      handler(e);
+      handler({ event: e, target: this });
     });
     return this;
   }
