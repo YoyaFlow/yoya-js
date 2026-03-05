@@ -4,8 +4,8 @@
  */
 
 import {
-  flex, vstack, card, cardHeader, cardBody,
-  menu, menuItem, vButton, vCode, toast,
+  flex, vstack, vCard, vCardHeader, vCardBody,
+  vMenu, vMenuItem, vButton, vCode, toast,
   vInput, vSelect, vTextarea, vCheckbox, vCheckboxes, vSwitch, vForm, vTimer,
 } from '../../yoya/index.js';
 
@@ -44,11 +44,11 @@ export function createFormPage() {
         header.gap('8px');
         header.styles({ marginBottom: '24px' });
 
-        header.child(menuItem('Form 表单', h1 => {
+        header.child(vMenuItem('Form 表单', h1 => {
           h1.styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' });
         }));
 
-        header.child(menuItem('表单组件用于收集用户输入，支持多种输入类型和验证功能。', desc => {
+        header.child(vMenuItem('表单组件用于收集用户输入，支持多种输入类型和验证功能。', desc => {
           desc.styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
         }));
       }));
@@ -271,15 +271,15 @@ vTimer(t => {
 
       // 完整表单示例
       content.child(docSection('example', '完整表单示例', [
-        card(c => {
+        vCard(c => {
           c.styles({ marginBottom: '24px' });
 
-          c.cardHeader(h => {
+          c.vCardHeader(h => {
             h.styles({ fontSize: '14px', fontWeight: '600' });
             h.text('用户注册表单');
           });
 
-          c.cardBody(form => {
+          c.vCardBody(form => {
             form.child(vForm(f => {
               f.gap('16px');
 
@@ -343,9 +343,9 @@ vTimer(t => {
 
       // API
       content.child(docSection('api', 'API', [
-        card(c => {
-          c.cardBody(api => {
-            api.child(menu(apiMenu => {
+        vCard(c => {
+          c.vCardBody(api => {
+            api.child(vMenu(apiMenu => {
               apiMenu.vertical();
 
               const apiItems = [
@@ -362,13 +362,13 @@ vTimer(t => {
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
                     apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(menuItem(item.name, name => {
+                    apiRow.child(vMenuItem(item.name, name => {
                       name.styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '100px' });
                     }));
-                    apiRow.child(menuItem(item.desc, desc => {
+                    apiRow.child(vMenuItem(item.desc, desc => {
                       desc.styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 });
                     }));
-                    apiRow.child(menuItem(item.props, type => {
+                    apiRow.child(vMenuItem(item.props, type => {
                       type.styles({ fontFamily: 'monospace', fontSize: '11px', color: '#999' });
                     }));
                   }));

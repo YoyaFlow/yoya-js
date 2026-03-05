@@ -7,8 +7,8 @@ import {
   // 布局组件
   flex, grid, vstack, hstack, spacer, container, divider,
   // UI 组件
-  card, cardBody,
-  menu, menuItem, menuDivider,
+  vCard, vCardBody,
+  vMenu, vMenuItem, vMenuDivider,
   vButton,
   vCode,
   toast,
@@ -43,7 +43,7 @@ export function appLayout(setup) {
         left.gap('24px');
 
         // 品牌
-        left.child(menuItem('🏝️ Yoya.Basic', brand => {
+        left.child(vMenuItem('🏝️ Yoya.Basic', brand => {
           brand.styles({
             fontSize: '18px',
             fontWeight: '600',
@@ -58,14 +58,14 @@ export function appLayout(setup) {
         left.child(flex(nav => {
           nav.alignItems('center');
           nav.gap('4px');
-          nav.child(menuItem('首页', link => {
+          nav.child(vMenuItem('首页', link => {
             link.styles({ fontSize: '14px', color: 'var(--islands-text-secondary, #666)' });
             link.on('click', () => window.location.href = 'index.html');
           }));
-          nav.child(menuItem('|', sep => {
+          nav.child(vMenuItem('|', sep => {
             sep.styles({ fontSize: '12px', color: '#ddd' });
           }));
-          nav.child(menuItem('文档', link => {
+          nav.child(vMenuItem('文档', link => {
             link.styles({ fontSize: '14px', color: 'var(--islands-text-secondary, #666)' });
             link.on('click', () => window.location.href = 'button.html');
           }));
@@ -143,7 +143,7 @@ export function appLayout(setup) {
  * 侧边栏菜单项
  */
 export function sidebarItem(text, href, active = false, onclick = null) {
-  return menuItem(text, item => {
+  return vMenuItem(text, item => {
     item.styles({
       fontSize: '14px',
       padding: '8px 16px',
@@ -171,7 +171,7 @@ export function sidebarItem(text, href, active = false, onclick = null) {
 export function sidebarGroup(title, items = []) {
   return vstack(group => {
     group.gap('4px');
-    group.child(menuItem(title, h => {
+    group.child(vMenuItem(title, h => {
       h.styles({
         fontSize: '12px',
         fontWeight: '600',
@@ -188,7 +188,7 @@ export function sidebarGroup(title, items = []) {
  * 目录项
  */
 export function tocItem(text, href, level = 1) {
-  return menuItem(text, item => {
+  return vMenuItem(text, item => {
     item.styles({
       fontSize: level === 1 ? '14px' : '13px',
       padding: '6px 12px',
@@ -217,7 +217,7 @@ export function docSection(id, title, children) {
     // 章节标题
     section.child(flex(titleRow => {
       titleRow.alignItems('center');
-      titleRow.child(menuItem(title, h2 => {
+      titleRow.child(vMenuItem(title, h2 => {
         h2.styles({
           fontSize: '24px',
           fontWeight: '600',
@@ -237,15 +237,15 @@ export function docSection(id, title, children) {
  * 代码演示块
  */
 export function codeDemo(title, demoContent, codeString) {
-  return card(c => {
+  return vCard(c => {
     c.styles({ marginBottom: '24px' });
 
-    c.cardHeader(h => {
+    c.vCardHeader(h => {
       h.styles({ fontSize: '14px', fontWeight: '600' });
       h.text(title || '示例');
     });
 
-    c.cardBody(content => {
+    c.vCardBody(content => {
       content.child(vstack(inner => {
         inner.gap('16px');
 

@@ -4,8 +4,8 @@
  */
 
 import {
-  flex, vstack, card, cardHeader, cardBody,
-  menu, menuItem, vButton, vCode, toast,
+  flex, vstack, vCard, vCardBody,
+  vMenu, vMenuItem, vButton, vCode, toast,
 } from '../../yoya/index.js';
 
 import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';
@@ -43,11 +43,11 @@ export function createButtonPage() {
         header.gap('8px');
         header.styles({ marginBottom: '24px' });
 
-        header.child(menuItem('Button 按钮', h1 => {
+        header.child(vMenuItem('Button 按钮', h1 => {
           h1.styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' });
         }));
 
-        header.child(menuItem('按钮用于触发一个操作。支持多种类型、尺寸、状态，以及加载效果。', desc => {
+        header.child(vMenuItem('按钮用于触发一个操作。支持多种类型、尺寸、状态，以及加载效果。', desc => {
           desc.styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
         }));
       }));
@@ -145,9 +145,9 @@ vButton(btn => { btn.text('主要禁用'); btn.type('primary'); btn.disabled() }
 
       // API
       content.child(docSection('api', 'API', [
-        card(c => {
-          c.cardBody(api => {
-            api.child(menu(apiMenu => {
+        vCard(c => {
+          c.vCardBody(api => {
+            api.child(vMenu(apiMenu => {
               apiMenu.vertical();
 
               const apiItems = [
@@ -164,13 +164,13 @@ vButton(btn => { btn.text('主要禁用'); btn.type('primary'); btn.disabled() }
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
                     apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(menuItem(item.name, name => {
+                    apiRow.child(vMenuItem(item.name, name => {
                       name.styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '100px' });
                     }));
-                    apiRow.child(menuItem(item.desc, desc => {
+                    apiRow.child(vMenuItem(item.desc, desc => {
                       desc.styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 });
                     }));
-                    apiRow.child(menuItem(item.type, type => {
+                    apiRow.child(vMenuItem(item.type, type => {
                       type.styles({ fontFamily: 'monospace', fontSize: '12px', color: '#999' });
                     }));
                   }));
