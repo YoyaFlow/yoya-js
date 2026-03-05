@@ -20,7 +20,6 @@ export function createCardPage() {
     sidebar: (sidebar) => {
       sidebar.child(sidebarGroup('开始', [
         sidebarItem('介绍', 'index.html'),
-        sidebarItem('快速开始', 'quickstart.html'),
       ]));
       sidebar.child(sidebarGroup('基础组件', [
         sidebarItem('Button 按钮', 'button.html'),
@@ -29,11 +28,6 @@ export function createCardPage() {
       ]));
       sidebar.child(sidebarGroup('导航组件', [
         sidebarItem('Menu 菜单', 'menu.html'),
-        sidebarItem('Tabs 标签页', 'tabs.html'),
-      ]));
-      sidebar.child(sidebarGroup('反馈组件', [
-        sidebarItem('Message 消息', 'message.html'),
-        sidebarItem('Toast 提示', 'toast.html'),
       ]));
     },
 
