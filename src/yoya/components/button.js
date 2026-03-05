@@ -318,10 +318,8 @@ class VButton extends Tag {
     return this.setState('ghost', value);
   }
 
-  onclick(handler) {
-    this.on('click', handler);
-    return this;
-  }
+  // 事件方法 - 基于 Tag._wrapHandler 包装器
+  // onClick 直接使用 Tag 基类的 onClick() 方法
 }
 
 function vButton(content = '', setup = null) {

@@ -1,299 +1,374 @@
-# 事件处理规范
-
-## 问题背景
-
-当前各组件的事件处理方式不一致，存在以下问题：
-
-1. **事件存储方式不统一**：有的用 `_onclick`，有的用 `_onChangeHandler`，有的直接用 `this.on()`
-2. **事件参数传递不统一**：有的传递原生事件对象，有的传递自定义值，有的不传参数
-3. **事件命名不统一**：有的用 `onclick`，有的用 `onClick`，有的用 `on('click')`
+# 事件回调函数参数规范
 
 ## 统一规则
 
-### 1. 事件方法命名规范
-
-统一使用 **小写驼峰** 命名，与 HTML 事件属性一致：
+**所有事件回调函数使用单个对象参数**，通过解构获取需要的属性：
 
 ```javascript
-// ✅ 推荐
-onclick(handler)
-onchange(handler)
-oninput(handler)
-onfocus(handler)
-onblur(handler)
+// ✅ 推荐：解构需要的属性
+vButton('提交').onClick(({event, target}) => {
+  console.log('点击事件', event);
+  console.log('按钮实例', target);
+});
 
-// ❌ 不推荐
-onClick(handler)
-onChange(handler)
-onInput(handler)
+vInput().onChange(({event, value, oldValue, target}) => {
+  console.log('旧值:', oldValue);
+  console.log('新值:', value);
+});
+
+// 简化：只取需要的属性
+vInput().onChange((e) => {
+  console.log('值:', e.value);
+  console.log('输入框:', e.target);
+});
 ```
 
-### 2. 事件存储规范
+## 事件对象结构
 
-统一使用 `_eventHandlers` 对象存储所有事件回调：
+```typescript
+interface EventContext {
+  event: Event | MouseEvent | KeyboardEvent;  // 原生事件对象
+  target: Tag;                                 // 组件实例
+  value?: any;                                 // 当前值（可选）
+  oldValue?: any;                              // 旧值（可选）
+  checked?: boolean;                           // 选中状态（可选）
+  key?: string;                                // 按键（可选）
+  code?: string;                               // 按键代码（可选）
+  [key: string]: any;                          // 其他自定义属性
+}
+```
+
+## 方法命名规范
+
+**事件方法使用大驼峰命名（PascalCase）**：
+
+| 事件类型 | 方法名 | 参数 |
+|----------|--------|------|
+| 点击 | `onClick` | `({event, target})` |
+| 值变化 | `onChange` | `({event, value, oldValue, target})` |
+| 输入 | `onInput` | `({event, value, target})` |
+| 焦点 | `onFocus` | `({event, target})` |
+| 失焦 | `onBlur` | `({event, target})` |
+| 键盘 | `onKey` | `({event, key, code, target})` |
+| 鼠标进入 | `onMouseEnter` | `({event, target})` |
+| 鼠标离开 | `onMouseLeave` | `({event, target})` |
+| 复制 | `onCopy` | `({event, value, target})` |
+
+## 使用示例
+
+### 点击事件
 
 ```javascript
-class VComponent extends Tag {
-  constructor(setup = null) {
-    super('div', setup);
+// 完整解构
+vButton('提交').onClick(({event, target}) => {
+  console.log('点击事件', event);
+  console.log('按钮实例', target);
+});
 
-    // 统一存储所有事件回调
-    this._eventHandlers = {
-      click: null,
-      change: null,
-      input: null,
-    };
+// 简化写法
+vButton('提交').onClick((e) => {
+  console.log('按钮', e.target);
+  console.log('事件', e.event);
+});
+```
+
+### 值变化事件
+
+```javascript
+// 完整解构
+vInput().onChange(({event, value, oldValue, target}) => {
+  console.log('旧值:', oldValue);
+  console.log('新值:', value);
+  console.log('输入框:', target);
+});
+
+// 简化写法
+vInput().onChange((e) => {
+  console.log('值变化:', e.value);
+});
+```
+
+### 输入事件
+
+```javascript
+// 完整解构
+vInput().onInput(({event, value, target}) => {
+  console.log('输入中:', value);
+});
+
+// 简化写法
+vInput().onInput((e) => {
+  console.log('输入:', e.value);
+});
+```
+
+### 开关事件
+
+```javascript
+// 完整解构
+vSwitch().onChange(({event, value, oldValue, target}) => {
+  console.log('开关状态:', value);
+});
+
+// 简化写法
+vSwitch().onChange((e) => {
+  console.log('状态:', e.value);
+});
+```
+
+### 键盘事件
+
+```javascript
+// 完整解构
+vInput().onKey(({event, key, code, target}) => {
+  console.log('按键:', key, '代码:', code);
+});
+
+// 简化写法
+vInput().onKey((e) => {
+  console.log('按键:', e.key);
+});
+```
+
+### 焦点事件
+
+```javascript
+// 完整解构
+vInput().onFocus(({event, target}) => {
+  console.log('获得焦点', target);
+});
+
+// 简化写法
+vInput().onFocus((e) => {
+  console.log('焦点事件', e.event);
+});
+```
+
+### 鼠标事件
+
+```javascript
+// 完整解构
+div().onMouseEnter(({event, target}) => {
+  console.log('鼠标进入', target);
+});
+
+// 简化写法
+div().onMouseEnter((e) => {
+  console.log('进入', e.target);
+});
+```
+
+## 各组件统一 API
+
+### 表单组件
+
+```typescript
+// VButton - 点击事件
+vButton('提交').onClick((e: {
+  event: MouseEvent;
+  target: VButton;
+}) => void);
+
+// VInput - 值变化/输入事件
+vInput().onChange((e: {
+  event: Event;
+  value: string;
+  oldValue?: string;
+  target: VInput;
+}) => void);
+
+vInput().onInput((e: {
+  event: Event;
+  value: string;
+  target: VInput;
+}) => void);
+
+// VSelect - 值变化事件
+vSelect().onChange((e: {
+  event: Event;
+  value: string;
+  oldValue?: string;
+  target: VSelect;
+}) => void);
+
+// VTextarea - 值变化/输入事件
+vTextarea().onChange((e: {
+  event: Event;
+  value: string;
+  oldValue?: string;
+  target: VTextarea;
+}) => void);
+
+// VCheckbox - 值变化事件
+vCheckbox('同意').onChange((e: {
+  event: Event;
+  value: boolean;
+  oldValue?: boolean;
+  target: VCheckbox;
+}) => void);
+
+// VSwitch - 值变化事件
+vSwitch().onChange((e: {
+  event: Event;
+  value: boolean;
+  oldValue?: boolean;
+  target: VSwitch;
+}) => void);
+```
+
+### 其他组件
+
+```typescript
+// VMenuItem - 点击事件
+vMenuItem('菜单').onClick((e: {
+  event: MouseEvent;
+  target: VMenuItem;
+}) => void);
+
+// VCode - 复制事件
+vCode().onCopy((e: {
+  event: ClipboardEvent;
+  value: string;
+  target: VCode;
+}) => void);
+```
+
+## 组件开发指南
+
+### 基于 Tag 基类包装器
+
+组件可以继承 Tag 基类的事件方法，无需额外封装：
+
+```javascript
+// VButton - 直接使用 Tag.onClick()
+class VButton extends Tag {
+  // onClick 已从 Tag 继承，无需重复定义
+}
+
+// VInput - 使用 Tag.onChangeValue() 并封装为 onChange
+class VInput extends Tag {
+  onChange(handler) {
+    return this.onChangeValue(handler);  // 基于 Tag.onChangeValue
+  }
+
+  onInput(handler) {
+    return this.onInputValue(handler);  // 基于 Tag.onInputValue
+  }
+}
+
+// VCheckbox - 使用 Tag.onToggle() 并封装为 onChange
+class VCheckbox extends Tag {
+  onChange(handler) {
+    return this.onToggle(handler);  // 基于 Tag.onToggle
+  }
+}
+
+// VCode - 自定义事件包装
+class VCode extends Tag {
+  onCopy(handler) {
+    this.on('copy', this._wrapHandler(handler, (e) => {
+      return { value: this._codeContent };
+    }));
+    return this;
   }
 }
 ```
 
-### 3. 事件绑定规范
+### 自定义事件参数
 
-**优先使用 `this.on()` 直接绑定**，无需额外存储：
+如果组件需要传递额外的事件参数，可以在 `_wrapHandler` 中扩展：
 
 ```javascript
-// ✅ 推荐：直接使用 this.on() 绑定
-class VButton extends Tag {
-  onclick(handler) {
-    this.on('click', handler);
+class VMenuItem extends Tag {
+  onClick(handler) {
+    this.on('click', this._wrapHandler(handler, (e) => {
+      return {
+        text: this.text(),
+        icon: this._icon,
+      };
+    }));
     return this;
   }
 }
 
-// ❌ 不推荐：额外存储回调函数
-class VButton extends Tag {
-  constructor() {
-    this._onclick = null;  // 不需要
-  }
-  onclick(handler) {
-    this._onclick = handler;  // 不需要
-  }
-}
-```
-
-### 4. 事件参数传递规范
-
-#### 4.1 简单事件 - 传递原生事件对象
-
-对于简单事件，直接传递原生事件对象：
-
-```javascript
-// onclick - 传递 MouseEvent
-onclick(handler) {
-  this.on('click', (e) => handler(e));
-}
-
 // 使用
-vButton('提交').onclick((e) => {
-  console.log('点击事件', e);
+vMenuItem('菜单').onClick(({event, target, text, icon}) => {
+  console.log('点击了:', text);
 });
 ```
 
-#### 4.2 值变化事件 - 传递值 + 原生事件
-
-对于值变化的事件，传递 **值作为第一个参数**，原生事件作为第二个参数：
+## 基础元素事件 API
 
 ```javascript
-// onchange - 传递 value + Event
-onchange(handler) {
-  this._inputEl.on('change', (e) => {
-    const value = e._boundElement?.value || this._value;
-    handler(value, e);
-  });
-  return this;
-}
+// 任何元素都可以使用 Tag 基类的事件方法
+div().onClick((e) => {...});
+div().onFocus((e) => {...});
+div().onBlur((e) => {...});
+div().onKey((e) => {...});
+div().onMouseEnter((e) => {...});
+div().onMouseLeave((e) => {...});
 
-// 使用
-vInput().onchange((value, e) => {
-  console.log('值变化:', value);
-  console.log('原生事件:', e);
-});
+// 链式调用
+div()
+  .onClick((e) => console.log('点击', e.target))
+  .onMouseEnter((e) => console.log('进入', e.target))
+  .onMouseLeave((e) => console.log('离开', e.target));
 ```
 
-#### 4.3 特殊事件 - 只传递业务数据
+## 好处
 
-对于特殊业务事件，只传递业务相关的值：
+| 好处 | 说明 |
+|------|------|
+| 自描述性 | 属性名清晰表达含义 |
+| 灵活性 | 只解构需要的属性 |
+| 扩展性 | 可以轻松添加新属性 |
+| 一致性 | 所有事件使用统一格式 |
+| 避免混淆 | 不会搞混参数顺序 |
+| 嵌套友好 | 使用 `e.value` 不会有命名冲突 |
+
+## 对比
 
 ```javascript
-// VSwitch - 只传递 checked 状态
-onchange(handler) {
-  this._switchEl.on('click', () => {
-    if (!this.hasState('disabled')) {
-      const newChecked = !this._checked;
-      this.setState('checked', newChecked);
-      handler(newChecked);  // 只传递业务值
-    }
-  });
-  return this;
-}
+// ❌ 旧方式：参数顺序不统一，容易混淆
+vButton().onclick((e, btn) => {...});           // 两个参数
+vInput().onchange((e, value, input) => {...});  // 三个参数
+vSwitch().onchange((e, checked) => {...});      // 两个参数
 
-// 使用
-vSwitch().onchange((checked) => {
-  console.log('开关状态:', checked);
-});
+// ✅ 新方式：统一单对象参数
+vButton().onClick(({event, target}) => {...});   // 解构
+vInput().onChange(({event, value, target}) => {...}); // 解构
+vSwitch().onChange(({event, value, target}) => {...}); // 解构
+
+// ✅ 简化写法（适合嵌套作用域）
+vButton().onClick((e) => {...});               // e.target
+vInput().onChange((e) => {...});               // e.value
+vSwitch().onChange((e) => {...});              // e.value
 ```
 
-### 5. 各组件事件规范
+## 嵌套作用域使用
 
-#### 5.1 按钮 (VButton)
+在嵌套作用域中，使用 `e.xxx` 形式可避免命名冲突：
 
 ```javascript
-onclick(handler) {
-  this.on('click', handler);
-  return this;
-}
-
-// 使用
-vButton('提交').onclick((e) => {
-  console.log('点击了按钮', e);
-});
-```
-
-#### 5.2 输入框 (VInput)
-
-```javascript
-// 值变化 - 传递值 + 事件
-onchange(handler) {
-  this._inputEl.on('change', (e) => {
-    const value = this.value();
-    handler(value, e);
+// 多层嵌套时，使用 e.value 避免变量名冲突
+vCard(c => {
+  c.vCardBody(b => {
+    b.child(vInput().onChange((e) => {
+      // e.value 清晰明确
+      console.log('输入 1:', e.value);
+    }));
+    b.child(vInput().onChange((e) => {
+      // e.value 清晰明确
+      console.log('输入 2:', e.value);
+    }));
   });
-  return this;
-}
-
-// 输入 - 传递值 + 事件
-oninput(handler) {
-  this._inputEl.on('input', (e) => {
-    const value = e._boundElement?.value || this._value;
-    handler(value, e);
-  });
-  return this;
-}
-
-// 使用
-vInput().onchange((value, e) => {
-  console.log('值变化:', value);
 });
 
-vInput().oninput((value, e) => {
-  console.log('输入中:', value);
+// 解构形式适合简单场景
+vInput().onChange(({value, target}) => {
+  console.log('值:', value, '来自:', target);
 });
 ```
-
-#### 5.3 选择框 (VSelect)
-
-```javascript
-onchange(handler) {
-  this._selectEl.on('change', (e) => {
-    const value = this.value();
-    handler(value, e);
-  });
-  return this;
-}
-
-// 使用
-vSelect().onchange((value, e) => {
-  console.log('选择了:', value);
-});
-```
-
-#### 5.4 文本域 (VTextarea)
-
-```javascript
-onchange(handler) {
-  this._textareaEl.on('change', (e) => {
-    const value = this.value();
-    handler(value, e);
-  });
-  return this;
-}
-
-oninput(handler) {
-  this._textareaEl.on('input', (e) => {
-    const value = this.value();
-    handler(value, e);
-  });
-  return this;
-}
-```
-
-#### 5.5 复选框 (VCheckbox)
-
-```javascript
-onchange(handler) {
-  this._checkboxEl.on('change', (e) => {
-    const checked = this.checked();
-    handler(checked, e);
-  });
-  return this;
-}
-
-// 使用
-vCheckbox('同意').onchange((checked, e) => {
-  console.log('复选框:', checked);
-});
-```
-
-#### 5.6 开关 (VSwitch)
-
-```javascript
-onchange(handler) {
-  this._switchEl.on('click', () => {
-    if (!this.hasState('disabled')) {
-      const newChecked = !this._checked;
-      this.setState('checked', newChecked);
-      handler(newChecked);  // 只传递业务值
-    }
-  });
-  return this;
-}
-
-// 使用
-vSwitch().onchange((checked) => {
-  console.log('开关:', checked);
-});
-```
-
-#### 5.7 菜单项 (VMenuItem)
-
-```javascript
-onclick(handler) {
-  this.on('click', (e) => {
-    handler(this, e);  // 传递实例 + 事件
-  });
-  return this;
-}
-
-// 使用
-vMenuItem('菜单').onclick((item, e) => {
-  console.log('点击了菜单项', item);
-});
-```
-
-#### 5.8 代码块 (VCode)
-
-```javascript
-oncopy(handler) {
-  this._onCopy = handler;  // 特殊：内部回调
-  return this;
-}
-
-// 使用
-vCode().oncopy((code) => {
-  console.log('代码已复制:', code);
-});
-```
-
-## 参数传递规则总结
-
-| 事件类型 | 参数 1 | 参数 2 | 说明 |
-|----------|--------|--------|------|
-| onclick | MouseEvent | - | 简单点击事件 |
-| onchange (表单) | value | Event | 值变化事件 |
-| oninput | value | Event | 输入事件 |
-| onchange (VSwitch) | checked | - | 开关状态变化 |
-| onclick (VMenuItem) | this (实例) | Event | 菜单项点击 |
-| oncopy | codeContent | - | 复制完成 |
 
 ## 迁移指南
 

@@ -216,6 +216,121 @@ class Tag {
     return this;
   }
 
+  // ============================================
+  // 统一事件包装器 - 单对象参数格式
+  // ============================================
+  // 所有事件回调使用单个对象参数：{event, value, oldValue, target, ...}
+  // 用户解构使用：onclick(({event, target}) => {})
+  // 或简化使用：onclick((e) => { e.value })
+
+  /**
+   * 统一事件包装器
+   * @param {Function} handler - 用户传入的回调函数
+   * @param {Function} buildContext - 构建事件上下文的函数 (e, host) => contextObject
+   */
+  _wrapHandler(handler, buildContext) {
+    return (e) => {
+      const context = {
+        event: e,
+        target: this,
+      };
+      // 合并额外属性
+      if (buildContext) {
+        Object.assign(context, buildContext(e, this));
+      }
+      handler(context);
+    };
+  }
+
+  /**
+   * 绑定标准点击事件 - 传递 {event, target}
+   * @param {Function} handler - 事件处理器 ({event, target}) => void
+   */
+  onClick(handler) {
+    this.on('click', this._wrapHandler(handler));
+    return this;
+  }
+
+  /**
+   * 绑定值变化事件 - 传递 {event, value, oldValue, target}
+   * @param {Function} handler - 事件处理器 ({event, value, oldValue, target}) => void
+   */
+  onChangeValue(handler) {
+    const oldValue = this.value?.();
+    this.on('change', this._wrapHandler(handler, (e) => {
+      const newValue = this.value?.() || e.target?.value;
+      return { value: newValue, oldValue };
+    }));
+    return this;
+  }
+
+  /**
+   * 绑定输入事件 - 传递 {event, value, target}
+   * @param {Function} handler - 事件处理器 ({event, value, target}) => void
+   */
+  onInputValue(handler) {
+    this.on('input', this._wrapHandler(handler, (e) => {
+      return { value: this.value?.() || e.target?.value };
+    }));
+    return this;
+  }
+
+  /**
+   * 绑定布尔状态事件 - 传递 {event, value, oldValue, target}
+   * @param {Function} handler - 事件处理器 ({event, value, oldValue, target}) => void
+   */
+  onToggle(handler) {
+    const oldValue = this.checked?.();
+    this.on('change', this._wrapHandler(handler, (e) => {
+      const newValue = this.checked?.() || e.target?.checked;
+      return { value: newValue, oldValue };
+    }));
+    return this;
+  }
+
+  /**
+   * 绑定焦点事件 - 传递 {event, target}
+   */
+  onFocus(handler) {
+    this.on('focus', this._wrapHandler(handler));
+    return this;
+  }
+
+  /**
+   * 绑定失焦事件 - 传递 {event, target}
+   */
+  onBlur(handler) {
+    this.on('blur', this._wrapHandler(handler));
+    return this;
+  }
+
+  /**
+   * 绑定键盘事件 - 传递 {event, key, target}
+   * @param {Function} handler - 事件处理器 ({event, key, target}) => void
+   */
+  onKey(handler) {
+    this.on('keydown', this._wrapHandler(handler, (e) => {
+      return { key: e.key, code: e.code };
+    }));
+    return this;
+  }
+
+  /**
+   * 绑定鼠标进入事件 - 传递 {event, target}
+   */
+  onMouseEnter(handler) {
+    this.on('mouseenter', this._wrapHandler(handler));
+    return this;
+  }
+
+  /**
+   * 绑定鼠标离开事件 - 传递 {event, target}
+   */
+  onMouseLeave(handler) {
+    this.on('mouseleave', this._wrapHandler(handler));
+    return this;
+  }
+
   // 添加文本节点（作为子元素）
   text(content) {
     // 如果传入的是 Tag 对象（如 text('Hello')），直接添加为子元素
