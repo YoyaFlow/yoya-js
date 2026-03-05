@@ -90,19 +90,19 @@ function createBasicMenuDemo() {
           demo.menu(m => {
             m.item(it => {
               it.text('📋 菜单项 1')
-                .onclick(() => toast.info('点击了菜单项 1'));
+                .onClick(() => toast.info('点击了菜单项 1'));
             });
             m.item(it => {
               it.text('📁 菜单项 2')
-                .onclick(() => toast.info('点击了菜单项 2'));
+                .onClick(() => toast.info('点击了菜单项 2'));
             });
             m.item(it => {
               it.text('⚙️ 菜单项 3')
-                .onclick(() => toast.info('点击了菜单项 3'));
+                .onClick(() => toast.info('点击了菜单项 3'));
             });
             m.item(it => {
               it.text('❓ 菜单项 4')
-                .onclick(() => toast.info('点击了菜单项 4'));
+                .onClick(() => toast.info('点击了菜单项 4'));
             });
           });
         });
@@ -131,25 +131,25 @@ menu(m => {
           demo.menu(m => {
             m.item(it => {
               it.text('✂️ 剪切')
-                .onclick(() => toast.info('剪切'));
+                .onClick(() => toast.info('剪切'));
             });
             m.item(it => {
               it.text('📋 复制')
-                .onclick(() => toast.info('复制'));
+                .onClick(() => toast.info('复制'));
             });
             m.item(it => {
               it.text('📌 粘贴')
-                .onclick(() => toast.info('粘贴'));
+                .onClick(() => toast.info('粘贴'));
             });
             m.divider();
             m.item(it => {
               it.text('🗑️ 删除')
-                .onclick(() => toast.warning('删除'));
+                .onClick(() => toast.warning('删除'));
             });
             m.divider();
             m.item(it => {
               it.text('⚙️ 设置')
-                .onclick(() => toast.info('设置'));
+                .onClick(() => toast.info('设置'));
             });
           });
         });
@@ -183,15 +183,15 @@ menu(m => {
               g.label('文件操作');
               g.item(it => {
                 it.text('📄 新建')
-                  .onclick(() => toast.info('新建文件'));
+                  .onClick(() => toast.info('新建文件'));
               });
               g.item(it => {
                 it.text('📂 打开')
-                  .onclick(() => toast.info('打开文件'));
+                  .onClick(() => toast.info('打开文件'));
               });
               g.item(it => {
                 it.text('💾 保存')
-                  .onclick(() => toast.success('保存成功'));
+                  .onClick(() => toast.success('保存成功'));
               });
             });
             m.divider();
@@ -199,11 +199,11 @@ menu(m => {
               g.label('编辑操作');
               g.item(it => {
                 it.text('✂️ 剪切')
-                  .onclick(() => toast.info('剪切'));
+                  .onClick(() => toast.info('剪切'));
               });
               g.item(it => {
                 it.text('📋 复制')
-                  .onclick(() => toast.info('复制'));
+                  .onClick(() => toast.info('复制'));
               });
             });
           });
@@ -260,19 +260,19 @@ function createMenuStateDemo() {
             m.item(it => {
               it.text('🏠 首页')
                 .active()
-                .onclick(() => toast.info('首页'));
+                .onClick(() => toast.info('首页'));
             });
             m.item(it => {
               it.text('📊 数据')
-                .onclick(() => toast.info('数据'));
+                .onClick(() => toast.info('数据'));
             });
             m.item(it => {
               it.text('👤 个人')
-                .onclick(() => toast.info('个人'));
+                .onClick(() => toast.info('个人'));
             });
             m.item(it => {
               it.text('⚙️ 设置')
-                .onclick(() => toast.info('设置'));
+                .onClick(() => toast.info('设置'));
             });
           });
         });
@@ -301,7 +301,7 @@ menu(m => {
           demo.menu(m => {
             m.item(it => {
               it.text('📄 新建')
-                .onclick(() => toast.info('新建'));
+                .onClick(() => toast.info('新建'));
             });
             m.item(it => {
               it.text('📂 打开')
@@ -309,7 +309,7 @@ menu(m => {
             });
             m.item(it => {
               it.text('💾 保存')
-                .onclick(() => toast.success('保存'));
+                .onClick(() => toast.success('保存'));
             });
             m.divider();
             m.item(it => {
@@ -345,17 +345,17 @@ menu(m => {
           demo.menu(m => {
             m.item(it => {
               it.text('✏️ 编辑')
-                .onclick(() => toast.info('编辑'));
+                .onClick(() => toast.info('编辑'));
             });
             m.item(it => {
               it.text('📋 复制')
-                .onclick(() => toast.info('复制'));
+                .onClick(() => toast.info('复制'));
             });
             m.divider();
             m.item(it => {
               it.text('🗑️ 删除')
                 .danger()
-                .onclick(() => toast.error('删除'));
+                .onClick(() => toast.error('删除'));
             });
             m.item(it => {
               it.text('🚫 禁用')
@@ -409,15 +409,15 @@ function createDropdownMenuDemo() {
             d.menuContent(menu(m => {
               m.item(it => {
                 it.text('📋 选项 1')
-                  .onclick(() => toast.info('选项 1'));
+                  .onClick(() => toast.info('选项 1'));
               });
               m.item(it => {
                 it.text('📁 选项 2')
-                  .onclick(() => toast.info('选项 2'));
+                  .onClick(() => toast.info('选项 2'));
               });
               m.item(it => {
                 it.text('⚙️ 选项 3')
-                  .onclick(() => toast.info('选项 3'));
+                  .onClick(() => toast.info('选项 3'));
               });
             }));
           });
@@ -453,23 +453,23 @@ dropdownMenu(d => {
               m.item(it => {
                 it.text('✂️ 剪切')
                   .shortcut('Ctrl+X')
-                  .onclick(() => toast.info('剪切'));
+                  .onClick(() => toast.info('剪切'));
               });
               m.item(it => {
                 it.text('📋 复制')
                   .shortcut('Ctrl+C')
-                  .onclick(() => toast.info('复制'));
+                  .onClick(() => toast.info('复制'));
               });
               m.item(it => {
                 it.text('📌 粘贴')
                   .shortcut('Ctrl+V')
-                  .onclick(() => toast.info('粘贴'));
+                  .onClick(() => toast.info('粘贴'));
               });
               m.divider();
               m.item(it => {
                 it.text('🔍 查找')
                   .shortcut('Ctrl+F')
-                  .onclick(() => toast.info('查找'));
+                  .onClick(() => toast.info('查找'));
               });
             }));
           });
@@ -504,17 +504,17 @@ dropdownMenu(d => {
             d.menuContent(menu(m => {
               m.item(it => {
                 it.text('👤 个人资料')
-                  .onclick(() => toast.info('个人资料'));
+                  .onClick(() => toast.info('个人资料'));
               });
               m.item(it => {
                 it.text('⚙️ 账户设置')
-                  .onclick(() => toast.info('账户设置'));
+                  .onClick(() => toast.info('账户设置'));
               });
               m.divider();
               m.item(it => {
                 it.text('🚪 退出登录')
                   .danger()
-                  .onclick(() => toast.warning('退出登录'));
+                  .onClick(() => toast.warning('退出登录'));
               });
             }));
             d.closeOnClickOutside();
@@ -574,27 +574,27 @@ function createNavMenuDemo() {
               it.text('🏠 首页')
                 .styles({ color: 'white' })
                 .active()
-                .onclick(() => toast.info('首页'));
+                .onClick(() => toast.info('首页'));
             });
             m.item(it => {
               it.text('📊 数据')
                 .styles({ color: 'rgba(255,255,255,0.8)' })
-                .onclick(() => toast.info('数据'));
+                .onClick(() => toast.info('数据'));
             });
             m.item(it => {
               it.text('📁 项目')
                 .styles({ color: 'rgba(255,255,255,0.8)' })
-                .onclick(() => toast.info('项目'));
+                .onClick(() => toast.info('项目'));
             });
             m.item(it => {
               it.text('👥 团队')
                 .styles({ color: 'rgba(255,255,255,0.8)' })
-                .onclick(() => toast.info('团队'));
+                .onClick(() => toast.info('团队'));
             });
             m.item(it => {
               it.text('⚙️ 设置')
                 .styles({ color: 'rgba(255,255,255,0.8)' })
-                .onclick(() => toast.info('设置'));
+                .onClick(() => toast.info('设置'));
             });
           });
         });
@@ -632,33 +632,33 @@ menu(m => {
             });
             m.item(it => {
               it.text('📊 仪表盘')
-                .onclick(() => toast.info('仪表盘'));
+                .onClick(() => toast.info('仪表盘'));
             });
             m.item(it => {
               it.text('📁 项目管理')
-                .onclick(() => toast.info('项目管理'));
+                .onClick(() => toast.info('项目管理'));
             });
             m.item(it => {
               it.text('👥 团队成员')
-                .onclick(() => toast.info('团队成员'));
+                .onClick(() => toast.info('团队成员'));
             });
             m.item(it => {
               it.text('📝 任务列表')
-                .onclick(() => toast.info('任务列表'));
+                .onClick(() => toast.info('任务列表'));
             });
             m.divider();
             m.item(it => {
               it.text('📈 数据统计')
-                .onclick(() => toast.info('数据统计'));
+                .onClick(() => toast.info('数据统计'));
             });
             m.item(it => {
               it.text('📋 报表中心')
-                .onclick(() => toast.info('报表中心'));
+                .onClick(() => toast.info('报表中心'));
             });
             m.divider();
             m.item(it => {
               it.text('⚙️ 系统设置')
-                .onclick(() => toast.info('系统设置'));
+                .onClick(() => toast.info('系统设置'));
             });
           });
         });
@@ -835,16 +835,16 @@ function initContextMenu() {
 
   const ctxMenu = contextMenu(ctx => {
     ctx.menuContent(menu(m => {
-      m.item('✏️ 编辑').onclick(item => {
+      m.item('✏️ 编辑').onClick(() => {
         toast.info('编辑');
         ctxMenu.hide();
       });
-      m.item('📋 复制').onclick(item => {
+      m.item('📋 复制').onClick(() => {
         toast.info('复制');
         ctxMenu.hide();
       });
       m.divider();
-      m.item('🗑️ 删除').danger().onclick(item => {
+      m.item('🗑️ 删除').danger().onClick(() => {
         toast.warning('删除');
         ctxMenu.hide();
       });

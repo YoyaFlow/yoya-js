@@ -349,13 +349,13 @@ export const fieldDemo = demoWithCode(
           container.child(vInput(i => {
             i.placeholder('请输入用户名');
             i.value('张三');
-            i.onInput((input) => {
-              setValue(input.value());
+            i.onInput(({ value }) => {
+              setValue(value);
             });
           }));
         });
-        f.onSave((newValue) => {
-          toast.success(`名字已更新为：${newValue}`);
+        f.onSave(({ value }) => {
+          toast.success(`名字已更新为：${value}`);
           return Promise.resolve();
         });
       });
@@ -402,7 +402,7 @@ export const fieldDemo = demoWithCode(
             });
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success(`名字已更新为：${newValue}`);
           return Promise.resolve();
         });
@@ -449,7 +449,7 @@ export const fieldDemo = demoWithCode(
             })
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success(`自动保存：${newValue}`);
           return Promise.resolve();
         });
@@ -639,7 +639,7 @@ export const contractDemo = demoWithCode(
             i.onInput(() => setValue(i.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('合同名称已更新：' + newValue);
           return Promise.resolve();
         });
@@ -672,10 +672,10 @@ export const contractDemo = demoWithCode(
               { value: 'other', label: '其他合同' },
             ]);
             s.value(initialValue);
-            s.onChange(() => setValue(s.value()));
+            s.onChange(({ value }) => setValue(value));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('合同类型已更新：' + newValue);
           return Promise.resolve();
         });
@@ -704,7 +704,7 @@ export const contractDemo = demoWithCode(
             }));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('合同金额已更新：¥' + newValue);
           return Promise.resolve();
         });
@@ -731,7 +731,7 @@ export const contractDemo = demoWithCode(
             i.onInput(() => setValue(i.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('甲方单位已更新：' + newValue);
           return Promise.resolve();
         });
@@ -752,7 +752,7 @@ export const contractDemo = demoWithCode(
             i.onInput(() => setValue(i.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('甲方联系人已更新：' + newValue);
           return Promise.resolve();
         });
@@ -773,7 +773,7 @@ export const contractDemo = demoWithCode(
             i.onInput(() => setValue(i.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('联系电话已更新：' + newValue);
           return Promise.resolve();
         });
@@ -794,7 +794,7 @@ export const contractDemo = demoWithCode(
             i.onInput(() => setValue(i.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('乙方单位已更新：' + newValue);
           return Promise.resolve();
         });
@@ -815,7 +815,7 @@ export const contractDemo = demoWithCode(
             i.onInput(() => setValue(i.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('乙方联系人已更新：' + newValue);
           return Promise.resolve();
         });
@@ -836,7 +836,7 @@ export const contractDemo = demoWithCode(
             i.onInput(() => setValue(i.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('联系电话已更新：' + newValue);
           return Promise.resolve();
         });
@@ -911,7 +911,7 @@ export const contractDemo = demoWithCode(
             }));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('合同期限已更新：' + newValue.startDate + ' 至 ' + newValue.endDate);
           return Promise.resolve();
         });
@@ -972,14 +972,14 @@ export const contractDemo = demoWithCode(
             cb.value(initialValue);
             cb.layout('grid');
             cb.columns(2);
-            cb.onChange((values) => {
+            cb.onChange(({ value: values }) => {
               console.log(values)
               setValue(values);
             });
           }));
         });
 
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           const selectedLabels = clauseOptions
             .filter(opt => newValue && newValue.includes(opt.value))
             .map(opt => opt.label);
@@ -1011,7 +1011,7 @@ export const contractDemo = demoWithCode(
             t.onInput(() => setValue(t.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('合同描述已更新');
           return Promise.resolve();
         });
@@ -1048,10 +1048,10 @@ export const contractDemo = demoWithCode(
               { value: 'monthly', label: '按月付款' },
             ]);
             s.value(initialValue);
-            s.onChange(() => setValue(s.value()));
+            s.onChange(({ value }) => setValue(value));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('付款方式已更新：' + newValue);
           return Promise.resolve();
         });
@@ -1075,7 +1075,7 @@ export const contractDemo = demoWithCode(
             t.onInput(() => setValue(t.value()));
           }));
         });
-        f.onSave((newValue) => {
+        f.onSave(({ value }) => {
           toast.success('付款说明已更新');
           return Promise.resolve();
         });

@@ -86,7 +86,7 @@ const basicMultipleDemo = demoWithCode(
       cb.options(fruitOptions);
       cb.multiple(true);
       cb.value(['apple', 'banana']);
-      cb.onChange((values) => {
+      cb.onChange(({ value: values }) => {
         valueDisplay.text('当前选中：' + values.join(', '));
       });
     });
@@ -154,7 +154,7 @@ const singleDemo = demoWithCode(
       cb.options(colorOptions);
       cb.multiple(false);  // 单选模式
       cb.value('red');
-      cb.onChange((value) => {
+      cb.onChange(({ value }) => {
         valueDisplay.text('当前选中：' + value);
       });
     });

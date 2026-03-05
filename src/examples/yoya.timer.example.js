@@ -69,7 +69,7 @@ const basicDateDemo = demoWithCode(
 
     const timer = vTimer(t => {
       t.value('2024-03-15');
-      t.onChange((value) => {
+      t.onChange(({ value }) => {
         valueDisplay.text('选中日期：' + value);
       });
     });
@@ -140,7 +140,7 @@ const dateTimeDemo = demoWithCode(
     const timer = vTimer(t => {
       t.type('datetime-local');
       t.value('2024-03-15T14:30');
-      t.onChange((value) => {
+      t.onChange(({ value }) => {
         valueDisplay.text('选中时间：' + value);
       });
     });
@@ -187,7 +187,7 @@ const timeDemo = demoWithCode(
     const timer = vTimer(t => {
       t.type('time');
       t.value('14:30');
-      t.onChange((value) => {
+      t.onChange(({ value }) => {
         valueDisplay.text('选中时间：' + value);
       });
     });
@@ -272,7 +272,7 @@ const dateRangeDemo = demoWithCode(
 
     const timer2 = vTimer2(t2 => {
       t2.value({ start: '2024-03-01', end: '2024-03-31' });
-      t2.onChange((range) => {
+      t2.onChange(({ value: range }) => {
         valueDisplay.text(`日期范围：${range.start} 至 ${range.end}`);
       });
     });
@@ -360,7 +360,7 @@ const dateTimeRangeDemo = demoWithCode(
     const timer2 = vTimer2(t2 => {
       t2.type('datetime-local');
       t2.value({ start: '2024-03-15T09:00', end: '2024-03-15T18:00' });
-      t2.onChange((range) => {
+      t2.onChange(({ value: range }) => {
         valueDisplay.clear()
         valueDisplay.text(`时间范围：${range.start} 至 ${range.end}`);
       });
@@ -416,7 +416,7 @@ const limitedRangeDemo = demoWithCode(
         t2.value({ start: '', end: '' });
         t2.min('2024-01-01');
         t2.max('2024-12-31');
-        t2.onChange((range) => {
+        t2.onChange(({ value: range }) => {
           valueDisplay.text(`选择范围：${range.start || '未选择'} 至 ${range.end || '未选择'}`);
         });
       }));
@@ -497,7 +497,7 @@ const leaveApplicationDemo = demoWithCode(
 
     content.child(vTimer2(t2 => {
       t2.value({ start: '', end: '' });
-      t2.onChange((range) => {
+      t2.onChange(({ value: range }) => {
         startDate = range.start;
         endDate = range.end;
         updateDisplay();
