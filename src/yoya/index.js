@@ -41,7 +41,7 @@ export {
   div, span, p, section, article, header, footer, nav, aside, main,
   h1, h2, h3, h4, h5, h6,
   a, strong, em, code, pre, blockquote,
-  button, input, textarea, select, option, label, form,
+  button, input, textarea, select, option, vOption, label, form,
   ul, ol, li, dl, dt, dd,
   table, tr, td, th, thead, tbody, tfoot,
   img, video, audio, source,
@@ -105,7 +105,7 @@ export {
 
   // Form 组件
   VInput, vInput,
-  VSelect, vSelect, VOption, vOption,
+  VSelect, vSelect,
   VTextarea, vTextarea,
   VCheckbox, vCheckbox,
   VCheckboxes, vCheckboxes,
