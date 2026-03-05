@@ -321,8 +321,11 @@ export function initTheme(options = {}) {
   } = options;
 
   // 注册提供的主题
-  for (const [themeId, factory] of themes.entries()) {
-    registerTheme(themeId, factory);
+  for (const [themeId, config] of themes.entries()) {
+    registerTheme(themeId, config.factory, {
+      lightFactory: config.lightFactory,
+      darkFactory: config.darkFactory,
+    });
   }
 
   // 从 localStorage 读取主题和 mode
@@ -365,6 +368,11 @@ export function applyTheme(theme, save = true) {
   if (!theme) return;
 
   currentThemeId = theme.name.split(':')[0]; // 获取主题 ID（不含 mode）
+
+  // 注册主题到主题管理器（如果尚未注册）
+  if (!themeManager.getTheme(theme.name)) {
+    themeManager.registerTheme(theme);
+  }
 
   // 应用 CSS 变量
   applyThemeVariables(theme);
