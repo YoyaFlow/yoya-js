@@ -981,7 +981,7 @@ export const contractDemo = demoWithCode(
 
         f.onSave(({ value }) => {
           const selectedLabels = clauseOptions
-            .filter(opt => newValue && newValue.includes(opt.value))
+            .filter(opt => value && value.includes(opt.value))
             .map(opt => opt.label);
           toast.success('已更新条款：' + (selectedLabels.length > 0 ? selectedLabels.join('、') : '无'));
           return Promise.resolve();
