@@ -123,8 +123,8 @@ const basicDateDemo = demoWithCode(
 <span class="token-comment">// 基础日期选择器</span>
 <span class="token-function">vTimer</span>(t => {
   t.<span class="token-function">value</span>(<span class="token-string">'2024-03-15'</span>);  <span class="token-comment">// 设置初始值</span>
-  t.<span class="token-function">onChange</span>((value) => {
-    console.<span class="token-function">log</span>('选中日期：', value);
+  t.<span class="token-function">onChange</span>((e) => {
+    console.<span class="token-function">log</span>('选中日期：', e.value);
   });
 });`
 );
@@ -170,8 +170,8 @@ const dateTimeDemo = demoWithCode(
 <span class="token-function">vTimer</span>(t => {
   t.<span class="token-function">type</span>(<span class="token-string">'datetime-local'</span>);  <span class="token-comment">// 日期 + 时间</span>
   t.<span class="token-function">value</span>(<span class="token-string">'2024-03-15T14:30'</span>);
-  t.<span class="token-function">onChange</span>((value) => {
-    console.<span class="token-function">log</span>('选中时间：', value);
+  t.<span class="token-function">onChange</span>((e) => {
+    console.<span class="token-function">log</span>('选中时间：', e.value);
   });
 });`
 );
@@ -212,8 +212,8 @@ const timeDemo = demoWithCode(
 <span class="token-function">vTimer</span>(t => {
   t.<span class="token-function">type</span>(<span class="token-string">'time'</span>);  <span class="token-comment">// 仅时间</span>
   t.<span class="token-function">value</span>(<span class="token-string">'14:30'</span>);
-  t.<span class="token-function">onChange</span>((value) => {
-    console.<span class="token-function">log</span>('选中时间：', value);
+  t.<span class="token-function">onChange</span>((e) => {
+    console.<span class="token-function">log</span>('选中时间：', e.value);
   });
 });`
 );
@@ -337,8 +337,8 @@ const dateRangeDemo = demoWithCode(
     <span class="token-property">start</span>: <span class="token-string">'2024-03-01'</span>,  <span class="token-comment">// 开始日期</span>
     <span class="token-property">end</span>: <span class="token-string">'2024-03-31'</span>    <span class="token-comment">// 结束日期</span>
   });
-  t2.<span class="token-function">onChange</span>((range) => {
-    console.<span class="token-function">log</span>('日期范围：', range.start, '-', range.end);
+  t2.<span class="token-function">onChange</span>((e) => {
+    console.<span class="token-function">log</span>('日期范围：', e.value.start, '-', e.value.end);
   });
 });
 
@@ -394,8 +394,8 @@ const dateTimeRangeDemo = demoWithCode(
     <span class="token-property">start</span>: <span class="token-string">'2024-03-15T09:00'</span>,
     <span class="token-property">end</span>: <span class="token-string">'2024-03-15T18:00'</span>
   });
-  t2.<span class="token-function">onChange</span>((range) => {
-    console.<span class="token-function">log</span>('时间范围：', range.start, '-', range.end);
+  t2.<span class="token-function">onChange</span>((e) => {
+    console.<span class="token-function">log</span>('时间范围：', e.value.start, '-', e.value.end);
   });
 });`
 );

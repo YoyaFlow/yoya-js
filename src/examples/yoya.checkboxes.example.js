@@ -136,8 +136,8 @@ const basicMultipleDemo = demoWithCode(
   cb.<span class="token-function">options</span>(fruitOptions);
   cb.<span class="token-function">multiple</span>(<span class="token-keyword">true</span>);  <span class="token-comment">// 多选模式</span>
   cb.<span class="token-function">value</span>([<span class="token-string">'apple'</span>, <span class="token-string">'banana'</span>]);
-  cb.<span class="token-function">onChange</span>((values) => {
-    console.<span class="token-function">log</span>('选中：', values);
+  cb.<span class="token-function">onChange</span>((e) => {
+    console.<span class="token-function">log</span>('选中：', e.value);
   });
 });`
 );
@@ -184,8 +184,8 @@ const singleDemo = demoWithCode(
   cb.<span class="token-function">options</span>(colorOptions);
   cb.<span class="token-function">multiple</span>(<span class="token-keyword">false</span>);  <span class="token-comment">// 单选模式</span>
   cb.<span class="token-function">value</span>(<span class="token-string">'red'</span>);
-  cb.<span class="token-function">onChange</span>((value) => {
-    console.<span class="token-function">log</span>('选中：', value);
+  cb.<span class="token-function">onChange</span>((e) => {
+    console.<span class="token-function">log</span>('选中：', e.value);
   });
 });`
 );
