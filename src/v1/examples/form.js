@@ -42,15 +42,8 @@ export function createFormPage() {
       // 页面标题
       content.child(vstack(header => {
         header.gap('8px');
-        header.styles({ marginBottom: '24px' });
-
-        header.child(vMenuItem('Form 表单', h1 => {
-          h1.styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' });
-        }));
-
-        header.child(vMenuItem('表单组件用于收集用户输入，支持多种输入类型和验证功能。', desc => {
-          desc.styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
-        }));
+        header.child(vMenuItem('Form 表单'));
+        header.child(vMenuItem('表单组件用于收集用户输入，支持多种输入类型和验证功能。'));
       }));
 
       // 输入框
@@ -352,16 +345,9 @@ vTimer(t => {
                 apiMenu.item(it => {
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
-                    apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(vMenuItem(item.name, name => {
-                      name.styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '100px' });
-                    }));
-                    apiRow.child(vMenuItem(item.desc, desc => {
-                      desc.styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 });
-                    }));
-                    apiRow.child(vMenuItem(item.props, type => {
-                      type.styles({ fontFamily: 'monospace', fontSize: '11px', color: '#999' });
-                    }));
+                    apiRow.child(vMenuItem(item.name));
+                    apiRow.child(vMenuItem(item.desc));
+                    apiRow.child(vMenuItem(item.props));
                   }));
                 });
               });

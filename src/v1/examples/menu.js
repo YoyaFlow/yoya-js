@@ -43,13 +43,8 @@ export function createMenuPage() {
       // 页面标题
       content.child(vstack(header => {
         header.gap('8px');
-        header.styles({ marginBottom: '24px' });
-
-        header.child(vMenuItem('Menu 菜单')
-          .styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' }));
-
-        header.child(vMenuItem('菜单组件用于展示操作列表，支持垂直/水平布局、分组、下拉和右键菜单等功能。')
-          .styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' }));
+        header.child(vMenuItem('Menu 菜单'));
+        header.child(vMenuItem('菜单组件用于展示操作列表，支持垂直/水平布局、分组、下拉和右键菜单等功能。'));
       }));
 
       // 基础菜单
@@ -395,13 +390,9 @@ export function createMenuPage() {
                 apiMenu.item(it => {
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
-                    apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(vMenuItem(item.name)
-                      .styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '140px' }));
-                    apiRow.child(vMenuItem(item.desc)
-                      .styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 }));
-                    apiRow.child(vMenuItem(item.props)
-                      .styles({ fontFamily: 'monospace', fontSize: '10px', color: '#999' }));
+                    apiRow.child(vMenuItem(item.name));
+                    apiRow.child(vMenuItem(item.desc));
+                    apiRow.child(vMenuItem(item.props));
                   }));
                 });
               });
