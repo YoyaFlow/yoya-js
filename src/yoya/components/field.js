@@ -150,10 +150,10 @@ class VField extends Tag {
         color: 'var(--islands-field-edit-icon-color, #999)',
         opacity: '0',
         transition: 'opacity 0.2s',
-        marginLeft: 'var(--islands-field-edit-icon-margin, 6px)',
+        marginLeft: 'var(--islands-field-edit-icon-margin, 4px)',
         cursor: 'pointer',
       });
-      e.html('✏️');
+      e.html('🖉');
       e.on('click', (ev) => {
         ev.stopPropagation();
         if (this._editable) this.setState('editing', true);
