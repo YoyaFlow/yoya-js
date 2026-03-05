@@ -6,7 +6,7 @@
 import {
   div, span, p, h1, h2, h3, h4, section, br, footer, button, img,
   flex, hstack, vstack, spacer,
-  card, cardHeader, cardBody, cardFooter
+  vCard, vCardHeader, vCardBody, vCardFooter
 } from '../yoya/index.js';
 
 // ============================================
