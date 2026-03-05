@@ -29,6 +29,7 @@
 - [状态处理器模式](./40-patterns/state-handler-pattern.md)
 - [工厂函数 Setup 优先级](./40-patterns/factory-setup-preference.md)
 - [事件处理规范](./40-patterns/event-handler-pattern.md)
+- [事件回调统一规范 - 实施总结](./40-patterns/event-handler-summary.md)
 
 ## 检索技巧
 
