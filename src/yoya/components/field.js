@@ -183,7 +183,7 @@ class VField extends Tag {
           this._editIcon.style('opacity', '0');
           this._showContainer.styles({
             background: 'var(--islands-field-show-bg, transparent)',
-            borderColor: 'var(--islands-field-show-border, 1px solid transparent)',
+            border: 'var(--islands-field-show-border, 1px solid transparent)',
           });
         }
       }
