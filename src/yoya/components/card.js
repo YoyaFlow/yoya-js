@@ -46,6 +46,50 @@ class VCard extends Tag {
     }
   }
 
+  // 重写 setup 方法，支持对象配置
+  setup(setup) {
+    if (typeof setup === 'function') {
+      setup(this);
+    } else if (typeof setup === 'string') {
+      // 字符串作为卡片内容
+      this.vCardBody(setup);
+    } else if (typeof setup === 'object' && setup !== null) {
+      // 对象配置：支持 header, body, footer 等属性
+      if (setup.header !== undefined) {
+        if (typeof setup.header === 'function') {
+          this.vCardHeader(setup.header);
+        } else if (typeof setup.header === 'string') {
+          this.vCardHeader(setup.header);
+        } else {
+          this.vCardHeader(c => c.child(setup.header));
+        }
+      }
+      if (setup.body !== undefined) {
+        if (typeof setup.body === 'function') {
+          this.vCardBody(setup.body);
+        } else if (typeof setup.body === 'string') {
+          this.vCardBody(setup.body);
+        } else {
+          this.vCardBody(c => c.child(setup.body));
+        }
+      }
+      if (setup.footer !== undefined) {
+        if (typeof setup.footer === 'function') {
+          this.vCardFooter(setup.footer);
+        } else if (typeof setup.footer === 'string') {
+          this.vCardFooter(setup.footer);
+        } else {
+          this.vCardFooter(c => c.child(setup.footer));
+        }
+      }
+      // 处理其他配置（class, style 等）
+      if (setup.class) this.class(setup.class);
+      if (setup.style) this.styles(setup.style);
+      if (setup.onclick) this.on('click', setup.onclick);
+    }
+    return this;
+  }
+
   // 注册状态处理器
   _registerStateHandlers() {
     // hoverable 状态

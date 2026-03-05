@@ -4,7 +4,7 @@
  */
 
 import {
-  flex, grid, responsiveGrid, vstack, hstack,
+  flex, grid, responsiveGrid, vstack, hstack, div,
   vCard, vCardHeader, vCardBody, vCardFooter,
   vMenu, vMenuItem, vButton, toast,
 } from '../../yoya/index.js';
@@ -49,20 +49,39 @@ vCard('卡片内容')`
         ),
 
         codeDemo('setupObject - 配置卡片',
-          vCard({
-            class: 'custom-card',
-            style: { border: '1px solid #e0e0e0' },
-          }, c => {
-            c.vCardHeader('配置卡片');
-            c.vCardBody('使用对象配置属性和样式');
+          vstack(s => {
+            s.gap('16px');
+            // 方式 1：对象 + 函数回调
+            s.child(vCard({
+              class: 'custom-card',
+              style: { border: '1px solid #e0e0e0' },
+            }, c => {
+              c.vCardHeader('配置卡片');
+              c.vCardBody('使用对象配置属性和样式');
+            }));
+            // 方式 2：对象配置 header/body/footer
+            s.child(vCard({
+              header: '快捷配置',
+              body: '使用 header/body/footer 属性',
+              footer: div('底部内容'),
+            }));
           }),
           `// ✅ 推荐：需要配置属性时用对象
+
+// 方式 1：对象 + 函数回调
 vCard({
   class: 'custom-card',
   style: { border: '1px solid #e0e0e0' }
 }, c => {
   c.vCardHeader('标题')
   c.vCardBody('内容')
+})
+
+// 方式 2：对象配置 header/body/footer
+vCard({
+  header: '卡片标题',
+  body: '卡片内容',
+  footer: div('底部')
 })`
         ),
 
