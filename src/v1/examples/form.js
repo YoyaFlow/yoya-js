@@ -1,12 +1,12 @@
 /**
  * Yoya.Basic V1 - Form Demo Page
- * Form 表单演示页面
+ * Form 表单演示页面 - 演示 setup 三种方式
  */
 
 import {
-  flex, vstack, vCard, vCardHeader, vCardBody,
+  flex, vstack, vCard, vCardBody,
   vMenu, vMenuItem, vButton, vCode, toast,
-  vInput, vSelect, vTextarea, vCheckbox, vCheckboxes, vSwitch, vForm, vTimer,
+  vForm, vInput, vTextarea, vSelect, vOption, vCheckbox, vRadio, vLabel,
 } from '../../yoya/index.js';
 
 import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';
@@ -46,283 +46,186 @@ export function createFormPage() {
         header.child(vMenuItem('表单组件用于收集用户输入，支持多种输入类型和验证功能。'));
       }));
 
-      // 输入框
-      content.child(docSection('input', '输入框 VInput', [
-        codeDemo('基础输入框',
-          vstack(stack => {
-            stack.gap('12px');
-            stack.child(vInput(i => {
-              i.placeholder('请输入用户名');
-            }));
-            stack.child(vInput(i => {
-              i.placeholder('请输入邮箱');
-              i.type('email');
-            }));
-            stack.child(vInput(i => {
-              i.placeholder('请输入密码');
-              i.type('password');
-            }));
+      // setup 三种方式
+      content.child(docSection('setup', 'setup 三种方式', [
+        codeDemo('setupString - 简单输入框',
+          vstack(s => {
+            s.gap('12px');
+            s.vInput('请输入用户名');
+            s.vInput('请输入密码');
           }),
-          `vInput(i => {
-  i.placeholder('请输入用户名')
-})
-vInput(i => {
-  i.placeholder('请输入邮箱')
-  i.type('email')
-})
-vInput(i => {
-  i.placeholder('请输入密码')
-  i.type('password')
+          `// ✅ 推荐：placeholder 直接用字符串
+vInput('请输入用户名')
+vInput('请输入密码')`
+        ),
+
+        codeDemo('setupObject - 对象配置',
+          vstack(s => {
+            s.gap('12px');
+            s.vInput({
+              placeholder: '请输入邮箱',
+              type: 'email',
+              class: 'email-input',
+              onchange: (e) => toast.info(e.target.value),
+            });
+            s.vTextarea({
+              placeholder: '请输入内容',
+              rows: 3,
+              class: 'content-area',
+            });
+          }),
+          `// ✅ 推荐：配置属性和事件用对象
+vInput({
+  placeholder: '请输入邮箱',
+  type: 'email',
+  onchange: (e) => toast(e.target.value)
 })`
         ),
 
-        codeDemo('带禁用状态',
-          vstack(stack => {
-            stack.gap('12px');
-            stack.child(vInput(i => {
-              i.placeholder('正常输入框');
-            }));
-            stack.child(vInput(i => {
-              i.placeholder('禁用输入框');
-              i.disabled();
-              i.value('已禁用');
-            }));
+        codeDemo('setupFunction + 链式调用',
+          vstack(s => {
+            s.gap('12px');
+            s.vInput(i => {
+              i.placeholder('请输入用户名');
+              i.type('text');
+              i.class('username-input');
+              i.on('change', (e) => toast.info(e.target.value));
+            });
+            s.vInput('请输入密码')
+              .type('password')
+              .class('password-input');
           }),
-          `vInput(i => {
-  i.placeholder('正常输入框')
-})
+          `// ✅ 推荐：复杂逻辑用函数 + 链式
 vInput(i => {
-  i.placeholder('禁用输入框')
-  i.disabled()
-  i.value('已禁用')
-})`
+  i.placeholder('用户名')
+  i.type('text')
+  i.on('change', (e) => toast(e.target.value))
+})
+
+// 或更简洁的链式
+vInput('密码')
+  .type('password')
+  .class('password-input')`
         ),
       ]));
 
-      // 选择框
-      content.child(docSection('select', '选择框 VSelect', [
-        codeDemo('基础选择框',
+      // 输入框
+      content.child(docSection('input', '输入框', [
+        codeDemo('基础输入框',
           vstack(stack => {
             stack.gap('12px');
-            stack.child(vSelect(s => {
-              s.placeholder('请选择城市');
-              s.options([
-                { value: 'beijing', label: '北京' },
-                { value: 'shanghai', label: '上海' },
-                { value: 'guangzhou', label: '广州' },
-                { value: 'shenzhen', label: '深圳' },
-              ]);
-            }));
-            stack.child(vSelect(s => {
-              s.placeholder('请选择水果');
-              s.options([
-                { value: 'apple', label: '苹果' },
-                { value: 'banana', label: '香蕉' },
-                { value: 'orange', label: '橙子' },
-              ]);
-            }));
+            stack.child(vInput('请输入用户名'));
+            stack.child(vInput('请输入密码').type('password'));
+            stack.child(vInput('请输入邮箱').type('email'));
           }),
-          `vSelect(s => {
-  s.placeholder('请选择城市')
-  s.options([
-    { value: 'beijing', label: '北京' },
-    { value: 'shanghai', label: '上海' },
-  ])
-})
+          `vInput('请输入用户名')
+vInput('请输入密码').type('password')
+vInput('请输入邮箱').type('email')`
+        ),
 
-vSelect(s => {
-  s.placeholder('请选择水果')
-  s.options([...])
-})`
+        codeDemo('带标签的输入框',
+          vstack(stack => {
+            stack.gap('8px');
+            stack.child(vLabel('用户名'));
+            stack.child(vInput('请输入用户名'));
+            stack.child(vLabel('密码'));
+            stack.child(vInput('请输入密码').type('password'));
+          }),
+          `vLabel('用户名')
+vInput('请输入用户名')`
         ),
       ]));
 
       // 文本域
-      content.child(docSection('textarea', '文本域 VTextarea', [
+      content.child(docSection('textarea', '文本域', [
         codeDemo('基础文本域',
           vstack(stack => {
             stack.gap('12px');
-            stack.child(vTextarea(t => {
-              t.placeholder('请输入描述内容...');
-              t.rows(4);
+            stack.child(vTextarea('请输入内容'));
+            stack.child(vTextarea('请输入描述').rows(4));
+          }),
+          `vTextarea('请输入内容')
+vTextarea('请输入描述').rows(4)`
+        ),
+      ]));
+
+      // 选择框
+      content.child(docSection('select', '选择框', [
+        codeDemo('下拉选择',
+          vstack(stack => {
+            stack.gap('12px');
+            stack.child(vSelect(s => {
+              s.option('请选择选项');
+              s.option('选项 1');
+              s.option('选项 2');
+              s.option('选项 3');
             }));
           }),
-          `vTextarea(t => {
-  t.placeholder('请输入描述内容...')
-  t.rows(4)
+          `vSelect(s => {
+  s.option('请选择选项')
+  s.option('选项 1')
+  s.option('选项 2')
 })`
         ),
       ]));
 
-      // 复选框
-      content.child(docSection('checkbox', '复选框 VCheckbox', [
-        codeDemo('单个复选框',
+      // 复选框和单选
+      content.child(docSection('checkbox-radio', '复选框和单选', [
+        codeDemo('复选框',
           vstack(stack => {
-            stack.gap('12px');
-            stack.child(vCheckbox(c => {
-              c.label('我已阅读并同意服务条款');
-              c.checked();
-            }));
-            stack.child(vCheckbox(c => {
-              c.label('订阅产品更新邮件');
-              c.disabled();
-            }));
+            stack.gap('8px');
+            stack.child(vCheckbox('选项 1'));
+            stack.child(vCheckbox('选项 2'));
+            stack.child(vCheckbox('选项 3'));
           }),
-          `vCheckbox(c => {
-  c.label('我已阅读并同意服务条款')
-  c.checked()
-})`
+          `vCheckbox('选项 1')
+vCheckbox('选项 2')`
         ),
 
-        codeDemo('复选框组',
-          vCheckboxes(cb => {
-            cb.options([
-              { value: 'read', label: '阅读' },
-              { value: 'sports', label: '运动' },
-              { value: 'music', label: '音乐' },
-              { value: 'travel', label: '旅行' },
-            ]);
-            cb.multiple();
-            cb.value(['read', 'music']);
-            cb.onChange(({ value: values }) => {
-              toast.info('选中：' + values.join(', '));
+        codeDemo('单选框',
+          vstack(stack => {
+            stack.gap('8px');
+            stack.child(vRadio('单选 1').name('radio-group'));
+            stack.child(vRadio('单选 2').name('radio-group'));
+            stack.child(vRadio('单选 3').name('radio-group'));
+          }),
+          `vRadio('单选 1').name('group')
+vRadio('单选 2').name('group')`
+        ),
+      ]));
+
+      // 表单布局
+      content.child(docSection('layout', '表单布局', [
+        codeDemo('垂直表单',
+          vCard(c => {
+            c.vCardHeader('用户登录');
+            c.vCardBody(form => {
+              form.child(vstack(stack => {
+                stack.gap('16px');
+                stack.child(vLabel('用户名'));
+                stack.child(vInput('请输入用户名'));
+                stack.child(vLabel('密码'));
+                stack.child(vInput('请输入密码').type('password'));
+                stack.child(flex(btns => {
+                  btns.gap('12px');
+                  btns.child(vButton('登录').type('primary'));
+                  btns.child(vButton('重置').ghost());
+                }));
+              }));
             });
           }),
-          `vCheckboxes(cb => {
-  cb.options([
-    { value: 'read', label: '阅读' },
-    { value: 'sports', label: '运动' },
-  ])
-  cb.multiple()
-  cb.value(['read', 'music'])
-  cb.onChange(({ value }) => {
-    console.log('选中：', value)
+          `vCard(c => {
+  c.vCardHeader('用户登录')
+  c.vCardBody(form => {
+    form.child(vstack(stack => {
+      stack.gap('16px')
+      stack.child(vLabel('用户名'))
+      stack.child(vInput('请输入用户名'))
+      stack.child(vButton('登录').type('primary'))
+    }))
   })
 })`
         ),
-      ]));
-
-      // 开关
-      content.child(docSection('switch', '开关 VSwitch', [
-        codeDemo('基础开关',
-          vstack(stack => {
-            stack.gap('12px');
-            stack.child(vSwitch(s => {
-              s.label('开启通知');
-              s.checked();
-              s.onChange(({ value }) => {
-                toast.info(value ? '通知已开启' : '通知已关闭');
-              });
-            }));
-            stack.child(vSwitch(s => {
-              s.label('自动同步');
-              s.disabled();
-            }));
-          }),
-          `vSwitch(s => {
-  s.label('开启通知')
-  s.checked()
-  s.onChange(({ value }) => {
-    toast.info(value ? '通知已开启' : '通知已关闭')
-  })
-})`
-        ),
-      ]));
-
-      // 日期时间选择器
-      content.child(docSection('timer', '日期选择器 VTimer', [
-        codeDemo('日期选择',
-          vstack(stack => {
-            stack.gap('12px');
-            stack.child(vTimer(t => {
-              t.type('date');
-              t.value(new Date().toISOString().split('T')[0]);
-              t.onChange(({ value }) => {
-                toast.info('选中日期：' + value);
-              });
-            }));
-            stack.child(vTimer(t => {
-              t.type('time');
-              t.onChange(({ value }) => {
-                toast.info('选中时间：' + value);
-              });
-            }));
-          }),
-          `vTimer(t => {
-  t.type('date')
-  t.value('2024-03-15')
-  t.onChange(({ value }) => {
-    console.log('选中日期：', value)
-  })
-})
-
-vTimer(t => {
-  t.type('time')
-})`
-        ),
-      ]));
-
-      // 完整表单示例
-      content.child(docSection('example', '完整表单示例', [
-        vCard(c => {
-          c.vCardHeader('用户注册表单');
-
-          c.vCardBody(form => {
-            form.child(vForm(f => {
-              f.gap('16px');
-
-              // 用户名
-              f.child(vInput(i => {
-                i.placeholder('用户名');
-              }));
-
-              // 邮箱
-              f.child(vInput(i => {
-                i.placeholder('邮箱');
-                i.type('email');
-              }));
-
-              // 密码
-              f.child(vInput(i => {
-                i.placeholder('密码');
-                i.type('password');
-              }));
-
-              // 选择框
-              f.child(vSelect(s => {
-                s.placeholder('所在地区');
-                s.options([
-                  { value: 'beijing', label: '北京' },
-                  { value: 'shanghai', label: '上海' },
-                  { value: 'other', label: '其他' },
-                ]);
-              }));
-
-              // 文本域
-              f.child(vTextarea(t => {
-                t.placeholder('个人简介（选填）');
-                t.rows(3);
-              }));
-
-              // 复选框
-              f.child(vCheckbox(c => {
-                c.label('我已阅读并同意服务条款');
-              }));
-
-              // 按钮
-              f.child(flex(btns => {
-                btns.gap('12px');
-                btns.child(vButton('注册')
-                  .type('primary')
-                  .onClick(() => {
-                    toast.success('注册成功！');
-                  }));
-                btns.child(vButton('重置')
-                  .ghost());
-              }));
-            }));
-          });
-        }),
       ]));
 
       // API
@@ -333,12 +236,12 @@ vTimer(t => {
               apiMenu.vertical();
 
               const apiItems = [
-                { name: 'VInput', desc: '输入框', props: 'placeholder, value, disabled, type, onChange' },
-                { name: 'VSelect', desc: '选择框', props: 'options, multiple, placeholder, disabled, onChange' },
-                { name: 'VTextarea', desc: '文本域', props: 'placeholder, value, rows, disabled, onChange' },
-                { name: 'VCheckbox', desc: '复选框', props: 'label, checked, disabled, onChange' },
-                { name: 'VSwitch', desc: '开关', props: 'label, checked, disabled, onChange' },
-                { name: 'VTimer', desc: '日期选择器', props: 'type, value, min, max, disabled, onChange' },
+                { name: 'vInput', desc: '输入框', props: 'type, placeholder, value' },
+                { name: 'vTextarea', desc: '文本域', props: 'rows, cols, value' },
+                { name: 'vSelect', desc: '下拉选择', props: 'value, multiple' },
+                { name: 'vCheckbox', desc: '复选框', props: 'checked, value' },
+                { name: 'vRadio', desc: '单选框', props: 'checked, name, value' },
+                { name: 'vLabel', desc: '标签', props: 'for' },
               ];
 
               apiItems.forEach(item => {
@@ -362,13 +265,12 @@ vTimer(t => {
       toc.child(vMenuItem('本页目录'));
       toc.child(vstack(links => {
         links.gap('4px');
+        links.child(tocItem('setup 三种方式', '#setup'));
         links.child(tocItem('输入框', '#input'));
-        links.child(tocItem('选择框', '#select'));
         links.child(tocItem('文本域', '#textarea'));
-        links.child(tocItem('复选框', '#checkbox'));
-        links.child(tocItem('开关', '#switch'));
-        links.child(tocItem('日期选择器', '#timer'));
-        links.child(tocItem('完整示例', '#example'));
+        links.child(tocItem('选择框', '#select'));
+        links.child(tocItem('复选框和单选', '#checkbox-radio'));
+        links.child(tocItem('表单布局', '#layout'));
         links.child(tocItem('API', '#api'));
       }));
     },

@@ -233,7 +233,6 @@ export function docSection(id, title, children) {
 export function codeDemo(title, demoContent, codeString) {
   return vCard(c => {
     c.styles({ marginBottom: '24px' });
-
     c.vCardHeader(title || '示例');
 
     c.vCardBody(content => {

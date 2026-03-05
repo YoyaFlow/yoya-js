@@ -1,6 +1,6 @@
 /**
  * Yoya.Basic V1 - Home Page
- * 首页 - 使用统一布局
+ * 首页 - 演示 setupString、setupObject、setupFunction 三种用法
  */
 
 import {
@@ -45,7 +45,7 @@ export function createHomePage() {
         });
         welcome.vCardHeader('Yoya.Basic V1');
         welcome.vCardBody(p => {
-          p.div('一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。使用纯 ES 模块，无需构建工具，开箱即用。');
+          p.div('一个浏览器原生的 HTML DSL 库，提供声明式语法。支持 setupString、setupObject、setupFunction 三种初始化方式。');
           p.child(flex(actions => {
             actions.gap('12px');
             actions.child(vButton('快速开始')
@@ -55,6 +55,90 @@ export function createHomePage() {
           }));
         });
       }));
+
+      // 三种 setup 方式演示
+      content.child(docSection('setup', 'setup 三种初始化方式', [
+        codeDemo('setupString - 字符串方式（最简洁）',
+          vstack(s => {
+            s.gap('12px');
+            // 字符串直接作为文本内容
+            s.div('这是 div 的文本内容');
+            s.span('这是 span 的内容');
+            s.p('这是段落内容');
+          }),
+          `// ✅ 推荐：简单文本直接用字符串
+vCard('卡片内容')
+vButton('按钮文本')
+div('文本内容')`
+        ),
+
+        codeDemo('setupObject - 对象配置方式（适合简单配置）',
+          vstack(s => {
+            s.gap('12px');
+            // 对象配置属性和样式
+            s.div({
+              class: 'box',
+              style: { padding: '12px', background: '#f0f0f0' },
+              onclick: () => toast.info('点击了 box'),
+            }, '点击我');
+            s.button({
+              class: 'btn',
+              style: { padding: '8px 16px' },
+              onclick: () => toast.success('提交'),
+            }, '提交');
+          }),
+          `// ✅ 推荐：简单属性和事件用对象配置
+vButton({ 
+  class: 'btn',
+  style: { padding: '8px' },
+  onclick: () => toast('提交')
+}, '提交')`
+        ),
+
+        codeDemo('setupFunction - 函数回调方式（适合复杂内容）',
+          vCard(c => {
+            c.vCardHeader('卡片标题');
+            c.vCardBody(b => {
+              b.div('内容区 1');
+              b.div('内容区 2');
+              b.child(flex(row => {
+                row.gap('8px');
+                row.child(vButton('按钮 1'));
+                row.child(vButton('按钮 2').type('primary'));
+              }));
+            });
+          }),
+          `// ✅ 推荐：复杂子元素用函数回调
+vCard(c => {
+  c.vCardHeader('标题')
+  c.vCardBody(b => {
+    b.div('内容 1')
+    b.div('内容 2')
+  })
+})`
+        ),
+
+        codeDemo('链式调用（最常用）',
+          vstack(s => {
+            s.gap('12px');
+            s.div('链式调用示例')
+              .styles({ padding: '12px' })
+              .class('box');
+            s.child(vButton('按钮 1')
+              .type('primary')
+              .size('large')
+              .onClick(() => toast('点击 1')));
+            s.child(vButton('按钮 2')
+              .ghost()
+              .onClick(() => toast('点击 2')));
+          }),
+          `// ✅ 推荐：链式调用设置属性和事件
+vButton('按钮')
+  .type('primary')
+  .size('large')
+  .onClick(() => toast('点击'))`
+        ),
+      ]));
 
       // 核心特性
       content.child(docSection('features', '核心特性', [
@@ -104,7 +188,7 @@ export function createHomePage() {
       toc.vMenuItem('本页目录');
       toc.child(vstack(links => {
         links.gap('4px');
-        links.child(tocItem('介绍', '#intro'));
+        links.child(tocItem('setup 三种方式', '#setup'));
         links.child(tocItem('核心特性', '#features'));
         links.child(tocItem('快速上手', '#quickstart'));
       }));

@@ -1,6 +1,6 @@
 /**
  * Yoya.Basic V1 - Button Demo Page
- * Button 按钮演示页面 - 使用统一布局
+ * Button 按钮演示页面 - 演示 setup 三种方式
  */
 
 import {
@@ -41,11 +41,70 @@ export function createButtonPage() {
       // 页面标题
       content.child(vstack(header => {
         header.gap('8px');
-
-        // 页面标题 - 使用 layout.js 中的默认样式
         header.child(vMenuItem('Button 按钮'));
         header.child(vMenuItem('按钮用于触发一个操作。支持多种类型、尺寸、状态，以及加载效果。'));
       }));
+
+      // setup 三种方式
+      content.child(docSection('setup', 'setup 三种方式', [
+        codeDemo('setupString - 简洁文本',
+          flex(row => {
+            row.gap('12px');
+            row.child(vButton('默认'));
+            row.child(vButton('主要').type('primary'));
+            row.child(vButton('成功').type('success'));
+          }),
+          `// ✅ 推荐：文本直接用字符串
+vButton('默认')
+vButton('主要').type('primary')`
+        ),
+
+        codeDemo('setupObject - 对象配置',
+          flex(row => {
+            row.gap('12px');
+            row.child(vButton({
+              class: 'btn-custom',
+              onclick: () => toast.info('对象方式'),
+            }, '对象配置'));
+            row.child(vButton({
+              style: { padding: '12px 24px' },
+              onclick: () => toast.success('大按钮'),
+            }, '大按钮'));
+          }),
+          `// ✅ 推荐：简单配置用对象
+vButton({
+  class: 'btn-custom',
+  onclick: () => toast('点击')
+}, '按钮')`
+        ),
+
+        codeDemo('setupFunction + 链式调用（最常用）',
+          flex(row => {
+            row.gap('12px');
+            row.child(vButton(b => {
+              b.text('链式 1');
+              b.type('primary');
+              b.size('large');
+              b.onClick(() => toast('点击 1'));
+            }));
+            row.child(vButton('链式 2')
+              .type('success')
+              .ghost()
+              .onClick(() => toast('点击 2')));
+          }),
+          `// ✅ 推荐：复杂逻辑用函数 + 链式
+vButton(b => {
+  b.text('按钮')
+  b.type('primary')
+  b.onClick(() => toast('点击'))
+})
+
+// 或更简洁的链式
+vButton('按钮')
+  .type('primary')
+  .onClick(() => toast('点击'))`
+        ),
+      ]));
 
       // 基础用法
       content.child(docSection('basic', '基础用法', [
@@ -69,8 +128,6 @@ vButton('成功').type('success')`
             row.child(vButton('默认').ghost());
             row.child(vButton('主要').type('primary').ghost());
             row.child(vButton('成功').type('success').ghost());
-            row.child(vButton('警告').type('warning').ghost());
-            row.child(vButton('危险').type('danger').ghost());
           }),
           `vButton('默认').ghost()
 vButton('主要').type('primary').ghost()`
@@ -113,16 +170,10 @@ vButton('Small').type('primary').size('small')`
           }),
           `vButton('加载中...').loading()
 
-vButton(btn => {
-  btn.text('点击加载')
-  btn.type('primary')
-  btn.onclick(() => {
-    btn.loading(true)
-    setTimeout(() => {
-      btn.loading(false)
-      toast.success('操作成功！')
-    }, 2000)
-  })
+vButton(b => {
+  b.text('点击加载')
+  b.type('primary')
+  b.on('click', () => { ... })
 })`
         ),
 
@@ -146,12 +197,11 @@ vButton('主要禁用').type('primary').disabled()`
               apiMenu.vertical();
 
               const apiItems = [
-                { name: 'type', desc: '按钮类型', type: 'primary | success | warning | danger | default', default: 'default' },
-                { name: 'size', desc: '按钮尺寸', type: 'large | default | small', default: 'default' },
-                { name: 'disabled', desc: '是否禁用', type: 'boolean', default: 'false' },
-                { name: 'loading', desc: '是否加载中', type: 'boolean', default: 'false' },
-                { name: 'ghost', desc: '是否幽灵按钮', type: 'boolean', default: 'false' },
-                { name: 'block', desc: '是否块级按钮', type: 'boolean', default: 'false' },
+                { name: 'type', desc: '按钮类型', type: 'primary | success | warning | danger | default' },
+                { name: 'size', desc: '按钮尺寸', type: 'large | default | small' },
+                { name: 'disabled', desc: '是否禁用', type: 'boolean' },
+                { name: 'loading', desc: '是否加载中', type: 'boolean' },
+                { name: 'ghost', desc: '是否幽灵按钮', type: 'boolean' },
               ];
 
               apiItems.forEach(item => {
@@ -175,6 +225,7 @@ vButton('主要禁用').type('primary').disabled()`
       toc.child(vMenuItem('本页目录'));
       toc.child(vstack(links => {
         links.gap('4px');
+        links.child(tocItem('setup 三种方式', '#setup'));
         links.child(tocItem('基础用法', '#basic'));
         links.child(tocItem('按钮尺寸', '#size'));
         links.child(tocItem('按钮状态', '#state'));
