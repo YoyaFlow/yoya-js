@@ -6,7 +6,7 @@
 import {
   flex, vstack, vCard, vCardBody,
   vMenu, vMenuItem, vButton, vCode, toast,
-  vForm, vInput, vTextarea, vSelect, vOption, vCheckbox, vRadio, vLabel,
+  vForm, vInput, vTextarea, vSelect, vOption, vCheckbox, input, label,
 } from '../../yoya/index.js';
 
 import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';
@@ -120,12 +120,12 @@ vInput('请输入邮箱').type('email')`
         codeDemo('带标签的输入框',
           vstack(stack => {
             stack.gap('8px');
-            stack.child(vLabel('用户名'));
+            stack.child(label('用户名'));
             stack.child(vInput('请输入用户名'));
-            stack.child(vLabel('密码'));
+            stack.child(label('密码'));
             stack.child(vInput('请输入密码').type('password'));
           }),
-          `vLabel('用户名')
+          `label('用户名')
 vInput('请输入用户名')`
         ),
       ]));
@@ -179,12 +179,12 @@ vCheckbox('选项 2')`
         codeDemo('单选框',
           vstack(stack => {
             stack.gap('8px');
-            stack.child(vRadio('单选 1').name('radio-group'));
-            stack.child(vRadio('单选 2').name('radio-group'));
-            stack.child(vRadio('单选 3').name('radio-group'));
+            stack.child(input({ type: 'radio' }, '单选 1').name('radio-group'));
+            stack.child(input({ type: 'radio' }, '单选 2').name('radio-group'));
+            stack.child(input({ type: 'radio' }, '单选 3').name('radio-group'));
           }),
-          `vRadio('单选 1').name('group')
-vRadio('单选 2').name('group')`
+          `input({ type: 'radio' }, '单选 1').name('group')
+input({ type: 'radio' }, '单选 2').name('group')`
         ),
       ]));
 
@@ -196,9 +196,9 @@ vRadio('单选 2').name('group')`
             c.vCardBody(form => {
               form.child(vstack(stack => {
                 stack.gap('16px');
-                stack.child(vLabel('用户名'));
+                stack.child(label('用户名'));
                 stack.child(vInput('请输入用户名'));
-                stack.child(vLabel('密码'));
+                stack.child(label('密码'));
                 stack.child(vInput('请输入密码').type('password'));
                 stack.child(flex(btns => {
                   btns.gap('12px');
@@ -213,7 +213,7 @@ vRadio('单选 2').name('group')`
   c.vCardBody(form => {
     form.child(vstack(stack => {
       stack.gap('16px')
-      stack.child(vLabel('用户名'))
+      stack.child(label('用户名'))
       stack.child(vInput('请输入用户名'))
       stack.child(vButton('登录').type('primary'))
     }))
@@ -234,8 +234,8 @@ vRadio('单选 2').name('group')`
                 { name: 'vTextarea', desc: '文本域', props: 'rows, cols, value' },
                 { name: 'vSelect', desc: '下拉选择', props: 'value, multiple' },
                 { name: 'vCheckbox', desc: '复选框', props: 'checked, value' },
-                { name: 'vRadio', desc: '单选框', props: 'checked, name, value' },
-                { name: 'vLabel', desc: '标签', props: 'for' },
+                { name: 'input', desc: '输入框/单选框', props: 'checked, name, value' },
+                { name: 'label', desc: '标签', props: 'for' },
               ];
 
               apiItems.forEach(item => {
