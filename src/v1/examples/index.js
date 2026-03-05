@@ -69,22 +69,16 @@ div('文本内容')`
         codeDemo('setupObject - 对象配置方式（适合简单配置）',
           vstack(s => {
             s.gap('12px');
-            // 对象配置属性和样式
+            // 对象配置属性和事件
             s.div({
-              class: 'box',
-              style: { padding: '12px', background: '#f0f0f0' },
-              onclick: () => toast.info('点击了 box'),
+              onclick: () => toast.info('点击了 div'),
             }, '点击我');
             s.button({
-              class: 'btn',
-              style: { padding: '8px 16px' },
               onclick: () => toast.success('提交'),
             }, '提交');
           }),
           `// ✅ 推荐：简单属性和事件用对象配置
-vButton({ 
-  class: 'btn',
-  style: { padding: '8px' },
+vButton({
   onclick: () => toast('提交')
 }, '提交')`
         ),

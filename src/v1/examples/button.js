@@ -57,17 +57,14 @@ vButton('主要').type('primary')`
           flex(row => {
             row.gap('12px');
             row.child(vButton({
-              class: 'btn-custom',
               onclick: () => toast.info('对象方式'),
             }, '对象配置'));
             row.child(vButton({
-              style: { padding: '12px 24px' },
-              onclick: () => toast.success('大按钮'),
-            }, '大按钮'));
+              onclick: () => toast.success('点击按钮'),
+            }, '点击按钮'));
           }),
           `// ✅ 推荐：简单配置用对象
 vButton({
-  class: 'btn-custom',
   onclick: () => toast('点击')
 }, '按钮')`
         ),

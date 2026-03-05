@@ -51,37 +51,33 @@ vCard('卡片内容')`
         codeDemo('setupObject - 配置卡片',
           vstack(s => {
             s.gap('16px');
-            // 方式 1：对象 + 函数回调
-            s.child(vCard({
-              class: 'custom-card',
-              style: { border: '1px solid #e0e0e0' },
-            }, c => {
-              c.vCardHeader('配置卡片');
-              c.vCardBody('使用对象配置属性和样式');
-            }));
-            // 方式 2：对象配置 header/body/footer
+            // 方式 1：对象配置 header/body/footer（推荐）
             s.child(vCard({
               header: '快捷配置',
               body: '使用 header/body/footer 属性',
               footer: div('底部内容'),
             }));
+            // 方式 2：对象 + 函数回调（适合复杂内容）
+            s.child(vCard({
+              header: '配置卡片',
+            }, c => {
+              c.vCardBody('使用函数回调添加更多内容');
+            }));
           }),
-          `// ✅ 推荐：需要配置属性时用对象
+          `// ✅ 推荐：简单配置用对象
 
-// 方式 1：对象 + 函数回调
-vCard({
-  class: 'custom-card',
-  style: { border: '1px solid #e0e0e0' }
-}, c => {
-  c.vCardHeader('标题')
-  c.vCardBody('内容')
-})
-
-// 方式 2：对象配置 header/body/footer
+// 方式 1：对象配置 header/body/footer（推荐）
 vCard({
   header: '卡片标题',
   body: '卡片内容',
   footer: div('底部')
+})
+
+// 方式 2：对象 + 函数回调（适合复杂内容）
+vCard({
+  header: '标题'
+}, c => {
+  c.vCardBody('内容')
 })`
         ),
 

@@ -59,18 +59,15 @@ vMenu(m => {
         codeDemo('setupObject - 对象配置菜单项',
           vMenu(m => {
             m.item({
-              class: 'custom-item',
               onclick: () => toast.info('自定义类'),
             }, '📋 自定义类');
             m.item({
-              style: { color: 'red' },
-              onclick: () => toast.error('红色菜单'),
+              onclick: () => toast.info('点击菜单'),
             }, '🔴 红色菜单');
           }),
           `// ✅ 推荐：配置属性和事件用对象
 vMenu(m => {
   m.item({
-    class: 'custom-item',
     onclick: () => toast('点击')
   }, '自定义类')
 })`
