@@ -382,7 +382,7 @@ vTimer(t => {
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(menuItem('本页目录', title => {
+      toc.child(vMenuItem('本页目录', title => {
         title.styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' });
       }));
       toc.child(vstack(links => {
