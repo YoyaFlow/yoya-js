@@ -333,6 +333,7 @@ vMenu(m => {
         links.child(tocItem('基础菜单', '#basic'));
         links.child(tocItem('分割线', '#divider'));
         links.child(tocItem('菜单分组', '#group'));
+        links.child(tocItem('子菜单', '#submenu'));
         links.child(tocItem('项状态', '#state'));
         links.child(tocItem('快捷键', '#shortcut'));
         links.child(tocItem('下拉菜单', '#dropdown'));
