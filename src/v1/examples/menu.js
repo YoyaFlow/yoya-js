@@ -6,7 +6,7 @@
 import {
   flex, vstack, hstack,
   vCard, vCardHeader, vCardBody,
-  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vDropdownMenu, vContextMenu,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu,
   vButton, vCode, toast,
 } from '../../yoya/index.js';
 
@@ -187,6 +187,45 @@ vMenu(m => {
     g.item('剪切')
     g.item('复制')
   })
+})`
+        ),
+      ]));
+
+      // 子菜单
+      content.child(docSection('submenu', '带子菜单的菜单', [
+        codeDemo('可折叠子菜单',
+          vMenu(m => {
+            m.item('🏠 首页').active();
+            m.submenu('📦 产品管理', sm => {
+              sm.item('产品列表');
+              sm.item('添加产品');
+              sm.item('产品分类');
+            });
+            m.submenu('👥 用户管理', sm => {
+              sm.item('用户列表');
+              sm.item('添加用户');
+              sm.item('角色权限');
+            });
+            m.item('⚙️ 系统设置');
+          }),
+          `// 带子菜单的菜单
+vMenu(m => {
+  m.item('🏠 首页').active()
+  
+  // 子菜单
+  m.submenu('📦 产品管理', sm => {
+    sm.item('产品列表')
+    sm.item('添加产品')
+    sm.item('产品分类')
+  })
+  
+  m.submenu('👥 用户管理', sm => {
+    sm.item('用户列表')
+    sm.item('添加用户')
+    sm.item('角色权限')
+  })
+  
+  m.item('⚙️ 系统设置')
 })`
         ),
       ]));

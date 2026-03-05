@@ -21,12 +21,14 @@ export {
   VMenuItem,
   VMenuDivider,
   VMenuGroup,
+  VSubMenu,
   VDropdownMenu,
   VContextMenu,
   vMenu,
   vMenuItem,
   vMenuDivider,
   vMenuGroup,
+  vSubMenu,
   vDropdownMenu,
   vContextMenu
 } from './menu.js';
