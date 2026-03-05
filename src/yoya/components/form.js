@@ -49,6 +49,19 @@ class VInput extends Tag {
     }
   }
 
+  // 重写 setup 方法，字符串作为 placeholder 处理
+  setup(setup) {
+    if (typeof setup === 'function') {
+      setup(this);
+    } else if (typeof setup === 'string') {
+      // 字符串作为 placeholder
+      this.placeholder(setup);
+    } else if (typeof setup === 'object' && setup !== null) {
+      this._setupObject(setup);
+    }
+    return this;
+  }
+
   _setupBaseStyles() {
     this.styles({
       display: 'inline-flex',
@@ -376,6 +389,19 @@ class VSelect extends Tag {
     }
   }
 
+  // 重写 setup 方法，字符串作为 placeholder 处理
+  setup(setup) {
+    if (typeof setup === 'function') {
+      setup(this);
+    } else if (typeof setup === 'string') {
+      // 字符串作为 placeholder
+      this.placeholder(setup);
+    } else if (typeof setup === 'object' && setup !== null) {
+      this._setupObject(setup);
+    }
+    return this;
+  }
+
   _setupBaseStyles() {
     this.styles({
       display: 'inline-flex',
@@ -635,6 +661,19 @@ class VTextarea extends Tag {
     if (setup !== null) {
       this.setup(setup);
     }
+  }
+
+  // 重写 setup 方法，字符串作为 placeholder 处理
+  setup(setup) {
+    if (typeof setup === 'function') {
+      setup(this);
+    } else if (typeof setup === 'string') {
+      // 字符串作为 placeholder
+      this.placeholder(setup);
+    } else if (typeof setup === 'object' && setup !== null) {
+      this._setupObject(setup);
+    }
+    return this;
   }
 
   _setupBaseStyles() {
