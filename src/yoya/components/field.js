@@ -97,16 +97,8 @@ class VField extends Tag {
     this.registerStateHandler('hovered', (hovered, host) => {
       if (hovered && !host.hasState('disabled') && !host.hasState('editing')) {
         host._editIcon && host._editIcon.style('opacity', '1');
-        host._showContainer && host._showContainer.styles({
-          background: 'var(--islands-field-show-hover-bg, rgba(0,0,0,0.03))',
-          border: 'var(--islands-field-show-hover-border, 1px solid var(--islands-border, #e0e0e0))',
-        });
       } else {
         host._editIcon && host._editIcon.style('opacity', '0');
-        host._showContainer && host._showContainer.styles({
-          background: 'var(--islands-field-show-bg, transparent)',
-          border: 'var(--islands-field-show-border, 1px solid transparent)',
-        });
       }
     });
 
