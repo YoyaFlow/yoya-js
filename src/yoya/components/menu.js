@@ -264,9 +264,15 @@ class VMenuItem extends Tag {
         if (expanded) {
           host._submenuContainer.style('display', 'flex');
           host._arrowEl.style('transform', 'rotate(90deg)');
+          // 展开时高亮父菜单项
+          host.style('background', 'var(--islands-menu-item-hover-bg, rgba(102, 126, 234, 0.05))');
         } else {
           host._submenuContainer.style('display', 'none');
           host._arrowEl.style('transform', 'rotate(0deg)');
+          // 折叠时恢复背景（如果没有 active）
+          if (!host.hasState('active')) {
+            host.style('background', 'transparent');
+          }
         }
       }
     });
@@ -302,7 +308,7 @@ class VMenuItem extends Tag {
 
     this.on('click', (e) => {
       if (!self.hasState('disabled')) {
-        // 如果有子菜单，切换展开状态，不触发 active
+        // 有子菜单：只能展开/折叠，不能选中
         if (self._submenuContainer) {
           e.stopPropagation();
           const isExpanded = self.getState('expanded') || false;
@@ -310,6 +316,7 @@ class VMenuItem extends Tag {
           return;
         }
         
+        // 没有子菜单（叶子节点）：可以选中
         const parent = self._boundElement?.parentNode;
         if (parent) {
           Array.from(parent.children).forEach(child => {
