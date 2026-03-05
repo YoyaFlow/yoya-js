@@ -45,13 +45,11 @@ export function createMenuPage() {
         header.gap('8px');
         header.styles({ marginBottom: '24px' });
 
-        header.child(vMenuItem('Menu 菜单', h1 => {
-          h1.styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' });
-        }));
+        header.child(vMenuItem('Menu 菜单')
+          .styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' }));
 
-        header.child(vMenuItem('菜单组件用于展示操作列表，支持垂直/水平布局、分组、下拉和右键菜单等功能。', desc => {
-          desc.styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
-        }));
+        header.child(vMenuItem('菜单组件用于展示操作列表，支持垂直/水平布局、分组、下拉和右键菜单等功能。')
+          .styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' }));
       }));
 
       // 基础菜单
@@ -59,16 +57,16 @@ export function createMenuPage() {
         codeDemo('垂直菜单（默认）',
           vMenu(m => {
             m.item(it => {
-              it.text('📋 菜单项 1');
-              it.onClick(() => toast.info('点击了菜单项 1'));
+              .text('📋 菜单项 1')
+              .onClick(() => toast.info('点击了菜单项 1'));
             });
             m.item(it => {
-              it.text('📁 菜单项 2');
-              it.onClick(() => toast.info('点击了菜单项 2'));
+              .text('📁 菜单项 2')
+              .onClick(() => toast.info('点击了菜单项 2'));
             });
             m.item(it => {
-              it.text('⚙️ 设置');
-              it.onClick(() => toast.info('点击了设置'));
+              .text('⚙️ 设置')
+              .onClick(() => toast.info('点击了设置'));
             });
           }),
           `vMenu(m => {
@@ -91,16 +89,16 @@ export function createMenuPage() {
           vMenu(m => {
             m.horizontal();
             m.item(it => {
-              it.text('首页');
-              it.active();
+              .text('首页')
+              .active();
             });
             m.item(it => {
-              it.text('产品');
-              it.onClick(() => toast.info('产品'));
+              .text('产品')
+              .onClick(() => toast.info('产品'));
             });
             m.item(it => {
-              it.text('关于');
-              it.onClick(() => toast.info('关于'));
+              .text('关于')
+              .onClick(() => toast.info('关于'));
             });
           }),
           `vMenu(m => {
@@ -121,21 +119,21 @@ export function createMenuPage() {
         codeDemo('菜单分割线',
           vMenu(m => {
             m.item(it => {
-              it.text('📄 新建');
-              it.onClick(() => toast.info('新建'));
+              .text('📄 新建')
+              .onClick(() => toast.info('新建'));
             });
             m.item(it => {
-              it.text('📂 打开');
-              it.onClick(() => toast.info('打开'));
+              .text('📂 打开')
+              .onClick(() => toast.info('打开'));
             });
             m.divider();
             m.item(it => {
-              it.text('💾 保存');
-              it.onClick(() => toast.info('保存'));
+              .text('💾 保存')
+              .onClick(() => toast.info('保存'));
             });
             m.item(it => {
-              it.text('🗑️ 删除');
-              it.onClick(() => toast.info('删除'));
+              .text('🗑️ 删除')
+              .onClick(() => toast.info('删除'));
             });
           }),
           `vMenu(m => {
@@ -155,28 +153,28 @@ export function createMenuPage() {
             m.group(g => {
               g.label('文件操作');
               g.item(it => {
-                it.text('📄 新建');
-                it.onClick(() => toast.info('新建'));
+                .text('📄 新建')
+                .onClick(() => toast.info('新建'));
               });
               g.item(it => {
-                it.text('📂 打开');
-                it.onClick(() => toast.info('打开'));
+                .text('📂 打开')
+                .onClick(() => toast.info('打开'));
               });
             });
             m.divider();
             m.group(g => {
               g.label('编辑');
               g.item(it => {
-                it.text('✂️ 剪切');
-                it.onClick(() => toast.info('剪切'));
+                .text('✂️ 剪切')
+                .onClick(() => toast.info('剪切'));
               });
               g.item(it => {
-                it.text('📋 复制');
-                it.onClick(() => toast.info('复制'));
+                .text('📋 复制')
+                .onClick(() => toast.info('复制'));
               });
               g.item(it => {
-                it.text('📌 粘贴');
-                it.onClick(() => toast.info('粘贴'));
+                .text('📌 粘贴')
+                .onClick(() => toast.info('粘贴'));
               });
             });
           }),
@@ -202,21 +200,21 @@ export function createMenuPage() {
         codeDemo('激活、禁用、危险状态',
           vMenu(m => {
             m.item(it => {
-              it.text('🏠 首页');
-              it.active();
+              .text('🏠 首页')
+              .active();
             });
             m.item(it => {
-              it.text('📦 产品');
-              it.onClick(() => toast.info('产品'));
+              .text('📦 产品')
+              .onClick(() => toast.info('产品'));
             });
             m.item(it => {
-              it.text('🔒 禁用项');
-              it.disabled();
+              .text('🔒 禁用项')
+              .disabled();
             });
             m.divider();
             m.item(it => {
-              it.text('🗑️ 删除');
-              it.danger();
+              .text('🗑️ 删除')
+              .danger();
               it.onClick(() => toast.error('删除操作'));
             });
           }),
@@ -246,18 +244,18 @@ export function createMenuPage() {
         codeDemo('菜单项快捷键',
           vMenu(m => {
             m.item(it => {
-              it.text('📄 新建');
-              it.shortcut('Ctrl+N');
+              .text('📄 新建')
+              .shortcut('Ctrl+N');
               it.onClick(() => toast.info('新建'));
             });
             m.item(it => {
-              it.text('🔍 查找');
-              it.shortcut('Ctrl+F');
+              .text('🔍 查找')
+              .shortcut('Ctrl+F');
               it.onClick(() => toast.info('查找'));
             });
             m.item(it => {
-              it.text('💾 保存');
-              it.shortcut('Ctrl+S');
+              .text('💾 保存')
+              .shortcut('Ctrl+S');
               it.onClick(() => toast.info('保存'));
             });
           }),
@@ -282,10 +280,8 @@ export function createMenuPage() {
       content.child(docSection('dropdown', '下拉菜单', [
         vCard(c => {
           c.styles({ marginBottom: '24px' });
-          c.vCardHeader(h => {
-            h.styles({ fontSize: '14px', fontWeight: '600' });
-            h.text('下拉菜单演示');
-          });
+          c.vCardHeader('下拉菜单演示')
+            .styles({ fontSize: '14px', fontWeight: '600' });
           c.vCardBody(demo => {
             demo.child(flex(row => {
               row.gap('16px');
@@ -295,19 +291,19 @@ export function createMenuPage() {
                 d.trigger('下拉菜单 ▼');
                 d.menuContent(vMenu(m => {
                   m.item(it => {
-                    it.text('📋 选项 1');
-                    it.onClick(() => {
+                    .text('📋 选项 1')
+                    .onClick(() => {
                       toast.info('选项 1');
                     });
                   });
                   m.item(it => {
-                    it.text('📁 选项 2');
-                    it.onClick(() => toast.info('选项 2'));
+                    .text('📁 选项 2')
+                    .onClick(() => toast.info('选项 2'));
                   });
                   m.divider();
                   m.item(it => {
-                    it.text('⚙️ 设置');
-                    it.onClick(() => toast.info('设置'));
+                    .text('⚙️ 设置')
+                    .onClick(() => toast.info('设置'));
                   });
                 }));
                 d.closeOnClickOutside();
@@ -318,17 +314,17 @@ export function createMenuPage() {
                 d.trigger('更多操作 ▼');
                 d.menuContent(vMenu(m => {
                   m.item(it => {
-                    it.text('✏️ 编辑');
-                    it.onClick(() => toast.info('编辑'));
+                    .text('✏️ 编辑')
+                    .onClick(() => toast.info('编辑'));
                   });
                   m.item(it => {
-                    it.text('📤 分享');
-                    it.onClick(() => toast.info('分享'));
+                    .text('📤 分享')
+                    .onClick(() => toast.info('分享'));
                   });
                   m.divider();
                   m.item(it => {
-                    it.text('🗑️ 删除');
-                    it.danger();
+                    .text('🗑️ 删除')
+                    .danger();
                     it.onClick(() => toast.error('删除'));
                   });
                 }));
@@ -343,10 +339,8 @@ export function createMenuPage() {
       content.child(docSection('context', '右键菜单', [
         vCard(c => {
           c.styles({ marginBottom: '24px' });
-          c.vCardHeader(h => {
-            h.styles({ fontSize: '14px', fontWeight: '600' });
-            h.text('右键菜单演示');
-          });
+          c.vCardHeader('右键菜单演示')
+            .styles({ fontSize: '14px', fontWeight: '600' });
           c.vCardBody(demo => {
             demo.child(vstack(stack => {
               stack.gap('12px');
@@ -381,23 +375,23 @@ export function createMenuPage() {
             demo.child(vContextMenu(ctx => {
               ctx.menuContent(vMenu(m => {
                 m.item(it => {
-                  it.text('✏️ 编辑');
-                  it.onClick(() => {
+                  .text('✏️ 编辑')
+                  .onClick(() => {
                     toast.info('编辑');
                     ctx.hide();
                   });
                 });
                 m.item(it => {
-                  it.text('📤 导出');
-                  it.onClick(() => {
+                  .text('📤 导出')
+                  .onClick(() => {
                     toast.info('导出');
                     ctx.hide();
                   });
                 });
                 m.divider();
                 m.item(it => {
-                  it.text('🗑️ 删除');
-                  it.danger();
+                  .text('🗑️ 删除')
+                  .danger();
                   it.onClick(() => {
                     toast.error('删除');
                     ctx.hide();
@@ -437,15 +431,12 @@ export function createMenuPage() {
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
                     apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(vMenuItem(item.name, name => {
-                      name.styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '140px' });
-                    }));
-                    apiRow.child(vMenuItem(item.desc, desc => {
-                      desc.styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 });
-                    }));
-                    apiRow.child(vMenuItem(item.props, type => {
-                      type.styles({ fontFamily: 'monospace', fontSize: '10px', color: '#999' });
-                    }));
+                    apiRow.child(vMenuItem(item.name)
+                      .styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '140px' }));
+                    apiRow.child(vMenuItem(item.desc)
+                      .styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 }));
+                    apiRow.child(vMenuItem(item.props)
+                      .styles({ fontFamily: 'monospace', fontSize: '10px', color: '#999' }));
                   }));
                 });
               });
@@ -457,9 +448,8 @@ export function createMenuPage() {
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(vMenuItem('本页目录', title => {
-        title.styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' });
-      }));
+      toc.child(vMenuItem('本页目录')
+        .styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' }));
       toc.child(vstack(links => {
         links.gap('4px');
         links.child(tocItem('基础菜单', '#basic'));

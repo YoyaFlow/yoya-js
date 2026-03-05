@@ -274,10 +274,8 @@ vTimer(t => {
         vCard(c => {
           c.styles({ marginBottom: '24px' });
 
-          c.vCardHeader(h => {
-            h.styles({ fontSize: '14px', fontWeight: '600' });
-            h.text('用户注册表单');
-          });
+          c.vCardHeader('用户注册表单')
+            .styles({ fontSize: '14px', fontWeight: '600' });
 
           c.vCardBody(form => {
             form.child(vForm(f => {
@@ -324,17 +322,13 @@ vTimer(t => {
               // 按钮
               f.child(flex(btns => {
                 btns.gap('12px');
-                btns.child(vButton(b => {
-                  b.text('注册');
-                  b.type('primary');
-                  b.onClick(() => {
+                btns.child(vButton('注册')
+                  .type('primary')
+                  .onClick(() => {
                     toast.success('注册成功！');
-                  });
-                }));
-                btns.child(vButton(b => {
-                  b.text('重置');
-                  b.ghost();
-                }));
+                  }));
+                btns.child(vButton('重置')
+                  .ghost());
               }));
             }));
           });

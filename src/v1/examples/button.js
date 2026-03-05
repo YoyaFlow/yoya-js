@@ -43,13 +43,11 @@ export function createButtonPage() {
         header.gap('8px');
         header.styles({ marginBottom: '24px' });
 
-        header.child(vMenuItem('Button 按钮', h1 => {
-          h1.styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' });
-        }));
+        header.child(vMenuItem('Button 按钮')
+          .styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' }));
 
-        header.child(vMenuItem('按钮用于触发一个操作。支持多种类型、尺寸、状态，以及加载效果。', desc => {
-          desc.styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
-        }));
+        header.child(vMenuItem('按钮用于触发一个操作。支持多种类型、尺寸、状态，以及加载效果。')
+          .styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' }));
       }));
 
       // 基础用法
@@ -57,28 +55,28 @@ export function createButtonPage() {
         codeDemo('基础按钮',
           flex(row => {
             row.gap('12px');
-            row.child(vButton(b => b.text('默认')));
-            row.child(vButton(b => { b.text('主要'); b.type('primary'); }));
-            row.child(vButton(b => { b.text('成功'); b.type('success'); }));
-            row.child(vButton(b => { b.text('警告'); b.type('warning'); }));
-            row.child(vButton(b => { b.text('危险'); b.type('danger'); }));
+            row.child(vButton('默认'));
+            row.child(vButton('主要').type('primary'));
+            row.child(vButton('成功').type('success'));
+            row.child(vButton('警告').type('warning'));
+            row.child(vButton('危险').type('danger'));
           }),
-          `vButton(btn => btn.text('默认'))
-vButton(btn => { btn.text('主要'); btn.type('primary') })
-vButton(btn => { btn.text('成功'); btn.type('success') })`
+          `vButton('默认')
+vButton('主要').type('primary')
+vButton('成功').type('success')`
         ),
 
         codeDemo('Ghost 幽灵按钮',
           flex(row => {
             row.gap('12px');
-            row.child(vButton(b => { b.text('默认'); b.ghost(); }));
-            row.child(vButton(b => { b.text('主要'); b.type('primary'); b.ghost(); }));
-            row.child(vButton(b => { b.text('成功'); b.type('success'); b.ghost(); }));
-            row.child(vButton(b => { b.text('警告'); b.type('warning'); b.ghost(); }));
-            row.child(vButton(b => { b.text('危险'); b.type('danger'); b.ghost(); }));
+            row.child(vButton('默认').ghost());
+            row.child(vButton('主要').type('primary').ghost());
+            row.child(vButton('成功').type('success').ghost());
+            row.child(vButton('警告').type('warning').ghost());
+            row.child(vButton('危险').type('danger').ghost());
           }),
-          `vButton(btn => { btn.text('默认'); btn.ghost() })
-vButton(btn => { btn.text('主要'); btn.type('primary'); btn.ghost() })`
+          `vButton('默认').ghost()
+vButton('主要').type('primary').ghost()`
         ),
       ]));
 
@@ -87,13 +85,13 @@ vButton(btn => { btn.text('主要'); btn.type('primary'); btn.ghost() })`
         codeDemo('不同尺寸',
           flex(row => {
             row.gap('12px');
-            row.child(vButton(b => { b.text('Large'); b.type('primary'); b.size('large'); }));
-            row.child(vButton(b => { b.text('Default'); b.type('primary'); }));
-            row.child(vButton(b => { b.text('Small'); b.type('primary'); b.size('small'); }));
+            row.child(vButton('Large').type('primary').size('large'));
+            row.child(vButton('Default').type('primary'));
+            row.child(vButton('Small').type('primary').size('small'));
           }),
-          `vButton(btn => { btn.text('Large'); btn.size('large') })
-vButton(btn => btn.text('Default'))
-vButton(btn => { btn.text('Small'); btn.size('small') })`
+          `vButton('Large').type('primary').size('large')
+vButton('Default').type('primary')
+vButton('Small').type('primary').size('small')`
         ),
       ]));
 
@@ -102,7 +100,7 @@ vButton(btn => { btn.text('Small'); btn.size('small') })`
         codeDemo('加载状态',
           flex(row => {
             row.gap('12px');
-            row.child(vButton(b => { b.text('加载中...'); b.loading(); }));
+            row.child(vButton('加载中...').loading());
             row.child(vButton(b => {
               b.text('点击加载');
               b.type('primary');
@@ -116,7 +114,7 @@ vButton(btn => { btn.text('Small'); btn.size('small') })`
               });
             }));
           }),
-          `vButton(btn => { btn.text('加载中...'); btn.loading() })
+          `vButton('加载中...').loading()
 
 vButton(btn => {
   btn.text('点击加载')
@@ -134,12 +132,12 @@ vButton(btn => {
         codeDemo('禁用状态',
           flex(row => {
             row.gap('12px');
-            row.child(vButton(b => { b.text('默认禁用'); b.disabled(); }));
-            row.child(vButton(b => { b.text('主要禁用'); b.type('primary'); b.disabled(); }));
-            row.child(vButton(b => { b.text('幽灵禁用'); b.ghost(); b.disabled(); }));
+            row.child(vButton('默认禁用').disabled());
+            row.child(vButton('主要禁用').type('primary').disabled());
+            row.child(vButton('幽灵禁用').ghost().disabled());
           }),
-          `vButton(btn => { btn.text('禁用'); btn.disabled() })
-vButton(btn => { btn.text('主要禁用'); btn.type('primary'); btn.disabled() })`
+          `vButton('禁用').disabled()
+vButton('主要禁用').type('primary').disabled()`
         ),
       ]));
 
@@ -164,15 +162,12 @@ vButton(btn => { btn.text('主要禁用'); btn.type('primary'); btn.disabled() }
                   it.child(flex(apiRow => {
                     apiRow.justifyBetween();
                     apiRow.styles({ width: '100%', padding: '8px 0' });
-                    apiRow.child(vMenuItem(item.name, name => {
-                      name.styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '100px' });
-                    }));
-                    apiRow.child(vMenuItem(item.desc, desc => {
-                      desc.styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 });
-                    }));
-                    apiRow.child(vMenuItem(item.type, type => {
-                      type.styles({ fontFamily: 'monospace', fontSize: '12px', color: '#999' });
-                    }));
+                    apiRow.child(vMenuItem(item.name)
+                      .styles({ fontFamily: 'monospace', fontSize: '13px', color: 'var(--islands-primary, #667eea)', fontWeight: '500', width: '100px' }));
+                    apiRow.child(vMenuItem(item.desc)
+                      .styles({ color: 'var(--islands-text-secondary, #666)', flex: 1 }));
+                    apiRow.child(vMenuItem(item.type)
+                      .styles({ fontFamily: 'monospace', fontSize: '12px', color: '#999' }));
                   }));
                 });
               });
@@ -184,9 +179,8 @@ vButton(btn => { btn.text('主要禁用'); btn.type('primary'); btn.disabled() }
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(vMenuItem('本页目录', title => {
-        title.styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' });
-      }));
+      toc.child(vMenuItem('本页目录')
+        .styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' }));
       toc.child(vstack(links => {
         links.gap('4px');
         links.child(tocItem('基础用法', '#basic'));

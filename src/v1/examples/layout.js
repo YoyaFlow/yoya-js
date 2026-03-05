@@ -240,10 +240,9 @@ export function codeDemo(title, demoContent, codeString) {
   return vCard(c => {
     c.styles({ marginBottom: '24px' });
 
-    c.vCardHeader(h => {
-      h.styles({ fontSize: '14px', fontWeight: '600' });
-      h.text(title || '示例');
-    });
+    // setupString：标题直接用字符串
+    c.vCardHeader(title || '示例')
+      .styles({ fontSize: '14px', fontWeight: '600' });
 
     c.vCardBody(content => {
       content.child(vstack(inner => {

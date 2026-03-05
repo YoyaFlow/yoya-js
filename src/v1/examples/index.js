@@ -45,28 +45,22 @@ export function createHomePage() {
           background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
         });
 
-        welcome.vCardHeader(h => {
-          h.styles({ borderBottom: 'none', paddingBottom: '0' });
-          h.child(vMenuItem('Yoya.Basic V1', h1 => {
-            h1.styles({ fontSize: '28px', fontWeight: '700', color: 'var(--islands-text, #333)' });
-          }));
-        });
+        // setupString + 链式调用：标题直接用字符串
+        welcome.vCardHeader('Yoya.Basic V1')
+          .styles({ borderBottom: 'none', paddingBottom: '0' });
 
+        // setup 函数用于复杂内容
         welcome.vCardBody(p => {
-          p.child(vMenuItem('一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。使用纯 ES 模块，无需构建工具，开箱即用。', desc => {
-            desc.styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
-          }));
+          // setupString：文本直接用字符串
+          p.div('一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。使用纯 ES 模块，无需构建工具，开箱即用。')
+            .styles({ fontSize: '15px', lineHeight: '1.7', color: 'var(--islands-text-secondary, #666)' });
           p.child(flex(actions => {
             actions.gap('12px');
-            actions.child(vButton(btn => {
-              btn.text('快速开始');
-              btn.type('primary');
-              btn.on('click', () => window.location.href = 'quickstart.html');
-            }));
-            actions.child(vButton(btn => {
-              btn.text('查看示例');
-              btn.ghost();
-            }));
+            // setupString + 链式调用优化
+            actions.child(vButton('快速开始')
+              .type('primary')
+              .on('click', () => window.location.href = 'quickstart.html'));
+            actions.child(vButton('查看示例').ghost());
           }));
         });
       }));
@@ -77,24 +71,33 @@ export function createHomePage() {
           g.minSize('240px');
           g.gap('16px');
 
+          // setupString + 链式调用优化
           g.child(vCard(c => {
-            c.vCardHeader(h => { h.styles({ fontSize: '16px', fontWeight: '600' }); h.text('📦 开箱即用'); });
-            c.vCardBody(p => { p.styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' }); p.text('纯 ES 模块实现，无需构建工具'); });
+            c.vCardHeader('📦 开箱即用')
+              .styles({ fontSize: '16px', fontWeight: '600' });
+            c.vCardBody('纯 ES 模块实现，无需构建工具')
+              .styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' });
           }));
 
           g.child(vCard(c => {
-            c.vCardHeader(h => { h.styles({ fontSize: '16px', fontWeight: '600' }); h.text('🎨 主题系统'); });
-            c.vCardBody(p => { p.styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' }); p.text('支持浅色/深色模式切换'); });
+            c.vCardHeader('🎨 主题系统')
+              .styles({ fontSize: '16px', fontWeight: '600' });
+            c.vCardBody('支持浅色/深色模式切换')
+              .styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' });
           }));
 
           g.child(vCard(c => {
-            c.vCardHeader(h => { h.styles({ fontSize: '16px', fontWeight: '600' }); h.text('⚡️ 流式 API'); });
-            c.vCardBody(p => { p.styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' }); p.text('链式调用设计，开发体验流畅'); });
+            c.vCardHeader('⚡️ 流式 API')
+              .styles({ fontSize: '16px', fontWeight: '600' });
+            c.vCardBody('链式调用设计，开发体验流畅')
+              .styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' });
           }));
 
           g.child(vCard(c => {
-            c.vCardHeader(h => { h.styles({ fontSize: '16px', fontWeight: '600' }); h.text('🔧 状态机'); });
-            c.vCardBody(p => { p.styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' }); p.text('内置状态机机制，管理复杂交互'); });
+            c.vCardHeader('🔧 状态机')
+              .styles({ fontSize: '16px', fontWeight: '600' });
+            c.vCardBody('内置状态机机制，管理复杂交互')
+              .styles({ fontSize: '14px', lineHeight: '1.6', color: 'var(--islands-text-secondary, #666)' });
           }));
         }),
       ]));
@@ -116,9 +119,9 @@ export function createHomePage() {
 
     // 右侧目录
     toc: (toc) => {
-      toc.child(vMenuItem('本页目录', title => {
-        title.styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' });
-      }));
+      // setupString + 链式调用
+      toc.vMenuItem('本页目录')
+        .styles({ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: 'var(--islands-text, #333)' });
       toc.child(vstack(links => {
         links.gap('4px');
         links.child(tocItem('介绍', '#intro'));
