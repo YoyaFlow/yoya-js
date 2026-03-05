@@ -146,14 +146,14 @@ class VField extends Tag {
     // 编辑图标
     this._editIcon = span(e => {
       e.styles({
-        fontSize: 'var(--islands-field-edit-icon-size, 12px)',
+        fontSize: 'var(--islands-field-edit-icon-size, 14px)',
         color: 'var(--islands-field-edit-icon-color, #999)',
         opacity: '0',
         transition: 'opacity 0.2s',
         marginLeft: 'var(--islands-field-edit-icon-margin, 4px)',
         cursor: 'pointer',
       });
-      e.html('🖉');
+      e.html('📝');
       e.on('click', (ev) => {
         ev.stopPropagation();
         if (this._editable) this.setState('editing', true);
