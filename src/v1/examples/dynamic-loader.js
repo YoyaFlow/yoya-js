@@ -7,7 +7,7 @@ import {
   div, vstack, vCard, vCardHeader, vCardBody,
   vButton, vDynamicLoader, loadModules, preloadModules,
   toast,
-  flex, vMenuItem,
+  flex, vMenuItem, vMenu,
 } from '../../yoya/index.js';
 
 import { appLayout, sidebarGroup, sidebarItem, tocItem, docSection, codeDemo } from './layout.js';
