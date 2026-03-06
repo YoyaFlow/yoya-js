@@ -5,7 +5,6 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {
-        channel: 'chromium',
         executablePath: '/usr/bin/chromium',
       },
     },

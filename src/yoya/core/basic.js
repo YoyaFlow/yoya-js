@@ -39,15 +39,20 @@ class Tag {
   // setup 统一初始化
   setup(setup) {
     if (typeof setup === 'function') {
-      setup(this);
+      this._setupFunction(setup);
     } else if (typeof setup === 'string') {
-      this._addText(setup);
+      this._setupString(setup);
     } else if (typeof setup === 'object' && setup !== null) {
       this._setupObject(setup);
     }
     return this;
   }
-
+  _setupString(setupString){
+    this._addText(setupString);
+  }
+  _setupFunction(setupFn){
+    setupFn(this)
+  }
   _setupObject(config) {
     // 处理 class
     if (config.class) {
@@ -65,7 +70,7 @@ class Tag {
       }
     }
 
-    // 处理事件
+    // 处理事件（onXxx 形式的函数）
     for (const [key, value] of Object.entries(config)) {
       if (key.startsWith('on') && typeof value === 'function') {
         const eventName = key.slice(2).toLowerCase();
@@ -78,11 +83,28 @@ class Tag {
       this._addChildren(config.children);
     }
 
-    // 处理其他属性
+    // 处理其他属性：优先使用 setter，其次使用 attr
     for (const [key, value] of Object.entries(config)) {
-      if (!['class', 'style', 'on', 'children'].includes(key) &&
-          !key.startsWith('on') &&
-          typeof value !== 'function') {
+      // 跳过已处理的属性
+      if (['class', 'style', 'children'].includes(key)) {
+        continue;
+      }
+      // 跳过 on 开头的事件（已在上处理）
+      if (key.startsWith('on') && typeof value === 'function') {
+        continue;
+      }
+      // 跳过函数（除非是 on 开头的事件）
+      if (typeof value === 'function' && !(key.startsWith('on'))) {
+        continue;
+      }
+
+      // 尝试使用 setter
+      const setterName = key;
+      if (typeof this[setterName] === 'function' || this.hasOwnProperty(setterName)) {
+        // 有 setter，使用 setter
+        this[setterName] = value;
+      } else {
+        // 没有 setter，使用 attr
         this.attr(key, value);
       }
     }
@@ -339,6 +361,10 @@ class Tag {
       return this;
     }
     return this._addText(content);
+  }
+  textContent(content){
+    this.clear()
+    this.text(content)
   }
 
   // 添加 HTML

@@ -421,30 +421,45 @@ class VField extends Tag {
   }
 
   // ============================================
-  // API
+  // API - Getter/Setter
   // ============================================
 
-  showContent(fn) {
-    if (fn === undefined) return this._showContentFn;
+  // showContent: getter/setter
+  get showContent() {
+    return this._showContentFn;
+  }
+  set showContent(fn) {
     this._showContentFn = fn;
     if (!this.hasState('editing')) this._updateShowContent();
-    return this;
   }
 
-  editContent(fn) {
-    if (fn === undefined) return this._editContentFn;
+  // editContent: getter/setter
+  get editContent() {
+    return this._editContentFn;
+  }
+  set editContent(fn) {
     this._editContentFn = fn;
     if (this.hasState('editing')) this._updateEditContent();
-    return this;
   }
 
-  getValue() { return this._value; }
+  // value: getter/setter (别名)
+  get value() {
+    return this.getValue();
+  }
+  set value(val) {
+    this.setValue(val);
+  }
 
+  // getValue: 显式方法
+  getValue() {
+    return this._value;
+  }
+
+  // setValue: 显式方法
   setValue(value) {
     // 验证值是否为有效值（不是组件实例）
     let validatedValue = value;
     if (value !== undefined && value !== null) {
-      // 如果 value 是对象且有 value 方法，则可能是组件实例
       if (typeof value === 'object' && value !== null && typeof value.value === 'function') {
         console.warn('VField.setValue: value appears to be a component instance, extracting value');
         validatedValue = value.value();
@@ -453,7 +468,6 @@ class VField extends Tag {
 
     if (this.hasState('editing')) {
       this._editValue = validatedValue;
-      // 编辑状态下也同时更新显示内容，实现实时预览
       this._value = validatedValue;
       this._updateShowContent();
       if (this._autoSave) this._handleSave();
@@ -464,23 +478,78 @@ class VField extends Tag {
     return this;
   }
 
-  autoSave(v = true) { this._autoSave = v; return this; }
-  placeholder(v) { if (v === undefined) return this._placeholder; this._placeholder = v; return this; }
-  editable(v = true) { this._editable = v; return this; }
+  // autoSave: getter/setter
+  get autoSave() {
+    return this._autoSave;
+  }
+  set autoSave(v) {
+    this._autoSave = v;
+  }
 
-  // 事件方法 - 统一格式
-  onEdit(fn) { this._onEdit = fn; return this; }
-  onSave(fn) { this._onSave = fn; return this; }
-  onChange(fn) { this._onChange = fn; return this; }
+  // placeholder: getter/setter
+  get placeholder() {
+    return this._placeholder;
+  }
+  set placeholder(v) {
+    this._placeholder = v;
+  }
 
-  // 别名方法（大驼峰命名）
-  onEditValue(fn) { this._onEdit = fn; return this; }
-  onSaveValue(fn) { this._onSave = fn; return this; }
-  onChangeValue(fn) { this._onChange = fn; return this; }
+  // editable: getter/setter
+  get editable() {
+    return this._editable;
+  }
+  set editable(v) {
+    this._editable = v;
+  }
 
-  disabled(v = true) { return this.setState('disabled', v); }
-  loading(v = true) { return this.setState('loading', v); }
-  editing(v = true) { return this.setState('editing', v); }
+  // onEdit: getter/setter
+  get onEdit() {
+    return this._onEdit;
+  }
+  set onEdit(fn) {
+    this._onEdit = fn;
+  }
+
+  // onSave: getter/setter
+  get onSave() {
+    return this._onSave;
+  }
+  set onSave(fn) {
+    this._onSave = fn;
+  }
+
+  // onChange: getter/setter
+  get onChange() {
+    return this._onChange;
+  }
+  set onChange(fn) {
+    this._onChange = fn;
+  }
+
+  // disabled: getter/setter (状态)
+  get disabled() {
+    return this.hasState('disabled');
+  }
+  set disabled(v) {
+    this.setState('disabled', v);
+  }
+
+  // loading: getter/setter (状态)
+  get loading() {
+    return this.hasState('loading');
+  }
+  set loading(v) {
+    this.setState('loading', v);
+  }
+
+  // editing: getter/setter (状态)
+  get editing() {
+    return this.hasState('editing');
+  }
+  set editing(v) {
+    this.setState('editing', v);
+  }
+
   destroy() {
     // 移除全局点击事件监听器
     if (this._globalClickHandlerSetup) {

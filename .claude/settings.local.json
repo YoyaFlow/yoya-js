@@ -98,7 +98,16 @@
       "Bash(curl -s http://localhost:3000/v1/examples/form.html | head -100)",
       "Bash(npx playwright install chromium --force 2>&1 | tail -30)",
       "Bash(timeout 10 /usr/bin/chromium --headless --dump-dom http://localhost:3000/v1/examples/form.html 2>/dev/null | grep -i \"开启通知\\\\|自动同步\" | head -3)",
-      "Bash(cd /home/join/code/cctest && npm run check 2>&1)"
+      "Bash(cd /home/join/code/cctest && npm run check 2>&1)",
+      "Bash(/usr/bin/chromium --version 2>&1)",
+      "Bash(npx playwright test --config=playwright.config.js --browser=chromium 2>&1 | head -50)",
+      "Bash(curl -s http://localhost:3005/src/v2/examples/index.html | head -30)",
+      "Bash(curl -s http://localhost:3005/src/v2/examples/index.html)",
+      "Bash(curl -v http://localhost:3005/src/v2/examples/index.html 2>&1 | head -30)",
+      "Bash(curl http://localhost:3005/ 2>&1 | head -20)",
+      "Bash(curl -s http://localhost:3005/v2/examples/index.html | head -30)",
+      "Bash(curl -s http://localhost:3002/v2/examples/index.html | head -10)",
+      "Bash(npx playwright test tests/v2-examples.test.js --reporter=list 2>&1)"
     ]
   },
   "enableAllProjectMcpServers": true,
