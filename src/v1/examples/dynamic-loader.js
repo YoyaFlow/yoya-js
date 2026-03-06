@@ -175,7 +175,7 @@ vDynamicLoader(
                 ], {
                   parallel: true,
                   onProgress: (loaded, total) => {
-                    console.log(\`进度：\${loaded}/\${total}\`);
+                    console.log(`进度：${loaded}/${total}`);
                   },
                   onComplete: (results) => {
                     console.log('全部加载完成:', results);
