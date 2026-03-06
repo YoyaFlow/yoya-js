@@ -28,7 +28,18 @@ export function createMenuPage() {
         sidebarItem('Card 卡片', 'card.html'),
       ]));
       sidebar.child(sidebarGroup('导航组件', [
-        sidebarItem('Menu 菜单', 'menu.html', true),
+        sidebarItem('Menu 菜单', 'menu.html'),
+      ]));
+      sidebar.child(sidebarGroup('反馈组件', [
+        sidebarItem('Message 消息', 'message.html'),
+        sidebarItem('Code 代码', 'code.html'),
+      ]));
+      sidebar.child(sidebarGroup('数据展示', [
+        sidebarItem('Detail 详情', 'detail.html'),
+        sidebarItem('Field 字段', 'field.html'),
+      ]));
+      sidebar.child(sidebarGroup('布局组件', [
+        sidebarItem('Body 容器', 'body.html'),
       ]));
     },
 

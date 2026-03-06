@@ -212,7 +212,7 @@ class VMenuItem extends Tag {
       // 获取子菜单容器引用（从 titleItem 上获取）
       const submenuContainer = host._submenuContainer;
       const arrowEl = host._arrowEl;
-      
+
       if (submenuContainer && arrowEl && submenuContainer._boundElement && arrowEl._boundElement) {
         if (expanded) {
           submenuContainer._boundElement.style.display = 'flex';
@@ -268,7 +268,7 @@ class VMenuItem extends Tag {
           self.setState('expanded', !isExpanded);
           return;
         }
-        
+
         // 没有子菜单（叶子节点）：可以选中
         const parent = self._boundElement?.parentNode;
         if (parent) {
@@ -286,34 +286,21 @@ class VMenuItem extends Tag {
     });
   }
 
-  // 子菜单相关方法
-  submenu(subMenu) {
+  // 子菜单相关方法 - 使用 vSubMenu 创建子菜单
+  submenu(title, setup = null) {
+    // 使用 vSubMenu 创建子菜单
+    const subMenu = vSubMenu(title, setup);
     this._submenu = subMenu;
-    this._ensureSubmenuStructure();
-    return this;
+    this._submenuContainer = subMenu._container;
+
+    // 为此菜单项添加展开/折叠箭头
+    this._ensureArrow();
+
+    return subMenu;
   }
 
-  _ensureSubmenuStructure() {
-    // 创建子菜单容器
-    this._submenuContainer = div(container => {
-      container.styles({
-        display: 'none',
-        marginLeft: 'var(--islands-submenu-margin-left, 16px)',
-        paddingLeft: 'var(--islands-submenu-padding-left, 8px)',
-        borderLeft: 'var(--islands-submenu-border, 1px solid var(--islands-border, #e0e0e0))',
-        marginTop: 'var(--islands-submenu-margin-top, 4px)',
-        flexDirection: 'column',
-      });
-      
-      // 将子菜单添加到容器中
-      if (this._submenu && this._submenu._children) {
-        this._submenu._children.forEach(child => {
-          if (child) container.child(child);
-        });
-      }
-    });
-    
-    // 添加展开/折叠箭头
+  _ensureArrow() {
+    if (this._arrowEl) return;
     this._arrowEl = span(arrow => {
       arrow.styles({
         marginLeft: 'auto',
@@ -321,20 +308,16 @@ class VMenuItem extends Tag {
         transition: 'transform 0.2s',
         opacity: '0.5',
         display: 'inline-block',
+        flexShrink: '0',
       });
       arrow.text('▶');
     });
-    
-    // 在 renderDom 时添加子菜单容器和箭头
-    return this;
   }
 
-  _renderSubmenu() {
-    if (this._submenuContainer && !this._children.includes(this._submenuContainer)) {
-      this._children.push(this._submenuContainer);
-    }
-    if (this._arrowEl && !this._children.includes(this._arrowEl)) {
-      this._children.push(this._arrowEl);
+  _ensureArrowEl() {
+    if (!this._arrowEl) return;
+    if (!this._children.includes(this._arrowEl)) {
+      this.child(this._arrowEl);
     }
   }
 
@@ -430,7 +413,6 @@ class VMenuItem extends Tag {
   }
 
   _updateContent() {
-    this.clear();
     this._iconBox = null;
     this._textBox = null;
     this._shortcutBox = null;
@@ -449,12 +431,14 @@ class VMenuItem extends Tag {
       this._ensureShortcutBox();
       this._shortcutBox.text(this._shortcut);
     }
+
+    // 添加箭头（如果有子菜单）
+    if (this._arrowEl) {
+      this._ensureArrowEl();
+    }
   }
 
   renderDom() {
-    // 渲染子菜单结构
-    this._renderSubmenu();
-    
     const element = super.renderDom();
     if (element) {
       element._vMenuItem = this;
@@ -861,25 +845,25 @@ export {
 
 class VSubMenu extends Tag {
   static _stateAttrs = ['expanded'];
-  
+
   constructor(title = '', setup = null) {
     super('div', null);
-    
+
     this._title = title;
     this._submenuItems = [];
     this._arrowEl = null;
     this._headerItem = null;
-    
+
     // 1. 注册状态属性
     this.registerStateAttrs(...this.constructor._stateAttrs);
-    
+
     // 2. 初始化状态
     this.initializeStates({ expanded: false });
-    
+
     // 3. 创建标题项（带箭头）
     this._headerItem = vMenuItem(title, item => {
       item.styles({ fontWeight: '500' });
-      
+
       // 添加展开箭头
       item._arrowEl = span(arrow => {
         arrow.styles({
@@ -894,7 +878,7 @@ class VSubMenu extends Tag {
       });
       this._arrowEl = item._arrowEl;
       item.child(item._arrowEl);
-      
+
       // 点击标题切换展开/折叠
       item.on('click', (e) => {
         e.stopPropagation();
@@ -902,7 +886,7 @@ class VSubMenu extends Tag {
         this.setState('expanded', !isExpanded);
       });
     });
-    
+
     // 4. 创建子菜单容器
     this._container = div(container => {
       container.styles({
@@ -914,7 +898,7 @@ class VSubMenu extends Tag {
         marginTop: '4px',
       });
     });
-    
+
     // 5. 注册 expanded 状态处理器
     this.registerStateHandler('expanded', (expanded, host) => {
       if (host._container?._boundElement && host._arrowEl?._boundElement) {
@@ -927,7 +911,7 @@ class VSubMenu extends Tag {
         }
       }
     });
-    
+
     // 6. 执行 setup
     if (setup !== null) {
       if (typeof setup === 'function') {
@@ -937,7 +921,7 @@ class VSubMenu extends Tag {
       }
     }
   }
-  
+
   _setupObject(config) {
     // 处理对象配置
     if (config.items && Array.isArray(config.items)) {
@@ -946,7 +930,7 @@ class VSubMenu extends Tag {
       });
     }
   }
-  
+
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
     el.styles({ paddingLeft: '24px' });
@@ -954,17 +938,17 @@ class VSubMenu extends Tag {
     this._submenuItems.push(el);
     return el;
   }
-  
+
   divider() {
     const el = vMenuDivider();
     el.styles({ marginLeft: '16px' });
     this._container.child(el);
     return el;
   }
-  
+
   renderDom() {
     if (this._deleted) return null;
-    
+
     // 确保子元素按正确顺序添加
     if (!this._children.includes(this._headerItem)) {
       this._children.unshift(this._headerItem);
@@ -972,7 +956,7 @@ class VSubMenu extends Tag {
     if (!this._children.includes(this._container)) {
       this._children.push(this._container);
     }
-    
+
     return super.renderDom();
   }
 }
@@ -980,4 +964,3 @@ class VSubMenu extends Tag {
 function vSubMenu(title = '', setup = null) {
   return new VSubMenu(title, setup);
 }
-

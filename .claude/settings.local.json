@@ -97,7 +97,8 @@
       "WebFetch(domain:localhost)",
       "Bash(curl -s http://localhost:3000/v1/examples/form.html | head -100)",
       "Bash(npx playwright install chromium --force 2>&1 | tail -30)",
-      "Bash(timeout 10 /usr/bin/chromium --headless --dump-dom http://localhost:3000/v1/examples/form.html 2>/dev/null | grep -i \"开启通知\\\\|自动同步\" | head -3)"
+      "Bash(timeout 10 /usr/bin/chromium --headless --dump-dom http://localhost:3000/v1/examples/form.html 2>/dev/null | grep -i \"开启通知\\\\|自动同步\" | head -3)",
+      "Bash(cd /home/join/code/cctest && npm run check 2>&1)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -11,7 +11,7 @@ import { Tag, span } from '../core/basic.js';
 
 class VButton extends Tag {
   // 状态属性
-  static _stateAttrs = ['disabled', 'loading', 'block', 'ghost'];
+  static _stateAttrs = ['disabled', 'loading', 'block', 'ghost', 'hovered'];
 
   constructor(content = '', setup = null) {
     // 如果 content 是函数，则它是 setup
@@ -19,6 +19,12 @@ class VButton extends Tag {
       setup = content;
       content = '';
     }
+    // 如果 content 是对象且 setup 未定义，说明是 vButton({ onClick: ... }) 单参数用法
+    else if (typeof content === 'object' && content !== null && setup === undefined) {
+      setup = content;
+      content = '';
+    }
+    // 正确用法：vButton("文本", { setupObject }) - content 是字符串，setup 是对象，无需处理
 
     super('button', null);
     // this._el 已在 super() 中创建
@@ -32,6 +38,7 @@ class VButton extends Tag {
       loading: false,
       block: false,
       ghost: false,
+      hovered: false,
       type: 'default'
     });
 
@@ -41,6 +48,9 @@ class VButton extends Tag {
     // 4. 保存基础样式快照（用于状态变更时恢复）
     this.saveBaseStylesSnapshot();
 
+    // 4.5. 应用默认类型样式
+    this._applyTypeStyles();
+
     // 5. 注册状态处理器
     this._registerStateHandlers();
 
@@ -49,8 +59,8 @@ class VButton extends Tag {
       this.setup(setup);
     }
 
-    // 7. 更新内容
-    if (content) {
+    // 7. 更新内容（setup 可能已经设置了内容，所以只在没有内容时才使用 content 参数）
+    if (content && !this._content) {
       this._content = content;
       this._updateContent();
     }
@@ -77,38 +87,16 @@ class VButton extends Tag {
       transformOrigin: 'center center',
     });
 
-    // 添加 hover 和 active 事件
+    // 使用状态机管理 hover
     this.on('mouseenter', () => {
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        const type = this._type || 'default';
-        const isGhost = this.hasState('ghost');
-        const hoverStyles = {
-          primary: {
-            background: isGhost ? 'rgba(102, 126, 234, 0.1)' : 'var(--islands-primary-hover, #5a6fd6)',
-          },
-          success: {
-            background: isGhost ? 'rgba(40, 167, 69, 0.1)' : 'var(--islands-success-hover, #218838)',
-          },
-          warning: {
-            background: isGhost ? 'rgba(255, 193, 7, 0.1)' : 'var(--islands-warning-hover, #e0a800)',
-          },
-          danger: {
-            background: isGhost ? 'rgba(220, 53, 69, 0.1)' : 'var(--islands-error-hover, #c82333)',
-          },
-          default: {
-            background: isGhost ? 'rgba(0, 0, 0, 0.05)' : 'var(--islands-bg-secondary, #f8f9fa)',
-          },
-        };
-        this.styles(hoverStyles[type] || hoverStyles.default);
-      }
+      this.setState('hovered', true);
     });
 
     this.on('mouseleave', () => {
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        this._applyTypeStyles();
-      }
+      this.setState('hovered', false);
     });
 
+    // 点击按压效果
     this.on('mousedown', (e) => {
       e.preventDefault();
       if (!this.hasState('disabled') && !this.hasState('loading')) {
@@ -127,6 +115,30 @@ class VButton extends Tag {
         this.style('transform', 'scale(1)');
       }
     });
+  }
+
+  // 获取 hover 样式
+  _getHoverStyles() {
+    const type = this._type || 'default';
+    const isGhost = this.hasState('ghost');
+    const hoverStyles = {
+      primary: {
+        background: isGhost ? 'rgba(102, 126, 234, 0.1)' : 'var(--islands-primary-hover, #5a6fd6)',
+      },
+      success: {
+        background: isGhost ? 'rgba(40, 167, 69, 0.1)' : 'var(--islands-success-hover, #218838)',
+      },
+      warning: {
+        background: isGhost ? 'rgba(255, 193, 7, 0.1)' : 'var(--islands-warning-hover, #e0a800)',
+      },
+      danger: {
+        background: isGhost ? 'rgba(220, 53, 69, 0.1)' : 'var(--islands-error-hover, #c82333)',
+      },
+      default: {
+        background: isGhost ? 'rgba(0, 0, 0, 0.05)' : 'var(--islands-bg-secondary, #f8f9fa)',
+      },
+    };
+    return hoverStyles[type] || hoverStyles.default;
   }
 
   // 注册状态处理器
@@ -177,6 +189,15 @@ class VButton extends Tag {
     // ghost 状态
     this.registerStateHandler('ghost', (isGhost, host) => {
       host._applyTypeStyles();
+    });
+
+    // hovered 状态 - 使用状态机管理 hover
+    this.registerStateHandler('hovered', (isHovered, host) => {
+      if (isHovered && !host.hasState('disabled') && !host.hasState('loading')) {
+        host.styles(host._getHoverStyles());
+      } else {
+        host._applyTypeStyles();
+      }
     });
   }
 
@@ -264,9 +285,27 @@ class VButton extends Tag {
     }
   }
 
+  _ensureContentEl() {
+    if (!this._contentEl) {
+      this._contentEl = span(c => {
+        c.styles({ display: "inline-block" });
+      });
+      this.child(this._contentEl);
+    }
+  }
+
   // ============================================
   // 链式方法
   // ============================================
+
+  text(content) {
+    this._content = content;
+    this._ensureContentEl();
+    if (this._contentEl) {
+      this._contentEl.html(this._content);
+    }
+    return this;
+  }
 
   type(value) {
     if (value === undefined) return this._type;

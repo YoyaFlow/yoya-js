@@ -69,6 +69,7 @@ declare class VMenu extends Tag {
   item(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
   divider(setup?: Setup<VMenuDivider>): this;
   group(setup?: Setup<VMenuGroup>): this;
+  submenu(title: string, setup?: Setup<VSubMenu>): VSubMenu;
 }
 
 declare function vMenu(setup?: Setup<VMenu>): VMenu;
@@ -89,6 +90,7 @@ declare class VMenuItem extends Tag {
   hoverable(): this;
   shortcut(key: string): this;
   onClick(handler: (e: { event: MouseEvent; text: string; icon?: string; target: VMenuItem }) => void): this;
+  submenu(title: string, setup?: Setup<VSubMenu>): VSubMenu;
   toggleState(stateName: string): this;
   setState(state: string, enabled?: boolean): this;
   hasState(state: string): boolean;
@@ -124,6 +126,18 @@ declare class VMenuGroup extends Tag {
 }
 
 declare function vMenuGroup(setup?: Setup<VMenuGroup>): VMenuGroup;
+
+// ============================================
+// VSubMenu 子菜单
+// ============================================
+
+declare class VSubMenu extends Tag {
+  constructor(title?: string, setup?: Setup<VSubMenu>);
+  item(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
+  divider(setup?: Setup<VMenuDivider>): this;
+}
+
+declare function vSubMenu(title?: string, setup?: Setup<VSubMenu>): VSubMenu;
 
 // ============================================
 // VDropdownMenu 下拉菜单
@@ -192,6 +206,12 @@ declare function vMessageContainer(position?: MessagePosition, setup?: Setup<VMe
 // VMessageManager 消息管理器
 // ============================================
 
+interface ToastOptions {
+  type?: MessageType;
+  duration?: number;
+  position?: MessagePosition;
+}
+
 declare class VMessageManager {
   constructor();
   success(content: string, duration?: number): VMessage;
@@ -199,19 +219,21 @@ declare class VMessageManager {
   warning(content: string, duration?: number): VMessage;
   info(content: string, duration?: number): VMessage;
   clear(): void;
-  setPosition(position: MessagePosition): this;
-  maxVisible(count: number): this;
+  setPosition(position: MessagePosition): void;
+  setMaxVisible(count: number): this;
 }
 
 declare const vMessageManager: VMessageManager;
 
 declare function toast(content: string, type?: MessageType, duration?: number): VMessage;
+declare function toast(content: string, options?: ToastOptions): VMessage;
 declare namespace toast {
   export function success(content: string, duration?: number): VMessage;
   export function error(content: string, duration?: number): VMessage;
   export function warning(content: string, duration?: number): VMessage;
   export function info(content: string, duration?: number): VMessage;
   export function clear(): void;
+  export function setPosition(position: MessagePosition): void;
 }
 
 // ============================================
@@ -417,8 +439,8 @@ export {
   vCard, vCardHeader, vCardBody, vCardFooter,
 
   // VMenu
-  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VDropdownMenu, VContextMenu,
-  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vDropdownMenu, vContextMenu,
+  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu,
 
   // VMessage
   VMessage, VMessageContainer, VMessageManager,

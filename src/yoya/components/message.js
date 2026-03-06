@@ -299,71 +299,97 @@ class VMessageManager {
       return VMessageManager._instance;
     }
     this._container = null;
+    this._position = 'top-right';
+    this._maxVisible = 5;
     VMessageManager._instance = this;
   }
 
   _getContainer() {
     if (!this._container) {
-      this._container = vMessageContainer('top-right');
+      this._container = vMessageContainer(this._position);
+      this._container.maxVisible(this._maxVisible);
       document.body.appendChild(this._container.renderDom());
     }
     return this._container;
   }
 
-  add(content, type = 'info', duration = 3000) {
-    return this._getContainer().add(content, type, duration);
+  _recreateContainerIfNeeded(position) {
+    if (position && position !== this._position) {
+      this._position = position;
+      if (this._container) {
+        this._container.destroy();
+        this._container = null;
+      }
+    }
+    if (!this._container) {
+      this._container = vMessageContainer(this._position);
+      this._container.maxVisible(this._maxVisible);
+      document.body.appendChild(this._container.renderDom());
+    }
+    return this._container;
   }
 
-  success(content, duration = 3000) {
-    return this._getContainer().success(content, duration);
-  }
+  /**
+   * 统一入口 - 支持多种调用方式
+   *
+   * 1. toast.success('消息') / toast.error('消息') / toast.warning('消息') / toast.info('消息')
+   * 2. toast('消息', { type: 'success', duration: 3000, position: 'top-center' })
+   * 3. toast('消息', 'success', 3000)  // 兼容旧 API
+   */
+  call = (content, typeOrOptions = 'info', duration = 3000) => {
+    // 处理参数
+    let type = typeOrOptions;
+    let position = this._position;
 
-  error(content, duration = 3000) {
-    return this._getContainer().error(content, duration);
-  }
+    if (typeof typeOrOptions === 'object') {
+      type = typeOrOptions.type || 'info';
+      duration = typeOrOptions.duration ?? 3000;
+      position = typeOrOptions.position || this._position;
+    }
 
-  warning(content, duration = 3000) {
-    return this._getContainer().warning(content, duration);
-  }
+    const container = this._recreateContainerIfNeeded(position);
+    return container.add(content, type, duration);
+  };
 
-  info(content, duration = 3000) {
-    return this._getContainer().info(content, duration);
-  }
+  success = (content, duration = 3000) => this._getContainer().success(content, duration);
+  error = (content, duration = 3000) => this._getContainer().error(content, duration);
+  warning = (content, duration = 3000) => this._getContainer().warning(content, duration);
+  info = (content, duration = 3000) => this._getContainer().info(content, duration);
 
-  clear() {
+  clear = () => {
     if (this._container) {
       this._container.clear();
     }
-  }
+  };
 
-  setPosition(position) {
+  setPosition = (position) => {
+    this._position = position;
     if (this._container) {
       this._container.destroy();
       this._container = null;
     }
-    this._container = vMessageContainer(position);
-    document.body.appendChild(this._container.renderDom());
-    return this;
-  }
+  };
 
-  maxVisible(count) {
-    this._getContainer().maxVisible(count);
+  setMaxVisible = (count) => {
+    this._maxVisible = count;
     return this;
-  }
+  };
 }
 
 const vMessageManager = new VMessageManager();
 
-// 便捷方法
-function toast(content, type = 'info', duration = 3000) {
-  return vMessageManager.add(content, type, duration);
+// 便捷函数 - 支持两种调用方式
+function toast(content, typeOrOptions = 'info', duration = 3000) {
+  return vMessageManager.call(content, typeOrOptions, duration);
 }
 
-toast.success = (content, duration) => vMessageManager.success(content, duration);
-toast.error = (content, duration) => vMessageManager.error(content, duration);
-toast.warning = (content, duration) => vMessageManager.warning(content, duration);
-toast.info = (content, duration) => vMessageManager.info(content, duration);
-toast.clear = () => vMessageManager.clear();
+// 挂载快捷方法
+toast.success = vMessageManager.success;
+toast.error = vMessageManager.error;
+toast.warning = vMessageManager.warning;
+toast.info = vMessageManager.info;
+toast.clear = vMessageManager.clear;
+toast.setPosition = vMessageManager.setPosition;
 
 // ============================================
 // Tag 原型扩展方法

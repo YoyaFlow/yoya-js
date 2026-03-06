@@ -28,6 +28,17 @@ export function createButtonPage() {
       sidebar.child(sidebarGroup('导航组件', [
         sidebarItem('Menu 菜单', 'menu.html'),
       ]));
+      sidebar.child(sidebarGroup('反馈组件', [
+        sidebarItem('Message 消息', 'message.html'),
+        sidebarItem('Code 代码', 'code.html'),
+      ]));
+      sidebar.child(sidebarGroup('数据展示', [
+        sidebarItem('Detail 详情', 'detail.html'),
+        sidebarItem('Field 字段', 'field.html'),
+      ]));
+      sidebar.child(sidebarGroup('布局组件', [
+        sidebarItem('Body 容器', 'body.html'),
+      ]));
     },
 
     // 中间内容
@@ -57,17 +68,17 @@ vButton('成功').type('success')`
         codeDemo('setupObject - 对象配置',
           flex(row => {
             row.gap('12px');
-            row.child(vButton({
+            row.child(vButton('对象配置', {
               onclick: () => toast.info('对象方式'),
-            }, '对象配置'));
-            row.child(vButton({
+            }));
+            row.child(vButton('点击按钮', {
               onclick: () => toast.success('点击按钮'),
-            }, '点击按钮'));
+            }));
           }),
           `// ✅ 推荐：简单配置用对象
-vButton({
+vButton('对象配置', {
   onclick: () => toast('点击')
-}, '对象配置')`
+})`
         ),
 
         codeDemo('setupFunction + 链式调用（最常用）',
@@ -76,7 +87,6 @@ vButton({
             row.child(vButton(b => {
               b.text('链式 1');
               b.type('primary');
-              b.size('large');
               b.onClick(() => toast('点击 1'));
             }));
             row.child(vButton('链式 2')

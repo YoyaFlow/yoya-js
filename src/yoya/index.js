@@ -195,3 +195,19 @@ export {
   loadLanguageFromStorage,
   saveLanguageToStorage,
 } from './i18n.js';
+
+// 导出 helper 工具模块
+export {
+  // 状态常量
+  LoadStatus,
+
+  // 动态加载组件
+  VDynamicLoader,
+  vDynamicLoader,
+
+  // 批量加载工具
+  loadModules,
+  preloadModules,
+  clearModuleCache,
+  getModuleCacheStatus,
+} from './core/helper.js';

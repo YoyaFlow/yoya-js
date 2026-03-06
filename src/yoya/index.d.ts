@@ -542,3 +542,144 @@ export {
   loadLanguageFromStorage,
   saveLanguageToStorage,
 };
+
+// ============================================
+// Helper 工具模块
+// ============================================
+
+/** 加载状态枚举 */
+declare const LoadStatus: {
+  readonly PENDING: 'pending';
+  readonly LOADING: 'loading';
+  readonly LOADED: 'loaded';
+  readonly ERROR: 'error';
+};
+
+type LoadStatusType = 'pending' | 'loading' | 'loaded' | 'error';
+
+/** 动态加载组件配置选项 */
+interface DynamicLoaderOptions {
+  /** 占位内容 */
+  placeholder?: Tag | string;
+  /** 加载中显示内容 */
+  loadingContent?: Tag | string;
+  /** 错误时显示内容 */
+  errorContent?: Tag | string;
+  /** 加载成功回调 (api, loader) => void */
+  onLoad?: (api: any, loader: VDynamicLoader) => void;
+  /** 加载失败回调 (error, loader) => void */
+  onError?: (error: Error, loader: VDynamicLoader) => void;
+  /** 状态变化回调 (status, loader) => void */
+  onStatusChange?: (status: LoadStatusType, loader: VDynamicLoader) => void;
+  /** 重试次数 */
+  retryCount?: number;
+  /** 重试间隔（毫秒） */
+  retryDelay?: number;
+  /** 最小高度 */
+  minHeight?: string;
+  /** 最小宽度 */
+  minWidth?: string;
+}
+
+/** 动态加载组件类 */
+declare class VDynamicLoader extends Tag {
+  constructor(moduleLoader: () => Promise<any>, options?: DynamicLoaderOptions, setup?: Setup<VDynamicLoader>);
+
+  /** 获取加载状态 */
+  getStatus(): LoadStatusType;
+
+  /** 检查是否已加载 */
+  isLoaded(): boolean;
+
+  /** 检查是否加载失败 */
+  isError(): boolean;
+
+  /** 检查是否正在加载 */
+  isLoading(): boolean;
+
+  /** 获取导出的 API */
+  getApi(): any;
+
+  /** 获取错误信息 */
+  getError(): Error | null;
+
+  /** 手动重试加载 */
+  retry(): Promise<this>;
+
+  /** 设置加载超时 */
+  timeout(ms: number): this;
+
+  /** 设置重试配置 */
+  retryConfig(count: number, delay?: number): this;
+
+  /** 设置加载回调 */
+  onLoad(callback: (api: any, loader: VDynamicLoader) => void): this;
+
+  /** 设置错误回调 */
+  onError(callback: (error: Error, loader: VDynamicLoader) => void): this;
+
+  /** 设置状态变化回调 */
+  onStatusChange(callback: (status: LoadStatusType, loader: VDynamicLoader) => void): this;
+
+  /** 卸载组件，清理缓存 */
+  unload(): this;
+
+  /** 销毁组件 */
+  destroy(): this;
+}
+
+/** 创建动态加载组件 */
+declare function vDynamicLoader(
+  moduleLoader: () => Promise<any>,
+  options?: DynamicLoaderOptions,
+  setup?: Setup<VDynamicLoader>
+): VDynamicLoader;
+
+/** 模块加载结果 */
+interface ModuleLoadResult {
+  [key: string]: any | { error: Error };
+}
+
+/** 批量加载配置选项 */
+interface LoadModulesOptions {
+  /** 是否并行加载 */
+  parallel?: boolean;
+  /** 进度回调 (loaded, total) => void */
+  onProgress?: (loaded: number, total: number) => void;
+  /** 完成回调 (results) => void */
+  onComplete?: (results: ModuleLoadResult) => void;
+}
+
+/** 批量加载多个模块 */
+declare function loadModules(
+  modules: Array<{ name: string; loader: () => Promise<any> }>,
+  options?: LoadModulesOptions
+): Promise<Map<string, any>>;
+
+/** 预加载模块到缓存 */
+declare function preloadModules(loaders: Array<() => Promise<any>>): Promise<void>;
+
+/** 清除模块缓存 */
+declare function clearModuleCache(loader?: (() => Promise<any>) | string): void;
+
+/** 获取模块缓存状态 */
+declare function getModuleCacheStatus(loader: () => Promise<any>): {
+  status: LoadStatusType;
+  api?: any;
+  error?: Error;
+} | null;
+
+export {
+  // 状态常量
+  LoadStatus,
+
+  // 动态加载组件
+  VDynamicLoader,
+  vDynamicLoader,
+
+  // 批量加载工具
+  loadModules,
+  preloadModules,
+  clearModuleCache,
+  getModuleCacheStatus,
+};
