@@ -1,80 +1,100 @@
 /**
  * Sidebar 组件
- * 左侧菜单栏，使用统一菜单配置
+ * 左侧菜单栏，使用统一菜单配置和 vSidebar 组件
  */
 
-import { vstack } from '../../../yoya/index.js';
-import { vMenuItem } from '../../../yoya/index.js';
+import { vSidebar, vMenuItem, toast } from '../../../yoya/index.js';
 import { menuConfig } from '../config/menuConfig.js';
-
-/**
- * 侧边栏菜单项
- */
-export function sidebarItem(text, href, active = false) {
-  return vMenuItem(text, item => {
-    item.styles({
-      fontSize: '14px',
-      padding: '8px 16px',
-      color: active
-        ? 'var(--islands-primary, #667eea)'
-        : 'var(--islands-text, #333)',
-      background: active
-        ? 'var(--islands-primary-alpha, rgba(102, 126, 234, 0.1))'
-        : 'transparent',
-      borderRight: active
-        ? '2px solid var(--islands-primary, #667eea)'
-        : '2px solid transparent',
-      cursor: 'pointer',
-    });
-    item.on('click', (e) => {
-      e.preventDefault();
-      if (href) {
-        window.location.href = href;
-      }
-    });
-  });
-}
-
-/**
- * 侧边栏分组
- */
-export function sidebarGroup(title, items = []) {
-  return vstack(group => {
-    group.gap('4px');
-    group.child(vMenuItem(title, h => {
-      h.styles({
-        fontSize: '12px',
-        fontWeight: '600',
-        color: 'var(--islands-text-secondary, #999)',
-        padding: '8px 16px 4px',
-        textTransform: 'uppercase',
-      });
-    }));
-    items.forEach(item => group.child(item));
-  });
-}
 
 /**
  * Sidebar 主组件
  * @param {string} currentPage - 当前页面文件名（如 'button.html'）
+ * @param {boolean} collapsible - 是否可折叠
+ * @param {boolean} dark - 是否深色模式
  */
-export function Sidebar({ currentPage = '' }) {
-  return vstack(sidebar => {
-    sidebar.styles({
-      width: '220px',
-      background: 'var(--islands-card-bg, white)',
-      borderRight: '1px solid var(--islands-border, #e0e0e0)',
-      overflowY: 'auto',
-      padding: '16px 0',
+export function Sidebar({ currentPage = '', collapsible = true, dark = false }) {
+  return vSidebar(sidebar => {
+    sidebar.width('220px');
+    sidebar.collapsedWidth('64px');
+
+    if (dark) sidebar.dark();
+
+    // 头部
+    sidebar.header(h => {
+      h.styles({
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 16px',
+      });
+      h.span(span => {
+        span.styles({
+          fontSize: '16px',
+          fontWeight: '600',
+          color: 'var(--islands-primary, #667eea)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+        });
+        span.text('🏝️ Yoya.Basic');
+      });
+      if (collapsible) {
+        sidebar.showToggleBtn();
+      }
     });
 
-    // 根据菜单配置生成 sidebar 内容
-    menuConfig.forEach(group => {
-      const items = group.items.map(item => {
-        const isActive = item.file === currentPage;
-        return sidebarItem(item.label, item.file, isActive);
+    // 内容区
+    sidebar.content(content => {
+      menuConfig.forEach(group => {
+        // 分组标题
+        content.item(group.group, item => {
+          item.styles({
+            fontSize: '12px',
+            fontWeight: '600',
+            color: 'var(--islands-text-secondary, #999)',
+            padding: '8px 16px 4px',
+            textTransform: 'uppercase',
+            pointerEvents: 'none',
+          });
+        });
+
+        // 分组菜单项
+        group.items.forEach(menuItem => {
+          const isActive = menuItem.file === currentPage;
+          content.item(menuItem.label, item => {
+            item.styles({
+              fontSize: '14px',
+              padding: '8px 16px',
+              color: isActive
+                ? 'var(--islands-primary, #667eea)'
+                : 'var(--islands-text, #333)',
+              background: isActive
+                ? 'var(--islands-primary-alpha, rgba(102, 126, 234, 0.1))'
+                : 'transparent',
+              borderRight: isActive
+                ? '3px solid var(--islands-primary, #667eea)'
+                : '3px solid transparent',
+              cursor: 'pointer',
+            });
+            if (isActive) item.active();
+            item.onClick(() => {
+              window.location.href = menuItem.file;
+            });
+          });
+        });
+
+        // 分组分割线
+        content.divider();
       });
-      sidebar.child(sidebarGroup(group.group, items));
+    });
+
+    // 底部
+    sidebar.footer(footer => {
+      footer.styles({
+        fontSize: '12px',
+        color: 'var(--islands-text-secondary, #999)',
+        textAlign: 'center',
+      });
+      footer.text('© 2024 Yoya.Basic');
     });
   });
 }

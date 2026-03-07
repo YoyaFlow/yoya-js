@@ -4,5 +4,5 @@
 
 export { AppShell } from './AppShell.js';
 export { TopNavbar } from './TopNavbar.js';
-export { Sidebar, sidebarItem, sidebarGroup } from './Sidebar.js';
+export { Sidebar } from './Sidebar.js';
 export { TableOfContents, tocItem } from './TableOfContents.js';

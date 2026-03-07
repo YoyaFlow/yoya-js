@@ -71,3 +71,18 @@ export function getCurrentGroup(currentFile) {
   }
   return null;
 }
+
+/**
+ * 获取所有菜单项
+ */
+export function getAllMenuItems() {
+  return menuConfig.flatMap(g => g.items);
+}
+
+/**
+ * 根据页面名称获取文件
+ */
+export function getFileByPage(page) {
+  const item = menuConfig.flatMap(g => g.items).find(i => i.page === page);
+  return item?.file || null;
+}
