@@ -58,7 +58,7 @@ export function render() {
         b.style('border', 'none');
         b.style('borderRadius', '4px');
         b.style('cursor', 'pointer');
-        b.onclick(() => {
+        b.on('click', () => {
           alert('表单提交！');
         });
       });

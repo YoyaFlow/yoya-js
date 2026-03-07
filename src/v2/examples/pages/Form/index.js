@@ -73,25 +73,25 @@ vTextarea({
 })`
         ),
 
-        CodeDemo('setupFunction + 链式调用',
+        CodeDemo('setupFunction + Setter',
           vstack(s => {
             s.gap('12px');
             s.child(vInput(i => {
-              i.placeholder('请输入用户名');
-              i.type('text');
+              i.placeholder = '请输入用户名';
+              i.type = 'text';
               i.on('change', (e) => toast.info(e.target.value));
             }));
-            s.child(vInput('请输入密码').type('password'));
+            s.child(vInput('请输入密码', { type: 'password' }));
           }),
-          `// ✅ 推荐：复杂逻辑用函数 + 链式
+          `// ✅ 推荐：复杂逻辑用函数 + Setter
 vInput(i => {
-  i.placeholder('请输入用户名')
-  i.type('text')
+  i.placeholder = '请输入用户名'
+  i.type = 'text'
   i.on('change', (e) => toast(e.target.value))
 })
 
-// 或更简洁的链式
-vInput('请输入密码').type('password')`
+// 或更简洁的 Setter
+vInput('请输入密码', { type: 'password' })`
         ),
       ]));
 
@@ -101,11 +101,11 @@ vInput('请输入密码').type('password')`
           vstack(stack => {
             stack.gap('12px');
             stack.child(vInput('请输入用户名'));
-            stack.child(vInput(i => { i.type('password'); i.placeholder('请输入密码'); }));
-            stack.child(vInput(i => { i.type('email'); i.placeholder('请输入邮箱'); }));
+            stack.child(vInput(i => { i.type = 'password'; i.placeholder = '请输入密码'; }));
+            stack.child(vInput(i => { i.type = 'email'; i.placeholder = '请输入邮箱'; }));
           }),
           `vInput('请输入用户名')
-vInput(i => { i.type('password'); i.placeholder('请输入密码'); })`
+vInput(i => { i.type = 'password'; i.placeholder = '请输入密码'; })`
         ),
 
         CodeDemo('带标签的输入框',
@@ -114,7 +114,7 @@ vInput(i => { i.type('password'); i.placeholder('请输入密码'); })`
             stack.child(label('用户名'));
             stack.child(vInput('请输入用户名'));
             stack.child(label('密码'));
-            stack.child(vInput(i => { i.type('password'); i.placeholder('请输入密码'); }));
+            stack.child(vInput(i => { i.type = 'password'; i.placeholder = '请输入密码'; }));
           }),
           `label('用户名')
 vInput('请输入用户名')`
@@ -127,10 +127,10 @@ vInput('请输入用户名')`
           vstack(stack => {
             stack.gap('12px');
             stack.child(vTextarea('请输入内容'));
-            stack.child(vTextarea(t => { t.rows(4); t.placeholder('请输入描述'); }));
+            stack.child(vTextarea(t => { t.rows = 4; t.placeholder = '请输入描述'; }));
           }),
           `vTextarea('请输入内容')
-vTextarea(t => { t.rows(4); t.placeholder('请输入描述'); })`
+vTextarea(t => { t.rows = 4; t.placeholder = '请输入描述'; })`
         ),
       ]));
 
@@ -140,20 +140,20 @@ vTextarea(t => { t.rows(4); t.placeholder('请输入描述'); })`
           vstack(stack => {
             stack.gap('12px');
             stack.child(vSelect(s => {
-              s.options([
+              s.options = [
                 { value: '', label: '请选择选项' },
                 { value: '1', label: '选项 1' },
                 { value: '2', label: '选项 2' },
                 { value: '3', label: '选项 3' },
-              ]);
+              ];
             }));
           }),
           `vSelect(s => {
-  s.options([
+  s.options = [
     { value: '', label: '请选择选项' },
     { value: '1', label: '选项 1' },
     { value: '2', label: '选项 2' },
-  ])
+  ]
 })`
         ),
       ]));
@@ -175,23 +175,23 @@ vCheckbox('选项 2')`
           vstack(stack => {
             stack.gap('8px');
             stack.child(vCheckboxes(cb => {
-              cb.multiple(false);  // 单选模式
-              cb.options([
+              cb.multiple = false;  // 单选模式
+              cb.options = [
                 { value: '1', label: '单选 1' },
                 { value: '2', label: '单选 2' },
                 { value: '3', label: '单选 3' },
-              ]);
-              cb.value('1');
+              ];
+              cb.value = '1';
               cb.onChange((value) => toast.info('选中：' + value));
             }));
           }),
           `vCheckboxes(cb => {
-  cb.multiple(false)  // 单选模式
-  cb.options([
+  cb.multiple = false  // 单选模式
+  cb.options = [
     { value: '1', label: '单选 1' },
     { value: '2', label: '单选 2' },
-  ])
-  cb.value('1')
+  ]
+  cb.value = '1'
   cb.onChange((value) => toast('选中：' + value))
 })`
         ),
@@ -208,11 +208,11 @@ vCheckbox('选项 2')`
                 stack.child(label('用户名'));
                 stack.child(vInput('请输入用户名'));
                 stack.child(label('密码'));
-                stack.child(vInput('请输入密码').type('password'));
+                stack.child(vInput({ placeholder: '请输入密码', type: 'password' }));
                 stack.child(flex(btns => {
                   btns.gap('12px');
-                  btns.child(vButton('登录').type('primary'));
-                  btns.child(vButton('重置').ghost());
+                  btns.child(vButton('登录', { type: 'primary' }));
+                  btns.child(vButton('重置', { ghost: true }));
                 }));
               }));
             });
@@ -224,7 +224,7 @@ vCheckbox('选项 2')`
       stack.gap('16px')
       stack.child(label('用户名'))
       stack.child(vInput('请输入用户名'))
-      stack.child(vButton('登录').type('primary'))
+      stack.child(vButton('登录', { type: 'primary' }))
     }))
   })
 })`

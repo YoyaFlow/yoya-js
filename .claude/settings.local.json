@@ -107,7 +107,12 @@
       "Bash(curl http://localhost:3005/ 2>&1 | head -20)",
       "Bash(curl -s http://localhost:3005/v2/examples/index.html | head -30)",
       "Bash(curl -s http://localhost:3002/v2/examples/index.html | head -10)",
-      "Bash(npx playwright test tests/v2-examples.test.js --reporter=list 2>&1)"
+      "Bash(npx playwright test tests/v2-examples.test.js --reporter=list 2>&1)",
+      "Bash(npm run check 2>&1 || true)",
+      "Bash(curl -s \"http://localhost:3003/yoya/theme/index.js\" 2>&1 | grep -A 15 \"function applyThemeVariables\")",
+      "Bash(curl -s \"http://localhost:3000/yoya/theme/index.js\" 2>&1 | head -30)",
+      "Bash(curl -s \"http://localhost:3000/yoya/theme/islands/index.js\" 2>&1 | head -10)",
+      "Bash(npm run check 2>&1 && npm test 2>&1 | tail -5)"
     ]
   },
   "enableAllProjectMcpServers": true,

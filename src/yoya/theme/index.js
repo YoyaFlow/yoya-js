@@ -332,7 +332,12 @@ export function initTheme(options = {}) {
   const savedTheme = loadThemeFromStorage();
   const savedMode = loadModeFromStorage();
 
-  const themeId = savedTheme || defaultTheme;
+  // 处理 savedTheme 可能包含 mode 后缀的情况（如 'islands:dark'）
+  let themeId = savedTheme || defaultTheme;
+  if (themeId && themeId.includes(':')) {
+    themeId = themeId.split(':')[0];
+  }
+
   currentMode = savedMode || defaultMode;
 
   // 加载并应用主题
@@ -383,9 +388,9 @@ export function applyTheme(theme, save = true) {
   // 更新主题管理器
   themeManager.setTheme(theme.name);
 
-  // 保存到 localStorage
+  // 保存到 localStorage（保存主题 ID，不含 mode）
   if (save) {
-    saveThemeToStorage(theme.name);
+    saveThemeToStorage(currentThemeId);
   }
 
   // 派发事件

@@ -36,35 +36,35 @@ export function createFieldPage() {
           vstack(s => {
             s.gap('16px');
             s.child(vField(f => {
-              f.showContent = (c, value) => {
+              f.showContent((c, value) => {
                 c.text(value || '张三');
-              };
-              f.editContent = (c, setValue) => {
+              });
+              f.editContent((c, setValue) => {
                 c.vInput(i => {
-                  i.placeholder = '请输入姓名';
-                  i.type = 'text';
-                  i.onInput = ({ value }) => setValue(value);
+                  i.placeholder('请输入姓名');
+                  i.type('text');
+                  i.onInput(({ value }) => setValue(value));
                 });
-              };
-              f.onSave = ({ value }) => {
+              });
+              f.onSave(({ value }) => {
                 toast.success(`保存成功：${value}`);
-              };
+              });
             }));
           }),
           `vField(f => {
-  f.showContent = (c, value) => {
+  f.showContent((c, value) => {
     c.text(value || '张三')
-  }
-  f.editContent = (c, setValue) => {
+  })
+  f.editContent((c, setValue) => {
     c.vInput(i => {
-      i.placeholder = '请输入姓名'
-      i.type = 'text'
-      i.onInput = ({ value }) => setValue(value)
+      i.placeholder('请输入姓名')
+      i.type('text')
+      i.onInput(({ value }) => setValue(value))
     })
-  }
-  f.onSave = ({ value }) => {
+  })
+  f.onSave(({ value }) => {
     toast.success(\`保存成功：\${value}\`)
-  }
+  })
 })`
         ),
       ]));
@@ -80,9 +80,9 @@ export function createFieldPage() {
               },
               editContent: (c, setValue) => {
                 c.vInput(i => {
-                  i.placeholder = '请输入姓名';
-                  i.type = 'text';
-                  i.onInput = ({ value }) => setValue(value);
+                  i.placeholder('请输入姓名');
+                  i.type('text');
+                  i.onInput(({ value }) => setValue(value));
                 });
               },
               onSave: ({ value }) => {
@@ -98,9 +98,9 @@ vField({
   },
   editContent: (c, setValue) => {
     c.vInput(i => {
-      i.placeholder = '请输入姓名'
-      i.type = 'text'
-      i.onInput = ({ value }) => setValue(value)
+      i.placeholder('请输入姓名')
+      i.type('text')
+      i.onInput(({ value }) => setValue(value))
     })
   },
   onSave: ({ value }) => {
@@ -115,82 +115,82 @@ vField({
           vDetail(d => {
             d.column(1);
             d.item('用户名', vField(f => {
-              f.showContent = (c, value) => {
+              f.showContent((c, value) => {
                 c.text(value || 'zhangsan');
-              };
-              f.editContent = (c, setValue) => {
+              });
+              f.editContent((c, setValue) => {
                 c.vInput(i => {
-                  i.placeholder = '请输入用户名';
-                  i.type = 'text';
-                  i.onInput = ({ value }) => setValue(value);
+                  i.placeholder('请输入用户名');
+                  i.type('text');
+                  i.onInput(({ value }) => setValue(value));
                 });
-              };
-              f.onSave = ({ value }) => {
+              });
+              f.onSave(({ value }) => {
                 toast.success(`用户名已更新：${value}`);
-              };
+              });
             }));
             d.item('邮箱', vField(f => {
-              f.showContent = (c, value) => {
+              f.showContent((c, value) => {
                 c.text(value || 'zhangsan@example.com');
-              };
-              f.editContent = (c, setValue) => {
+              });
+              f.editContent((c, setValue) => {
                 c.vInput(i => {
-                  i.placeholder = '请输入邮箱';
-                  i.type = 'email';
-                  i.onInput = ({ value }) => setValue(value);
+                  i.placeholder('请输入邮箱');
+                  i.type('email');
+                  i.onInput(({ value }) => setValue(value));
                 });
-              };
-              f.onSave = ({ value }) => {
+              });
+              f.onSave(({ value }) => {
                 toast.success(`邮箱已更新：${value}`);
-              };
+              });
             }));
             d.item('手机', vField(f => {
-              f.showContent = (c, value) => {
+              f.showContent((c, value) => {
                 c.text(value || '138****1234');
-              };
-              f.editContent = (c, setValue) => {
+              });
+              f.editContent((c, setValue) => {
                 c.vInput(i => {
-                  i.placeholder = '请输入手机号';
-                  i.type = 'text';
-                  i.onInput = ({ value }) => setValue(value);
+                  i.placeholder('请输入手机号');
+                  i.type('text');
+                  i.onInput(({ value }) => setValue(value));
                 });
-              };
-              f.onSave = ({ value }) => {
+              });
+              f.onSave(({ value }) => {
                 toast.success(`手机号已更新：${value}`);
-              };
+              });
             }));
           }),
           `vDetail(d => {
   d.column(1)
   d.item('用户名', vField(f => {
-    f.showContent = (c, value) => {
+    f.showContent((c, value) => {
       c.text(value || 'zhangsan')
-    }
-    f.editContent = (c, setValue) => {
+    })
+    f.editContent((c, setValue) => {
       c.vInput(i => {
-        i.placeholder = '请输入用户名'
-        i.type = 'text'
-        i.onInput = ({ value }) => setValue(value)
+        i.placeholder('请输入用户名')
+        i.type('text')
+        i.onInput(({ value }) => setValue(value))
       })
-    }
-    f.onSave = ({ value }) => {
+    })
+    f.onSave(({ value }) => {
       toast.success(\`用户名已更新：\${value}\`)
-    }
+    })
   }))
   d.item('邮箱', vField(f => {
-    f.showContent = (c, value) => {
+    f.showContent((c, value) => {
       c.text(value || 'zhangsan@example.com')
-    }
-    f.editContent = (c, setValue) => {
+    })
+    f.editContent((c, setValue) => {
       c.vInput(i => {
-        i.placeholder = '请输入邮箱'
-        i.type = 'email'
-        i.onInput = ({ value }) => setValue(value)
+        i.placeholder('请输入邮箱')
+        i.type('email')
+        i.onInput(({ value }) => setValue(value))
       })
-    }
-    f.onSave = ({ value }) => {
+    })
+    f.onSave(({ value }) => {
       toast.success(\`邮箱已更新：\${value}\`)
-    }
+    })
   }))
 })`
         ),
@@ -201,46 +201,46 @@ vField({
           vstack(s => {
             s.gap('16px');
             s.child(vField(f => {
-              f.showContent = (c, value) => {
+              f.showContent((c, value) => {
                 c.text(value || '悬停显示编辑标识');
-              };
-              f.editContent = (c, setValue) => {
+              });
+              f.editContent((c, setValue) => {
                 c.vInput(i => {
-                  i.placeholder = '请输入内容';
-                  i.type = 'text';
-                  i.onInput = ({ value }) => setValue(value);
+                  i.placeholder('请输入内容');
+                  i.type('text');
+                  i.onInput(({ value }) => setValue(value));
                 });
-              };
-              f.placeholder = '点击编辑';
+              });
+              f.placeholder('点击编辑');
             }));
             s.child(vField(f => {
-              f.showContent = (c, value) => {
+              f.showContent((c, value) => {
                 c.text(value || '只读字段，无编辑标识');
-              };
-              f.editable = false;
+              });
+              f.editable(false);
             }));
           }),
           `// 可编辑字段（悬停显示编辑标识）
 vField(f => {
-  f.showContent = (c, value) => {
+  f.showContent((c, value) => {
     c.text(value || '悬停显示编辑标识')
-  }
-  f.editContent = (c, setValue) => {
+  })
+  f.editContent((c, setValue) => {
     c.vInput(i => {
-      i.placeholder = '请输入内容'
-      i.type = 'text'
-      i.onInput = ({ value }) => setValue(value)
+      i.placeholder('请输入内容')
+      i.type('text')
+      i.onInput(({ value }) => setValue(value))
     })
-  }
-  f.placeholder = '点击编辑'
+  })
+  f.placeholder('点击编辑')
 })
 
 // 只读字段（隐藏编辑标识）
 vField(f => {
-  f.showContent = (c, value) => {
+  f.showContent((c, value) => {
     c.text(value || '只读字段，无编辑标识')
-  }
-  f.editable = false
+  })
+  f.editable(false)
 })`
         ),
       ]));
@@ -250,47 +250,47 @@ vField(f => {
           vstack(s => {
             s.gap('16px');
             s.child(vField(f => {
-              f.showContent = (c, value) => {
+              f.showContent((c, value) => {
                 c.text(value || '输入后自动保存...');
-              };
-              f.editContent = (c, setValue) => {
+              });
+              f.editContent((c, setValue) => {
                 c.vInput(i => {
-                  i.placeholder = '请输入内容';
-                  i.type = 'text';
-                  i.onInput = ({ value }) => setValue(value);
+                  i.placeholder('请输入内容');
+                  i.type('text');
+                  i.onInput(({ value }) => setValue(value));
                 });
-              };
-              f.autoSave = true;
-              f.onSave = ({ value }) => {
+              });
+              f.autoSave(true);
+              f.onSave(({ value }) => {
                 return new Promise(resolve => {
                   setTimeout(() => {
                     toast.info(`自动保存：${value}`);
                     resolve();
                   }, 500);
                 });
-              };
+              });
             }));
           }),
           `vField(f => {
-  f.showContent = (c, value) => {
+  f.showContent((c, value) => {
     c.text(value || '输入后自动保存...')
-  }
-  f.editContent = (c, setValue) => {
+  })
+  f.editContent((c, setValue) => {
     c.vInput(i => {
-      i.placeholder = '请输入内容'
-      i.type = 'text'
-      i.onInput = ({ value }) => setValue(value)
+      i.placeholder('请输入内容')
+      i.type('text')
+      i.onInput(({ value }) => setValue(value))
     })
-  }
-  f.autoSave = true
-  f.onSave = ({ value }) => {
+  })
+  f.autoSave(true)
+  f.onSave(({ value }) => {
     return new Promise(resolve => {
       setTimeout(() => {
         toast.info(\`自动保存：\${value}\`)
         resolve()
       }, 500)
     })
-  }
+  })
 })`
         ),
       ]));

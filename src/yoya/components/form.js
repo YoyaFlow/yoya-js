@@ -50,7 +50,7 @@ class VInput extends Tag {
   }
 
   _setupString(setup){
-    this.placeholder(setup);
+    this._placeholder = setup;
   }
   _setupBaseStyles() {
     this.styles({
@@ -215,7 +215,6 @@ class VInput extends Tag {
 
   value(val) {
     if (val === undefined) {
-      // 获取值时优先从 DOM 元素获取实时值
       if (this._inputEl && this._inputEl._boundElement) {
         return this._inputEl._boundElement.value;
       }
@@ -228,43 +227,27 @@ class VInput extends Tag {
     return this;
   }
 
-  type(value) {
-    if (value === undefined) return this._inputType;
-    this._inputType = value;
+  type(t) {
+    if (t === undefined) return this._inputType;
+    this._inputType = t;
     if (this._inputEl) {
-      this._inputEl.attr('type', value);
+      this._inputEl.attr('type', t);
     }
     return this;
   }
 
-  name(value) {
-    if (value === undefined) return this._inputName;
-    this._inputName = value;
+  name(n) {
+    if (n === undefined) return this._inputName;
+    this._inputName = n;
     if (this._inputEl) {
-      this._inputEl.attr('name', value);
+      this._inputEl.attr('name', n);
     }
     return this;
   }
 
-  disabled(value = true) {
-    return this.setState('disabled', value);
-  }
-
-  readonly(value = true) {
-    return this.setState('readonly', value);
-  }
-
-  error(value = true) {
-    return this.setState('error', value);
-  }
-
-  loading(value = true) {
-    return this.setState('loading', value);
-  }
-
-  size(value) {
-    if (value === undefined) return this._size;
-
+  size(s) {
+    if (s === undefined) return this._size;
+    this._size = s;
     const sizeStyles = {
       large: {
         padding: 'var(--islands-input-padding-lg, 10px 16px)',
@@ -282,14 +265,11 @@ class VInput extends Tag {
         height: 'var(--islands-input-height-sm, 24px)',
       },
     };
-
-    this._size = value;
-    const styles = sizeStyles[value] || sizeStyles.default;
+    const styles = sizeStyles[s] || sizeStyles.default;
     this.styles(styles);
     return this;
   }
 
-  // 事件绑定 - 使用统一事件包装器
   onChange(handler) {
     if (this._inputEl) {
       const oldValue = this._value;
@@ -385,7 +365,7 @@ class VSelect extends Tag {
       setup(this);
     } else if (typeof setup === 'string') {
       // 字符串作为 placeholder
-      this.placeholder(setup);
+      this._placeholder = setup;
     } else if (typeof setup === 'object' && setup !== null) {
       this._setupObject(setup);
     }
@@ -484,49 +464,6 @@ class VSelect extends Tag {
     });
   }
 
-  // ============================================
-  // 链式方法
-  // ============================================
-
-  options(opts) {
-    if (opts === undefined) return this._options;
-    this._options = opts;
-    if (this._selectEl) {
-      this._updateOptionsWithPlaceholder();
-    }
-    return this;
-  }
-
-  value(val) {
-    if (val === undefined) {
-      return this._selectEl ? this._selectEl.attr('value') : this._value;
-    }
-    this._value = val;
-    if (this._selectEl) {
-      this._selectEl.attr('value', val);
-    }
-    return this;
-  }
-
-  name(value) {
-    if (value === undefined) return this._name;
-    this._name = value;
-    if (this._selectEl) {
-      this._selectEl.attr('name', value);
-    }
-    return this;
-  }
-
-  placeholder(value) {
-    if (value === undefined) return this._placeholder;
-    this._placeholder = value;
-    if (this._selectEl) {
-      // 对于 select 元素，placeholder 通过添加一个禁用的默认选项实现
-      this._updateOptionsWithPlaceholder();
-    }
-    return this;
-  }
-
   _updateOptionsWithPlaceholder() {
     if (!this._selectEl) return;
 
@@ -562,15 +499,48 @@ class VSelect extends Tag {
     }
   }
 
-  disabled(value = true) {
-    return this.setState('disabled', value);
+  // ============================================
+  // 链式方法
+  // ============================================
+
+  options(arr) {
+    if (arr === undefined) return this._options;
+    this._options = arr;
+    if (this._selectEl) {
+      this._updateOptionsWithPlaceholder();
+    }
+    return this;
   }
 
-  error(value = true) {
-    return this.setState('error', value);
+  value(val) {
+    if (val === undefined) return this._selectEl ? this._selectEl.attr('value') : this._value;
+    this._value = val;
+    if (this._selectEl) {
+      this._selectEl.attr('value', val);
+    }
+    return this;
   }
 
-  size(value) {
+  name(n) {
+    if (n === undefined) return this._name;
+    this._name = n;
+    if (this._selectEl) {
+      this._selectEl.attr('name', n);
+    }
+    return this;
+  }
+
+  placeholder(val) {
+    if (val === undefined) return this._placeholder;
+    this._placeholder = val;
+    if (this._selectEl) {
+      this._updateOptionsWithPlaceholder();
+    }
+    return this;
+  }
+
+  size(s) {
+    if (s === undefined) return this._size;
     const sizeStyles = {
       large: {
         padding: 'var(--islands-select-padding-lg, 10px 16px)',
@@ -589,20 +559,9 @@ class VSelect extends Tag {
       },
     };
 
-    this._size = value;
-    const styles = sizeStyles[value] || sizeStyles.default;
+    this._size = s;
+    const styles = sizeStyles[s] || sizeStyles.default;
     this.styles(styles);
-    return this;
-  }
-
-  onChange(handler) {
-    if (this._selectEl) {
-      const oldValue = this._value;
-      this._selectEl.on('change', (e) => {
-        const newValue = this._selectEl._el?.value || this._value;
-        handler({ event: e, value: newValue, oldValue, target: this });
-      });
-    }
     return this;
   }
 }
@@ -659,7 +618,7 @@ class VTextarea extends Tag {
       setup(this);
     } else if (typeof setup === 'string') {
       // 字符串作为 placeholder
-      this.placeholder(setup);
+      this._placeholder = setup;
     } else if (typeof setup === 'object' && setup !== null) {
       this._setupObject(setup);
     }
@@ -771,18 +730,17 @@ class VTextarea extends Tag {
   // 链式方法
   // ============================================
 
-  placeholder(value) {
-    if (value === undefined) return this._placeholder;
-    this._placeholder = value;
+  placeholder(val) {
+    if (val === undefined) return this._placeholder;
+    this._placeholder = val;
     if (this._textareaEl) {
-      this._textareaEl.attr('placeholder', value);
+      this._textareaEl.attr('placeholder', val);
     }
     return this;
   }
 
   value(val) {
     if (val === undefined) {
-      // 获取值时从 DOM 元素获取
       if (this._textareaEl && this._textareaEl._boundElement) {
         return this._textareaEl._boundElement.value;
       }
@@ -790,7 +748,6 @@ class VTextarea extends Tag {
     }
     this._value = val;
     if (this._textareaEl) {
-      // 设置值时同时更新内容和 DOM
       this._textareaEl.text(val);
       if (this._textareaEl._boundElement) {
         this._textareaEl._boundElement.value = val;
@@ -799,34 +756,22 @@ class VTextarea extends Tag {
     return this;
   }
 
-  rows(value) {
-    if (value === undefined) return this._rows;
-    this._rows = value;
+  rows(r) {
+    if (r === undefined) return this._rows;
+    this._rows = r;
     if (this._textareaEl) {
-      this._textareaEl.attr('rows', value);
+      this._textareaEl.attr('rows', r);
     }
     return this;
   }
 
-  name(value) {
-    if (value === undefined) return this._name;
-    this._name = value;
+  name(n) {
+    if (n === undefined) return this._name;
+    this._name = n;
     if (this._textareaEl) {
-      this._textareaEl.attr('name', value);
+      this._textareaEl.attr('name', n);
     }
     return this;
-  }
-
-  disabled(value = true) {
-    return this.setState('disabled', value);
-  }
-
-  readonly(value = true) {
-    return this.setState('readonly', value);
-  }
-
-  error(value = true) {
-    return this.setState('error', value);
   }
 
   onChange(handler) {

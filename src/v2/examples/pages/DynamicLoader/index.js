@@ -2,7 +2,7 @@
  * Yoya.Basic V2 - DynamicLoader Demo Page
  */
 
-import { vstack, flex, vButton, vDynamicLoader, toast, LoadStatus } from '../../../../yoya/index.js';
+import { vstack, flex, vButton, vDynamicLoader, toast, LoadStatus, div } from '../../../../yoya/index.js';
 import { AppShell } from '../../framework/AppShell.js';
 import { CodeDemo } from '../../components/CodeDemo.js';
 import { DocSection } from '../../components/DocSection.js';
@@ -31,21 +31,28 @@ export function createDynamicLoaderPage() {
 
       content.child(DocSection('basic', '基础用法', [
         CodeDemo('懒加载组件',
-          vDynamicLoader(loader => {
-            loader.src('../../../v1/widgets/form.js');
-            loader.render((module) => {
-              if (module.render) {
-                return module.render();
-              }
-              return vStack(s => s.text('组件无 render 函数'));
-            });
-          }),
-          `vDynamicLoader(loader => {
-  loader.src('./path/to/module.js')
-  loader.render((module) => {
-    return module.render()
-  })
-})`
+          vDynamicLoader(
+            () => import('../../../../v1/widgets/form.js'),
+            {
+              onLoad: (api, loader) => {
+                if (api.render) {
+                  loader._el.innerHTML = '';
+                  loader._children = [];
+                  loader.child(api.render());
+                }
+              },
+            }
+          ),
+          `vDynamicLoader(
+  () => import('./path/to/module.js'),
+  {
+    onLoad: (api, loader) => {
+      if (api.render) {
+        loader.child(api.render())
+      }
+    }
+  }
+)`
         ),
       ]));
 
@@ -53,26 +60,34 @@ export function createDynamicLoaderPage() {
         CodeDemo('加载状态展示',
           vstack(s => {
             s.gap('16px');
-            s.child(vDynamicLoader(loader => {
-              loader.src('../../../v1/widgets/form.js');
-              loader.loading('加载中...');
-              loader.error('加载失败，请重试');
-              loader.render((module) => {
-                if (module.render) {
-                  return module.render();
-                }
-                return vStack(s => s.text('组件无 render 函数'));
-              });
-            }));
+            s.child(vDynamicLoader(
+              () => import('../../../../v1/widgets/form.js'),
+              {
+                loadingContent: div('加载中...'),
+                errorContent: div(c => {
+                  c.styles({ color: 'red' });
+                  c.text('加载失败，请重试');
+                }),
+                onLoad: (api, loader) => {
+                  if (api.render) {
+                    loader._el.innerHTML = '';
+                    loader._children = [];
+                    loader.child(api.render());
+                  }
+                },
+              }
+            ));
           }),
-          `vDynamicLoader(loader => {
-  loader.src('./path/to/module.js')
-  loader.loading('加载中...')
-  loader.error('加载失败')
-  loader.render((module) => {
-    return module.render()
-  })
-})`
+          `vDynamicLoader(
+  () => import('./path/to/module.js'),
+  {
+    loadingContent: div('加载中...'),
+    errorContent: div('加载失败'),
+    onLoad: (api, loader) => {
+      loader.child(api.render())
+    }
+  }
+)`
         ),
       ]));
 
@@ -88,36 +103,48 @@ export function createDynamicLoaderPage() {
               btns.child(vButton('加载组件').type('primary')
                 .on('click', async () => {
                   const container = document.getElementById('loader-container');
-                  container.innerHTML = '';
+                  if (container) {
+                    container.innerHTML = '';
+                  }
 
-                  const loader = vDynamicLoader(l => {
-                    l.src('../../../v1/widgets/form.js');
-                    l.loading('正在加载表单组件...');
-                    l.error('加载失败，请重试');
-                    l.render((module) => {
-                      if (module.render) {
-                        return module.render();
-                      }
-                      return vstack(v => v.text('无 render 函数'));
-                    });
-                  });
+                  const loader = vDynamicLoader(
+                    () => import('../../../../v1/widgets/form.js'),
+                    {
+                      loadingContent: div('正在加载表单组件...'),
+                      errorContent: div(c => {
+                        c.styles({ color: 'red' });
+                        c.text('加载失败，请重试');
+                      }),
+                      onLoad: (api, loader) => {
+                        if (api.render) {
+                          loader._el.innerHTML = '';
+                          loader._children = [];
+                          loader.child(api.render());
+                        }
+                      },
+                    }
+                  );
 
                   loader.bindTo('#loader-container');
                 }));
               btns.child(vButton('清除').ghost()
                 .on('click', () => {
-                  document.getElementById('loader-container').innerHTML = '';
+                  const container = document.getElementById('loader-container');
+                  if (container) {
+                    container.innerHTML = '';
+                  }
                 }));
             }));
           }),
-          `const loader = vDynamicLoader(l => {
-  l.src('./path/to/module.js')
-  l.loading('加载中...')
-  l.error('加载失败')
-  l.render((module) => {
-    return module.render()
-  })
-})
+          `const loader = vDynamicLoader(
+  () => import('./path/to/module.js'),
+  {
+    loadingContent: div('加载中...'),
+    onLoad: (api, loader) => {
+      loader.child(api.render())
+    }
+  }
+);
 
 loader.bindTo('#container')`
         ),
@@ -125,11 +152,15 @@ loader.bindTo('#container')`
 
       content.child(DocSection('api', 'API', [
         ApiTable([
-          { name: 'src', desc: '模块路径', type: 'string' },
-          { name: 'loading', desc: '加载中文本', type: 'string | Tag' },
-          { name: 'error', desc: '错误提示', type: 'string | Tag' },
-          { name: 'render', desc: '渲染函数', type: '(module) => Tag' },
-          { name: 'onStatusChange', desc: '状态变化回调', type: '(status) => void' },
+          { name: 'getStatus()', desc: '获取加载状态', type: 'pending|loading|loaded|error' },
+          { name: 'isLoaded()', desc: '是否已加载', type: 'boolean' },
+          { name: 'isError()', desc: '是否加载失败', type: 'boolean' },
+          { name: 'getApi()', desc: '获取模块 API', type: 'any' },
+          { name: 'getError()', desc: '获取错误信息', type: 'Error|null' },
+          { name: 'retry()', desc: '手动重试加载', type: 'Promise' },
+          { name: 'onLoad(fn)', desc: '设置加载回调', type: '(api, loader) => void' },
+          { name: 'onError(fn)', desc: '设置错误回调', type: '(error, loader) => void' },
+          { name: 'onStatusChange(fn)', desc: '设置状态变化回调', type: '(status, loader) => void' },
         ]),
 
         vstack(info => {
@@ -137,7 +168,7 @@ loader.bindTo('#container')`
           info.div('加载状态：');
           info.ul(u => {
             u.li(`🟡 ${LoadStatus.LOADING} - 加载中`);
-            u.li(`🟢 ${LoadStatus.SUCCESS} - 加载成功`);
+            u.li(`🟢 ${LoadStatus.LOADED} - 加载成功`);
             u.li(`🔴 ${LoadStatus.ERROR} - 加载失败`);
           });
         }),

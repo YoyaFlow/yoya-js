@@ -55,9 +55,11 @@ vMenu(m => {
               it.active();
               it.onClick(() => toast.info('菜单项 1'));
             });
-            m.item('⚙️ 设置')
-              .shortcut('Ctrl+S')
-              .onClick(() => toast.info('设置'));
+            m.item(it => {
+              it.text('⚙️ 设置1')
+              it.shortcut('Ctrl+S')
+              it.onClick(() => toast.info('设置'));
+            });
           }),
           `// ✅ 推荐：复杂逻辑用函数 + 链式
 vMenu(m => {

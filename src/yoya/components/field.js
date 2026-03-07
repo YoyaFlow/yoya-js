@@ -421,43 +421,14 @@ class VField extends Tag {
   }
 
   // ============================================
-  // API - Getter/Setter
+  // 链式方法
   // ============================================
 
-  // showContent: getter/setter
-  get showContent() {
-    return this._showContentFn;
-  }
-  set showContent(fn) {
-    this._showContentFn = fn;
-    if (!this.hasState('editing')) this._updateShowContent();
-  }
-
-  // editContent: getter/setter
-  get editContent() {
-    return this._editContentFn;
-  }
-  set editContent(fn) {
-    this._editContentFn = fn;
-    if (this.hasState('editing')) this._updateEditContent();
-  }
-
-  // value: getter/setter (别名)
-  get value() {
-    return this.getValue();
-  }
-  set value(val) {
-    this.setValue(val);
-  }
-
-  // getValue: 显式方法
   getValue() {
     return this._value;
   }
 
-  // setValue: 显式方法
   setValue(value) {
-    // 验证值是否为有效值（不是组件实例）
     let validatedValue = value;
     if (value !== undefined && value !== null) {
       if (typeof value === 'object' && value !== null && typeof value.value === 'function') {
@@ -478,76 +449,72 @@ class VField extends Tag {
     return this;
   }
 
-  // autoSave: getter/setter
-  get autoSave() {
-    return this._autoSave;
+  showContent(fn) {
+    if (fn === undefined) return this._showContentFn;
+    this._showContentFn = fn;
+    if (!this.hasState('editing')) this._updateShowContent();
+    return this;
   }
-  set autoSave(v) {
+
+  editContent(fn) {
+    if (fn === undefined) return this._editContentFn;
+    this._editContentFn = fn;
+    if (this.hasState('editing')) this._updateEditContent();
+    return this;
+  }
+
+  value(val) {
+    if (val === undefined) return this.getValue();
+    return this.setValue(val);
+  }
+
+  autoSave(v) {
+    if (v === undefined) return this._autoSave;
     this._autoSave = v;
+    return this;
   }
 
-  // placeholder: getter/setter
-  get placeholder() {
-    return this._placeholder;
-  }
-  set placeholder(v) {
+  placeholder(v) {
+    if (v === undefined) return this._placeholder;
     this._placeholder = v;
+    return this;
   }
 
-  // editable: getter/setter
-  get editable() {
-    return this._editable;
-  }
-  set editable(v) {
+  editable(v) {
+    if (v === undefined) return this._editable;
     this._editable = v;
+    return this;
   }
 
-  // onEdit: getter/setter
-  get onEdit() {
-    return this._onEdit;
-  }
-  set onEdit(fn) {
+  onEdit(fn) {
+    if (fn === undefined) return this._onEdit;
     this._onEdit = fn;
+    return this;
   }
 
-  // onSave: getter/setter
-  get onSave() {
-    return this._onSave;
-  }
-  set onSave(fn) {
+  onSave(fn) {
+    if (fn === undefined) return this._onSave;
     this._onSave = fn;
+    return this;
   }
 
-  // onChange: getter/setter
-  get onChange() {
-    return this._onChange;
-  }
-  set onChange(fn) {
+  onChange(fn) {
+    if (fn === undefined) return this._onChange;
     this._onChange = fn;
+    return this;
   }
 
-  // disabled: getter/setter (状态)
-  get disabled() {
-    return this.hasState('disabled');
-  }
-  set disabled(v) {
-    this.setState('disabled', v);
+  disabled(v = true) {
+    return this.setState('disabled', v);
   }
 
-  // loading: getter/setter (状态)
-  get loading() {
-    return this.hasState('loading');
-  }
-  set loading(v) {
-    this.setState('loading', v);
+  loading(v = true) {
+    return this.setState('loading', v);
   }
 
-  // editing: getter/setter (状态)
-  get editing() {
-    return this.hasState('editing');
-  }
-  set editing(v) {
-    this.setState('editing', v);
+  editing(v) {
+    if (v === undefined) return this.hasState('editing');
+    return this.setState('editing', v);
   }
 
   destroy() {

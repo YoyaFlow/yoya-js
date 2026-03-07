@@ -93,18 +93,19 @@ class Tag {
       if (key.startsWith('on') && typeof value === 'function') {
         continue;
       }
-      // 跳过函数（除非是 on 开头的事件）
-      if (typeof value === 'function' && !(key.startsWith('on'))) {
-        continue;
-      }
-
       // 尝试使用 setter
       const setterName = key;
-      if (typeof this[setterName] === 'function' || this.hasOwnProperty(setterName)) {
-        // 有 setter，使用 setter
+      if (typeof this[setterName] === 'function') {
+        // 有 setter 方法，调用它（包括函数类型的值）
+        this[setterName](value);
+      } else if (this.hasOwnProperty(setterName)) {
+        // 有 setter 属性，直接赋值
         this[setterName] = value;
       } else {
-        // 没有 setter，使用 attr
+        // 没有 setter，使用 attr（跳过函数类型）
+        if (typeof value === 'function') {
+          continue;
+        }
         this.attr(key, value);
       }
     }
