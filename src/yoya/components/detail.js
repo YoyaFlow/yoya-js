@@ -17,6 +17,7 @@ class VDetail extends Tag {
     this._column = 3;
     this._title = null;
     this._bordered = false;
+    this._layout = 'horizontal'; // 'horizontal' | 'vertical'
     this._initialized = false;
 
     // 1. 设置基础样式
@@ -68,63 +69,125 @@ class VDetail extends Tag {
         overflowX: 'auto',
       });
 
-      const tbl = table(t => {
-        t.styles({
-          width: '100%',
-          borderCollapse: 'collapse',
-          fontSize: 'inherit',
-        });
+      if (this._layout === 'vertical') {
+        // 纵向布局：使用 flex 布局
+        this._buildVerticalLayout(tc);
+      } else {
+        // 横向布局：使用表格布局
+        const tbl = table(t => {
+          t.styles({
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontSize: 'inherit',
+          });
 
-        if (this._bordered) {
-          t.style('border', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
-        }
-      });
-
-      // 根据 items 和 column 计算行数
-      const rows = this._buildRows();
-
-      rows.forEach(rowItems => {
-        const trEl = tr(r => {
           if (this._bordered) {
-            r.style('borderBottom', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+            t.style('border', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
           }
         });
 
-        rowItems.forEach(item => {
-          // 标签单元格
-          const labelTd = td(l => {
-            l.styles({
-              padding: 'var(--islands-descriptions-padding, 12px 16px)',
-              background: this._bordered
-                ? 'var(--islands-descriptions-label-bg, var(--islands-bg-secondary, #f7f8fa))'
-                : 'transparent',
-              color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
-              fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
-              textAlign: 'left',
-              width: 'var(--islands-descriptions-label-width, 120px)',
-              boxSizing: 'border-box',
-            });
+        // 根据 items 和 column 计算行数
+        const rows = this._buildRows();
 
+        rows.forEach(rowItems => {
+          const trEl = tr(r => {
             if (this._bordered) {
-              l.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
-            }
-
-            if (item.label) {
-              l.text(item.label);
+              r.style('borderBottom', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
             }
           });
 
-          // 内容单元格
-          const contentTd = td(c => {
-            c.styles({
-              padding: 'var(--islands-descriptions-padding, 12px 16px)',
-              color: 'var(--islands-descriptions-content-color, var(--islands-text, #333))',
-              boxSizing: 'border-box',
+          rowItems.forEach(item => {
+            // 标签单元格
+            const labelTd = td(l => {
+              l.styles({
+                padding: 'var(--islands-descriptions-padding, 12px 16px)',
+                background: this._bordered
+                  ? 'var(--islands-descriptions-label-bg, var(--islands-bg-secondary, #f7f8fa))'
+                  : 'transparent',
+                color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
+                fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
+                textAlign: 'left',
+                width: 'var(--islands-descriptions-label-width, 120px)',
+                boxSizing: 'border-box',
+              });
+
+              if (this._bordered) {
+                l.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+              }
+
+              if (item.label) {
+                l.text(item.label);
+              }
             });
 
-            if (this._bordered) {
-              c.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
-            }
+            // 内容单元格
+            const contentTd = td(c => {
+              c.styles({
+                padding: 'var(--islands-descriptions-padding, 12px 16px)',
+                color: 'var(--islands-descriptions-content-color, var(--islands-text, #333))',
+                boxSizing: 'border-box',
+              });
+
+              if (this._bordered) {
+                c.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+              }
+
+              if (item.content) {
+                if (typeof item.content === 'string') {
+                  c.text(item.content);
+                } else if (item.content instanceof Tag) {
+                  c.child(item.content);
+                }
+              }
+            });
+
+            trEl.child(labelTd, contentTd);
+          });
+
+          tbl.child(trEl);
+        });
+
+        tc.child(tbl);
+      }
+    });
+
+    this.child(tableContainer);
+  }
+
+  // 纵向布局实现
+  _buildVerticalLayout(container) {
+    const grid = div(g => {
+      g.styles({
+        display: 'grid',
+        gridTemplateColumns: `repeat(${this._column}, 1fr)`,
+        gap: 'var(--islands-descriptions-vertical-gap, 16px)',
+      });
+
+      this._items.forEach(item => {
+        const itemEl = div(i => {
+          i.styles({
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--islands-descriptions-vertical-item-gap, 6px)',
+          });
+
+          // 标签
+          const labelEl = span(l => {
+            l.styles({
+              fontSize: 'var(--islands-descriptions-label-font-size, 12px)',
+              color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
+              fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
+            });
+            if (item.label) l.text(item.label);
+          });
+
+          // 内容
+          const contentEl = div(c => {
+            c.styles({
+              fontSize: 'var(--islands-descriptions-content-font-size, 14px)',
+              color: 'var(--islands-descriptions-content-color, var(--islands-text, #333))',
+              padding: 'var(--islands-descriptions-vertical-content-padding, 8px 0)',
+            });
 
             if (item.content) {
               if (typeof item.content === 'string') {
@@ -135,16 +198,14 @@ class VDetail extends Tag {
             }
           });
 
-          trEl.child(labelTd, contentTd);
+          i.child(labelEl, contentEl);
         });
 
-        tbl.child(trEl);
+        g.child(itemEl);
       });
-
-      tc.child(tbl);
     });
 
-    this.child(tableContainer);
+    container.child(grid);
   }
 
   _buildRows() {
@@ -184,6 +245,12 @@ class VDetail extends Tag {
 
   bordered(value = true) {
     this._bordered = value;
+    return this;
+  }
+
+  layout(value) {
+    if (value === undefined) return this._layout;
+    this._layout = value; // 'horizontal' | 'vertical'
     return this;
   }
 

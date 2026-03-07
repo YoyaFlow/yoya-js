@@ -48,18 +48,23 @@ export function createDetailPage() {
       ]));
 
       content.child(DocSection('vertical', '纵向布局', [
-        CodeDemo('纵向布局',
+        CodeDemo('纵向布局（适应长标签）',
           vDetail(d => {
-            d.column(1);  // 单列模式
+            d.column(3);
+            d.layout('vertical');
             d.item('用户名', 'zhangsan');
-            d.item('邮箱', 'zhangsan@example.com');
-            d.item('手机', '138****1234');
-            d.item('地址', '北京市朝阳区 xxx 街道');
+            d.item('电子邮箱地址', 'zhangsan@example.com');
+            d.item('手机号码', '138****1234');
+            d.item('详细居住地址', '北京市朝阳区 xxx 街道');
+            d.item('当前职业信息', '软件工程师');
+            d.item('工作单位名称', 'xxx 科技有限公司');
           }),
           `vDetail(d => {
-  d.column(1)  // 单列模式
+  d.column(3)
+  d.layout('vertical')  // 纵向布局
   d.item('用户名', 'zhangsan')
-  d.item('邮箱', 'zhangsan@example.com')
+  d.item('电子邮箱地址', 'zhangsan@example.com')
+  d.item('手机号码', '138****1234')
 })`
         ),
       ]));

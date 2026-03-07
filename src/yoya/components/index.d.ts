@@ -392,6 +392,7 @@ declare class VDetail extends Tag {
   title(value: string): this | string;
   column(value: number): this | number;
   bordered(value?: boolean): this | boolean;
+  layout(value?: 'horizontal' | 'vertical'): this | string;
   item(label: string, content: string | Tag): this;
   items(items: Array<{ label: string; content: string | Tag }>): this;
 }
