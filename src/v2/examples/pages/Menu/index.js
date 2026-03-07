@@ -3,7 +3,7 @@
  */
 
 import { flex, vstack, hstack } from '../../../../yoya/index.js';
-import { vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vButton, toast } from '../../../../yoya/index.js';
+import { vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vButton, toast, vSidebar } from '../../../../yoya/index.js';
 import { AppShell } from '../../framework/AppShell.js';
 import { CodeDemo } from '../../components/CodeDemo.js';
 import { DocSection } from '../../components/DocSection.js';
@@ -22,6 +22,7 @@ export function createMenuPage() {
     { text: '子菜单', href: '#submenu', level: 1 },
     { text: '项状态', href: '#state', level: 1 },
     { text: '下拉菜单', href: '#dropdown', level: 1 },
+    { text: '侧边栏菜单', href: '#sidebar', level: 1 },
     { text: 'API', href: '#api', level: 1 },
   ];
 
@@ -227,6 +228,147 @@ vMenu(m => {
         ),
       ]));
 
+      content.child(DocSection('sidebar', '侧边栏菜单', [
+        CodeDemo('基础侧边栏',
+          vSidebar(sidebar => {
+            sidebar.width('220px');
+            sidebar.collapsedWidth('60px');
+            sidebar.header(h => {
+              h.styles({ fontWeight: '600', fontSize: '16px' });
+              h.text('🏝️ Yoya.Basic');
+            });
+            sidebar.content(content => {
+              content.item('🏠 首页', item => {
+                item.active();
+                item.onClick(() => toast.info('首页'));
+              });
+              content.item('📦 产品管理', item => {
+                item.onClick(() => toast.info('产品管理'));
+              });
+              content.divider();
+              content.item('👤 用户管理', item => {
+                item.onClick(() => toast.info('用户管理'));
+              });
+              content.item('📊 数据统计', item => {
+                item.onClick(() => toast.info('数据统计'));
+              });
+              content.divider();
+              content.item('⚙️ 系统设置', item => {
+                item.onClick(() => toast.info('系统设置'));
+              });
+            });
+            sidebar.footer(footer => {
+              footer.styles({ fontSize: '12px', color: 'var(--islands-text-secondary, #666)' });
+              footer.text('© 2024 Yoya.Basic');
+            });
+          }),
+          `vSidebar(sidebar => {
+  sidebar.width('220px')
+  sidebar.collapsedWidth('60px')
+
+  sidebar.header(h => {
+    h.text('🏝️ Yoya.Basic')
+  })
+
+  sidebar.content(content => {
+    content.item('🏠 首页', item => {
+      item.active()
+      item.onClick(() => toast('首页'))
+    })
+    content.item('产品管理')
+    content.divider()
+    content.item('用户管理')
+    content.item('系统设置')
+  })
+
+  sidebar.footer(f => {
+    f.text('© 2024 Yoya.Basic')
+  })
+})`
+        ),
+
+        CodeDemo('带切换按钮的侧边栏',
+          (() => {
+            const sidebarEl = vSidebar(sidebar => {
+              sidebar.width('220px');
+              sidebar.collapsedWidth('60px');
+              sidebar.header(h => {
+                h.styles({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' });
+                h.span('🏝️ Yoya');
+                sidebar.showToggleBtn();
+              });
+              sidebar.content(content => {
+                content.item('🏠 首页').active();
+                content.item('📦 产品');
+                content.item('⚙️ 设置');
+              });
+            });
+            return vstack(s => {
+              s.gap('16px');
+              s.child(sidebarEl);
+              s.child(vButton(btn => {
+                btn.text('切换折叠');
+                btn.type('primary');
+                btn.onClick(() => sidebarEl.toggle());
+              }));
+            });
+          })(),
+          `vSidebar(sidebar => {
+  sidebar.width('220px')
+  sidebar.collapsedWidth('60px')
+
+  sidebar.header(h => {
+    h.span('🏝️ Yoya')
+    sidebar.showToggleBtn() // 添加切换按钮
+  })
+
+  sidebar.content(c => {
+    c.item('🏠 首页').active()
+    c.item('📦 产品')
+    c.item('⚙️ 设置')
+  })
+})
+
+// 切换折叠状态
+sidebar.toggle()`
+        ),
+
+        CodeDemo('深色模式侧边栏',
+          vSidebar(sidebar => {
+            sidebar.dark();
+            sidebar.width('220px');
+            sidebar.collapsedWidth('60px');
+            sidebar.header(h => {
+              h.styles({ fontWeight: '600' });
+              h.text('🏝️ Yoya.Basic');
+            });
+            sidebar.content(content => {
+              content.item('🏠 首页', item => {
+                item.active();
+                item.onClick(() => toast.info('首页'));
+              });
+              content.item('📦 产品管理');
+              content.item('⚙️ 系统设置');
+            });
+          }),
+          `vSidebar(sidebar => {
+  sidebar.dark() // 深色模式
+  sidebar.width('220px')
+  sidebar.collapsedWidth('60px')
+
+  sidebar.header(h => {
+    h.text('🏝️ Yoya.Basic')
+  })
+
+  sidebar.content(c => {
+    c.item('🏠 首页').active()
+    c.item('产品管理')
+    c.item('系统设置')
+  })
+})`
+        ),
+      ]));
+
       content.child(DocSection('api', 'API', [
         ApiTable([
           { name: 'vMenu', desc: '菜单容器', type: 'vertical() / horizontal()' },
@@ -235,6 +377,7 @@ vMenu(m => {
           { name: 'vMenuGroup', desc: '菜单分组', type: 'label(分组标题)' },
           { name: 'vSubMenu', desc: '子菜单', type: 'text, content' },
           { name: 'vDropdownMenu', desc: '下拉菜单', type: 'trigger, menuContent, closeOnClickOutside' },
+          { name: 'vSidebar', desc: '侧边栏菜单', type: 'width, collapsedWidth, header, content, footer, toggle, collapse, expand, dark' },
         ]),
       ]));
     },
