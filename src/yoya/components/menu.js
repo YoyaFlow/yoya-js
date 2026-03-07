@@ -392,7 +392,15 @@ class VMenuItem extends Tag {
   _ensureTextBox() {
     if (this._textBox) return;
     this._textBox = span(textEl => {
-      textEl.styles({ flex: 1, color: 'inherit', pointerEvents: 'none' });
+      textEl.styles({
+        flex: 1,
+        color: 'inherit',
+        pointerEvents: 'none',
+        opacity: '1',
+        transition: 'opacity 0.2s ease, width 0.3s ease',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+      });
     });
     this.child(this._textBox);
   }
@@ -1022,7 +1030,7 @@ class VSidebar extends Tag {
       height: '100%',
       background: 'var(--islands-sidebar-bg, var(--islands-card-bg, white))',
       borderRight: 'var(--islands-sidebar-border, 1px solid var(--islands-border, #e0e0e0))',
-      transition: 'width 0.3s ease, min-width 0.3s ease',
+      transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'hidden',
       boxSizing: 'border-box',
     });
@@ -1031,42 +1039,113 @@ class VSidebar extends Tag {
   _registerStateHandlers() {
     this.registerStateHandler('collapsed', (collapsed, host) => {
       const el = host._boundElement;
+
       if (collapsed) {
+        // 折叠状态
         host.styles({
           width: host._collapsedWidth,
           minWidth: host._collapsedWidth,
         });
-        // 隐藏头部和尾部
-        if (host._headerEl) host._headerEl.style('display', 'none');
-        if (host._footerEl) host._footerEl.style('display', 'none');
-        // 隐藏菜单项文本
+
+        // 隐藏头部和尾部 - 带淡出效果
+        if (host._headerEl) {
+          host._headerEl.styles({
+            opacity: '0',
+            transform: 'translateX(-10px)',
+            transition: 'opacity 0.2s ease, transform 0.2s ease',
+          });
+          setTimeout(() => {
+            host._headerEl.style('display', 'none');
+          }, 200);
+        }
+        if (host._footerEl) {
+          host._footerEl.styles({
+            opacity: '0',
+            transform: 'translateX(-10px)',
+            transition: 'opacity 0.2s ease, transform 0.2s ease',
+          });
+          setTimeout(() => {
+            host._footerEl.style('display', 'none');
+          }, 200);
+        }
+
+        // 隐藏菜单项文本 - 带淡出效果
         if (host._contentEl) {
-          const textEls = host._contentEl._children.filter(c => c._textBox);
-          textEls.forEach(item => {
-            if (item._textBox) item._textBox.style('display', 'none');
-            if (item._shortcutBox) item._shortcutBox.style('display', 'none');
+          const items = host._contentEl._children.filter(c => c._textBox);
+          items.forEach((item, index) => {
+            setTimeout(() => {
+              if (item._textBox) {
+                item._textBox.styles({
+                  opacity: '0',
+                  transition: 'opacity 0.15s ease',
+                });
+              }
+              if (item._shortcutBox) {
+                item._shortcutBox.styles({
+                  opacity: '0',
+                  transition: 'opacity 0.15s ease',
+                });
+              }
+            }, index * 30);
           });
         }
+
         if (el) {
           el.style.width = host._collapsedWidth;
           el.style.minWidth = host._collapsedWidth;
         }
       } else {
+        // 展开状态
         host.styles({
           width: host._width,
           minWidth: host._width,
         });
-        // 显示头部和尾部
-        if (host._headerEl) host._headerEl.style('display', 'flex');
-        if (host._footerEl) host._footerEl.style('display', 'flex');
-        // 显示菜单项文本
+
+        // 显示头部和尾部 - 带淡入效果
+        if (host._headerEl) {
+          host._headerEl.style('display', 'flex');
+          setTimeout(() => {
+            host._headerEl.styles({
+              opacity: '1',
+              transform: 'translateX(0)',
+              transition: 'opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s',
+            });
+          }, 50);
+        }
+        if (host._footerEl) {
+          host._footerEl.style('display', 'flex');
+          setTimeout(() => {
+            host._footerEl.styles({
+              opacity: '1',
+              transform: 'translateX(0)',
+              transition: 'opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s',
+            });
+          }, 50);
+        }
+
+        // 显示菜单项文本 - 带阶梯淡入效果
         if (host._contentEl) {
-          const textEls = host._contentEl._children.filter(c => c._textBox);
-          textEls.forEach(item => {
-            if (item._textBox) item._textBox.style('display', '');
-            if (item._shortcutBox) item._shortcutBox.style('display', '');
+          const items = host._contentEl._children.filter(c => c._textBox);
+          items.forEach((item, index) => {
+            setTimeout(() => {
+              if (item._textBox) {
+                item._textBox.style('display', '');
+                item._textBox.styles({
+                  opacity: '1',
+                  transition: 'opacity 0.2s ease',
+                });
+              }
+              if (item._shortcutBox) {
+                item._shortcutBox.style('display', '');
+                item._shortcutBox.styles({
+                  opacity: '1',
+                  transition: 'opacity 0.2s ease',
+                });
+              }
+            }, 100 + index * 30);
           });
         }
+
         if (el) {
           el.style.width = host._width;
           el.style.minWidth = host._width;
@@ -1289,24 +1368,45 @@ class VSidebar extends Tag {
         background: 'transparent',
         border: 'none',
         cursor: 'pointer',
-        padding: 'var(--islands-sidebar-toggle-padding, 6px)',
-        borderRadius: 'var(--islands-sidebar-toggle-radius, 4px)',
+        padding: 'var(--islands-sidebar-toggle-padding, 8px)',
+        borderRadius: 'var(--islands-sidebar-toggle-radius, 6px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'background-color 0.2s',
+        transition: 'all 0.2s ease',
         color: 'var(--islands-text-secondary, #666)',
+        fontSize: '16px',
       });
-      btn.text('☰');
+      btn.text('◀');
       btn.on('mouseenter', () => {
-        btn.style('background', 'var(--islands-hover-bg, rgba(102, 126, 234, 0.05))');
+        btn.styles({
+          background: 'var(--islands-hover-bg, rgba(102, 126, 234, 0.1))',
+          color: 'var(--islands-primary, #667eea)',
+        });
       });
       btn.on('mouseleave', () => {
-        btn.style('background', 'transparent');
+        btn.styles({
+          background: 'transparent',
+          color: 'var(--islands-text-secondary, #666)',
+        });
       });
       btn.on('click', () => {
         this.toggle();
       });
+    });
+
+    // 监听折叠状态变化，更新按钮图标方向
+    this.registerStateInterceptor((stateName, value) => {
+      if (stateName === 'collapsed' && this._toggleBtnEl && this._toggleBtnEl._boundElement) {
+        setTimeout(() => {
+          this._toggleBtnEl.text(value ? '▶' : '◀');
+          this._toggleBtnEl.styles({
+            transform: value ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.3s ease',
+          });
+        }, 50);
+      }
+      return { stateName, value };
     });
 
     this._headerEl.child(this._toggleBtnEl);
