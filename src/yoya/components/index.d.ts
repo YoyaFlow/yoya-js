@@ -455,6 +455,56 @@ declare class VField extends Tag {
 declare function vField(setup?: Setup<VField>): VField;
 
 // ============================================
+// VTable 表格组件
+// ============================================
+
+declare class VTable extends Tag {
+  constructor(setup?: Setup<VTable>);
+  bordered(value?: boolean): this;
+  striped(value?: boolean): this;
+  hoverable(value?: boolean): this;
+  compact(value?: boolean): this;
+}
+
+declare function vTable(setup?: Setup<VTable>): VTable;
+
+declare class VThead extends Tag {
+  constructor(setup?: Setup<VThead>);
+}
+
+declare function vThead(setup?: Setup<VThead>): VThead;
+
+declare class VTbody extends Tag {
+  constructor(setup?: Setup<VTbody>);
+}
+
+declare function vTbody(setup?: Setup<VTbody>): VTbody;
+
+declare class VTfoot extends Tag {
+  constructor(setup?: Setup<VTfoot>);
+}
+
+declare function vTfoot(setup?: Setup<VTfoot>): VTfoot;
+
+declare class VTr extends Tag {
+  constructor(setup?: Setup<VTr>);
+}
+
+declare function vTr(setup?: Setup<VTr>): VTr;
+
+declare class VTh extends Tag {
+  constructor(setup?: Setup<VTh>);
+}
+
+declare function vTh(setup?: Setup<VTh>): VTh;
+
+declare class VTd extends Tag {
+  constructor(setup?: Setup<VTd>);
+}
+
+declare function vTd(setup?: Setup<VTd>): VTd;
+
+// ============================================
 // 导出
 // ============================================
 
@@ -493,4 +543,13 @@ export {
 
   // VField
   VField, vField,
+
+  // VTable
+  VTable, vTable,
+  VThead, vThead,
+  VTbody, vTbody,
+  VTfoot, vTfoot,
+  VTr, vTr,
+  VTh, vTh,
+  VTd, vTd,
 };

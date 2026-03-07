@@ -23,9 +23,9 @@ export function CodeDemo(title, demoContent, codeString = '') {
         // 演示区域
         inner.child(flex(demo => {
           demo.styles({
-            padding: '20px',
-            background: 'var(--islands-doc-example-demo-bg, #f8f9fa)',
-            borderRadius: 'var(--islands-radius-md, 6px)',
+            // padding: '20px',
+            // background: 'var(--islands-doc-example-demo-bg, #f8f9fa)',
+            // borderRadius: 'var(--islands-radius-md, 6px)',
           });
           demo.child(demoContent);
         }));

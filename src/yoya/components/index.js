@@ -87,3 +87,14 @@ export {
   VBody, vBody,
   createBody,
 } from './body.js';
+
+// Table 表格组件
+export {
+  VTable, vTable,
+  VThead, vThead,
+  VTbody, vTbody,
+  VTfoot, vTfoot,
+  VTr, vTr,
+  VTh, vTh,
+  VTd, vTd,
+} from './table.js';

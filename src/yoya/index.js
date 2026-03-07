@@ -124,6 +124,15 @@ export {
   // Body 组件
   VBody, vBody,
   createBody,
+
+  // Table 组件
+  VTable, vTable,
+  VThead, vThead,
+  VTbody, vTbody,
+  VTfoot, vTfoot,
+  VTr, vTr,
+  VTh, vTh,
+  VTd, vTd,
 } from './components/index.js';
 
 // 导出主题系统
