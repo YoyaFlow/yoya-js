@@ -421,9 +421,15 @@ class VMenuItem extends Tag {
   }
 
   _updateContent() {
+    // 清除旧的子元素（从 _children 数组中移除）
+    this._children = this._children.filter(c => {
+      return c !== this._iconBox && c !== this._textBox && c !== this._shortcutBox && c !== this._arrowEl;
+    });
+
     this._iconBox = null;
     this._textBox = null;
     this._shortcutBox = null;
+    this._arrowEl = null;
 
     if (this._icon) {
       this._ensureIconBox();
@@ -441,7 +447,7 @@ class VMenuItem extends Tag {
     }
 
     // 添加箭头（如果有子菜单）
-    if (this._arrowEl) {
+    if (this._submenuContainer) {
       this._ensureArrowEl();
     }
   }
