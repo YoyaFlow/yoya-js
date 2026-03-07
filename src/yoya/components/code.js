@@ -62,7 +62,7 @@ class VCode extends Tag {
     this.registerStateHandler('copied', (copied, host) => {
       if (host._copyButton) {
         if (copied) {
-          host._copyButton.text('✓ 已复制');
+          host._copyButton.textContent('✓ 已复制');
           host._copyButton.styles({
             background: 'var(--islands-code-copy-success-bg, #28a745)',
             color: 'var(--islands-code-copy-success-color, white)',
@@ -72,7 +72,7 @@ class VCode extends Tag {
             host.setState('copied', false);
           }, 2000);
         } else {
-          host._copyButton.text('📋 复制');
+          host._copyButton.textContent('📋 复制');
           host._copyButton.styles({
             background: 'var(--islands-code-copy-bg, #444)',
             color: 'var(--islands-code-copy-color, #ccc)',
