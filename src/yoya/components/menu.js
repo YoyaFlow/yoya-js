@@ -1143,7 +1143,31 @@ class VSidebar extends Tag {
     }
 
     if (typeof setup === 'function') {
-      setup(this._contentEl);
+      // 创建一个包装对象，提供便捷的 item、divider、group 方法
+      const contentWrapper = {
+        item: (content, itemSetup) => {
+          const el = vMenuItem(content, itemSetup);
+          this._contentEl.child(el);
+          return el;
+        },
+        divider: () => {
+          const el = vMenuDivider();
+          el.styles({
+            marginLeft: '8px',
+            marginRight: '8px',
+          });
+          this._contentEl.child(el);
+          return this;
+        },
+        group: (groupSetup) => {
+          const el = vMenuGroup(groupSetup);
+          this._contentEl.child(el);
+          return el;
+        },
+        // 返回原始 div 元素供直接使用
+        _el: this._contentEl,
+      };
+      setup(contentWrapper);
     }
 
     return this;

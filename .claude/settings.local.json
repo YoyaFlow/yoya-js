@@ -112,7 +112,8 @@
       "Bash(curl -s \"http://localhost:3003/yoya/theme/index.js\" 2>&1 | grep -A 15 \"function applyThemeVariables\")",
       "Bash(curl -s \"http://localhost:3000/yoya/theme/index.js\" 2>&1 | head -30)",
       "Bash(curl -s \"http://localhost:3000/yoya/theme/islands/index.js\" 2>&1 | head -10)",
-      "Bash(npm run check 2>&1 && npm test 2>&1 | tail -5)"
+      "Bash(npm run check 2>&1 && npm test 2>&1 | tail -5)",
+      "Bash(node test-sidebar.js 2>&1)"
     ]
   },
   "enableAllProjectMcpServers": true,

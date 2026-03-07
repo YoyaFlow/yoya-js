@@ -411,6 +411,30 @@ declare class VDetailItem extends Tag {
 declare function vDetailItem(label?: string, content?: string | Tag, setup?: Setup<VDetailItem>): VDetailItem;
 
 // ============================================
+// VSidebar 侧边栏菜单
+// ============================================
+
+declare class VSidebar extends Tag {
+  constructor(setup?: Setup<VSidebar>);
+  width(w: string): this;
+  collapsedWidth(w: string): this;
+  header(setup: ((el: Tag) => void) | string): this;
+  content(setup: (el: Tag) => void): this;
+  footer(setup: ((el: Tag) => void) | string): this;
+  item(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
+  divider(): this;
+  group(setup?: Setup<VMenuGroup>): VMenuGroup;
+  toggle(): this;
+  collapse(): this;
+  expand(): this;
+  isCollapsed(): boolean;
+  showToggleBtn(setup?: Setup<VButton>): this;
+  dark(): this;
+}
+
+declare function vSidebar(setup?: Setup<VSidebar>): VSidebar;
+
+// ============================================
 // VField 可编辑字段组件
 // ============================================
 
@@ -439,8 +463,8 @@ export {
   vCard, vCardHeader, vCardBody, vCardFooter,
 
   // VMenu
-  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu,
-  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu,
+  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu, VSidebar,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu, vSidebar,
 
   // VMessage
   VMessage, VMessageContainer, VMessageManager,
