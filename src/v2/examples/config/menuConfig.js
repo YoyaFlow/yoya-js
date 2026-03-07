@@ -36,6 +36,7 @@ export const menuConfig = [
     items: [
       { label: 'Detail 详情', page: 'Detail', file: 'detail.html' },
       { label: 'Field 字段', page: 'Field', file: 'field.html' },
+      { label: 'Table 表格', page: 'Table', file: 'table.html' },
     ],
   },
   {
