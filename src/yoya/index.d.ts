@@ -635,6 +635,68 @@ declare function vDynamicLoader(
   setup?: Setup<VDynamicLoader>
 ): VDynamicLoader;
 
+// ============================================
+// VSidebar 侧边栏菜单
+// ============================================
+
+/** 侧边栏组件选项 */
+interface VSidebarOptions {
+  /** 侧边栏宽度 */
+  width?: string;
+  /** 折叠时宽度 */
+  collapsedWidth?: string;
+}
+
+/** 侧边栏组件类 */
+declare class VSidebar extends Tag {
+  constructor(setup?: Setup<VSidebar>);
+
+  /** 设置侧边栏宽度 */
+  width(w: string): this;
+
+  /** 设置折叠时宽度 */
+  collapsedWidth(w: string): this;
+
+  /** 设置头部内容 */
+  header(setup: ((el: Tag) => void) | string): this;
+
+  /** 设置内容区域 */
+  content(setup: (el: Tag) => void): this;
+
+  /** 设置底部内容 */
+  footer(setup: ((el: Tag) => void) | string): this;
+
+  /** 添加菜单项 */
+  item(content?: string, setup?: Setup<VMenuItem>): VMenuItem;
+
+  /** 添加分割线 */
+  divider(): this;
+
+  /** 添加菜单组 */
+  group(setup?: Setup<VMenuGroup>): VMenuGroup;
+
+  /** 切换折叠状态 */
+  toggle(): this;
+
+  /** 折叠侧边栏 */
+  collapse(): this;
+
+  /** 展开侧边栏 */
+  expand(): this;
+
+  /** 是否已折叠 */
+  isCollapsed(): boolean;
+
+  /** 添加切换按钮到头部 */
+  showToggleBtn(setup?: Setup<VButton>): this;
+
+  /** 使用深色模式 */
+  dark(): this;
+}
+
+/** 创建侧边栏组件 */
+declare function vSidebar(setup?: Setup<VSidebar>): VSidebar;
+
 /** 模块加载结果 */
 interface ModuleLoadResult {
   [key: string]: any | { error: Error };
@@ -676,6 +738,10 @@ export {
   // 动态加载组件
   VDynamicLoader,
   vDynamicLoader,
+
+  // 侧边栏组件
+  VSidebar,
+  vSidebar,
 
   // 批量加载工具
   loadModules,

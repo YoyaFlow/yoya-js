@@ -24,13 +24,15 @@ export {
   VSubMenu,
   VDropdownMenu,
   VContextMenu,
+  VSidebar,
   vMenu,
   vMenuItem,
   vMenuDivider,
   vMenuGroup,
   vSubMenu,
   vDropdownMenu,
-  vContextMenu
+  vContextMenu,
+  vSidebar
 } from './menu.js';
 
 // Message 消息组件

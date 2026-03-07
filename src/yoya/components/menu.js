@@ -3,7 +3,7 @@
  * 菜单组件库
  */
 
-import { Tag, span, div } from '../core/basic.js';
+import { Tag, span, div, button } from '../core/basic.js';
 
 // ============================================
 // VMenu 菜单
@@ -830,13 +830,15 @@ export {
   VSubMenu,
   VDropdownMenu,
   VContextMenu,
+  VSidebar,
   vMenu,
   vMenuItem,
   vMenuDivider,
   vMenuGroup,
   vSubMenu,
   vDropdownMenu,
-  vContextMenu
+  vContextMenu,
+  vSidebar
 };
 
 // ============================================
@@ -964,3 +966,370 @@ class VSubMenu extends Tag {
 function vSubMenu(title = '', setup = null) {
   return new VSubMenu(title, setup);
 }
+
+// ============================================
+// VSidebar 侧边栏菜单
+// ============================================
+
+class VSidebar extends Tag {
+  static _stateAttrs = ['collapsed', 'expanded'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 配置
+    this._width = 'var(--islands-sidebar-width, 240px)';
+    this._collapsedWidth = 'var(--islands-sidebar-collapsed-width, 64px)';
+
+    // 内部元素引用
+    this._headerEl = null;
+    this._contentEl = null;
+    this._footerEl = null;
+    this._toggleBtnEl = null;
+
+    // 状态
+    this._collapsed = false;
+
+    // 1. 初始化状态
+    this.initializeStates({
+      collapsed: false,
+      expanded: false,
+    });
+
+    // 2. 设置基础样式
+    this._setupBaseStyles();
+
+    // 3. 保存基础样式快照
+    this.saveBaseStylesSnapshot();
+
+    // 4. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 5. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  _setupBaseStyles() {
+    this.styles({
+      display: 'flex',
+      flexDirection: 'column',
+      width: this._width,
+      minWidth: this._width,
+      height: '100%',
+      background: 'var(--islands-sidebar-bg, var(--islands-card-bg, white))',
+      borderRight: 'var(--islands-sidebar-border, 1px solid var(--islands-border, #e0e0e0))',
+      transition: 'width 0.3s ease, min-width 0.3s ease',
+      overflow: 'hidden',
+      boxSizing: 'border-box',
+    });
+  }
+
+  _registerStateHandlers() {
+    this.registerStateHandler('collapsed', (collapsed, host) => {
+      const el = host._boundElement;
+      if (collapsed) {
+        host.styles({
+          width: host._collapsedWidth,
+          minWidth: host._collapsedWidth,
+        });
+        // 隐藏头部和尾部
+        if (host._headerEl) host._headerEl.style('display', 'none');
+        if (host._footerEl) host._footerEl.style('display', 'none');
+        // 隐藏菜单项文本
+        if (host._contentEl) {
+          const textEls = host._contentEl._children.filter(c => c._textBox);
+          textEls.forEach(item => {
+            if (item._textBox) item._textBox.style('display', 'none');
+            if (item._shortcutBox) item._shortcutBox.style('display', 'none');
+          });
+        }
+        if (el) {
+          el.style.width = host._collapsedWidth;
+          el.style.minWidth = host._collapsedWidth;
+        }
+      } else {
+        host.styles({
+          width: host._width,
+          minWidth: host._width,
+        });
+        // 显示头部和尾部
+        if (host._headerEl) host._headerEl.style('display', 'flex');
+        if (host._footerEl) host._footerEl.style('display', 'flex');
+        // 显示菜单项文本
+        if (host._contentEl) {
+          const textEls = host._contentEl._children.filter(c => c._textBox);
+          textEls.forEach(item => {
+            if (item._textBox) item._textBox.style('display', '');
+            if (item._shortcutBox) item._shortcutBox.style('display', '');
+          });
+        }
+        if (el) {
+          el.style.width = host._width;
+          el.style.minWidth = host._width;
+        }
+      }
+    });
+  }
+
+  /**
+   * 设置侧边栏宽度
+   */
+  width(w) {
+    this._width = w;
+    if (!this._collapsed) {
+      this.style('width', w);
+      this.style('minWidth', w);
+    }
+    return this;
+  }
+
+  /**
+   * 设置折叠时宽度
+   */
+  collapsedWidth(w) {
+    this._collapsedWidth = w;
+    return this;
+  }
+
+  /**
+   * 设置头部内容
+   */
+  header(setup) {
+    if (!this._headerEl) {
+      this._headerEl = div(header => {
+        header.styles({
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--islands-sidebar-header-padding, 16px)',
+          borderBottom: 'var(--islands-sidebar-header-border, 1px solid var(--islands-border, #e0e0e0))',
+          background: 'var(--islands-sidebar-header-bg, var(--islands-bg-secondary, #f7f8fa))',
+        });
+      });
+      this.child(this._headerEl);
+    } else {
+      this._headerEl.clear();
+    }
+
+    if (typeof setup === 'function') {
+      setup(this._headerEl);
+    } else if (typeof setup === 'string') {
+      this._headerEl.text(setup);
+    }
+
+    return this;
+  }
+
+  /**
+   * 设置内容区域
+   */
+  content(setup) {
+    if (!this._contentEl) {
+      this._contentEl = div(content => {
+        content.styles({
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          padding: 'var(--islands-sidebar-content-padding, 8px 0)',
+        });
+      });
+      this.child(this._contentEl);
+    } else {
+      this._contentEl.clear();
+    }
+
+    if (typeof setup === 'function') {
+      setup(this._contentEl);
+    }
+
+    return this;
+  }
+
+  /**
+   * 设置底部内容
+   */
+  footer(setup) {
+    if (!this._footerEl) {
+      this._footerEl = div(footer => {
+        footer.styles({
+          display: 'flex',
+          alignItems: 'center',
+          padding: 'var(--islands-sidebar-footer-padding, 16px)',
+          borderTop: 'var(--islands-sidebar-footer-border, 1px solid var(--islands-border, #e0e0e0))',
+          background: 'var(--islands-sidebar-footer-bg, var(--islands-bg-secondary, #f7f8fa))',
+        });
+      });
+      this.child(this._footerEl);
+    } else {
+      this._footerEl.clear();
+    }
+
+    if (typeof setup === 'function') {
+      setup(this._footerEl);
+    } else if (typeof setup === 'string') {
+      this._footerEl.text(setup);
+    }
+
+    return this;
+  }
+
+  /**
+   * 添加菜单项
+   */
+  item(content = '', setup = null) {
+    if (!this._contentEl) {
+      this.content(c => {});
+    }
+    const el = vMenuItem(content, setup);
+    this._contentEl.child(el);
+    return el;
+  }
+
+  /**
+   * 添加分割线
+   */
+  divider() {
+    if (!this._contentEl) {
+      this.content(c => {});
+    }
+    const el = vMenuDivider();
+    el.styles({
+      marginLeft: 'var(--islands-sidebar-divider-margin, 8px)',
+      marginRight: 'var(--islands-sidebar-divider-margin, 8px)',
+    });
+    this._contentEl.child(el);
+    return this;
+  }
+
+  /**
+   * 添加菜单组
+   */
+  group(setup = null) {
+    if (!this._contentEl) {
+      this.content(c => {});
+    }
+    const el = vMenuGroup(setup);
+    this._contentEl.child(el);
+    return el;
+  }
+
+  /**
+   * 切换折叠状态
+   */
+  toggle() {
+    const collapsed = this.hasState('collapsed');
+    this.setState('collapsed', !collapsed);
+    this._collapsed = !collapsed;
+    return this;
+  }
+
+  /**
+   * 折叠侧边栏
+   */
+  collapse() {
+    this.setState('collapsed', true);
+    this._collapsed = true;
+    return this;
+  }
+
+  /**
+   * 展开侧边栏
+   */
+  expand() {
+    this.setState('collapsed', false);
+    this._collapsed = false;
+    return this;
+  }
+
+  /**
+   * 是否已折叠
+   */
+  isCollapsed() {
+    return this.hasState('collapsed');
+  }
+
+  /**
+   * 添加切换按钮到头部
+   */
+  showToggleBtn(setup = null) {
+    if (!this._headerEl) {
+      this.header(h => {});
+    }
+
+    this._toggleBtnEl = button(btn => {
+      btn.styles({
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 'var(--islands-sidebar-toggle-padding, 6px)',
+        borderRadius: 'var(--islands-sidebar-toggle-radius, 4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'background-color 0.2s',
+        color: 'var(--islands-text-secondary, #666)',
+      });
+      btn.text('☰');
+      btn.on('mouseenter', () => {
+        btn.style('background', 'var(--islands-hover-bg, rgba(102, 126, 234, 0.05))');
+      });
+      btn.on('mouseleave', () => {
+        btn.style('background', 'transparent');
+      });
+      btn.on('click', () => {
+        this.toggle();
+      });
+    });
+
+    this._headerEl.child(this._toggleBtnEl);
+    return this;
+  }
+
+  /**
+   * 使用主题深色模式
+   */
+  dark() {
+    this.styles({
+      background: 'var(--islands-sidebar-bg-dark, var(--islands-bg-dark, #1a1a1a))',
+      borderRight: 'var(--islands-sidebar-border-dark, 1px solid var(--islands-border-dark, #333))',
+    });
+    if (this._headerEl) {
+      this._headerEl.styles({
+        background: 'var(--islands-sidebar-header-bg-dark, var(--islands-bg-dark-secondary, #2a2a2a))',
+        borderBottom: 'var(--islands-sidebar-header-border-dark, 1px solid var(--islands-border-dark, #333))',
+      });
+    }
+    if (this._footerEl) {
+      this._footerEl.styles({
+        background: 'var(--islands-sidebar-footer-bg-dark, var(--islands-bg-dark-secondary, #2a2a2a))',
+        borderTop: 'var(--islands-sidebar-footer-border-dark, 1px solid var(--islands-border-dark, #333))',
+      });
+    }
+    return this;
+  }
+
+  /**
+   * 销毁组件
+   */
+  destroy() {
+    this._headerEl = null;
+    this._contentEl = null;
+    this._footerEl = null;
+    this._toggleBtnEl = null;
+    super.destroy();
+  }
+}
+
+function vSidebar(setup = null) {
+  return new VSidebar(setup);
+}
+
+Tag.prototype.vSidebar = function(setup = null) {
+  const el = vSidebar(setup);
+  this.child(el);
+  return this;
+};

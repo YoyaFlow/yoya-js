@@ -88,8 +88,8 @@ export {
   vCard, vCardHeader, vCardBody, vCardFooter,
 
   // Menu 组件
-  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu,
-  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu,
+  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu, VSidebar,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu, vSidebar,
 
   // Message 组件
   VMessage, VMessageContainer, VMessageManager,
