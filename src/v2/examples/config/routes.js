@@ -15,6 +15,7 @@ export const routes = {
   'Detail': () => import('../pages/Detail/index.js').then(m => m.createDetailPage),
   'Field': () => import('../pages/Field/index.js').then(m => m.createFieldPage),
   'Body': () => import('../pages/Body/index.js').then(m => m.createBodyPage),
+  'Table': () => import('../pages/Table/index.js').then(m => m.createTablePage),
   'DynamicLoader': () => import('../pages/DynamicLoader/index.js').then(m => m.createDynamicLoaderPage),
 };
 
@@ -33,6 +34,7 @@ export async function getPageComponent(fileName) {
     'detail.html': 'Detail',
     'field.html': 'Field',
     'body.html': 'Body',
+    'table.html': 'Table',
     'dynamic-loader.html': 'DynamicLoader',
   };
 
