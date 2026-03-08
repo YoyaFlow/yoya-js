@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>订单/合同管理 - i18n 演示</title>
+  <link rel="stylesheet" href="../../yoya/theme/variables.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--islands-bg, #fff);
+      color: var(--islands-text, #2B2D30);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--islands-border);
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--islands-text);
+    }
+
+    .language-switcher {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .lang-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--islands-border);
+      border-radius: 6px;
+      background: var(--islands-bg);
+      color: var(--islands-text);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .lang-btn:hover {
+      background: var(--islands-bg-hover);
+      border-color: var(--islands-primary);
+    }
+
+    .lang-btn.active {
+      background: var(--islands-primary);
+      color: white;
+      border-color: var(--islands-primary);
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .section {
+      background: var(--islands-card-bg);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--islands-shadow);
+      border: 1px solid var(--islands-border-light);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--islands-border-light);
+      color: var(--islands-text);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--islands-text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-pending {
+      background: var(--islands-warning-bg);
+      color: var(--islands-warning);
+    }
+
+    .status-completed {
+      background: var(--islands-success-bg);
+      color: var(--islands-success);
+    }
+
+    .status-active {
+      background: var(--islands-info-bg);
+      color: var(--islands-info);
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--islands-border-light);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--islands-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--islands-primary-light);
+    }
+
+    .btn-default {
+      background: var(--islands-bg);
+      color: var(--islands-text);
+      border: 1px solid var(--islands-border);
+    }
+
+    .btn-default:hover {
+      background: var(--islands-bg-hover);
+    }
+
+    @media (max-width: 1024px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app"></div>
+
+  <script type="module">
+    import {
+      div, vDetail, vDetailItem, vField, vInput, vSelect,
+      toast, initI18n, registerLanguage, setLanguage, getLanguage
+    } from '../../yoya/index.js';
+
+    // 导入语言包
+    import zhCN from './i18n/zh-CN.json' assert { type: 'json' };
+    import en from './i18n/en.json' assert { type: 'json' };
+    import mn from './i18n/mn.json' assert { type: 'json' };
+
+    // 初始化 i18n
+    initI18n({
+      defaultLanguage: 'zh-CN',
+      languages: new Map([
+        ['zh-CN', zhCN],
+        ['en', en],
+        ['mn', mn]
+      ])
+    });
+
+    // 翻译辅助函数
+    function t(key, params = {}) {
+      const lang = getLanguage();
+      const pack = lang === 'zh-CN' ? zhCN : (lang === 'en' ? en : mn);
+
+      const keys = key.split('.');
+      let value = pack;
+      for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+          value = value[k];
+        } else {
+          return key;
+        }
+      }
+
+      // 替换占位符
+      if (params && typeof params === 'object') {
+        return String(value).replace(/\{(\w+)\}/g, (match, pKey) => params[pKey] || match);
+      }
+      return value;
+    }
+
+    // 当前订单数据
+    let orderData = {
+      orderNumber: 'ORD-2026030801',
+      orderDate: '2026-03-08',
+      orderStatus: 'processing',
+      orderAmount: '12,580.00',
+      currency: 'CNY',
+      customerName: '张三',
+      customerEmail: 'zhangsan@example.com',
+      customerPhone: '138****5678',
+      customerCompany: '某某科技有限公司',
+      customerLevel: 'vip',
+      contractNumber: 'CTR-2026-001',
+      contractName: '年度采购框架协议',
+      contractType: 'purchase',
+      signDate: '2026-01-15',
+      effectiveDate: '2026-01-20',
+      expiryDate: '2027-01-19',
+      partyA: '某某科技有限公司',
+      partyB: '供应商有限公司',
+      agentName: '李四',
+      department: '采购部'
+    };
+
+    // 状态映射
+    const statusMap = {
+      'processing': 'processing',
+      'completed': 'completed',
+      'pending': 'pending',
+      'active': 'active'
+    };
+
+    // 创建页面
+    function renderPage() {
+      const app = document.getElementById('app');
+      app.innerHTML = '';
+
+      // 页面头部
+      const header = div(h => {
+        h.styles({
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid var(--islands-border)'
+        });
+
+        h.div(title => {
+          title.styles({ fontSize: '24px', fontWeight: '600' });
+          title.text(t('order.title'));
+        });
+
+        // 语言切换器
+        h.div(lang => {
+          lang.styles({ display: 'flex', gap: '8px', alignItems: 'center' });
+
+          ['zh-CN', 'en', 'mn'].forEach(code => {
+            lang.button(btn => {
+              const langName = t(`language.${code}`);
+              btn.styles({
+                padding: '8px 16px',
+                border: '1px solid var(--islands-border)',
+                borderRadius: '6px',
+                background: getLanguage() === code ? 'var(--islands-primary)' : 'var(--islands-bg)',
+                color: getLanguage() === code ? 'white' : 'var(--islands-text)',
+                cursor: 'pointer',
+                fontSize: '14px'
+              });
+              btn.text(langName);
+              btn.onclick(() => {
+                setLanguage(code);
+                renderPage();
+                toast.info(t('message.saveSuccess'));
+              });
+            });
+          });
+        });
+      });
+
+      // 订单信息部分
+      const orderSection = div(section => {
+        section.styles({
+          background: 'var(--islands-card-bg)',
+          borderRadius: '8px',
+          padding: '20px',
+          boxShadow: 'var(--islands-shadow)',
+          border: '1px solid var(--islands-border-light)'
+        });
+
+        section.div(title => {
+          title.styles({
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '16px',
+            paddingBottom: '12px',
+            borderBottom: '1px solid var(--islands-border-light)'
+          });
+          title.text(t('order.orderInfo'));
+        });
+
+        // 使用 VDetail 展示订单信息
+        section.vDetail(detail => {
+          detail.column(2);
+          detail.bordered(true);
+
+          detail.item(t('order.orderNumber'), vField(f => {
+            f.value(orderData.orderNumber);
+            f.showContent((el, val) => el.text(val));
+            f.editContent((el, setValue) => {
+              el.vInput(inp => {
+                inp.value(val);
+                inp.onchange(e => setValue(e.target.value));
+              });
+            });
+            f.onSave(({ value }) => {
+              orderData.orderNumber = value;
+              toast.success(t('message.saveSuccess'));
+            });
+          }));
+
+          detail.item(t('order.orderDate'), orderData.orderDate);
+
+          detail.item(t('order.orderStatus'), div(s => {
+            s.styles({
+              display: 'inline-block',
+              padding: '4px 12px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: '500',
+              background: 'var(--islands-info-bg)',
+              color: 'var(--islands-info)'
+            });
+            s.text(t(`status.${orderData.orderStatus}`));
+          }));
+
+          detail.item(t('order.orderAmount'), `¥ ${orderData.orderAmount} ${orderData.currency}`);
+        });
+
+        // 操作按钮
+        section.div(action => {
+          action.styles({
+            display: 'flex',
+            gap: '12px',
+            marginTop: '20px',
+            paddingTop: '16px',
+            borderTop: '1px solid var(--islands-border-light)'
+          });
+
+          action.button(btn => {
+            btn.styles({
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '6px',
+              background: 'var(--islands-primary)',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            });
+            btn.text(t('common.edit'));
+            btn.onclick(() => toast.info(t('common.edit')));
+          });
+
+          action.button(btn => {
+            btn.styles({
+              padding: '10px 20px',
+              border: '1px solid var(--islands-border)',
+              borderRadius: '6px',
+              background: 'var(--islands-bg)',
+              color: 'var(--islands-text)',
+              cursor: 'pointer',
+              fontSize: '14px'
+            });
+            btn.text(t('common.cancel'));
+            btn.onclick(() => toast.info(t('common.cancel')));
+          });
+        });
+      });
+
+      // 客户信息部分
+      const customerSection = div(section => {
+        section.styles({
+          background: 'var(--islands-card-bg)',
+          borderRadius: '8px',
+          padding: '20px',
+          boxShadow: 'var(--islands-shadow)',
+          border: '1px solid var(--islands-border-light)'
+        });
+
+        section.div(title => {
+          title.styles({
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '16px',
+            paddingBottom: '12px',
+            borderBottom: '1px solid var(--islands-border-light)'
+          });
+          title.text(t('order.customerInfo'));
+        });
+
+        section.vDetail(detail => {
+          detail.column(2);
+          detail.bordered(true);
+
+          detail.item(t('order.customerName'), vField(f => {
+            f.value(orderData.customerName);
+            f.showContent((el, val) => el.text(val));
+            f.editContent((el, setValue) => {
+              el.vInput(inp => {
+                inp.value(val);
+                inp.onchange(e => setValue(e.target.value));
+              });
+            });
+            f.onSave(({ value }) => {
+              orderData.customerName = value;
+              toast.success(t('message.saveSuccess'));
+            });
+          }));
+
+          detail.item(t('order.customerEmail'), vField(f => {
+            f.value(orderData.customerEmail);
+            f.showContent((el, val) => el.text(val));
+            f.editContent((el, setValue) => {
+              el.vInput(inp => {
+                inp.type('email');
+                inp.value(val);
+                inp.onchange(e => setValue(e.target.value));
+              });
+            });
+            f.onSave(({ value }) => {
+              orderData.customerEmail = value;
+              toast.success(t('message.saveSuccess'));
+            });
+          }));
+
+          detail.item(t('order.customerPhone'), orderData.customerPhone);
+          detail.item(t('order.customerCompany'), orderData.customerCompany);
+
+          detail.item(t('order.customerLevel'), div(l => {
+            l.styles({
+              display: 'inline-block',
+              padding: '4px 12px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: '500',
+              background: 'var(--islands-primary-alpha)',
+              color: 'var(--islands-primary)'
+            });
+            l.text(t(`customerLevel.${orderData.customerLevel}`));
+          }));
+        });
+      });
+
+      // 合同信息部分
+      const contractSection = div(section => {
+        section.styles({
+          background: 'var(--islands-card-bg)',
+          borderRadius: '8px',
+          padding: '20px',
+          boxShadow: 'var(--islands-shadow)',
+          border: '1px solid var(--islands-border-light)',
+          gridColumn: '1 / -1'
+        });
+
+        section.div(title => {
+          title.styles({
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '16px',
+            paddingBottom: '12px',
+            borderBottom: '1px solid var(--islands-border-light)'
+          });
+          title.text(t('order.contractInfo'));
+        });
+
+        section.vDetail(detail => {
+          detail.column(3);
+          detail.bordered(true);
+
+          detail.item(t('order.contractNumber'), orderData.contractNumber);
+          detail.item(t('order.contractName'), orderData.contractName);
+          detail.item(t('order.contractType'), t(`contractType.${orderData.contractType}`));
+          detail.item(t('order.signDate'), orderData.signDate);
+          detail.item(t('order.effectiveDate'), orderData.effectiveDate);
+          detail.item(t('order.expiryDate'), vField(f => {
+            f.value(orderData.expiryDate);
+            f.showContent((el, val) => {
+              el.text(val);
+              // 检查是否即将过期
+              const days = Math.ceil((new Date(val) - new Date()) / (1000 * 60 * 60 * 24));
+              if (days < 30 && days > 0) {
+                const badge = span(b => {
+                  b.styles({
+                    marginLeft: '8px',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                    background: 'var(--islands-warning-bg)',
+                    color: 'var(--islands-warning)'
+                  });
+                  b.text(t('common.warning'));
+                });
+                el.child(badge);
+              }
+            });
+          }));
+          detail.item(t('order.partyA'), orderData.partyA);
+          detail.item(t('order.partyB'), orderData.partyB);
+          detail.item(t('order.agentName'), vField(f => {
+            f.value(orderData.agentName);
+            f.showContent((el, val) => el.text(val));
+            f.editContent((el, setValue) => {
+              el.vInput(inp => {
+                inp.value(val);
+                inp.onchange(e => setValue(e.target.value));
+              });
+            });
+            f.onSave(({ value }) => {
+              orderData.agentName = value;
+              toast.success(t('message.saveSuccess'));
+            });
+          }));
+          detail.item(t('order.department'), orderData.department);
+        });
+      });
+
+      // 组装页面
+      const content = div(c => {
+        c.styles({
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '24px'
+        });
+        c.child(orderSection);
+        c.child(customerSection);
+        c.child(contractSection);
+      });
+
+      h.child(header);
+      h.child(content);
+
+      app.child(h);
+    }
+
+    // 首次渲染
+    renderPage();
+  </script>
+</body>
+</html>
