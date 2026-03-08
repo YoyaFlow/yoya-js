@@ -32,36 +32,55 @@ const size = {
 export function createLightTheme() {
   const theme = new Theme('islands:light');
 
-  // 定义颜色变量
+  // 定义颜色变量 - JetBrains Islands 浅色主题配色
   const colors = {
-    // 主色调
-    primary: '#667eea',
-    primaryLight: '#7c8ff0',
-    primaryDark: '#5a6fd6',
+    // 主色调 - JetBrains 蓝紫色
+    primary: '#5A67D6',        // 主要交互色
+    primaryLight: '#7B85EE',    // 悬停/高亮
+    primaryDark: '#4655B8',     // 按压/激活
+    primaryAlpha: 'rgba(90, 103, 214, 0.1)',  // 半透明背景
 
-    // 背景色
-    background: '#ffffff',
-    backgroundSecondary: '#f7f8fa',
-    backgroundTertiary: '#eff1f4',
+    // 背景色 - Islands 风格白色系
+    background: '#FFFFFF',
+    backgroundSecondary: '#F5F6F7',   // 次级背景（表头、分组）
+    backgroundTertiary: '#EBECED',    // 第三级背景（禁用、不可用）
+    backgroundHover: '#E8EAED',       // 悬停背景
 
-    // 文字颜色
-    textPrimary: '#1a1a1a',
-    textSecondary: '#666666',
-    textDisabled: '#999999',
+    // 文字颜色 - JetBrains 灰度体系
+    textPrimary: '#2B2D30',     // 主要文字
+    textSecondary: '#6B6E75',   // 次要文字/描述
+    textTertiary: '#9A9DA3',    // 辅助文字
+    textDisabled: '#B8BAC0',    // 禁用文字
+    textLink: '#3574F0',        // 链接色
 
-    // 边框
-    border: '#e0e0e0',
-    borderLight: '#f0f0f0',
+    // 边框 - JetBrains 边框色
+    border: '#D3D3D6',          // 主边框
+    borderLight: '#E5E5E7',     // 次级边框
+    borderFocus: '#5A67D6',     // 聚焦边框
+    borderHover: '#A8A8AC',     // 悬停边框
 
-    // 状态色
-    success: '#28a745',
-    warning: '#ffc107',
-    error: '#dc3545',
-    info: '#17a2b8',
+    // 状态色 - JetBrains 语义色
+    success: '#49B85C',         // 成功（绿色）
+    successBg: 'rgba(73, 184, 92, 0.1)',
+    warning: '#F0A664',         // 警告（橙色）
+    warningBg: 'rgba(240, 166, 100, 0.1)',
+    error: '#E05252',           // 错误（红色）
+    errorBg: 'rgba(224, 82, 82, 0.1)',
+    info: '#4FB3E4',            // 信息（蓝色）
+    infoBg: 'rgba(79, 179, 228, 0.1)',
 
-    // 阴影
-    shadow: 'rgba(0, 0, 0, 0.08)',
-    shadowHover: 'rgba(0, 0, 0, 0.12)',
+    //  selection - 选区背景
+    selection: 'rgba(90, 103, 214, 0.2)',
+    selectionInactive: 'rgba(90, 103, 214, 0.1)',
+
+    // 阴影 - JetBrains 柔和阴影
+    shadow: 'rgba(30, 32, 35, 0.08)',
+    shadowHover: 'rgba(30, 32, 35, 0.12)',
+    shadowDropdown: 'rgba(30, 32, 35, 0.15)',
+
+    // 特殊效果
+    overlay: 'rgba(30, 32, 35, 0.5)',
+    scrim: 'rgba(0, 0, 0, 0.32)',
   };
 
   // 全局样式变量
@@ -69,23 +88,36 @@ export function createLightTheme() {
     '--islands-primary': colors.primary,
     '--islands-primary-light': colors.primaryLight,
     '--islands-primary-dark': colors.primaryDark,
-    '--islands-primary-alpha': 'rgba(102, 126, 234, 0.1)',
+    '--islands-primary-alpha': colors.primaryAlpha,
     '--islands-bg': colors.background,
     '--islands-bg-secondary': colors.backgroundSecondary,
     '--islands-bg-tertiary': colors.backgroundTertiary,
+    '--islands-bg-hover': colors.backgroundHover,
     '--islands-text': colors.textPrimary,
     '--islands-text-secondary': colors.textSecondary,
+    '--islands-text-tertiary': colors.textTertiary,
     '--islands-text-disabled': colors.textDisabled,
+    '--islands-text-link': colors.textLink,
     '--islands-border': colors.border,
     '--islands-border-light': colors.borderLight,
+    '--islands-border-focus': colors.borderFocus,
+    '--islands-border-hover': colors.borderHover,
     '--islands-success': colors.success,
+    '--islands-success-bg': colors.successBg,
     '--islands-warning': colors.warning,
+    '--islands-warning-bg': colors.warningBg,
     '--islands-error': colors.error,
+    '--islands-error-bg': colors.errorBg,
     '--islands-info': colors.info,
+    '--islands-info-bg': colors.infoBg,
+    '--islands-selection': colors.selection,
+    '--islands-selection-inactive': colors.selectionInactive,
     '--islands-shadow': colors.shadow,
     '--islands-shadow-hover': colors.shadowHover,
-    '--islands-hover-bg': 'rgba(102, 126, 234, 0.05)',
-    '--islands-error-alpha': 'rgba(220, 53, 69, 0.2)',
+    '--islands-shadow-dropdown': colors.shadowDropdown,
+    '--islands-hover-bg': colors.backgroundHover,
+    '--islands-error-alpha': colors.errorBg,
+    '--islands-overlay': colors.overlay,
     // 尺寸变量
     '--islands-padding-xs': size.paddingXs,
     '--islands-padding-sm': size.paddingSm,
@@ -116,6 +148,18 @@ export function createLightTheme() {
     '--islands-button-height-sm': '24px',
     '--islands-button-radius': '6px',
     '--islands-button-min-width': '64px',
+    '--islands-button-primary-bg': colors.primary,
+    '--islands-button-primary-hover': colors.primaryLight,
+    '--islands-button-primary-active': colors.primaryDark,
+    '--islands-button-success-bg': colors.success,
+    '--islands-button-success-hover': '#3D9F4E',
+    '--islands-button-warning-bg': colors.warning,
+    '--islands-button-warning-hover': '#E0962E',
+    '--islands-button-danger-bg': colors.error,
+    '--islands-button-danger-hover': '#C84646',
+    '--islands-button-default-bg': colors.background,
+    '--islands-button-default-hover': colors.backgroundHover,
+    '--islands-button-default-border': colors.border,
     // 输入框变量
     '--islands-input-padding': '8px 12px',
     '--islands-input-padding-lg': '10px 16px',
@@ -217,18 +261,18 @@ export function createLightTheme() {
     '--islands-message-close-padding': '0 4px',
     '--islands-message-close-opacity': '0.7',
     '--islands-message-close-hover-opacity': '1',
-    '--islands-message-success-bg': 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
-    '--islands-message-success-color': '#155724',
-    '--islands-message-success-border': '1px solid #c3e6cb',
-    '--islands-message-error-bg': 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)',
-    '--islands-message-error-color': '#721c24',
-    '--islands-message-error-border': '1px solid #f5c6cb',
-    '--islands-message-warning-bg': 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)',
-    '--islands-message-warning-color': '#856404',
-    '--islands-message-warning-border': '1px solid #ffeaa7',
-    '--islands-message-info-bg': 'linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)',
-    '--islands-message-info-color': '#0c5460',
-    '--islands-message-info-border': '1px solid #bee5eb',
+    '--islands-message-success-bg': colors.successBg,
+    '--islands-message-success-color': colors.success,
+    '--islands-message-success-border': `1px solid ${colors.success}`,
+    '--islands-message-error-bg': colors.errorBg,
+    '--islands-message-error-color': colors.error,
+    '--islands-message-error-border': `1px solid ${colors.error}`,
+    '--islands-message-warning-bg': colors.warningBg,
+    '--islands-message-warning-color': colors.warning,
+    '--islands-message-warning-border': `1px solid ${colors.warning}`,
+    '--islands-message-info-bg': colors.infoBg,
+    '--islands-message-info-color': colors.info,
+    '--islands-message-info-border': `1px solid ${colors.info}`,
     // 菜单变量
     '--islands-menu-bg': 'white',
     '--islands-menu-radius': '8px',
@@ -261,23 +305,21 @@ export function createLightTheme() {
     '--islands-context-menu-bg': 'white',
     '--islands-context-menu-radius': '8px',
     '--islands-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-    // 卡片变量
-    '--islands-card-bg': 'white',
-    '--islands-card-radius': '8px',
-    '--islands-card-shadow': '0 2px 8px rgba(0,0,0,0.1)',
-    '--islands-card-header-padding': '16px',
-    '--islands-card-header-border': '1px solid #e0e0e0',
-    '--islands-card-header-font-weight': '600',
-    '--islands-card-header-font-size': '16px',
-    '--islands-card-header-color': '#333',
-    '--islands-card-body-padding': '16px',
-    '--islands-card-body-font-size': '14px',
-    '--islands-card-body-color': '#333',
-    '--islands-card-footer-padding': '16px',
-    '--islands-card-footer-border': '1px solid #e0e0e0',
-    '--islands-card-footer-gap': '8px',
-    '--islands-card-footer-font-size': '14px',
-    '--islands-card-footer-color': '#666',
+    // 表格变量
+    '--islands-table-bg': colors.background,
+    '--islands-table-text': colors.textPrimary,
+    '--islands-table-border': colors.border,
+    '--islands-table-head-bg': colors.backgroundSecondary,
+    '--islands-table-head-color': colors.textPrimary,
+    '--islands-table-body-bg': colors.background,
+    '--islands-table-foot-bg': colors.backgroundSecondary,
+    '--islands-table-row-border': colors.border,
+    '--islands-table-cell-color': colors.textPrimary,
+    '--islands-table-cell-padding': '12px 16px',
+    '--islands-table-head-padding': '12px 16px',
+    '--islands-table-striped-bg': colors.backgroundSecondary,
+    '--islands-table-hover-bg': 'rgba(102, 126, 234, 0.05)',
+    '--islands-table-font-size': '14px',
   };
 
   // 组件主题定义
@@ -660,6 +702,90 @@ export function createLightTheme() {
         minHeight: '100vh',
         width: '100%',
         transition: 'background-color 0.3s ease',
+      },
+    },
+
+    // 表格
+    VTable: {
+      stateStyles: {
+        bordered: {
+          border: '1px solid var(--islands-table-border)',
+        },
+        compact: {
+          '--islands-table-cell-padding': '8px 12px',
+        },
+      },
+      baseStyles: {
+        width: '100%',
+        borderCollapse: 'collapse',
+        fontSize: 'var(--islands-table-font-size, 14px)',
+        color: 'var(--islands-table-text)',
+        background: 'var(--islands-table-bg)',
+      },
+    },
+
+    // 表格行
+    VTr: {
+      stateStyles: {
+        striped: {
+          background: 'var(--islands-table-striped-bg)',
+        },
+        hoverable: {
+          transition: 'background-color 0.2s',
+        },
+      },
+      baseStyles: {
+        transition: 'background-color 0.2s',
+      },
+    },
+
+    // 表格头单元格
+    VTh: {
+      stateStyles: {},
+      baseStyles: {
+        padding: 'var(--islands-table-head-padding)',
+        textAlign: 'left',
+        fontWeight: '600',
+        color: 'var(--islands-table-head-color)',
+        borderBottom: '2px solid var(--islands-table-border)',
+        whiteSpace: 'nowrap',
+      },
+    },
+
+    // 表格单元格
+    VTd: {
+      stateStyles: {},
+      baseStyles: {
+        padding: 'var(--islands-table-cell-padding)',
+        borderBottom: '1px solid var(--islands-table-row-border)',
+        color: 'var(--islands-table-cell-color)',
+        verticalAlign: 'middle',
+      },
+    },
+
+    // 表格头部
+    VThead: {
+      stateStyles: {},
+      baseStyles: {
+        background: 'var(--islands-table-head-bg)',
+        borderBottom: '2px solid var(--islands-table-border)',
+      },
+    },
+
+    // 表格主体
+    VTbody: {
+      stateStyles: {},
+      baseStyles: {
+        background: 'var(--islands-table-body-bg)',
+      },
+    },
+
+    // 表格底部
+    VTfoot: {
+      stateStyles: {},
+      baseStyles: {
+        background: 'var(--islands-table-foot-bg)',
+        borderTop: '2px solid var(--islands-table-border)',
       },
     },
   };

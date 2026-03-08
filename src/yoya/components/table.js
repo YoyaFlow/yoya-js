@@ -22,7 +22,7 @@ class VTable extends Tag {
     this.initializeStates({
       bordered: false,
       striped: false,
-      hoverable: true,
+      hoverable: false,  // 默认 false，当调用 hoverable() 时才启用
       compact: false,
     });
 
@@ -46,8 +46,8 @@ class VTable extends Tag {
       width: '100%',
       borderCollapse: 'collapse',
       fontSize: 'var(--islands-table-font-size, 14px)',
-      color: 'var(--islands-table-text, var(--islands-text, #333))',
-      background: 'var(--islands-table-bg, white)',
+      color: 'var(--islands-table-text, var(--islands-text))',
+      background: 'var(--islands-table-bg, var(--islands-bg))',
     });
   }
 
@@ -56,43 +56,82 @@ class VTable extends Tag {
     this.registerStateHandler('bordered', (enabled, host) => {
       if (enabled) {
         host.styles({
-          border: '1px solid var(--islands-table-border, #e0e0e0)',
+          border: '1px solid var(--islands-table-border, var(--islands-border))',
         });
       } else {
         host.style('border', '');
       }
     });
 
-    // striped 状态
+    // striped 状态 - 影响所有子元素 tr
     this.registerStateHandler('striped', (enabled, host) => {
-      if (enabled) {
-        host.styles({
-          '--islands-table-striped-bg': 'var(--islands-bg-secondary, #f7f8fa)',
-        });
-      } else {
-        host.style('--islands-table-striped-bg', '');
+      // 设置 CSS 变量
+      const el = host._boundElement || host._el;
+      if (el) {
+        if (enabled) {
+          el.style.setProperty('--islands-table-striped-bg', 'var(--islands-bg-secondary)');
+        } else {
+          el.style.removeProperty('--islands-table-striped-bg');
+        }
       }
+      // 通知所有 VTr 子元素更新样式
+      host._updateChildrenStyles();
     });
 
-    // hoverable 状态
+    // hoverable 状态 - 影响所有子元素 tr
     this.registerStateHandler('hoverable', (enabled, host) => {
-      if (enabled) {
-        host.styles({
-          '--islands-table-hover-bg': 'var(--islands-hover-bg, rgba(102, 126, 234, 0.05))',
-        });
-      } else {
-        host.style('--islands-table-hover-bg', '');
+      // 设置 CSS 变量
+      const el = host._boundElement || host._el;
+      if (el) {
+        if (enabled) {
+          el.style.setProperty('--islands-table-hover-bg', 'var(--islands-hover-bg)');
+        } else {
+          el.style.removeProperty('--islands-table-hover-bg');
+        }
       }
+      // 通知所有 VTr 子元素更新样式
+      host._updateChildrenStyles();
     });
 
     // compact 状态
     this.registerStateHandler('compact', (enabled, host) => {
-      if (enabled) {
-        host.styles({
-          '--islands-table-cell-padding': '8px 12px',
+      const el = host._boundElement || host._el;
+      if (el) {
+        if (enabled) {
+          el.style.setProperty('--islands-table-cell-padding', '8px 12px');
+        } else {
+          el.style.removeProperty('--islands-table-cell-padding');
+        }
+      }
+    });
+  }
+
+  // 通知所有 VTr 子元素更新样式
+  _updateChildrenStyles() {
+    const striped = this.getState('striped');
+    const hoverable = this.getState('hoverable');
+
+    // 只统计 tbody 中的 tr 用于斑马纹
+    this._children.forEach(child => {
+      if (child instanceof VTbody) {
+        // 只统计 tbody 中的 tr
+        let trIndex = 0;
+        child._children.forEach(innerChild => {
+          if (innerChild instanceof VTr) {
+            innerChild._syncTableStates(striped, hoverable, trIndex % 2 === 0);
+            trIndex++;
+          }
         });
-      } else {
-        host.style('--islands-table-cell-padding', '');
+      } else if (child instanceof VThead || child instanceof VTfoot) {
+        // thead 和 tfoot 中的 tr 不应用斑马纹
+        child._children.forEach(innerChild => {
+          if (innerChild instanceof VTr) {
+            innerChild._syncTableStates(false, hoverable, false);
+          }
+        });
+      } else if (child instanceof VTr) {
+        // 直接在 table 下的 tr（不常见）
+        child._syncTableStates(striped, hoverable, false);
       }
     });
   }
@@ -117,6 +156,14 @@ class VTable extends Tag {
     this.setState('compact', value);
     return this;
   }
+
+  // 重写 child 方法，添加子元素时同步状态
+  child(...children) {
+    super.child(...children);
+    // 添加子元素后，同步状态
+    this._updateChildrenStyles();
+    return this;
+  }
 }
 
 function vTable(setup = null) {
@@ -132,13 +179,44 @@ class VThead extends Tag {
     super('thead', null);
 
     this.styles({
-      background: 'var(--islands-table-head-bg, #f7f8fa)',
-      borderBottom: '2px solid var(--islands-table-border, #e0e0e0)',
+      background: 'var(--islands-table-head-bg, var(--islands-bg-secondary))',
+      borderBottom: '2px solid var(--islands-table-border, var(--islands-border))',
     });
 
     if (setup !== null) {
       this.setup(setup);
     }
+  }
+
+  // 重写 child 方法，添加子元素时通知 VTable 更新
+  child(...children) {
+    super.child(...children);
+    this._notifyTableUpdate();
+    return this;
+  }
+
+  // 通知 VTable 更新
+  _notifyTableUpdate() {
+    // 查找父元素 VTable
+    const parent = this._findParentTable();
+    if (parent && parent._updateChildrenStyles) {
+      parent._updateChildrenStyles();
+    }
+  }
+
+  // 查找父元素 VTable
+  _findParentTable() {
+    // 通过 boundElement 的 parentNode 查找
+    if (this._boundElement && this._boundElement.parentNode) {
+      let node = this._boundElement.parentNode;
+      while (node) {
+        if (node._vnode instanceof VTable) {
+          return node._vnode;
+        }
+        node = node.parentNode;
+      }
+    }
+    return null;
   }
 }
 
@@ -155,12 +233,43 @@ class VTbody extends Tag {
     super('tbody', null);
 
     this.styles({
-      background: 'var(--islands-table-body-bg, white)',
+      background: 'var(--islands-table-body-bg, var(--islands-bg))',
     });
 
     if (setup !== null) {
       this.setup(setup);
     }
+  }
+
+  // 重写 child 方法，添加子元素时通知 VTable 更新
+  child(...children) {
+    super.child(...children);
+    this._notifyTableUpdate();
+    return this;
+  }
+
+  // 通知 VTable 更新
+  _notifyTableUpdate() {
+    // 查找父元素 VTable
+    const parent = this._findParentTable();
+    if (parent && parent._updateChildrenStyles) {
+      parent._updateChildrenStyles();
+    }
+  }
+
+  // 查找父元素 VTable
+  _findParentTable() {
+    // 通过 boundElement 的 parentNode 查找
+    if (this._boundElement && this._boundElement.parentNode) {
+      let node = this._boundElement.parentNode;
+      while (node) {
+        if (node._vnode instanceof VTable) {
+          return node._vnode;
+        }
+        node = node.parentNode;
+      }
+    }
+    return null;
   }
 }
 
@@ -177,13 +286,44 @@ class VTfoot extends Tag {
     super('tfoot', null);
 
     this.styles({
-      background: 'var(--islands-table-foot-bg, #f7f8fa)',
-      borderTop: '2px solid var(--islands-table-border, #e0e0e0)',
+      background: 'var(--islands-table-foot-bg, var(--islands-bg-secondary))',
+      borderTop: '2px solid var(--islands-table-border, var(--islands-border))',
     });
 
     if (setup !== null) {
       this.setup(setup);
     }
+  }
+
+  // 重写 child 方法，添加子元素时通知 VTable 更新
+  child(...children) {
+    super.child(...children);
+    this._notifyTableUpdate();
+    return this;
+  }
+
+  // 通知 VTable 更新
+  _notifyTableUpdate() {
+    // 查找父元素 VTable
+    const parent = this._findParentTable();
+    if (parent && parent._updateChildrenStyles) {
+      parent._updateChildrenStyles();
+    }
+  }
+
+  // 查找父元素 VTable
+  _findParentTable() {
+    // 通过 boundElement 的 parentNode 查找
+    if (this._boundElement && this._boundElement.parentNode) {
+      let node = this._boundElement.parentNode;
+      while (node) {
+        if (node._vnode instanceof VTable) {
+          return node._vnode;
+        }
+        node = node.parentNode;
+      }
+    }
+    return null;
   }
 }
 
@@ -196,16 +336,113 @@ function vTfoot(setup = null) {
 // ============================================
 
 class VTr extends Tag {
+  static _stateAttrs = ['striped', 'hoverable', 'isEvenRow'];
+
   constructor(setup = null) {
     super('tr', null);
 
-    this.styles({
-      transition: 'background-color 0.2s',
+    // 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 初始化状态
+    this.initializeStates({
+      striped: false,
+      hoverable: false,
+      isEvenRow: false,
     });
+
+    // 设置基础样式
+    this._setupBaseStyles();
+
+    // 注册状态处理器
+    this._registerStateHandlers();
 
     if (setup !== null) {
       this.setup(setup);
     }
+  }
+
+  _setupBaseStyles() {
+    this.styles({
+      transition: 'background-color 0.2s',
+    });
+  }
+
+  _registerStateHandlers() {
+    // striped + isEvenRow 状态 - 偶数行应用背景色
+    this.registerStateHandler('isEvenRow', (isEven, host) => {
+      // 只有当 striped 状态启用且是偶数行时才应用背景色
+      if (isEven && host.hasState('striped')) {
+        host.style('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+        host._hasStripedBg = true;
+      } else {
+        host.style('background', '');
+        host._hasStripedBg = false;
+      }
+    });
+
+    // striped 状态 - 重新应用偶数行样式
+    this.registerStateHandler('striped', (enabled, host) => {
+      if (enabled && host.hasState('isEvenRow')) {
+        host.style('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+        host._hasStripedBg = true;
+      } else {
+        if (!host.hasState('hoverable')) {
+          host.style('background', '');
+        }
+        host._hasStripedBg = false;
+      }
+    });
+
+    // hoverable 状态 - 绑定悬停事件
+    this.registerStateHandler('hoverable', (enabled, host) => {
+      const el = host._boundElement || host._el;
+
+      // 先清除旧的事件监听器
+      if (host._hoverBound) {
+        if (el) {
+          el.removeEventListener('mouseenter', host._mouseenterHandler);
+          el.removeEventListener('mouseleave', host._mouseleaveHandler);
+        }
+        host._hoverBound = false;
+      }
+
+      if (enabled) {
+        // 创建事件处理器
+        host._mouseenterHandler = () => {
+          // 直接设置 DOM 元素的 style.setProperty 来覆盖简写属性
+          if (host._el) {
+            host._el.style.setProperty('background', 'var(--islands-table-hover-bg, var(--islands-hover-bg))');
+          }
+        };
+        host._mouseleaveHandler = () => {
+          // 若有条纹且是偶数行，恢复条纹色；否则恢复透明
+          if (host._hasStripedBg) {
+            if (host._el) {
+              host._el.style.setProperty('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+            }
+          } else {
+            if (host._el) {
+              host._el.style.removeProperty('background');
+            }
+          }
+        };
+
+        // 直接绑定到真实 DOM 元素
+        if (el) {
+          el.addEventListener('mouseenter', host._mouseenterHandler);
+          el.addEventListener('mouseleave', host._mouseleaveHandler);
+        }
+        host._hoverBound = true;
+      }
+    });
+  }
+
+  // 同步 VTable 的状态
+  _syncTableStates(tableStriped, tableHoverable, isEvenRow) {
+    this.setState('striped', tableStriped);
+    this.setState('hoverable', tableHoverable);
+    this.setState('isEvenRow', isEvenRow);
   }
 }
 
@@ -225,8 +462,8 @@ class VTh extends Tag {
       padding: 'var(--islands-table-head-padding, 12px 16px)',
       textAlign: 'left',
       fontWeight: '600',
-      color: 'var(--islands-table-head-color, #333)',
-      borderBottom: '2px solid var(--islands-table-border, #e0e0e0)',
+      color: 'var(--islands-table-head-color, var(--islands-text))',
+      borderBottom: '2px solid var(--islands-table-border, var(--islands-border))',
       whiteSpace: 'nowrap',
     });
 
@@ -250,8 +487,8 @@ class VTd extends Tag {
 
     this.styles({
       padding: 'var(--islands-table-cell-padding, 12px 16px)',
-      borderBottom: '1px solid var(--islands-table-row-border, #e0e0e0)',
-      color: 'var(--islands-table-cell-color, #333)',
+      borderBottom: '1px solid var(--islands-table-row-border, var(--islands-border))',
+      color: 'var(--islands-table-cell-color, var(--islands-text))',
       verticalAlign: 'middle',
     });
 

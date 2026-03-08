@@ -14,12 +14,12 @@ class VMenu extends Tag {
     super('div', null);
     this.styles({
       display: 'inline-block',
-      background: 'var(--islands-menu-bg, white)',
-      borderRadius: 'var(--islands-menu-radius, var(--islands-radius-md, 8px))',
-      boxShadow: 'var(--islands-menu-shadow, var(--islands-shadow, 0 4px 12px rgba(0,0,0,0.15)))',
-      padding: 'var(--islands-menu-padding, var(--islands-padding-sm, 8px)) 0',
+      background: 'var(--islands-menu-bg, var(--islands-bg))',
+      borderRadius: 'var(--islands-menu-radius, var(--islands-radius-md))',
+      boxShadow: 'var(--islands-menu-shadow, var(--islands-shadow-dropdown))',
+      padding: 'var(--islands-menu-padding, 8px) 0',
       minWidth: 'var(--islands-menu-min-width, 160px)',
-      border: 'var(--islands-menu-border, 1px solid var(--islands-border, #e0e0e0))',
+      border: 'var(--islands-menu-border, 1px solid var(--islands-border))',
       pointerEvents: 'auto',
     });
 
@@ -101,15 +101,15 @@ class VMenuItem extends Tag {
     this._registerStateHandlers();
 
     this.styles({
-      padding: 'var(--islands-menu-item-padding, var(--islands-padding-sm, 10px)) var(--islands-menu-item-horizontal-padding, var(--islands-padding-md, 16px))',
+      padding: 'var(--islands-menu-item-padding, 10px) var(--islands-menu-item-horizontal-padding, 16px)',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      gap: 'var(--islands-menu-item-gap, var(--islands-gap-sm, 10px))',
+      gap: 'var(--islands-menu-item-gap, 10px)',
       transition: 'background-color 0.2s',
-      borderRadius: 'var(--islands-menu-item-radius, var(--islands-radius-sm, 4px))',
-      color: 'var(--islands-menu-item-color, var(--islands-text, #333))',
-      fontSize: 'var(--islands-menu-item-font-size, var(--islands-font-size-sm, 13px))',
+      borderRadius: 'var(--islands-menu-item-radius, 4px)',
+      color: 'var(--islands-menu-item-color, var(--islands-text))',
+      fontSize: 'var(--islands-menu-item-font-size, 13px)',
       background: 'transparent',
     });
 
@@ -142,7 +142,7 @@ class VMenuItem extends Tag {
           opacity: 'var(--islands-menu-item-disabled-opacity, 0.5)',
           cursor: 'var(--islands-menu-item-disabled-cursor, not-allowed)',
           pointerEvents: 'none',
-          color: 'var(--islands-menu-item-disabled-color, var(--islands-text-secondary, #999))',
+          color: 'var(--islands-menu-item-disabled-color, var(--islands-text-secondary))',
         });
         if (el) {
           el.style.opacity = 'var(--islands-menu-item-disabled-opacity, 0.5)';
@@ -167,14 +167,14 @@ class VMenuItem extends Tag {
       const el = host._boundElement;
       if (enabled) {
         host.styles({
-          background: 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha, rgba(102, 126, 234, 0.1)))',
+          background: 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha))',
           fontWeight: 'var(--islands-menu-item-active-font-weight, 500)',
-          color: 'var(--islands-menu-item-active-color, var(--islands-primary, #667eea))',
+          color: 'var(--islands-menu-item-active-color, var(--islands-primary))',
         });
         if (el) {
-          el.style.background = 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha, rgba(102, 126, 234, 0.1)))';
+          el.style.background = 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha))';
           el.style.fontWeight = 'var(--islands-menu-item-active-font-weight, 500)';
-          el.style.color = 'var(--islands-menu-item-active-color, var(--islands-primary, #667eea))';
+          el.style.color = 'var(--islands-menu-item-active-color, var(--islands-primary))';
         }
       } else {
         host.style('background', '');
@@ -191,9 +191,9 @@ class VMenuItem extends Tag {
     this.registerStateHandler('danger', (enabled, host) => {
       const el = host._boundElement;
       if (enabled) {
-        host.style('color', 'var(--islands-menu-item-danger-color, var(--islands-error, #dc3545))');
+        host.style('color', 'var(--islands-menu-item-danger-color, var(--islands-error))');
         if (el) {
-          el.style.color = 'var(--islands-menu-item-danger-color, var(--islands-error, #dc3545))';
+          el.style.color = 'var(--islands-menu-item-danger-color, var(--islands-error))';
         }
       } else {
         host.style('color', '');
@@ -218,7 +218,7 @@ class VMenuItem extends Tag {
           submenuContainer._boundElement.style.display = 'flex';
           arrowEl._boundElement.style.transform = 'rotate(90deg)';
           // 展开时高亮父菜单项
-          host.style('background', 'var(--islands-menu-item-hover-bg, rgba(102, 126, 234, 0.05))');
+          host.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))');
         } else {
           submenuContainer._boundElement.style.display = 'none';
           arrowEl._boundElement.style.transform = 'rotate(0deg)';
@@ -245,9 +245,9 @@ class VMenuItem extends Tag {
 
     this.on('mouseenter', () => {
       if (!self.hasState('disabled')) {
-        self.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg, rgba(102, 126, 234, 0.05)))');
+        self.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))');
         if (self._boundElement) {
-          self._boundElement.style.background = 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg, rgba(102, 126, 234, 0.05)))';
+          self._boundElement.style.background = 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))';
         }
       }
     }).on('mouseleave', () => {
@@ -475,8 +475,8 @@ class VMenuDivider extends Tag {
     this.styles({
       border: 'none',
       height: 'var(--islands-menu-divider-height, 1px)',
-      background: 'var(--islands-menu-divider-bg, var(--islands-border, #e0e0e0))',
-      margin: 'var(--islands-menu-divider-margin, var(--islands-margin-md, 8px)) 0',
+      background: 'var(--islands-menu-divider-bg, var(--islands-border))',
+      margin: 'var(--islands-menu-divider-margin, 8px) 0',
     });
   }
 }
@@ -529,7 +529,7 @@ class VMenuGroup extends Tag {
           display: 'block',
           padding: 'var(--islands-menu-group-label-padding, 8px 16px 4px)',
           fontSize: 'var(--islands-menu-group-label-font-size, 12px)',
-          color: 'var(--islands-menu-group-label-color, #999)',
+          color: 'var(--islands-menu-group-label-color, var(--islands-text-tertiary))',
           fontWeight: 'var(--islands-menu-group-label-font-weight, 500)',
           textTransform: 'uppercase',
           letterSpacing: 'var(--islands-menu-group-label-letter-spacing, 0.5px)',
@@ -607,7 +607,7 @@ class VDropdownMenu extends Tag {
       wrap.styles({
         cursor: 'pointer',
         padding: 'var(--islands-dropdown-trigger-padding, 8px 16px)',
-        background: 'var(--islands-dropdown-trigger-bg, #667eea)',
+        background: 'var(--islands-dropdown-trigger-bg, var(--islands-primary))',
         color: 'var(--islands-dropdown-trigger-color, white)',
         borderRadius: 'var(--islands-dropdown-trigger-radius, 6px)',
         display: 'inline-flex',
@@ -617,10 +617,10 @@ class VDropdownMenu extends Tag {
         transition: 'all 0.2s',
       });
       wrap.on('mouseenter', () => {
-        wrap.style('background', 'var(--islands-dropdown-trigger-hover-bg, #5a6fd6)');
+        wrap.style('background', 'var(--islands-dropdown-trigger-hover-bg, var(--islands-primary-dark))');
       });
       wrap.on('mouseleave', () => {
-        wrap.style('background', 'var(--islands-dropdown-trigger-bg, #667eea)');
+        wrap.style('background', 'var(--islands-dropdown-trigger-bg, var(--islands-primary))');
       });
 
       if (typeof this._triggerContent === 'string') {
@@ -650,9 +650,9 @@ class VDropdownMenu extends Tag {
           top: 'calc(100% + var(--islands-dropdown-menu-offset, 4px))',
           left: '0',
           minWidth: 'var(--islands-dropdown-menu-min-width, 160px)',
-          background: 'var(--islands-dropdown-menu-bg, white)',
-          borderRadius: 'var(--islands-dropdown-menu-radius, var(--islands-radius-md, 8px))',
-          boxShadow: 'var(--islands-dropdown-menu-shadow, 0 4px 12px rgba(0,0,0,0.15))',
+          background: 'var(--islands-dropdown-menu-bg, var(--islands-bg))',
+          borderRadius: 'var(--islands-dropdown-menu-radius, var(--islands-radius-md))',
+          boxShadow: 'var(--islands-dropdown-menu-shadow, var(--islands-shadow-dropdown))',
           padding: 'var(--islands-dropdown-menu-padding, 8px) 0',
           zIndex: 'var(--islands-dropdown-z-index, 1000)',
           display: 'none',
@@ -700,12 +700,12 @@ class VContextMenu extends Tag {
       position: 'fixed',
       zIndex: 'var(--islands-context-menu-z-index, 9999)',
       display: 'none',
-      background: 'var(--islands-context-menu-bg, white)',
-      borderRadius: 'var(--islands-context-menu-radius, var(--islands-radius-md, 8px))',
-      boxShadow: 'var(--islands-context-menu-shadow, 0 4px 12px rgba(0,0,0,0.15))',
+      background: 'var(--islands-context-menu-bg, var(--islands-bg))',
+      borderRadius: 'var(--islands-context-menu-radius, var(--islands-radius-md))',
+      boxShadow: 'var(--islands-context-menu-shadow, var(--islands-shadow-dropdown))',
       padding: 'var(--islands-context-menu-padding, 8px) 0',
       minWidth: 'var(--islands-context-menu-min-width, 160px)',
-      border: 'var(--islands-context-menu-border, 1px solid var(--islands-border, #e0e0e0))',
+      border: 'var(--islands-context-menu-border, 1px solid var(--islands-border))',
     });
     this._target = null;
     this._menu = null;

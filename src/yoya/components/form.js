@@ -50,7 +50,7 @@ class VInput extends Tag {
   }
 
   _setupString(setup){
-    this._placeholder = setup;
+    this.placeholder(setup);
   }
   _setupBaseStyles() {
     this.styles({
@@ -60,9 +60,9 @@ class VInput extends Tag {
       maxWidth: '100%',
       fontSize: 'var(--islands-input-font-size, 14px)',
       borderRadius: 'var(--islands-input-radius, 6px)',
-      border: '1px solid var(--islands-input-border, var(--islands-border, #e0e0e0))',
-      background: 'var(--islands-input-bg, var(--islands-bg, white))',
-      color: 'var(--islands-input-text, var(--islands-text, #333))',
+      border: '1px solid var(--islands-input-border, var(--islands-border))',
+      background: 'var(--islands-input-bg, var(--islands-bg))',
+      color: 'var(--islands-input-text, var(--islands-text))',
       transition: 'all 0.2s',
       outline: 'none',
       height: 'var(--islands-input-height, 32px)',
@@ -153,7 +153,7 @@ class VInput extends Tag {
         host.styles({
           opacity: '0.5',
           cursor: 'not-allowed',
-          background: 'var(--islands-input-disabled-bg, var(--islands-bg-tertiary, #f5f5f5))',
+          background: 'var(--islands-input-disabled-bg, var(--islands-bg-tertiary))',
         });
         if (host._inputEl) {
           host._inputEl.attr('disabled', 'disabled');
@@ -162,7 +162,7 @@ class VInput extends Tag {
         host.styles({
           opacity: '1',
           cursor: 'text',
-          background: 'var(--islands-input-bg, var(--islands-bg, white))',
+          background: 'var(--islands-input-bg, var(--islands-bg))',
         });
         if (host._inputEl) {
           host._inputEl.attr('disabled', null);
@@ -182,8 +182,8 @@ class VInput extends Tag {
       host.clearStateStyles();  // 先清空状态样式
 
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--islands-error, var(--islands-border-error))');
+        host.style('boxShadow', '0 0 0 2px var(--islands-error-bg, rgba(224, 82, 82, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');

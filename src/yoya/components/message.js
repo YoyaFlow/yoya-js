@@ -26,7 +26,7 @@ class VMessage extends Tag {
       gap: '10px',
       padding: '12px 16px',
       borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      boxShadow: 'var(--islands-message-box-shadow, 0 4px 12px rgba(0,0,0,0.15))',
       minWidth: '280px',
       maxWidth: '400px',
       animation: 'slideIn 0.3s ease',
@@ -44,24 +44,24 @@ class VMessage extends Tag {
   _applyTypeStyles() {
     const typeStyles = {
       success: {
-        background: 'var(--islands-message-success-bg, linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%))',
-        color: 'var(--islands-message-success-color, #155724)',
-        border: 'var(--islands-message-success-border, 1px solid #c3e6cb)',
+        background: 'var(--islands-message-success-bg)',
+        color: 'var(--islands-message-success-color)',
+        border: 'var(--islands-message-success-border)',
       },
       error: {
-        background: 'var(--islands-message-error-bg, linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%))',
-        color: 'var(--islands-message-error-color, #721c24)',
-        border: 'var(--islands-message-error-border, 1px solid #f5c6cb)',
+        background: 'var(--islands-message-error-bg)',
+        color: 'var(--islands-message-error-color)',
+        border: 'var(--islands-message-error-border)',
       },
       warning: {
-        background: 'var(--islands-message-warning-bg, linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%))',
-        color: 'var(--islands-message-warning-color, #856404)',
-        border: 'var(--islands-message-warning-border, 1px solid #ffeaa7)',
+        background: 'var(--islands-message-warning-bg)',
+        color: 'var(--islands-message-warning-color)',
+        border: 'var(--islands-message-warning-border)',
       },
       info: {
-        background: 'var(--islands-message-info-bg, linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%))',
-        color: 'var(--islands-message-info-color, #0c5460)',
-        border: 'var(--islands-message-info-border, 1px solid #bee5eb)',
+        background: 'var(--islands-message-info-bg)',
+        color: 'var(--islands-message-info-color)',
+        border: 'var(--islands-message-info-border)',
       }
     };
 

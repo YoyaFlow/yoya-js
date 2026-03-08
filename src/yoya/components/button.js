@@ -123,19 +123,19 @@ class VButton extends Tag {
     const isGhost = this.hasState('ghost');
     const hoverStyles = {
       primary: {
-        background: isGhost ? 'rgba(102, 126, 234, 0.1)' : 'var(--islands-primary-hover, #5a6fd6)',
+        background: isGhost ? 'var(--islands-primary-alpha)' : 'var(--islands-button-primary-hover)',
       },
       success: {
-        background: isGhost ? 'rgba(40, 167, 69, 0.1)' : 'var(--islands-success-hover, #218838)',
+        background: isGhost ? 'var(--islands-success-bg)' : 'var(--islands-button-success-hover)',
       },
       warning: {
-        background: isGhost ? 'rgba(255, 193, 7, 0.1)' : 'var(--islands-warning-hover, #e0a800)',
+        background: isGhost ? 'var(--islands-warning-bg)' : 'var(--islands-button-warning-hover)',
       },
       danger: {
-        background: isGhost ? 'rgba(220, 53, 69, 0.1)' : 'var(--islands-error-hover, #c82333)',
+        background: isGhost ? 'var(--islands-error-bg)' : 'var(--islands-button-danger-hover)',
       },
       default: {
-        background: isGhost ? 'rgba(0, 0, 0, 0.05)' : 'var(--islands-bg-secondary, #f8f9fa)',
+        background: isGhost ? 'var(--islands-hover-bg)' : 'var(--islands-button-default-hover)',
       },
     };
     return hoverStyles[type] || hoverStyles.default;
@@ -208,29 +208,29 @@ class VButton extends Tag {
 
     const typeStyles = {
       primary: {
-        background: isGhost ? 'transparent' : 'var(--islands-primary, #667eea)',
-        color: isGhost ? 'var(--islands-primary, #667eea)' : 'white',
-        border: '1px solid var(--islands-primary, #667eea)',
+        background: isGhost ? 'transparent' : 'var(--islands-primary)',
+        color: isGhost ? 'var(--islands-primary)' : 'white',
+        border: '1px solid var(--islands-primary)',
       },
       success: {
-        background: isGhost ? 'transparent' : 'var(--islands-success, #28a745)',
-        color: isGhost ? 'var(--islands-success, #28a745)' : 'white',
-        border: '1px solid var(--islands-success, #28a745)',
+        background: isGhost ? 'transparent' : 'var(--islands-success)',
+        color: isGhost ? 'var(--islands-success)' : 'white',
+        border: '1px solid var(--islands-success)',
       },
       warning: {
-        background: isGhost ? 'transparent' : 'var(--islands-warning, #ffc107)',
-        color: isGhost ? 'var(--islands-warning, #ffc107)' : 'white',
-        border: '1px solid var(--islands-warning, #ffc107)',
+        background: isGhost ? 'transparent' : 'var(--islands-warning)',
+        color: isGhost ? 'var(--islands-warning)' : 'var(--islands-text-primary)',
+        border: '1px solid var(--islands-warning)',
       },
       danger: {
-        background: isGhost ? 'transparent' : 'var(--islands-error, #dc3545)',
-        color: isGhost ? 'var(--islands-error, #dc3545)' : 'white',
-        border: '1px solid var(--islands-error, #dc3545)',
+        background: isGhost ? 'transparent' : 'var(--islands-error)',
+        color: isGhost ? 'var(--islands-error)' : 'white',
+        border: '1px solid var(--islands-error)',
       },
       default: {
-        background: isGhost ? 'transparent' : 'var(--islands-bg, white)',
-        color: isGhost ? 'var(--islands-text, #333)' : 'var(--islands-text, #333)',
-        border: '1px solid var(--islands-border, #e0e0e0)',
+        background: isGhost ? 'transparent' : 'var(--islands-bg)',
+        color: isGhost ? 'var(--islands-text)' : 'var(--islands-text)',
+        border: '1px solid var(--islands-button-default-border)',
       },
     };
 
