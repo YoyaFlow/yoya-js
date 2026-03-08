@@ -456,30 +456,93 @@ vDetail(d => {
 import { vField, toast } from './yoya/index.js';
 
 vField(f => {
-  f.label('用户名');
   f.value('zhangsan');
-  f.type('text');
-  f.onSave((newValue) => {
-    toast.success(`保存：${newValue}`);
+  f.showContent(el => el.text('用户名：张三'));
+  f.editContent((el, setValue) => {
+    // 创建输入框
+    const input = document.createElement('input');
+    input.value = '张三';
+    input.style.cssText = 'flex: 1; font-size: inherit; border: none; outline: none;';
+    el.child(input);
+    // 保存值
+    setValueFn = (v) => setValue(v);
+    input.oninput = () => setValueFn(input.value);
+  });
+  f.onSave((data) => {
+    toast.success(`保存：${data.value}`);
+    return Promise.resolve(); // 支持异步保存
   });
 }).bindTo('#app');
 ```
 
-### 不同编辑模式
+### 显示/编辑模式
 
 ```javascript
-// 点击编辑
 vField(f => {
-  f.label('用户名');
-  f.value('zhangsan');
-  f.editTrigger('click');
-});
+  // 显示内容
+  f.showContent(el => {
+    el.text('张三');
+  });
 
-// 悬停编辑
+  // 编辑内容
+  f.editContent((el, setValue) => {
+    el.input(i => {
+      i.type('text');
+      i.value('张三');
+      i.style('flex', '1');
+      // 自动保存
+      i.on('input', () => setValue(i.value()));
+    });
+  });
+
+  // 保存事件
+  f.onSave(({ value, oldValue }) => {
+    console.log('从', oldValue, '保存到', value);
+  });
+
+  // 变化事件
+  f.onChange(({ value }) => {
+    console.log('值变化：', value);
+  });
+});
+```
+
+### 状态控制
+
+```javascript
+const field = vField(...);
+
+// 禁用
+field.disabled(true);
+
+// 加载中（保存时）
+field.loading(true);
+
+// 手动进入/退出编辑
+field.editing(true);
+field.editing(false);
+
+// 设置值
+field.value('新值');
+
+// 获取值
+const val = field.value();
+```
+
+### 自动保存模式
+
+```javascript
 vField(f => {
-  f.label('邮箱');
-  f.value('zhangsan@example.com');
-  f.editTrigger('hover');
+  f.autoSave(true);  // 开启自动保存
+  f.showContent(el => el.text('显示内容'));
+  f.editContent((el, setValue) => {
+    el.input(i => {
+      i.on('input', () => setValue(i.value()));
+    });
+  });
+  f.onSave(({ value }) => {
+    // 自动触发保存
+  });
 });
 ```
 
