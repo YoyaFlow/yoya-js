@@ -976,6 +976,7 @@ class Card extends Tag {
 - `yoya-build` - 构建 yoya.basic.js 库
 - `yoya-add-element` - 添加新的 HTML 元素类和工厂函数
 - `yoya-check-types` - 检查 yoya.basic.d.ts 类型定义
+- `skill-creator` - 创建新的 Claude Code 技能（slash commands）
 - `/simplify` - 审查代码复用性和质量
 
 ## 组件库
