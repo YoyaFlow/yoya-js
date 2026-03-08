@@ -133,6 +133,9 @@ export {
   VTr, vTr,
   VTh, vTh,
   VTd, vTd,
+
+  // Echart 组件
+  VEchart, vEchart,
 } from './components/index.js';
 
 // 导出主题系统

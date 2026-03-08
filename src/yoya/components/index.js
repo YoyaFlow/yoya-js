@@ -98,3 +98,9 @@ export {
   VTh, vTh,
   VTd, vTd,
 } from './table.js';
+
+// Echart 图表组件
+export {
+  VEchart,
+  vEchart,
+} from './echart.js';

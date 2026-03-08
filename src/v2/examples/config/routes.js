@@ -17,6 +17,9 @@ export const routes = {
   'Body': () => import('../pages/Body/index.js').then(m => m.createBodyPage),
   'Table': () => import('../pages/Table/index.js').then(m => m.createTablePage),
   'DynamicLoader': () => import('../pages/DynamicLoader/index.js').then(m => m.createDynamicLoaderPage),
+  'I18n': () => import('../pages/I18n/index.js').then(m => m.createI18nPage),
+  'VTimer': () => import('../pages/VTimer/index.js').then(m => m.createVTimerPage),
+  'Echart': () => import('../pages/Echart/index.js').then(m => m.createEchartPage),
 };
 
 /**
@@ -36,6 +39,9 @@ export async function getPageComponent(fileName) {
     'body.html': 'Body',
     'table.html': 'Table',
     'dynamic-loader.html': 'DynamicLoader',
+    'i18n.html': 'I18n',
+    'vtimer.html': 'VTimer',
+    'echart.html': 'Echart',
   };
 
   const pageName = pageMap[fileName];

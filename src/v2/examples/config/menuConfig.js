@@ -37,6 +37,7 @@ export const menuConfig = [
       { label: 'Detail 详情', page: 'Detail', file: 'detail.html' },
       { label: 'Field 字段', page: 'Field', file: 'field.html' },
       { label: 'Table 表格', page: 'Table', file: 'table.html' },
+      { label: 'Echarts 图表', page: 'Echart', file: 'echart.html' },
     ],
   },
   {
@@ -49,6 +50,13 @@ export const menuConfig = [
     group: '工具',
     items: [
       { label: '动态加载', page: 'DynamicLoader', file: 'dynamic-loader.html' },
+    ],
+  },
+  {
+    group: '高级功能',
+    items: [
+      { label: 'i18n 国际化', page: 'I18n', file: 'i18n.html' },
+      { label: 'VTimer 日期选择器', page: 'VTimer', file: 'vtimer.html' },
     ],
   },
 ];

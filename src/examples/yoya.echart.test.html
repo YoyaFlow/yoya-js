@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VEchart 组件测试</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .test-section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .test-section h2 {
+      color: #666;
+      font-size: 18px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    .chart-container {
+      width: 100%;
+      height: 400px;
+    }
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #667eea;
+      color: #fff;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #5568d3;
+    }
+    button.success {
+      background: #28a745;
+    }
+    button.success:hover {
+      background: #218838;
+    }
+    button.danger {
+      background: #dc3545;
+    }
+    button.danger:hover {
+      background: #c82333;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .log {
+      background: #1a1a2e;
+      color: #eee;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .log-item {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 VEchart 组件测试页面</h1>
+
+    <!-- 测试 1：基础柱状图 -->
+    <div class="test-section">
+      <h2>测试 1：基础柱状图</h2>
+      <div id="barChart" class="chart-container"></div>
+      <div class="controls">
+        <button onclick="updateBarData()">更新数据</button>
+        <button class="success" onclick="showBarLoading()">显示加载</button>
+        <button class="danger" onclick="hideBarLoading()">隐藏加载</button>
+        <button onclick="exportBarChart()">导出图片</button>
+      </div>
+      <div id="barStatus" class="status">状态：就绪</div>
+    </div>
+
+    <!-- 测试 2：折线图 -->
+    <div class="test-section">
+      <h2>测试 2：折线图</h2>
+      <div id="lineChart" class="chart-container"></div>
+      <div class="controls">
+        <button onclick="updateLineData()">更新数据</button>
+        <button onclick="toggleLineSmooth()">切换平滑</button>
+      </div>
+      <div id="lineStatus" class="status">状态：就绪</div>
+    </div>
+
+    <!-- 测试 3：饼图 -->
+    <div class="test-section">
+      <h2>测试 3：饼图</h2>
+      <div id="pieChart" class="chart-container"></div>
+      <div class="controls">
+        <button onclick="updatePieData()">更新数据</button>
+      </div>
+      <div id="pieStatus" class="status">状态：就绪</div>
+    </div>
+
+    <!-- 测试 4：暗色主题 -->
+    <div class="test-section">
+      <h2>测试 4：主题切换</h2>
+      <div id="themeChart" class="chart-container"></div>
+      <div class="controls">
+        <button onclick="toggleTheme()">切换暗色/明亮主题</button>
+      </div>
+      <div id="themeStatus" class="status">状态：就绪</div>
+    </div>
+
+    <!-- 日志输出 -->
+    <div class="test-section">
+      <h2>测试日志</h2>
+      <div id="log" class="log"></div>
+      <div class="controls">
+        <button onclick="clearLog()">清空日志</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入 ECharts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+  <script type="module">
+    import { vEchart } from '../yoya/index.js';
+
+    // 日志函数
+    function log(message, type = 'info') {
+      const logEl = document.getElementById('log');
+      const time = new Date().toLocaleTimeString();
+      const item = document.createElement('div');
+      item.className = 'log-item';
+      item.textContent = `[${time}] ${message}`;
+      logEl.appendChild(item);
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(message);
+    }
+
+    // 暴露日志函数到全局
+    window.log = log;
+    window.clearLog = function() {
+      document.getElementById('log').innerHTML = '';
+      log('日志已清空');
+    };
+
+    log('=== VEchart 组件测试开始 ===');
+
+    // ==================== 测试 1：柱状图 ====================
+    log('创建柱状图...');
+    const barChartEl = document.getElementById('barChart');
+    const barChart = vEchart(chart => {
+      chart.echartsLib(echarts);
+      chart.height('400px');
+      chart.option({
+        title: { text: '销售统计', left: 'center' },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] },
+        yAxis: { type: 'value' },
+        series: [{
+          type: 'bar',
+          data: [120, 200, 150, 80, 70, 110, 130],
+          itemStyle: { color: '#667eea', borderRadius: [4, 4, 0, 0] }
+        }]
+      });
+      chart.onChartReady(instance => {
+        log('柱状图已就绪');
+        document.getElementById('barStatus').textContent = '状态：✓ 已就绪';
+        document.getElementById('barStatus').className = 'status success';
+        window.barChartInstance = instance;
+      });
+    });
+    barChart.bindTo('#barChart');
+    window.barChart = barChart;
+
+    // 全局函数
+    window.updateBarData = function() {
+      const instance = barChart.getChartInstance();
+      if (instance) {
+        const newData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 200) + 50);
+        instance.setOption({ series: [{ data: newData }] });
+        log(`柱状图数据已更新：${newData.join(', ')}`);
+      }
+    };
+
+    window.showBarLoading = function() {
+      barChart.loading(true, '数据加载中...');
+      log('柱状图：显示加载动画');
+    };
+
+    window.hideBarLoading = function() {
+      barChart.loading(false);
+      log('柱状图：隐藏加载动画');
+    };
+
+    window.exportBarChart = function() {
+      const instance = barChart.getChartInstance();
+      if (instance) {
+        const url = instance.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'bar-chart.png';
+        a.click();
+        log('柱状图：已导出为 PNG');
+      }
+    };
+
+    // ==================== 测试 2：折线图 ====================
+    log('创建折线图...');
+    const lineChart = vEchart(chart => {
+      chart.echartsLib(echarts);
+      chart.height('400px');
+      chart.option({
+        title: { text: '温度变化趋势', left: 'center' },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] },
+        yAxis: { type: 'value' },
+        series: [{
+          type: 'line',
+          smooth: true,
+          data: [15, 18, 20, 17, 22, 19, 16],
+          itemStyle: { color: '#28a745' },
+          areaStyle: { opacity: 0.3 }
+        }]
+      });
+      chart.onChartReady(instance => {
+        log('折线图已就绪');
+        document.getElementById('lineStatus').textContent = '状态：✓ 已就绪';
+        document.getElementById('lineStatus').className = 'status success';
+        window.lineChartInstance = instance;
+      });
+    });
+    lineChart.bindTo('#lineChart');
+    window.lineChart = lineChart;
+
+    window.updateLineData = function() {
+      const instance = lineChart.getChartInstance();
+      if (instance) {
+        const newData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 30) + 10);
+        instance.setOption({ series: [{ data: newData }] });
+        log(`折线图数据已更新：${newData.join(', ')}`);
+      }
+    };
+
+    window.toggleLineSmooth = function() {
+      const instance = lineChart.getChartInstance();
+      if (instance) {
+        const option = instance.getOption();
+        const currentSmooth = option.series[0].smooth;
+        instance.setOption({ series: [{ smooth: !currentSmooth }] });
+        log(`折线图平滑切换：${currentSmooth} → ${!currentSmooth}`);
+      }
+    };
+
+    // ==================== 测试 3：饼图 ====================
+    log('创建饼图...');
+    const pieChart = vEchart(chart => {
+      chart.echartsLib(echarts);
+      chart.height('400px');
+      chart.option({
+        title: { text: '市场份额', left: 'center' },
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        legend: { orient: 'vertical', left: 'left', top: 'middle' },
+        series: [{
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['60%', '50%'],
+          data: [
+            { value: 1048, name: '搜索引擎' },
+            { value: 735, name: '直接访问' },
+            { value: 580, name: '邮件营销' },
+            { value: 484, name: '联盟广告' },
+            { value: 300, name: '视频广告' }
+          ]
+        }]
+      });
+      chart.onChartReady(instance => {
+        log('饼图已就绪');
+        document.getElementById('pieStatus').textContent = '状态：✓ 已就绪';
+        document.getElementById('pieStatus').className = 'status success';
+        window.pieChartInstance = instance;
+      });
+    });
+    pieChart.bindTo('#pieChart');
+    window.pieChart = pieChart;
+
+    window.updatePieData = function() {
+      const instance = pieChart.getChartInstance();
+      if (instance) {
+        const newData = Array.from({ length: 5 }, () => ({
+          value: Math.floor(Math.random() * 1000) + 100,
+          name: ['搜索引擎', '直接访问', '邮件营销', '联盟广告', '视频广告'][Math.floor(Math.random() * 5)]
+        }));
+        instance.setOption({ series: [{ data: newData }] });
+        log('饼图数据已更新');
+      }
+    };
+
+    // ==================== 测试 4：主题切换 ====================
+    log('创建主题测试图表...');
+    let isDarkTheme = false;
+    const themeChart = vEchart(chart => {
+      chart.echartsLib(echarts);
+      chart.height('400px');
+      chart.theme('light');
+      chart.option({
+        title: { text: '主题测试', left: 'center' },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: ['A', 'B', 'C', 'D', 'E'] },
+        yAxis: { type: 'value' },
+        series: [{
+          type: 'bar',
+          data: [10, 20, 30, 25, 15],
+          itemStyle: { color: '#667eea' }
+        }]
+      });
+      chart.onChartReady(instance => {
+        log('主题测试图表已就绪');
+        document.getElementById('themeStatus').textContent = '状态：✓ 已就绪 (明亮主题)';
+        document.getElementById('themeStatus').className = 'status success';
+        window.themeChartInstance = instance;
+      });
+    });
+    themeChart.bindTo('#themeChart');
+    window.themeChart = themeChart;
+
+    window.toggleTheme = function() {
+      isDarkTheme = !isDarkTheme;
+      const chart = window.themeChart;
+      chart.dispose();
+      chart.theme(isDarkTheme ? 'dark' : 'light');
+
+      // 重新渲染
+      setTimeout(() => {
+        chart.option({
+          title: { text: isDarkTheme ? '暗色主题 🌙' : '明亮主题 ☀️', left: 'center' },
+          tooltip: { trigger: 'axis' },
+          xAxis: { type: 'category', data: ['A', 'B', 'C', 'D', 'E'] },
+          yAxis: { type: 'value' },
+          series: [{
+            type: 'bar',
+            data: [10, 20, 30, 25, 15].map(v => v + Math.floor(Math.random() * 20))
+          }]
+        });
+        chart.renderDom();
+        log(`主题已切换：${isDarkTheme ? '暗色' : '明亮'}`);
+        document.getElementById('themeStatus').textContent = `状态：✓ 已就绪 (${isDarkTheme ? '暗色' : '明亮'}主题)`;
+      }, 100);
+    };
+
+    log('=== 所有测试初始化完成 ===');
+
+    // 自动测试报告
+    setTimeout(() => {
+      log('自动检查：');
+      log(`  - 柱状图实例：${window.barChartInstance ? '✓ 存在' : '✗ 不存在'}`);
+      log(`  - 折线图实例：${window.lineChartInstance ? '✓ 存在' : '✗ 不存在'}`);
+      log(`  - 饼图实例：${window.pieChartInstance ? '✓ 存在' : '✗ 不存在'}`);
+      log(`  - 主题图表实例：${window.themeChartInstance ? '✓ 存在' : '✗ 不存在'}`);
+    }, 500);
+  </script>
+</body>
+</html>

@@ -73,26 +73,7 @@ vTextarea({
 })`
         ),
 
-        CodeDemo('setupFunction + Setter',
-          vstack(s => {
-            s.gap('12px');
-            s.child(vInput(i => {
-              i.placeholder = '请输入用户名';
-              i.type = 'text';
-              i.on('change', (e) => toast.info(e.target.value));
-            }));
-            s.child(vInput('请输入密码', { type: 'password' }));
-          }),
-          `// ✅ 推荐：复杂逻辑用函数 + Setter
-vInput(i => {
-  i.placeholder = '请输入用户名'
-  i.type = 'text'
-  i.on('change', (e) => toast(e.target.value))
-})
-
-// 或更简洁的 Setter
-vInput('请输入密码', { type: 'password' })`
-        ),
+        
       ]));
 
       // 输入框
@@ -101,8 +82,8 @@ vInput('请输入密码', { type: 'password' })`
           vstack(stack => {
             stack.gap('12px');
             stack.child(vInput('请输入用户名'));
-            stack.child(vInput(i => { i.type = 'password'; i.placeholder = '请输入密码'; }));
-            stack.child(vInput(i => { i.type = 'email'; i.placeholder = '请输入邮箱'; }));
+            stack.child(vInput(i => { i.type = 'password'; i.placeholder('请输入密码'); }));
+            stack.child(vInput(i => { i.type = 'email'; i.placeholder('请输入邮箱'); }));
           }),
           `vInput('请输入用户名')
 vInput(i => { i.type = 'password'; i.placeholder = '请输入密码'; })`
@@ -114,7 +95,7 @@ vInput(i => { i.type = 'password'; i.placeholder = '请输入密码'; })`
             stack.child(label('用户名'));
             stack.child(vInput('请输入用户名'));
             stack.child(label('密码'));
-            stack.child(vInput(i => { i.type = 'password'; i.placeholder = '请输入密码'; }));
+            stack.child(vInput(i => { i.type('password'); i.placeholder('请输入密码'); }));
           }),
           `label('用户名')
 vInput('请输入用户名')`

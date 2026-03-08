@@ -5,6 +5,20 @@
   "type": "module",
   "main": "src/yoya/index.js",
   "types": "src/yoya/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/yoya/index.d.ts",
+      "default": "./src/yoya/index.js"
+    },
+    "./echart": {
+      "types": "./src/yoya/yoya.echart.d.ts",
+      "default": "./src/yoya/yoya.echart.js"
+    },
+    "./dist/echart": {
+      "types": "./src/yoya/yoya.echart.d.ts",
+      "default": "./dist/yoya.echart.esm.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "serve": "node server.js",
@@ -13,7 +27,8 @@
     "test:browser": "playwright test",
     "test:browser:ui": "playwright test --ui",
     "test:browser:debug": "playwright test --debug",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "build:echart": "rollup -c rollup.echart.config.js"
   },
   "keywords": [
     "html",
@@ -28,6 +43,7 @@
     "@playwright/test": "^1.58.2",
     "jsdom": "^24.0.0",
     "typescript": "^5.0.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "rollup": "^4.9.0"
   }
 }

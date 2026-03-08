@@ -32,10 +32,10 @@ export function createHomePage() {
 
       // 欢迎卡片
       content.child(vCard(welcome => {
-        welcome.styles({
-          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-          marginBottom: '24px',
-        });
+        // welcome.styles({
+        //   background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+        //   marginBottom: '24px',
+        // });
         welcome.vCardHeader('欢迎使用 Yoya.Basic V2');
         welcome.vCardBody(p => {
           p.div('Yoya.Basic V2 重构版，采用标准项目结构，提供更好的可维护性和扩展性。');
