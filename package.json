@@ -28,6 +28,7 @@
     "test:browser:ui": "playwright test --ui",
     "test:browser:debug": "playwright test --debug",
     "check": "tsc --noEmit",
+    "build": "rollup -c rollup.config.js",
     "build:echart": "rollup -c rollup.echart.config.js"
   },
   "keywords": [
