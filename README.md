@@ -1,9 +1,9 @@
 # Yoya.Basic
 
-> **一句话介绍**：Yoya.Basic 是一个浏览器原生的 HTML DSL 库 —— 零依赖、无需构建、直接操作 DOM，10 年后依然可用。
+> **一句话介绍**：Yoya.Basic 是一个浏览器原生的JS库 —— 零依赖、无需构建,  适合 微服务&微前端、全栈开发、私有化部署长期维护项目、服务端渲染但需要局部js交互增强。
 ```
 免责声明：本项目的实现过程 99% 由 AI (Claude Code + Qwen3.5-plus) 完成，
-当前为实验版本，生产环境请谨慎评估。
+当前为实验版本，生产环境请谨慎评估。有什么想法可以在issues中交流。
 ```
 
 ## 📖 这个库是什么
@@ -496,6 +496,272 @@ vCard({
   footer: button('操作')
 }).bindTo('#app');
 ```
+
+---
+
+## 🎨 推荐模式：使用函数构建业务组件
+
+**对于复杂业务场景，推荐使用函数封装业务组件**，而非直接使用类组件。这样可以更好地组织代码、复用逻辑和管理状态。
+
+### 基础示例
+
+```javascript
+// ✅ 推荐：函数构建业务组件
+function UserSelectTable({ props, onSelect }) {
+  return div(container => {
+    container.h2('用户列表');
+    container.table(tbl => {
+      tbl.thead(h => {
+        h.tr(row => {
+          row.th('姓名');
+          row.th('邮箱');
+          row.th('操作');
+        });
+      });
+      tbl.tbody(body => {
+        props.users.forEach(user => {
+          body.tr(row => {
+            row.td(user.name);
+            row.td(user.email);
+            row.td(button('选择').onclick(() => onSelect(user)));
+          });
+        });
+      });
+    });
+  });
+}
+
+// 使用
+UserSelectTable({
+  props: {
+    users: [
+      { name: 'Alice', email: 'alice@example.com' },
+      { name: 'Bob', email: 'bob@example.com' }
+    ]
+  },
+  onSelect: (user) => {
+    toast.success(`选择了用户：${user.name}`);
+  }
+}).bindTo('#app');
+```
+
+### 进阶：带状态的函数组件
+
+```javascript
+// 使用闭包管理组件状态
+function SearchableTable({ data, columns, onRowClick }) {
+  // 内部状态
+  let searchTerm = '';
+  let filteredData = data;
+
+  // 过滤函数
+  const filterData = () => {
+    if (!searchTerm) {
+      filteredData = data;
+    } else {
+      filteredData = data.filter(item =>
+        Object.values(item).some(v =>
+          String(v).toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+    // 重新渲染
+    container.renderDom();
+  };
+
+  // 构建组件
+  const container = div(box => {
+    // 搜索框
+    box.flex(header => {
+      header.alignCenter().gap('16px');
+      header.input(search => {
+        search.type('text')
+              .placeholder('搜索...')
+              .value(searchTerm)
+              .oninput(e => {
+                searchTerm = e.target.value;
+                filterData();
+              });
+      });
+    });
+
+    // 表格
+    box.table(tbl => {
+      // 表头
+      tbl.thead(h => {
+        h.tr(row => {
+          columns.forEach(col => row.th(col.title));
+        });
+      });
+      // 表身
+      tbl.tbody(body => {
+        filteredData.forEach(item => {
+          body.tr(row => {
+            columns.forEach(col => {
+              row.td(item[col.field]);
+            });
+            row.style('cursor', 'pointer')
+               .onclick(() => onRowClick && onRowClick(item));
+          });
+        });
+      });
+    });
+  });
+
+  return container;
+}
+
+// 使用
+const table = SearchableTable({
+  data: users,
+  columns: [
+    { field: 'name', title: '姓名' },
+    { field: 'email', title: '邮箱' },
+    { field: 'role', title: '角色' }
+  ],
+  onRowClick: (user) => {
+    toast.info(`点击了：${user.name}`);
+  }
+});
+table.bindTo('#app');
+```
+
+### 函数组件 vs 类组件
+
+| 特性 | 函数组件 | 类组件 |
+|------|---------|--------|
+| 代码简洁性 | ⭐⭐⭐⭐⭐ 简洁直观 | ⭐⭐⭐ 需要 class 语法 |
+| 状态管理 | ⭐⭐⭐⭐ 闭包/外部状态 | ⭐⭐⭐⭐⭐ 内置状态机 |
+| 逻辑复用 | ⭐⭐⭐⭐⭐ 组合函数 | ⭐⭐⭐ 继承/混入 |
+| 适合场景 | 业务组件、复杂交互 | 基础 UI 组件、可复用组件 |
+
+**推荐模式**：
+- 📦 **基础库**：使用类组件（如 `vCard`, `vMenu`, `vForm`）
+- 💼 **业务组件**：使用函数封装（如 `UserTable`, `OrderForm`, `DashboardPanel`）
+
+### 完整业务组件示例
+
+```javascript
+/**
+ * 订单管理面板 - 函数式业务组件
+ * @param {Object} options - 组件配置
+ * @param {Array} options.orders - 订单数据
+ * @param {Function} options.onApprove - 审批回调
+ * @param {Function} options.onReject - 拒绝回调
+ */
+function OrderManagementPanel({ orders, onApprove, onReject }) {
+  // 内部状态
+  let selectedOrder = null;
+  let filterStatus = 'all';
+
+  // 获取过滤后的订单
+  const getFilteredOrders = () => {
+    if (filterStatus === 'all') return orders;
+    return orders.filter(o => o.status === filterStatus);
+  };
+
+  // 渲染订单详情
+  const renderOrderDetail = (order) => {
+    if (!order) return div('请选择订单');
+
+    return div(detail => {
+      detail.styles({ padding: '20px', background: '#f5f5f5' });
+      detail.h3(`订单 #${order.id}`);
+      detail.p(`客户：${order.customer}`);
+      detail.p(`金额：¥${order.amount}`);
+      detail.p(`状态：${order.status}`);
+      detail.p(`日期：${order.date}`);
+
+      detail.flex(actions => {
+        actions.gap('12px');
+        if (order.status === 'pending') {
+          actions.button(btn => {
+            btn.text('审批通过')
+               .style('background', '#52c41a')
+               .onClick(() => onApprove(order));
+          });
+          actions.button(btn => {
+            btn.text('拒绝')
+               .style('background', '#ff4d4f')
+               .onClick(() => onReject(order));
+          });
+        }
+      });
+    });
+  };
+
+  // 主容器
+  return div(panel => {
+    panel.styles({ display: 'flex', height: '100%' });
+
+    // 左侧订单列表
+    panel.div(left => {
+      left.styles({ width: '400px', borderRight: '1px solid #ddd' });
+
+      // 过滤器
+      left.flex(filter => {
+        filter.gap('8px').padding('16px');
+        ['all', 'pending', 'approved', 'rejected'].forEach(status => {
+          filter.button(btn => {
+            btn.text(status === 'all' ? '全部' : status)
+               .style('background', filterStatus === status ? '#1890ff' : '#fff')
+               .onclick(() => {
+                 filterStatus = status;
+                 // 重新渲染
+                 panel.renderDom();
+               });
+          });
+        });
+      });
+
+      // 订单列表
+      left.div(list => {
+        list.styles({ overflowY: 'auto', height: 'calc(100% - 60px)' });
+
+        getFilteredOrders().forEach(order => {
+          list.div(item => {
+            item.styles({
+              padding: '12px 16px',
+              borderBottom: '1px solid #eee',
+              cursor: 'pointer',
+              background: selectedOrder?.id === order.id ? '#e6f7ff' : '#fff'
+            });
+            item.div(`#${order.id} - ${order.customer}`);
+            item.small(`¥${order.amount} | ${order.status}`);
+            item.onclick(() => {
+              selectedOrder = order;
+              panel.renderDom();
+            });
+          });
+        });
+      });
+    });
+
+    // 右侧详情区域
+    panel.div(right => {
+      right.styles({ flex: 1, padding: '20px', overflowY: 'auto' });
+      right.child(renderOrderDetail(selectedOrder));
+    });
+  });
+}
+
+// 使用
+OrderManagementPanel({
+  orders: orderData,
+  onApprove: (order) => {
+    toast.success(`订单 ${order.id} 已批准`);
+  },
+  onReject: (order) => {
+    toast.error(`订单 ${order.id} 已拒绝`);
+  }
+}).bindTo('#app-container');
+```
+
+**函数组件的优势**：
+- 🎯 **语义清晰** - 函数名直接表达组件用途
+- 🔄 **易于测试** - 纯函数，输入输出明确
+- 📦 **按需导入** - 只导入需要的业务组件
+- 🧩 **灵活组合** - 函数之间自由嵌套组合
 
 ---
 
