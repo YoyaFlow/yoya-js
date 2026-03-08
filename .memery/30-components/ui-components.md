@@ -99,3 +99,50 @@ toast.info('消息', 'info', 0);     // 不自动关闭
 - `src/yoya/components/card.js` - Card 组件
 - `src/yoya/components/menu.js` - Menu 组件
 - `src/yoya/components/message.js` - Message 组件
+- `src/yoya/components/echart.js` - VEchart 组件
+
+## VEchart ECharts 图表
+
+```javascript
+import { vEchart } from '../yoya/index.js';
+
+vEchart(chart => {
+  chart.echartsLib(window.echarts);
+  chart.height('300px');
+  chart.option({
+    xAxis: { type: 'category', data: ['A', 'B', 'C'] },
+    yAxis: { type: 'value' },
+    series: [{ type: 'bar', data: [10, 20, 30] }]
+  });
+  chart.onChartReady(instance => {
+    console.log('图表已就绪');
+  });
+});
+```
+
+### API 方法
+
+| 方法 | 说明 |
+|------|------|
+| `echartsLib(lib)` | 设置 ECharts 库实例 |
+| `option(opt)` | 设置图表配置项 |
+| `width(val)` / `height(val)` | 设置宽高 |
+| `theme(val)` | 设置主题 (dark/light) |
+| `renderer(val)` | 设置渲染器 (canvas/svg) |
+| `autoResize(auto)` | 是否自动响应容器大小 |
+| `loading(bool, text)` | 设置加载状态 |
+| `onChartReady(fn)` | 注册图表就绪回调 |
+| `onChartResize(fn)` | 注册图表大小变化回调 |
+| `getChartInstance()` | 获取 ECharts 实例 |
+| `resize(opts)` | 更新图表大小 |
+| `clear()` | 清空图表 |
+| `dispose()` | 释放图表实例 |
+
+### 支持的图表类型
+
+- 柱状图 (bar)
+- 折线图 (line)
+- 饼图 (pie)
+- 雷达图 (radar)
+- 散点图 (scatter)
+- 仪表盘 (gauge)

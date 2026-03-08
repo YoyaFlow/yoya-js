@@ -978,6 +978,26 @@ class Card extends Tag {
 - `yoya-check-types` - 检查 yoya.basic.d.ts 类型定义
 - `/simplify` - 审查代码复用性和质量
 
+## 组件库
+
+### 基础元素
+`div`, `span`, `p`, `h1`-`h6`, `a`, `button`, `input`, `form`, `table`...
+
+### 布局组件
+`flex`, `grid`, `responsiveGrid`, `vstack`, `hstack`, `center`, `container`
+
+### UI 组件
+`vCard`, `vButton`, `vMenu`, `vDetail`, `vField`, `vInput`, `vTimer`, `vCheckboxes`, `vEchart`
+
+### 反馈组件
+`toast`, `messageContainer`, `vCode`
+
+### SVG 组件
+`svg`, `circle`, `rect`, `path`, `line`, `g`, `defs`, `linearGradient`
+
+### ECharts 图表
+`vEchart` - ECharts 图表组件，支持柱状图、折线图、饼图、雷达图、仪表盘、散点图等
+
 ## 状态机与主题系统
 
 ### 架构说明
