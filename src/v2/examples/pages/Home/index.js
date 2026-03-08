@@ -72,25 +72,26 @@ p('这是段落内容')`
                 s.style('background', '#e8eaed');
                 setTimeout(() => s.style('background', ''), 500);
               },
-            }, '点击我有背景变化');
+              style: { padding: '8px', cursor: 'pointer' }
+            }).text('点击我有背景变化');
             s.button({
               onclick: () => {
                 alert('按钮被点击了');
-              },
-            }, '弹出 alert');
+              }
+            }).text('点击弹出');
           }),
           `// ✅ 推荐：简单属性和事件用对象配置
 div({
   onclick: () => {
     this.style('background', '#e8eaed');
   }
-}, '点击我')
+}).text('点击我')
 
 button({
   onclick: () => {
     alert('按钮被点击了');
   }
-}, '点击弹出')`
+}).text('点击弹出')`
         ),
 
         CodeDemo('setupFunction - 函数回调方式（适合复杂内容）',
