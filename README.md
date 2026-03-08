@@ -11,7 +11,7 @@
 Yoya.Basic 提供声明式语法，让你用 JavaScript 直接编写 UI：
 
 ```javascript
-import { div, button, vCard, toast } from './yoya/index.js';
+import { div, button, vCard, toast } from './yoya.esm.js';
 
 vCard({
   header: '用户信息',
@@ -160,7 +160,7 @@ vCard({
 
 ```javascript
 // 微服务 A: /users/pages/list.js
-import { div, table, vCard } from '../../yoya/index.js';
+import { div, table, vCard } from '../../yoya.esm.js';
 
 export function UserPage() {
   return vCard({
@@ -202,7 +202,7 @@ loadPage('users', 'list').then(page => {
 </div>
 
 <script type="module">
-  import { vEchart } from './yoya/index.js';
+  import { vEchart } from './yoya.echart.esm.js';
 
   // 局部构建交互式图表
   vEchart({ /* 配置 */ }).bindTo('#dashboard-widget');
@@ -283,7 +283,7 @@ vCard({
 ### 1. 导入库
 
 ```javascript
-import { div, button, flex, toast, vCard } from './yoya/index.js';
+import { div, button, flex, toast, vCard } from './yoya.esm.js';
 ```
 
 ### 2. 创建元素
@@ -781,7 +781,7 @@ OrderManagementPanel({
 
 ## 📄 License
 
-MIT
+Apache-2.0
 
 ---
 
