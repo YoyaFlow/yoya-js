@@ -1,10 +1,8 @@
 # Yoya.Basic
 
-> **一句话介绍**：Yoya.Basic 是一个浏览器原生的JS库 —— 零依赖、无需构建,  适合 微服务&微前端、全栈开发、私有化部署长期维护项目、服务端渲染但需要局部js交互增强。
-```
-免责声明：本项目的实现过程 99% 由 AI (Claude Code + Qwen3.5-plus) 完成，
-当前为实验版本，生产环境请谨慎评估。有什么想法可以在issues中交流。
-```
+> **一句话介绍**：Yoya.Basic 是一个浏览器原生的 JS 库 —— 零依赖、无需构建，适合微服务&微前端、全栈开发、私有化部署长期维护项目、服务端渲染但需要局部 js 交互增强。
+
+> **免责声明**：本项目的实现过程 99% 由 AI (Claude Code + Qwen3.5-plus) 完成，当前为实验版本，生产环境请谨慎评估。有什么想法可以在 issues 中交流。
 
 ## 📖 这个库是什么
 
@@ -27,15 +25,13 @@ vCard({
 - 🕰️ **长期主义** —— 只要 Web 标准不变，这套代码 10 年 20 年后依然可用
 - 🏢 **全栈优先** —— 为全栈开发和私有部署设计，微服务各自维护页面，统一门户集成
 
-
-
 ---
 
 ## 🎯 适用场景
 
-### 🏆 最推荐场景
+### 🏆 最推荐：微前端架构
 
-**微前端架构** —— 每个微服务维护自己的页面和组件，由统一入口项目整合：
+每个微服务维护自己的页面和组件，由统一入口项目整合：
 
 ```
 微服务 A (用户管理)    微服务 B (订单管理)    微服务 C (数据报表)
@@ -44,30 +40,25 @@ vCard({
       ▼                      ▼                      ▼
                     统一入口门户
                     动态加载各微服务页面
-                    集成到统一门户界面
 ```
 
-**为什么最适合**：
+**为什么适合微前端**：
 - ✅ **全栈友好** —— 后端开发者用 JavaScript 直接写页面，无需学前端工程化
 - ✅ **独立部署** —— 各服务维护自己的 UI，无需协调构建流程
 - ✅ **私有部署** —— 零依赖、离线可用，适合企业内网/私有云环境
 - ✅ **长期维护** —— 基于稳定 Web 标准，10-20 年后代码依然可用
 
----
-
 ### ⭐⭐⭐⭐⭐ 高度适配场景
 
 | 场景 | 为什么适合 | 典型用例 |
 |------|-----------|---------|
-| 🧩 **微前端集成** | 各服务独立维护 UI，动态模块加载，统一主题系统 | 多微服务页面集成到统一门户 |
-| 🖥️ **微服务前端** | 各服务独立维护 UI，无需共享 node_modules，服务端直接返回 JS 模块 | 用户服务/订单服务/报表服务各自管理页面 |
 | 🧑‍💻 **全栈个人项目** | 后端开发者无需学前端工程化，开箱即用 | 管理后台、数据看板、内部工具 |
 | 🏢 **私有环境部署** | 零依赖、离线可用，无需公网 CDN | 企业内网系统、私有云管理后台 |
 | 🤖 **AI 生成式 UI** | 声明式语法 LLM 易理解，无需构建，生成的代码立即执行 | 对话中生成表单、动态修改界面 |
 | 📐 **动态 UI 生成** | 组件可通过 JSON 配置创建，易于序列化 | 低代码表单生成器、报表配置工具 |
 | 📦 **嵌入式/WebView** | 零依赖、轻量、可完全离线运行 | Electron/Tauri 应用、IoT 设备控制台 |
 | 🚀 **原型快速开发** | 无配置成本，代码即写即运行 | 活动页面、演示 Demo、MVP 验证 |
-| 🔄 **SSR 局部增强** | 大页面中局部使用本库构建交互组件，与服务端渲染完美配合 | 管理后台、数据仪表盘 |
+| 🔄 **SSR 局部增强** | 大页面中局部使用本库构建交互组件 | 管理后台、数据仪表盘 |
 
 ### ⭐⭐⭐ 中度适配场景
 
@@ -76,7 +67,6 @@ vCard({
 | 📊 **Dashboard/数据看板** | 内置 ECharts 组件，直接 DOM 操作性能好 |
 | 📚 **内容展示站** | 支持 SSR (`toHTML()`)，但 SEO 需自行优化 |
 | 🎓 **教育/学习用途** | 代码透明，易于理解 DOM 操作原理 |
-| 💻 **SPA 应用** | 后续将支持路由等工具，但推荐使用更成熟的框架 |
 
 ### ⚠️ 不推荐场景
 
@@ -114,84 +104,21 @@ vCard({
 | 完整能力 | 受限于 HTML 属性 | JavaScript 完整表达能力 |
 | 扩展性 | 有限 | 支持路由/状态机等（规划中）|
 
-**相同理念**：
-- 都反对现代前端工程的复杂度
-- 都追求服务端渲染优先
-- 都适合渐进式增强
+**相同理念**：都反对现代前端工程的复杂度，都追求服务端渲染优先，都适合渐进式增强。
 
 **不同选择**：
 - HTMX：坚持纯 HTML，适合传统 SSR 增强
 - Yoya.Basic：使用 JavaScript，适合需要动态交互的场景（AI 生成 UI、微前端组件嵌入）
 
-**典型配合方式**：
-```
-同一页面中可以同时使用两者：
-- HTMX 处理简单交互（点击加载更多、表单提交）
-- Yoya.Basic 构建复杂组件（动态表单、数据可视化、AI 生成界面）
-```
+**典型配合方式**：同一页面中可以同时使用两者 —— HTMX 处理简单交互（点击加载更多、表单提交），Yoya.Basic 构建复杂组件（动态表单、数据可视化、AI 生成界面）。
 
 ---
 
 ## 🔄 SSR 配合与微前端嵌入
 
-### 🏆 微前端架构（最推荐）
-
-**每个微服务维护自己的页面和组件，统一入口整合：**
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  微服务 A        │     │  微服务 B        │     │  微服务 C        │
-│  (用户管理)      │     │  (订单管理)      │     │  (数据报表)      │
-│                 │     │                 │     │                 │
-│  UserPage.js    │     │  OrderPage.js   │     │  ReportPage.js  │
-│  └─ 导出页面     │     │  └─ 导出页面     │     │  └─ 导出页面     │
-└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 ▼
-                    ┌─────────────────────────┐
-                    │     统一入口门户         │
-                    │  动态加载各微服务页面    │
-                    │  集成到统一 SPA 界面      │
-                    └─────────────────────────┘
-```
-
-**代码示例：**
-
-```javascript
-// 微服务 A: /users/pages/list.js
-import { div, table, vCard } from '../../yoya.esm.js';
-
-export function UserPage() {
-  return vCard({
-    header: '用户管理',
-    body: table(t => {
-      t.tr(row => { row.th('用户名'); row.th('邮箱'); });
-      t.tr(row => { row.td('alice'); row.td('alice@example.com'); });
-    })
-  });
-}
-
-// 统一门户：动态加载微服务页面
-async function loadPage(service, page) {
-  const module = await import(`/${service}/pages/${page}.js`);
-  return module.default();
-}
-
-// 使用
-loadPage('users', 'list').then(page => {
-  page.bindTo('#main-content');
-});
-```
-
----
-
 ### 服务端渲染 + 局部交互
 
-```
-服务端渲染主体 HTML
-    │
-    ▼
+```html
 <div id="app">
   <!-- 服务端渲染的静态内容 -->
   <header>...</header>
@@ -203,13 +130,9 @@ loadPage('users', 'list').then(page => {
 
 <script type="module">
   import { vEchart } from './yoya.echart.esm.js';
-
-  // 局部构建交互式图表
   vEchart({ /* 配置 */ }).bindTo('#dashboard-widget');
 </script>
 ```
-
----
 
 ### 组件层级嵌入
 
@@ -230,17 +153,6 @@ div(app => {
   app.child(UserTable());  // 嵌入微服务组件
 }).bindTo('#app');
 ```
-
----
-
-## 💡 为什么适合全栈开发 + 私有部署 + 长期维护
-
-| 需求 | Yoya.Basic 的优势 |
-|------|-----------------|
-| **全栈开发** | 后端开发者用 JavaScript 直接写页面，无需学习 webpack/vite/npm 生态 |
-| **私有部署** | 零依赖、离线可用，无需公网 CDN，适合企业内网/私有云 |
-| **长期维护** | 基于稳定 DOM API，10-20 年后代码依然可用，不依赖框架社区 |
-| **微前端** | 各服务独立维护 UI，动态加载集成，无需统一构建流程 |
 
 ---
 
@@ -265,7 +177,6 @@ div(app => {
 | 🔧 多种写法 | 支持字符串/函数/对象配置，容错性强 |
 | 🧩 丰富组件 | 40+ 内置组件，AI 可用有限词汇生成复杂界面 |
 | 🔄 状态驱动 | 状态机支持，AI 可动态修改 UI 状态和交互 |
-| 📋 对象配置 | 简化语法，降低 AI 生成错误率 |
 
 ```javascript
 // AI 可以直接生成这样的代码 - 简洁、直观、可执行
@@ -330,57 +241,6 @@ vCard(c => {
   c.cardFooter(btn => {
     btn.button('操作').onclick(() => toast.info('操作按钮'));
   });
-}).bindTo('#app');
-```
-
----
-
-## 🤖 AI 生成式 UI 场景
-
-Yoya.Basic 专为 AI 交互场景优化，适合以下使用方式：
-
-### 对话中生成界面
-
-```javascript
-// AI 根据用户需求即时生成表单
-vForm({
-  title: '用户注册',
-  fields: [
-    { name: 'username', type: 'text', label: '用户名' },
-    { name: 'email', type: 'email', label: '邮箱' },
-    { name: 'password', type: 'password', label: '密码' }
-  ],
-  submit: (data) => toast.success('注册成功')
-}).bindTo('#app');
-```
-
-### 动态修改界面
-
-```javascript
-// AI 根据上下文更新 UI 状态
-const form = vForm(...);
-form.bindTo('#app');
-
-// 提交时更新状态
-form.setState('loading', true);  // 显示加载状态
-// ...
-form.setState('loading', false); // 恢复
-```
-
-### 组件化生成
-
-```javascript
-// AI 可以用组件快速搭建界面
-vCard({
-  header: h => h.h3('数据面板'),
-  body: b => {
-    b.flex(f => {
-      f.columns(3);
-      f.div('指标 1');
-      f.div('指标 2');
-      f.div('指标 3');
-    });
-  }
 }).bindTo('#app');
 ```
 
@@ -545,87 +405,6 @@ UserSelectTable({
 }).bindTo('#app');
 ```
 
-### 进阶：带状态的函数组件
-
-```javascript
-// 使用闭包管理组件状态
-function SearchableTable({ data, columns, onRowClick }) {
-  // 内部状态
-  let searchTerm = '';
-  let filteredData = data;
-
-  // 过滤函数
-  const filterData = () => {
-    if (!searchTerm) {
-      filteredData = data;
-    } else {
-      filteredData = data.filter(item =>
-        Object.values(item).some(v =>
-          String(v).toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    }
-    // 重新渲染
-    container.renderDom();
-  };
-
-  // 构建组件
-  const container = div(box => {
-    // 搜索框
-    box.flex(header => {
-      header.alignCenter().gap('16px');
-      header.input(search => {
-        search.type('text')
-              .placeholder('搜索...')
-              .value(searchTerm)
-              .oninput(e => {
-                searchTerm = e.target.value;
-                filterData();
-              });
-      });
-    });
-
-    // 表格
-    box.table(tbl => {
-      // 表头
-      tbl.thead(h => {
-        h.tr(row => {
-          columns.forEach(col => row.th(col.title));
-        });
-      });
-      // 表身
-      tbl.tbody(body => {
-        filteredData.forEach(item => {
-          body.tr(row => {
-            columns.forEach(col => {
-              row.td(item[col.field]);
-            });
-            row.style('cursor', 'pointer')
-               .onclick(() => onRowClick && onRowClick(item));
-          });
-        });
-      });
-    });
-  });
-
-  return container;
-}
-
-// 使用
-const table = SearchableTable({
-  data: users,
-  columns: [
-    { field: 'name', title: '姓名' },
-    { field: 'email', title: '邮箱' },
-    { field: 'role', title: '角色' }
-  ],
-  onRowClick: (user) => {
-    toast.info(`点击了：${user.name}`);
-  }
-});
-table.bindTo('#app');
-```
-
 ### 函数组件 vs 类组件
 
 | 特性 | 函数组件 | 类组件 |
@@ -638,130 +417,6 @@ table.bindTo('#app');
 **推荐模式**：
 - 📦 **基础库**：使用类组件（如 `vCard`, `vMenu`, `vForm`）
 - 💼 **业务组件**：使用函数封装（如 `UserTable`, `OrderForm`, `DashboardPanel`）
-
-### 完整业务组件示例
-
-```javascript
-/**
- * 订单管理面板 - 函数式业务组件
- * @param {Object} options - 组件配置
- * @param {Array} options.orders - 订单数据
- * @param {Function} options.onApprove - 审批回调
- * @param {Function} options.onReject - 拒绝回调
- */
-function OrderManagementPanel({ orders, onApprove, onReject }) {
-  // 内部状态
-  let selectedOrder = null;
-  let filterStatus = 'all';
-
-  // 获取过滤后的订单
-  const getFilteredOrders = () => {
-    if (filterStatus === 'all') return orders;
-    return orders.filter(o => o.status === filterStatus);
-  };
-
-  // 渲染订单详情
-  const renderOrderDetail = (order) => {
-    if (!order) return div('请选择订单');
-
-    return div(detail => {
-      detail.styles({ padding: '20px', background: '#f5f5f5' });
-      detail.h3(`订单 #${order.id}`);
-      detail.p(`客户：${order.customer}`);
-      detail.p(`金额：¥${order.amount}`);
-      detail.p(`状态：${order.status}`);
-      detail.p(`日期：${order.date}`);
-
-      detail.flex(actions => {
-        actions.gap('12px');
-        if (order.status === 'pending') {
-          actions.button(btn => {
-            btn.text('审批通过')
-               .style('background', '#52c41a')
-               .onClick(() => onApprove(order));
-          });
-          actions.button(btn => {
-            btn.text('拒绝')
-               .style('background', '#ff4d4f')
-               .onClick(() => onReject(order));
-          });
-        }
-      });
-    });
-  };
-
-  // 主容器
-  return div(panel => {
-    panel.styles({ display: 'flex', height: '100%' });
-
-    // 左侧订单列表
-    panel.div(left => {
-      left.styles({ width: '400px', borderRight: '1px solid #ddd' });
-
-      // 过滤器
-      left.flex(filter => {
-        filter.gap('8px').padding('16px');
-        ['all', 'pending', 'approved', 'rejected'].forEach(status => {
-          filter.button(btn => {
-            btn.text(status === 'all' ? '全部' : status)
-               .style('background', filterStatus === status ? '#1890ff' : '#fff')
-               .onclick(() => {
-                 filterStatus = status;
-                 // 重新渲染
-                 panel.renderDom();
-               });
-          });
-        });
-      });
-
-      // 订单列表
-      left.div(list => {
-        list.styles({ overflowY: 'auto', height: 'calc(100% - 60px)' });
-
-        getFilteredOrders().forEach(order => {
-          list.div(item => {
-            item.styles({
-              padding: '12px 16px',
-              borderBottom: '1px solid #eee',
-              cursor: 'pointer',
-              background: selectedOrder?.id === order.id ? '#e6f7ff' : '#fff'
-            });
-            item.div(`#${order.id} - ${order.customer}`);
-            item.small(`¥${order.amount} | ${order.status}`);
-            item.onclick(() => {
-              selectedOrder = order;
-              panel.renderDom();
-            });
-          });
-        });
-      });
-    });
-
-    // 右侧详情区域
-    panel.div(right => {
-      right.styles({ flex: 1, padding: '20px', overflowY: 'auto' });
-      right.child(renderOrderDetail(selectedOrder));
-    });
-  });
-}
-
-// 使用
-OrderManagementPanel({
-  orders: orderData,
-  onApprove: (order) => {
-    toast.success(`订单 ${order.id} 已批准`);
-  },
-  onReject: (order) => {
-    toast.error(`订单 ${order.id} 已拒绝`);
-  }
-}).bindTo('#app-container');
-```
-
-**函数组件的优势**：
-- 🎯 **语义清晰** - 函数名直接表达组件用途
-- 🔄 **易于测试** - 纯函数，输入输出明确
-- 📦 **按需导入** - 只导入需要的业务组件
-- 🧩 **灵活组合** - 函数之间自由嵌套组合
 
 ---
 
@@ -782,18 +437,3 @@ OrderManagementPanel({
 ## 📄 License
 
 Apache-2.0
-
----
-
-## 📊 为什么选择 Yoya.Basic 作为 AI UI 框架
-
-| 特性 | 说明 | AI 友好度 |
-|------|------|----------|
-| 声明式语法 | 类似自然语言的结构 | ⭐⭐⭐⭐⭐ |
-| 无需构建 | 生成的代码立即执行 | ⭐⭐⭐⭐⭐ |
-| 多种写法 | 字符串/函数/对象配置等价 | ⭐⭐⭐⭐⭐ |
-| 丰富组件 | 40+ 内置组件 | ⭐⭐⭐⭐⭐ |
-| 状态机 | 支持动态修改 UI | ⭐⭐⭐⭐ |
-| 链式调用 | 代码简洁，减少 token | ⭐⭐⭐⭐ |
-
-**适用场景**：对话式 UI 生成、表单自动生成、数据展示界面、仪表盘配置、交互式原型
