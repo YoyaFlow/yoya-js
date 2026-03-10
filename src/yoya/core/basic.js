@@ -57,9 +57,18 @@ class Tag {
     // 处理 class
     if (config.class) {
       if (Array.isArray(config.class)) {
-        this.class(...config.class);
+        this.className(...config.class);
       } else {
-        this.class(config.class);
+        this.className(config.class);
+      }
+    }
+
+    // 处理 className（别名）
+    if (config.className) {
+      if (Array.isArray(config.className)) {
+        this.className(...config.className);
+      } else {
+        this.className(config.className);
       }
     }
 

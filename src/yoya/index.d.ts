@@ -11,6 +11,7 @@ type SetupFunction<T extends Tag = Tag> = (element: T) => void;
 
 type SetupObject = {
   class?: string | string[];
+  className?: string | string[];
   style?: Record<string, string | number>;
   children?: (string | number | Tag | null | undefined | (string | number | Tag | null | undefined)[])[];
   [key: string]: unknown;

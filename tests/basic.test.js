@@ -56,7 +56,7 @@ const tests = {
 
   'div 工厂函数接受 setup 函数': () => {
     const el = div(box => {
-      box.class('test-class');
+      box.className('test-class');
     });
     assert(el._classes.has('test-class'), '应该设置 class');
   },
@@ -81,7 +81,7 @@ const tests = {
 
   '链式调用返回 this': () => {
     const el = div(box => {
-      const result = box.class('a').style('color', 'red');
+      const result = box.className('a').style('color', 'red');
       assert(result === box, '链式调用应该返回元素本身');
     });
   },
@@ -157,7 +157,7 @@ const tests = {
   },
 
   'toHTML 方法': () => {
-    const el = div({ id: 'test', class: 'box' });
+    const el = div({ id: 'test', className: 'box' });
     const html = el.toHTML();
     assert(html.includes('<div'), '应该包含 div 开始标签');
     assert(html.includes('id="test"'), '应该包含 id 属性');

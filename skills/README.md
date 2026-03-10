@@ -117,7 +117,7 @@ div(box => {
 ```javascript
 div()
   .id('my-id')
-  .class('my-class')
+  .className('my-class')
   .style('color', 'red');
 ```
 

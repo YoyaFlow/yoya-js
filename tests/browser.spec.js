@@ -31,7 +31,7 @@ test.describe('Yoya.Basic 浏览器测试', () => {
       const { div } = window.YoyaTest;
       const el = div(box => {
         box.id('test-div');
-        box.class('container');
+        box.className('container');
         box.text('Hello World');
       });
       el.bindTo('#app');

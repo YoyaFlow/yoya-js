@@ -83,7 +83,7 @@ class VCard extends Tag {
         }
       }
       // 处理其他配置（class, style 等）
-      if (setup.class) this.class(setup.class);
+      if (setup.class) this.className(setup.class);
       if (setup.style) this.styles(setup.style);
       if (setup.onclick) this.on('click', setup.onclick);
     }

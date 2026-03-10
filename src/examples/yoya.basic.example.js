@@ -118,7 +118,7 @@ function createBasicDemo() {
     });
 
     section.div(box => {
-      box.class('demo-box');
+      box.className('demo-box');
       box.styles({
         padding: '20px',
         background: '#f8f9fa',
@@ -145,7 +145,7 @@ function createBasicDemo() {
 
         texts.forEach((text, i) => {
           badges.span(s => {
-            s.class('badge');
+            s.className('badge');
             s.text(text);
             s.styles({
               background: colors[i],
@@ -248,7 +248,7 @@ function createFormDemo() {
             });
 
             actions.button(btn => {
-              btn.class('btn-primary');
+              btn.className('btn-primary');
               btn.type('submit');
               btn.text('提交');
               btn.styles(pageStyles.btnPrimary);
@@ -316,7 +316,7 @@ function createTableDemo() {
       });
 
       tableContainer.table(t => {
-        t.class('data-table');
+        t.className('data-table');
         t.styles(pageStyles.dataTable);
         t.styles({ background: 'white' });
 
@@ -661,7 +661,7 @@ function createCodeDemo() {
             pre.styles(pageStyles.codeBlock);
             pre.code(c => {
               c.text(`div(box => {
-  box.class('container');
+  box.className('container');
   box.h1('标题');
   box.button('点击');
 }).bindTo('#app');`);

@@ -47,7 +47,7 @@ div(box => {
 // 链式调用
 div()
   .id('container')
-  .class('main')
+  .className('main')
   .text('内容');
 ```
 

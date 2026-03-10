@@ -94,7 +94,7 @@ class Tag {
   // 核心方法
   setup(setup)           // 统一初始化
   attr(name, value)      // 属性操作
-  class(...classes)      // 添加类
+  className(...classes)  // 添加类
   style(name, value)     // 样式操作
   on(event, handler)     // 绑定事件
   text(content)          // 添加文本
@@ -248,14 +248,14 @@ import { div, button, input } from './yoya.basic.js';
 
 // setupFunction（优先）
 div(box => {
-  box.class('container');
+  box.className('container');
   box.button(btn => btn.text('test1'));
   box.button('test2');
 }).bindTo('#app');
 
 // setupObject
 div({
-  class: 'wrapper',
+  className: 'wrapper',
   style: { color: 'red' },
   children: [
     button('点击'),
@@ -273,7 +273,7 @@ div('纯文本内容').bindTo('#app');
 button('提交')
   .submit()
   .large()
-  .class('primary')
+  .className('primary')
   .on('click', () => console.log('clicked'))
   .bindTo('#form');
 
@@ -289,7 +289,7 @@ input('name')
 
 ```javascript
 table(t => {
-  t.class('data-table');
+  t.className('data-table');
   t.tr(row => {
     row.th('姓名');
     row.th('年龄');

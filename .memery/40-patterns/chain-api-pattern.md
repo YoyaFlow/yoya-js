@@ -7,7 +7,7 @@
 ```javascript
 div(box => {
   box.id('main')
-     .class('container')
+     .className('container')
      .style('padding', '20px')
      .on('click', handler);
 });
