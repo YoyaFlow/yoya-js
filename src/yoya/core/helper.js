@@ -1,6 +1,7 @@
 /**
  * Yoya.Basic - Helper Utilities
  * 工具函数：安全的动态加载组件
+ * @module Yoya.Helper
  */
 
 import { Tag, div } from './basic.js';
@@ -11,6 +12,8 @@ import { Tag, div } from './basic.js';
 
 /**
  * 加载状态枚举
+ * @enum {string}
+ * @readonly
  */
 const LoadStatus = {
   PENDING: 'pending',      // 等待加载
@@ -38,6 +41,8 @@ const _loadCallbacks = new Map();
  * 3. 错误处理，加载失败不影响页面正常运行
  * 4. 支持加载状态回调
  *
+ * @class
+ * @extends Tag
  * @example
  * // 基础用法
  * vDynamicLoader(() => import('./my-component.js'), {
@@ -60,6 +65,22 @@ const _loadCallbacks = new Map();
  * );
  */
 class VDynamicLoader extends Tag {
+  /**
+   * 创建 VDynamicLoader 实例
+   * @param {Function} moduleLoader - 模块加载函数 () => Promise<Module>
+   * @param {Object} [options={}] - 配置选项
+   * @param {Tag} [options.placeholder=null] - 占位内容
+   * @param {Tag} [options.loadingContent=div('加载中...')] - 加载中内容
+   * @param {Tag} [options.errorContent=div('加载失败')] - 错误内容
+   * @param {Function} [options.onLoad=null] - 加载成功回调 (api, component) => void
+   * @param {Function} [options.onError=null] - 加载失败回调 (error, component) => void
+   * @param {Function} [options.onStatusChange=null] - 状态变化回调 (status) => void
+   * @param {number} [options.retryCount=0] - 重试次数
+   * @param {number} [options.retryDelay=1000] - 重试延迟（毫秒）
+   * @param {string} [options.minHeight='auto'] - 最小高度
+   * @param {string} [options.minWidth='auto'] - 最小宽度
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(moduleLoader, options = {}, setup = null) {
     // 处理参数重载
     if (typeof options === 'function') {
@@ -317,7 +338,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 获取加载状态
-   * @returns {string} 加载状态
+   * @returns {string} 加载状态（pending/loading/loaded/error）
    */
   getStatus() {
     return this._status;
@@ -325,7 +346,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 检查是否已加载
-   * @returns {boolean}
+   * @returns {boolean} 是否已加载完成
    */
   isLoaded() {
     return this._status === LoadStatus.LOADED;
@@ -333,7 +354,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 检查是否加载失败
-   * @returns {boolean}
+   * @returns {boolean} 是否加载失败
    */
   isError() {
     return this._status === LoadStatus.ERROR;
@@ -341,7 +362,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 检查是否正在加载
-   * @returns {boolean}
+   * @returns {boolean} 是否正在加载
    */
   isLoading() {
     return this._status === LoadStatus.LOADING;
@@ -357,7 +378,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 获取错误信息
-   * @returns {Error|null}
+   * @returns {Error|null} 错误对象或 null
    */
   getError() {
     return this._error;
@@ -365,7 +386,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 手动重试加载
-   * @returns {Promise<void>}
+   * @returns {Promise<this>} 返回当前实例支持链式调用
    */
   async retry() {
     this._retryCount = 0;  // 重置重试计数
@@ -377,7 +398,7 @@ class VDynamicLoader extends Tag {
   /**
    * 设置加载超时
    * @param {number} ms - 超时毫秒数
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   timeout(ms) {
     this._timeout = ms;
@@ -387,8 +408,8 @@ class VDynamicLoader extends Tag {
   /**
    * 设置重试配置
    * @param {number} count - 重试次数
-   * @param {number} delay - 重试间隔（毫秒）
-   * @returns {this}
+   * @param {number} [delay=1000] - 重试间隔（毫秒）
+   * @returns {this} 返回当前实例支持链式调用
    */
   retryConfig(count, delay = 1000) {
     this._retryCount = count;
@@ -397,9 +418,9 @@ class VDynamicLoader extends Tag {
   }
 
   /**
-   * 设置加载回调
+   * 设置加载成功回调
    * @param {Function} callback - (api, loader) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   onLoad(callback) {
     this._onLoad = callback;
@@ -417,7 +438,7 @@ class VDynamicLoader extends Tag {
   /**
    * 设置错误回调
    * @param {Function} callback - (error, loader) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   onError(callback) {
     this._onError = callback;
@@ -435,7 +456,7 @@ class VDynamicLoader extends Tag {
   /**
    * 设置状态变化回调
    * @param {Function} callback - (status, loader) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   onStatusChange(callback) {
     this._onStatusChange = callback;
@@ -452,6 +473,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 卸载组件，清理缓存
+   * @returns {this} 返回当前实例支持链式调用
    */
   unload() {
     const cacheKey = this._getCacheKey();
@@ -465,6 +487,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 销毁组件
+   * @returns {this} 返回当前实例支持链式调用
    */
   destroy() {
     this.unload();
@@ -598,7 +621,7 @@ async function preloadModules(loaders) {
 /**
  * 清除模块缓存
  *
- * @param {string|Function} loader - 模块加载函数或缓存键
+ * @param {string|Function} [loader] - 模块加载函数或缓存键，不传则清空所有缓存
  */
 function clearModuleCache(loader) {
   if (typeof loader === 'function') {
