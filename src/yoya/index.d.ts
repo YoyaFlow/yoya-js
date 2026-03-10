@@ -37,6 +37,9 @@ declare class Tag {
   attr(name: string, value?: any): this | any;
 
   // 类操作
+  className(...classes: (string | string[])[]): this;
+
+  // className 的别名，保持向后兼容
   class(...classes: (string | string[])[]): this;
 
   // 样式操作

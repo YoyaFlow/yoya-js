@@ -176,7 +176,7 @@ class Tag {
   }
 
   // 添加类：同步到 _el
-  class(...classes) {
+  className(...classes) {
     classes.flat().forEach(cls => {
       if (cls) {
         this._classes.add(cls);
@@ -184,6 +184,11 @@ class Tag {
       }
     });
     return this;
+  }
+
+  // className 的别名，保持向后兼容
+  class(...classes) {
+    return this.className(...classes);
   }
 
   // 样式操作：存储 + 同步到 _el
