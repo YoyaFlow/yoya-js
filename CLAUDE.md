@@ -979,6 +979,214 @@ class Card extends Tag {
 - `skill-creator` - 创建新的 Claude Code 技能（slash commands）
 - `/simplify` - 审查代码复用性和质量
 
+## 组件优先使用原则
+
+**开发页面时，优先使用现有组件，组件实现不了的功能才使用基础元素组合实现。**
+
+### 优先级顺序
+
+1. **UI 组件**（最高优先级）- 位于 `src/yoya/components/`
+   - 卡片：`vCard`, `cardHeader`, `cardBody`, `cardFooter`
+   - 菜单：`vMenu`, `vMenuItem`, `vDropdownMenu`, `vContextMenu`, `vSidebar`
+   - 表单：`vInput`, `vCheckboxes`, `vTimer`, `vTimer2`
+   - 代码：`vCode`, `codeBlock`
+   - 消息：`toast`, `vMessage`, `vMessageContainer`
+   - 图表：`vEchart`
+
+2. **布局组件** - 位于 `src/yoya/core/layout.js`
+   - 弹性布局：`flex`, `hstack`, `vstack`
+   - 网格布局：`grid`, `responsiveGrid`
+   - 居中布局：`center`
+   - 其他：`container`, `spacer`, `divider`
+
+3. **SVG 组件** - 位于 `src/yoya/core/svg.js`
+   - 基础形状：`circle`, `ellipse`, `rect`, `line`, `polyline`, `polygon`
+   - 路径：`path`
+   - 文本：`text`, `tspan`
+   - 渐变：`linearGradient`, `radialGradient`
+   - 滤镜：`filter`
+
+4. **基础元素**（最低优先级）- 位于 `src/yoya/core/basic.js`
+   - 容器：`div`, `span`, `p`, `h1`-`h6`, `section`, `article`
+   - 表单：`button`, `input`, `textarea`, `select`, `option`
+   - 列表：`ul`, `ol`, `li`, `dl`, `dt`, `dd`
+   - 表格：`table`, `tr`, `td`, `th`, `thead`, `tbody`
+   - 媒体：`img`, `video`, `audio`
+
+### 使用示例
+
+```javascript
+// ✅ 推荐：使用 Card 组件
+import { vCard, vCardHeader, vCardBody } from '../yoya/index.js';
+
+vCard(c => {
+  c.vCardHeader('用户信息');
+  c.vCardBody('这里是卡片内容');
+});
+
+// ❌ 不推荐：使用基础元素拼装
+import { div, h2, p } from '../yoya/index.js';
+
+div(c => {
+  c.className('card');
+  c.h2('用户信息');
+  c.p('这里是卡片内容');
+});
+```
+
+```javascript
+// ✅ 推荐：使用 Menu 组件
+import { vMenu, vMenuItem, vMenuDivider } from '../yoya/index.js';
+
+vMenu(m => {
+  m.item(it => {
+    it.text('新建')
+      .icon('📄')
+      .shortcut('Ctrl+N')
+      .onclick(() => console.log('新建'));
+  });
+  m.divider();
+  m.item(it => {
+    it.text('设置')
+      .icon('⚙️')
+      .onclick(() => console.log('设置'));
+  });
+});
+
+// ❌ 不推荐：使用基础元素拼装
+import { div, span, hr } from '../yoya/index.js';
+
+div(m => {
+  m.className('menu');
+  m.styles({ background: 'white', borderRadius: '8px', boxShadow: '...' });
+  m.div(item => {
+    item.className('menu-item');
+    item.span('📄').span('新建').span('Ctrl+N');
+  });
+  m.hr();
+  m.div(item => {
+    item.className('menu-item');
+    item.span('⚙️').span('设置');
+  });
+});
+```
+
+```javascript
+// ✅ 推荐：使用布局组件
+import { flex, vstack, center } from '../yoya/index.js';
+
+flex(f => {
+  f.row().justifyCenter().alignCenter();
+  f.div('居中的内容');
+});
+
+// ❌ 不推荐：使用基础元素手动设置样式
+import { div } from '../yoya/index.js';
+
+div(d => {
+  d.styles({
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  });
+  d.div('居中的内容');
+});
+```
+
+```javascript
+// ✅ 推荐：使用消息组件
+import { toast } from '../yoya/index.js';
+
+toast.success('操作成功');
+toast.error('操作失败');
+toast.warning('警告信息');
+toast.info('提示信息');
+
+// ❌ 不推荐：手动创建消息提示
+import { div } from '../yoya/index.js';
+
+div(msg => {
+  msg.className('toast toast-success');
+  msg.text('操作成功');
+  document.body.appendChild(msg.renderDom());
+});
+```
+
+### 判断是否使用基础元素
+
+当遇到以下情况时，可以使用基础元素组合实现：
+
+1. **现有组件不支持所需功能**
+   - 例：需要一个带有自定义交互的复杂表单控件
+
+2. **性能敏感场景**
+   - 例：渲染大量简单列表项，组件的额外逻辑可能影响性能
+
+3. **特殊布局需求**
+   - 例：非标准的网格或 flex 布局，组件无法满足
+
+4. **原型快速开发**
+   - 例：快速验证想法，后续再封装为组件
+
+### 封装新组件
+
+当多次使用基础元素实现相似功能时，应考虑封装为新组件：
+
+```javascript
+// 多次使用后，考虑封装
+// 第一次
+div(box => {
+  box.className('stat-card');
+  box.styles({ padding: '20px', borderRadius: '8px', background: '#fff' });
+  box.h3('访问量');
+  box.p('1,234');
+});
+
+// 第二次 - 相似结构
+div(box => {
+  box.className('stat-card');
+  box.styles({ padding: '20px', borderRadius: '8px', background: '#fff' });
+  box.h3('订单量');
+  box.p('567');
+});
+
+// ✅ 第三次：封装为组件
+class StatCard extends Tag {
+  constructor(setup = null) {
+    super('div', null);
+    this.styles({ padding: '20px', borderRadius: '8px', background: '#fff' });
+    if (setup) setup(this);
+  }
+  title(t) {
+    if (!this._title) {
+      this._title = h3(t => this.child(t));
+    } else {
+      this._title.text(t);
+    }
+    return this;
+  }
+  value(v) {
+    if (!this._value) {
+      this._value = p(v => this.child(v));
+    } else {
+      this._value.text(v);
+    }
+    return this;
+  }
+}
+
+function statCard(setup = null) {
+  return new StatCard(setup);
+}
+
+// 使用
+statCard(c => {
+  c.title('访问量');
+  c.value('1,234');
+});
+```
+
 ## 组件库
 
 ### 基础元素
