@@ -1,6 +1,34 @@
 /**
  * Yoya.Basic - Menu Components
- * 菜单组件库
+ * 菜单组件库：提供菜单、下拉菜单、右键菜单、侧边栏等组件
+ * @module Yoya.Menu
+ * @example
+ * // 基础菜单
+ * import { vMenu, vMenuItem, vMenuDivider } from '../yoya/index.js';
+ *
+ * vMenu(m => {
+ *   m.item(it => {
+ *     it.text('📋 菜单项 1')
+ *       .onclick(() => console.log('点击 1'));
+ *   });
+ *   m.item(it => {
+ *     it.text('📁 菜单项 2')
+ *       .onclick(() => console.log('点击 2'));
+ *   });
+ *   m.divider();
+ *   m.item(it => {
+ *     it.text('⚙️ 设置')
+ *       .onclick(() => console.log('设置'));
+ *   });
+ * });
+ *
+ * // 带图标的菜单项
+ * vMenuItem(item => {
+ *   item.icon('<span>🏠</span>')
+ *       .text('首页')
+ *       .shortcut('Ctrl+H')
+ *       .active();
+ * });
  */
 
 import { Tag, span, div, button } from '../core/basic.js';
@@ -9,7 +37,17 @@ import { Tag, span, div, button } from '../core/basic.js';
 // VMenu 菜单
 // ============================================
 
+/**
+ * VMenu 菜单容器
+ * 支持垂直/水平布局，可包含菜单项、分割线、子菜单等
+ * @class
+ * @extends Tag
+ */
 class VMenu extends Tag {
+  /**
+   * 创建 VMenu 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
     this.styles({
@@ -28,10 +66,18 @@ class VMenu extends Tag {
     }
   }
 
+  /**
+   * 设置垂直布局
+   * @returns {this}
+   */
   vertical() {
     return this.style('flexDirection', 'column');
   }
 
+  /**
+   * 设置水平布局
+   * @returns {this}
+   */
   horizontal() {
     this.style('display', 'flex');
     this.style('flexDirection', 'row');
@@ -41,36 +87,70 @@ class VMenu extends Tag {
     return this;
   }
 
+  /**
+   * 设置紧凑模式（减小内边距）
+   * @returns {this}
+   */
   compact() {
     return this.style('padding', '4px 0');
   }
 
+  /**
+   * 移除阴影
+   * @returns {this}
+   */
   noShadow() {
     return this.style('boxShadow', 'none');
   }
 
+  /**
+   * 添加边框
+   * @returns {this}
+   */
   bordered() {
     return this.style('border', '1px solid #e0e0e0');
   }
 
+  /**
+   * 添加菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
+   */
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
     this.child(el);
     return el;
   }
 
+  /**
+   * 添加分割线
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   divider(setup = null) {
     const el = vMenuDivider(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加菜单组
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuGroup}
+   */
   group(setup = null) {
     const el = vMenuGroup(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加子菜单
+   * @param {string} title - 子菜单标题
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VSubMenu}
+   */
   submenu(title, setup = null) {
     // 使用 vSubMenu 创建子菜单
     const subMenu = vSubMenu(title, setup);
@@ -79,6 +159,11 @@ class VMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VMenu 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenu}
+ */
 function vMenu(setup = null) {
   return new VMenu(setup);
 }
@@ -87,9 +172,20 @@ function vMenu(setup = null) {
 // VMenuItem 菜单项
 // ============================================
 
+/**
+ * VMenuItem 菜单项
+ * 支持 disabled、active、danger、hoverable、expanded 等状态
+ * @class
+ * @extends Tag
+ */
 class VMenuItem extends Tag {
   static _stateAttrs = ['disabled', 'active', 'danger', 'hoverable', 'expanded'];
 
+  /**
+   * 创建 VMenuItem 实例
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(content = '', setup = null) {
     if (typeof content === 'function') {
       setup = content;
@@ -231,6 +327,10 @@ class VMenuItem extends Tag {
     });
   }
 
+  /**
+   * 注册悬浮拦截器
+   * @private
+   */
   _registerHoverInterceptor() {
     this.registerStateInterceptor((stateName, value) => {
       if (this.hasState('disabled') && stateName !== 'disabled') {
@@ -240,6 +340,10 @@ class VMenuItem extends Tag {
     });
   }
 
+  /**
+   * 设置交互事件（悬浮、点击）
+   * @private
+   */
   _setupInteractions() {
     const self = this;
 
@@ -286,7 +390,12 @@ class VMenuItem extends Tag {
     });
   }
 
-  // 子菜单相关方法 - 使用 vSubMenu 创建子菜单
+  /**
+   * 添加子菜单
+   * @param {string} title - 子菜单标题
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VSubMenu}
+   */
   submenu(title, setup = null) {
     // 使用 vSubMenu 创建子菜单
     const subMenu = vSubMenu(title, setup);
@@ -299,6 +408,10 @@ class VMenuItem extends Tag {
     return subMenu;
   }
 
+  /**
+   * 确保箭头元素存在
+   * @private
+   */
   _ensureArrow() {
     if (this._arrowEl) return;
     this._arrowEl = span(arrow => {
@@ -314,6 +427,10 @@ class VMenuItem extends Tag {
     });
   }
 
+  /**
+   * 确保箭头元素已添加到子元素
+   * @private
+   */
   _ensureArrowEl() {
     if (!this._arrowEl) return;
     if (!this._children.includes(this._arrowEl)) {
@@ -321,12 +438,22 @@ class VMenuItem extends Tag {
     }
   }
 
+  /**
+   * 设置菜单项文本
+   * @param {string} content - 文本内容
+   * @returns {this}
+   */
   text(content) {
     this._text = content;
     this._updateContent();
     return this;
   }
 
+  /**
+   * 设置菜单项图标
+   * @param {string} content - 图标 HTML 或文本
+   * @returns {this}
+   */
   icon(content) {
     this._icon = content;
     this._ensureIconBox();
@@ -336,51 +463,98 @@ class VMenuItem extends Tag {
     return this;
   }
 
+  /**
+   * 设置点击事件处理
+   * @param {Function} fn - 事件处理函数
+   * @returns {this}
+   */
   onclick(fn) {
     this._onclick = fn;
     return this;
   }
 
-  // 统一事件格式的方法
+  /**
+   * 设置点击事件处理（统一事件格式）
+   * @param {Function} handler - 事件处理函数
+   * @returns {this}
+   */
   onClick(handler) {
     this._onclick = handler;
     return this;
   }
 
+  /**
+   * 禁用菜单项
+   * @returns {this}
+   */
   disabled() {
     return this.setState('disabled', true);
   }
 
+  /**
+   * 启用菜单项
+   * @returns {this}
+   */
   enabled() {
     return this.setState('disabled', false);
   }
 
+  /**
+   * 激活菜单项
+   * @returns {this}
+   */
   active() {
     return this.setState('active', true);
   }
 
+  /**
+   * 取消激活菜单项
+   * @returns {this}
+   */
   inactive() {
     return this.setState('active', false);
   }
 
+  /**
+   * 设置为危险样式（红色）
+   * @returns {this}
+   */
   danger() {
     return this.setState('danger', true);
   }
 
+  /**
+   * 启用悬浮效果
+   * @returns {this}
+   */
   hoverable() {
     return this.setState('hoverable', true);
   }
 
+  /**
+   * 设置快捷键提示
+   * @param {string} key - 快捷键文本
+   * @returns {this}
+   */
   shortcut(key) {
     this._shortcut = key;
     this._updateContent();
     return this;
   }
 
+  /**
+   * 切换状态
+   * @param {string} stateName - 状态名称
+   * @returns {this}
+   */
   toggleState(stateName) {
     return this.setState(stateName, !this.hasState(stateName));
   }
 
+  /**
+   * 确保图标容器存在
+   * @private
+   */
   _ensureIconBox() {
     if (this._iconBox) return;
     this._iconBox = span(iconEl => {
@@ -389,6 +563,10 @@ class VMenuItem extends Tag {
     this.child(this._iconBox);
   }
 
+  /**
+   * 确保文本容器存在
+   * @private
+   */
   _ensureTextBox() {
     if (this._textBox) return;
     this._textBox = span(textEl => {
@@ -405,6 +583,10 @@ class VMenuItem extends Tag {
     this.child(this._textBox);
   }
 
+  /**
+   * 确保快捷键容器存在
+   * @private
+   */
   _ensureShortcutBox() {
     if (this._shortcutBox) return;
     this._shortcutBox = span(shortcutEl => {
@@ -452,6 +634,10 @@ class VMenuItem extends Tag {
     }
   }
 
+  /**
+   * 渲染 DOM 元素
+   * @returns {HTMLElement|null}
+   */
   renderDom() {
     const element = super.renderDom();
     if (element) {
@@ -461,6 +647,12 @@ class VMenuItem extends Tag {
   }
 }
 
+/**
+ * 创建 VMenuItem 实例
+ * @param {string|Function} [content=''] - 内容或 setup 函数
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenuItem}
+ */
 function vMenuItem(content = '', setup = null) {
   return new VMenuItem(content, setup);
 }
@@ -469,7 +661,16 @@ function vMenuItem(content = '', setup = null) {
 // VMenuDivider 菜单分割线
 // ============================================
 
+/**
+ * VMenuDivider 菜单分割线
+ * @class
+ * @extends Tag
+ */
 class VMenuDivider extends Tag {
+  /**
+   * 创建 VMenuDivider 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('hr', setup);
     this.styles({
@@ -481,6 +682,11 @@ class VMenuDivider extends Tag {
   }
 }
 
+/**
+ * 创建 VMenuDivider 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenuDivider}
+ */
 function vMenuDivider(setup = null) {
   return new VMenuDivider(setup);
 }
@@ -489,7 +695,16 @@ function vMenuDivider(setup = null) {
 // VMenuGroup 菜单组
 // ============================================
 
+/**
+ * VMenuGroup 菜单组容器
+ * @class
+ * @extends Tag
+ */
 class VMenuGroup extends Tag {
+  /**
+   * 创建 VMenuGroup 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -498,24 +713,44 @@ class VMenuGroup extends Tag {
     });
   }
 
+  /**
+   * 设置组标签
+   * @param {string} text - 标签文本
+   * @returns {this}
+   */
   label(text) {
     this._label = text;
     this._updateContent();
     return this;
   }
 
+  /**
+   * 添加菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
+   */
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
     this.child(el);
     return el;
   }
 
+  /**
+   * 添加分割线
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   divider(setup = null) {
     const el = vMenuDivider(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 更新内容（标签 + 菜单项）
+   * @private
+   */
   _updateContent() {
     const labelEl = this._children.find(c => c._isLabel);
     if (labelEl) {
@@ -543,6 +778,11 @@ class VMenuGroup extends Tag {
   }
 }
 
+/**
+ * 创建 VMenuGroup 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenuGroup}
+ */
 function vMenuGroup(setup = null) {
   return new VMenuGroup(setup);
 }
@@ -551,7 +791,17 @@ function vMenuGroup(setup = null) {
 // VDropdownMenu 下拉菜单
 // ============================================
 
+/**
+ * VDropdownMenu 下拉菜单
+ * 支持点击触发展开/折叠，可设置点击外部关闭
+ * @class
+ * @extends Tag
+ */
 class VDropdownMenu extends Tag {
+  /**
+   * 创建 VDropdownMenu 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
     this.style('position', 'relative');
@@ -570,21 +820,39 @@ class VDropdownMenu extends Tag {
     this._buildStructure();
   }
 
+  /**
+   * 设置触发器内容
+   * @param {string|Tag} content - 内容或标签
+   * @returns {this}
+   */
   trigger(content) {
     this._triggerContent = content;
     return this;
   }
 
+  /**
+   * 设置菜单内容
+   * @param {VMenu} menu - 菜单实例
+   * @returns {this}
+   */
   menuContent(menu) {
     this._menu = menu;
     return this;
   }
 
+  /**
+   * 启用点击外部关闭
+   * @returns {this}
+   */
   closeOnClickOutside() {
     this._closeOnClickOutside = true;
     return this;
   }
 
+  /**
+   * 切换展开/折叠状态
+   * @private
+   */
   _toggle() {
     if (!this._menuContainer || !this._arrow) return;
 
@@ -598,6 +866,10 @@ class VDropdownMenu extends Tag {
     arrowEl.style.transform = isOpen ? '' : 'rotate(180deg)';
   }
 
+  /**
+   * 构建下拉菜单结构
+   * @private
+   */
   _buildStructure() {
     if (this._built) return;
 
@@ -685,6 +957,11 @@ class VDropdownMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VDropdownMenu 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VDropdownMenu}
+ */
 function vDropdownMenu(setup = null) {
   return new VDropdownMenu(setup);
 }
@@ -693,7 +970,17 @@ function vDropdownMenu(setup = null) {
 // VContextMenu 右键菜单
 // ============================================
 
+/**
+ * VContextMenu 右键菜单
+ * 绑定到指定元素的右键事件，在鼠标位置显示
+ * @class
+ * @extends Tag
+ */
 class VContextMenu extends Tag {
+  /**
+   * 创建 VContextMenu 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
     this.styles({
@@ -718,17 +1005,31 @@ class VContextMenu extends Tag {
     this._buildContent();
   }
 
+  /**
+   * 绑定目标元素（右键触发）
+   * @param {HTMLElement} element - 目标 DOM 元素
+   * @returns {this}
+   */
   target(element) {
     this._target = element;
     this._bindTarget();
     return this;
   }
 
+  /**
+   * 设置菜单内容
+   * @param {VMenu} menu - 菜单实例
+   * @returns {this}
+   */
   menuContent(menu) {
     this._menu = menu;
     return this;
   }
 
+  /**
+   * 绑定目标元素事件
+   * @private
+   */
   _bindTarget() {
     if (!this._target) return;
 
@@ -741,6 +1042,12 @@ class VContextMenu extends Tag {
     window.addEventListener('scroll', () => { this.hide(); });
   }
 
+  /**
+   * 显示右键菜单
+   * @param {number} x - x 坐标
+   * @param {number} y - y 坐标
+   * @returns {this}
+   */
   show(x, y) {
     if (this._boundElement) {
       this._boundElement.style.display = 'block';
@@ -758,6 +1065,10 @@ class VContextMenu extends Tag {
     return this;
   }
 
+  /**
+   * 隐藏右键菜单
+   * @returns {this}
+   */
   hide() {
     if (this._boundElement) {
       this._boundElement.style.display = 'none';
@@ -765,6 +1076,10 @@ class VContextMenu extends Tag {
     return this;
   }
 
+  /**
+   * 构建菜单内容
+   * @private
+   */
   _buildContent() {
     if (this._built) return;
 
@@ -780,6 +1095,11 @@ class VContextMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VContextMenu 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VContextMenu}
+ */
 function vContextMenu(setup = null) {
   return new VContextMenu(setup);
 }
@@ -788,36 +1108,67 @@ function vContextMenu(setup = null) {
 // Tag 原型扩展方法
 // ============================================
 
+/**
+ * Tag 原型扩展 - 添加 vMenu 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenu = function(setup = null) {
   const el = vMenu(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vMenuItem 子元素
+ * @param {string|Function} [content=''] - 内容或 setup 函数
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenuItem = function(content = '', setup = null) {
   const el = vMenuItem(content, setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vMenuDivider 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenuDivider = function(setup = null) {
   const el = vMenuDivider(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vDropdownMenu 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vDropdownMenu = function(setup = null) {
   const el = vDropdownMenu(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vMenuGroup 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenuGroup = function(setup = null) {
   const el = vMenuGroup(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vContextMenu 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vContextMenu = function(setup = null) {
   const el = vContextMenu(setup);
   this.child(el);
@@ -859,9 +1210,20 @@ export {
 // VSubMenu 子菜单
 // ============================================
 
+/**
+ * VSubMenu 子菜单
+ * 可展开/折叠的菜单项，包含子菜单项
+ * @class
+ * @extends Tag
+ */
 class VSubMenu extends Tag {
   static _stateAttrs = ['expanded'];
 
+  /**
+   * 创建 VSubMenu 实例
+   * @param {string} [title=''] - 子菜单标题
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(title = '', setup = null) {
     super('div', null);
 
@@ -938,6 +1300,11 @@ class VSubMenu extends Tag {
     }
   }
 
+  /**
+   * 处理对象配置
+   * @param {Object} config - 配置对象
+   * @private
+   */
   _setupObject(config) {
     // 处理对象配置
     if (config.items && Array.isArray(config.items)) {
@@ -947,6 +1314,12 @@ class VSubMenu extends Tag {
     }
   }
 
+  /**
+   * 添加子菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
+   */
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
     el.styles({ paddingLeft: '24px' });
@@ -955,6 +1328,10 @@ class VSubMenu extends Tag {
     return el;
   }
 
+  /**
+   * 添加分割线
+   * @returns {VMenuDivider}
+   */
   divider() {
     const el = vMenuDivider();
     el.styles({ marginLeft: '16px' });
@@ -962,6 +1339,10 @@ class VSubMenu extends Tag {
     return el;
   }
 
+  /**
+   * 渲染 DOM 元素
+   * @returns {HTMLElement|null}
+   */
   renderDom() {
     if (this._deleted) return null;
 
@@ -977,6 +1358,12 @@ class VSubMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VSubMenu 实例
+ * @param {string} [title=''] - 子菜单标题
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VSubMenu}
+ */
 function vSubMenu(title = '', setup = null) {
   return new VSubMenu(title, setup);
 }
@@ -985,9 +1372,19 @@ function vSubMenu(title = '', setup = null) {
 // VSidebar 侧边栏菜单
 // ============================================
 
+/**
+ * VSidebar 侧边栏菜单
+ * 支持折叠/展开，可设置宽度、头部、内容、底部等
+ * @class
+ * @extends Tag
+ */
 class VSidebar extends Tag {
   static _stateAttrs = ['collapsed', 'expanded'];
 
+  /**
+   * 创建 VSidebar 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
 
@@ -1027,6 +1424,10 @@ class VSidebar extends Tag {
     }
   }
 
+  /**
+   * 设置基础样式
+   * @private
+   */
   _setupBaseStyles() {
     this.styles({
       display: 'flex',
@@ -1162,6 +1563,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置侧边栏宽度
+   * @param {string} w - 宽度值
+   * @returns {this}
    */
   width(w) {
     this._width = w;
@@ -1174,6 +1577,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置折叠时宽度
+   * @param {string} w - 宽度值
+   * @returns {this}
    */
   collapsedWidth(w) {
     this._collapsedWidth = w;
@@ -1182,6 +1587,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置头部内容
+   * @param {Function|string} setup - 初始化函数或文本
+   * @returns {this}
    */
   header(setup) {
     if (!this._headerEl) {
@@ -1211,6 +1618,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置内容区域
+   * @param {Function} setup - 初始化函数
+   * @returns {this}
    */
   content(setup) {
     if (!this._contentEl) {
@@ -1260,6 +1669,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置底部内容
+   * @param {Function|string} setup - 初始化函数或文本
+   * @returns {this}
    */
   footer(setup) {
     if (!this._footerEl) {
@@ -1288,6 +1699,9 @@ class VSidebar extends Tag {
 
   /**
    * 添加菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
    */
   item(content = '', setup = null) {
     if (!this._contentEl) {
@@ -1300,6 +1714,7 @@ class VSidebar extends Tag {
 
   /**
    * 添加分割线
+   * @returns {this}
    */
   divider() {
     if (!this._contentEl) {
@@ -1316,6 +1731,8 @@ class VSidebar extends Tag {
 
   /**
    * 添加菜单组
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuGroup}
    */
   group(setup = null) {
     if (!this._contentEl) {
@@ -1328,6 +1745,7 @@ class VSidebar extends Tag {
 
   /**
    * 切换折叠状态
+   * @returns {this}
    */
   toggle() {
     const collapsed = this.hasState('collapsed');
@@ -1338,6 +1756,7 @@ class VSidebar extends Tag {
 
   /**
    * 折叠侧边栏
+   * @returns {this}
    */
   collapse() {
     this.setState('collapsed', true);
@@ -1347,6 +1766,7 @@ class VSidebar extends Tag {
 
   /**
    * 展开侧边栏
+   * @returns {this}
    */
   expand() {
     this.setState('collapsed', false);
@@ -1355,7 +1775,8 @@ class VSidebar extends Tag {
   }
 
   /**
-   * 是否已折叠
+   * 检查是否已折叠
+   * @returns {boolean}
    */
   isCollapsed() {
     return this.hasState('collapsed');
@@ -1363,6 +1784,8 @@ class VSidebar extends Tag {
 
   /**
    * 添加切换按钮到头部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
    */
   showToggleBtn(setup = null) {
     if (!this._headerEl) {
@@ -1420,7 +1843,8 @@ class VSidebar extends Tag {
   }
 
   /**
-   * 使用主题深色模式
+   * 使用深色模式样式
+   * @returns {this}
    */
   dark() {
     this.styles({
@@ -1443,7 +1867,8 @@ class VSidebar extends Tag {
   }
 
   /**
-   * 销毁组件
+   * 销毁组件（清理引用）
+   * @returns {this}
    */
   destroy() {
     this._headerEl = null;
@@ -1454,10 +1879,20 @@ class VSidebar extends Tag {
   }
 }
 
+/**
+ * 创建 VSidebar 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VSidebar}
+ */
 function vSidebar(setup = null) {
   return new VSidebar(setup);
 }
 
+/**
+ * Tag 原型扩展 - 添加 vSidebar 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vSidebar = function(setup = null) {
   const el = vSidebar(setup);
   this.child(el);

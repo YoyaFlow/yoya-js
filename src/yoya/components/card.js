@@ -1,6 +1,24 @@
 /**
  * Yoya.Basic - Card Component
- * 卡片组件
+ * 卡片组件：提供卡片布局容器，支持头部、内容、底部结构
+ * @module Yoya.Card
+ * @example
+ * // 基础卡片
+ * import { vCard, vCardHeader, vCardBody, vCardFooter } from '../yoya/index.js';
+ *
+ * vCard(c => {
+ *   c.vCardHeader('卡片标题');
+ *   c.vCardBody('卡片内容');
+ *   c.vCardFooter(b => {
+ *     b.button('操作');
+ *   });
+ * });
+ *
+ * // 悬浮卡片
+ * vCard(c => {
+ *   c.hoverable();
+ *   c.vCardBody('悬浮效果卡片');
+ * });
  */
 
 import { Tag, div } from '../core/basic.js';
@@ -9,9 +27,19 @@ import { Tag, div } from '../core/basic.js';
 // VCard 卡片布局
 // ============================================
 
+/**
+ * VCard 卡片容器
+ * 支持 hoverable、bordered、noShadow 等状态
+ * @class
+ * @extends Tag
+ */
 class VCard extends Tag {
   static _stateAttrs = ['hoverable', 'bordered', 'noShadow'];
 
+  /**
+   * 创建 VCard 卡片实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
 
@@ -46,7 +74,11 @@ class VCard extends Tag {
     }
   }
 
-  // 重写 setup 方法，支持对象配置
+  /**
+   * 设置卡片内容（支持函数/字符串/对象配置）
+   * @param {Function|string|Object} setup - 初始化配置
+   * @returns {this}
+   */
   setup(setup) {
     if (typeof setup === 'function') {
       setup(this);
@@ -90,7 +122,10 @@ class VCard extends Tag {
     return this;
   }
 
-  // 注册状态处理器
+  /**
+   * 注册状态处理器
+   * @private
+   */
   _registerStateHandlers() {
     // hoverable 状态
     this.registerStateHandler('hoverable', (enabled, host) => {
@@ -135,39 +170,70 @@ class VCard extends Tag {
     });
   }
 
-  // 悬浮效果
+  /**
+   * 启用悬浮效果（鼠标悬停时上移 + 阴影）
+   * @returns {this}
+   */
   hoverable() {
     return this.setState('hoverable', true);
   }
 
-  // 无边框
+  /**
+   * 移除边框
+   * @returns {this}
+   */
   noBorder() {
     return this.style('border', 'none');
   }
 
-  // 无边框阴影
+  /**
+   * 移除阴影
+   * @returns {this}
+   */
   noShadow() {
     return this.setState('noShadow', true);
   }
 
-  // 边框
+  /**
+   * 启用边框样式
+   * @returns {this}
+   */
   bordered() {
     return this.setState('bordered', true);
   }
 
-  // 子元素工厂方法
+  /**
+   * 添加卡片头部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
+  /**
+   * 添加卡片头部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   vCardHeader(setup = null) {
     const el = vCardHeader(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加卡片内容
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   vCardBody(setup = null) {
     const el = vCardBody(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加卡片底部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   vCardFooter(setup = null) {
     const el = vCardFooter(setup);
     this.child(el);
@@ -180,6 +246,11 @@ class VCard extends Tag {
   cardFooter(setup = null) { return this.vCardFooter(setup); }
 }
 
+/**
+ * 创建 VCard 卡片
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCard}
+ */
 function vCard(setup = null) {
   return new VCard(setup);
 }
@@ -188,7 +259,16 @@ function vCard(setup = null) {
 // VCardHeader 卡片头部
 // ============================================
 
+/**
+ * VCardHeader 卡片头部容器
+ * @class
+ * @extends Tag
+ */
 class VCardHeader extends Tag {
+  /**
+   * 创建 VCardHeader 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -202,6 +282,11 @@ class VCardHeader extends Tag {
   }
 }
 
+/**
+ * 创建 VCardHeader 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCardHeader}
+ */
 function vCardHeader(setup = null) {
   return new VCardHeader(setup);
 }
@@ -210,7 +295,16 @@ function vCardHeader(setup = null) {
 // VCardBody 卡片内容
 // ============================================
 
+/**
+ * VCardBody 卡片内容容器
+ * @class
+ * @extends Tag
+ */
 class VCardBody extends Tag {
+  /**
+   * 创建 VCardBody 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -222,6 +316,11 @@ class VCardBody extends Tag {
   }
 }
 
+/**
+ * 创建 VCardBody 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCardBody}
+ */
 function vCardBody(setup = null) {
   return new VCardBody(setup);
 }
@@ -230,7 +329,16 @@ function vCardBody(setup = null) {
 // VCardFooter 卡片底部
 // ============================================
 
+/**
+ * VCardFooter 卡片底部容器
+ * @class
+ * @extends Tag
+ */
 class VCardFooter extends Tag {
+  /**
+   * 创建 VCardFooter 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -245,6 +353,11 @@ class VCardFooter extends Tag {
   }
 }
 
+/**
+ * 创建 VCardFooter 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCardFooter}
+ */
 function vCardFooter(setup = null) {
   return new VCardFooter(setup);
 }
@@ -253,24 +366,44 @@ function vCardFooter(setup = null) {
 // Tag 原型扩展方法
 // ============================================
 
+/**
+ * Tag 原型扩展 - 添加 vCard 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCard = function(setup = null) {
   const el = vCard(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vCardHeader 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCardHeader = function(setup = null) {
   const el = vCardHeader(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vCardBody 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCardBody = function(setup = null) {
   const el = vCardBody(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vCardFooter 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCardFooter = function(setup = null) {
   const el = vCardFooter(setup);
   this.child(el);
