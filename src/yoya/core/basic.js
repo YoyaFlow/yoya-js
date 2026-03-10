@@ -1,13 +1,35 @@
 /**
  * Yoya.Basic - Browser-native HTML DSL Library
  * 提供类似 Kotlin HTML DSL 的声明式语法
+ * @module Yoya.Basic
  */
 
 // ============================================
 // Tag 基类
 // ============================================
 
+/**
+ * Tag 类 - 所有 HTML 元素的基类
+ * 提供声明式语法构建 DOM 元素，支持链式调用和虚拟 DOM
+ * @class
+ * @example
+ * // 创建 div 元素
+ * const divEl = div(box => {
+ *   box.className('container');
+ *   box.text('Hello World');
+ * }).bindTo('#app');
+ */
 class Tag {
+  /**
+   * 创建 Tag 实例
+   * @param {string} tagName - HTML 标签名
+   * @param {Function|Object|string|null} [setup=null] - 初始化配置，可以是函数、对象或字符串
+   * @example
+   * new Tag('div', box => {
+   *   box.className('container');
+   *   box.text('内容');
+   * });
+   */
   constructor(tagName, setup = null) {
     this._tagName = tagName;
 
@@ -36,7 +58,15 @@ class Tag {
     }
   }
 
-  // setup 统一初始化
+  /**
+   * setup 统一初始化方法
+   * 根据传入参数类型执行不同的初始化逻辑
+   * @param {Function|Object|string|null} setup - 初始化配置
+   * - 函数：执行回调函数
+   * - 对象：应用配置属性
+   * - 字符串：添加文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   setup(setup) {
     if (typeof setup === 'function') {
       this._setupFunction(setup);
@@ -47,12 +77,31 @@ class Tag {
     }
     return this;
   }
+
+  /**
+   * 字符串 setup 处理 - 添加文本内容
+   * @private
+   * @param {string} setupString - 文本内容
+   */
   _setupString(setupString){
     this._addText(setupString);
   }
+
+  /**
+   * 函数 setup 处理 - 执行回调
+   * @private
+   * @param {Function} setupFn - 回调函数
+   */
   _setupFunction(setupFn){
     setupFn(this)
   }
+
+  /**
+   * 对象 setup 处理 - 应用配置属性
+   * 处理 class/className, style, 事件 (onXxx), children 和其他属性
+   * @private
+   * @param {Object} config - 配置对象
+   */
   _setupObject(config) {
     // 处理 class
     if (config.class) {
@@ -120,7 +169,12 @@ class Tag {
     }
   }
 
-  // 添加文本节点
+  /**
+   * 添加文本节点
+   * @private
+   * @param {string|number} content - 文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   _addText(content) {
     const textNode = document.createTextNode(String(content));
     this._el.appendChild(textNode);
@@ -135,7 +189,19 @@ class Tag {
     return this;
   }
 
-  // 属性操作：存储 + 同步到 _el
+  /**
+   * 属性操作：存储并同步到 DOM 元素
+   * @param {string|Object} name - 属性名或属性对象
+   * @param {*} [value] - 属性值（不传则返回当前值）
+   * @returns {this|*} 设置时返回 this，获取时返回属性值
+   * @example
+   * // 设置单个属性
+   * el.attr('id', 'my-id');
+   * // 设置多个属性
+   * el.attr({ id: 'test', name: 'input1' });
+   * // 获取属性值
+   * const id = el.attr('id');
+   */
   attr(name, value) {
     if (value === undefined && typeof name === 'string') {
       return this._attrs[name];
@@ -153,6 +219,12 @@ class Tag {
     return this;
   }
 
+  /**
+   * 将属性应用到 DOM 元素
+   * @private
+   * @param {string} name - 属性名
+   * @param {*} value - 属性值
+   */
   _applyAttrToEl(name, value) {
     if (value === null || value === undefined) {
       this._el.removeAttribute(name);
@@ -184,7 +256,14 @@ class Tag {
     }
   }
 
-  // 添加类：同步到 _el
+  /**
+   * 添加 CSS 类名（同步到 DOM）
+   * @param {...(string|string[])} classes - 类名，支持多个参数或数组
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.className('active', 'highlight');
+   * el.className(['btn', 'btn-primary']);
+   */
   className(...classes) {
     classes.flat().forEach(cls => {
       if (cls) {
@@ -195,12 +274,29 @@ class Tag {
     return this;
   }
 
-  // className 的别名，保持向后兼容
+  /**
+   * className 的别名，保持向后兼容
+   * @deprecated 推荐使用 className()
+   * @param {...(string|string[])} classes - 类名
+   * @returns {this}
+   */
   class(...classes) {
     return this.className(...classes);
   }
 
-  // 样式操作：存储 + 同步到 _el
+  /**
+   * 样式操作：存储并同步到 DOM 元素
+   * @param {string|Object} name - 样式名或样式对象
+   * @param {string|number} [value] - 样式值（不传则返回当前值）
+   * @returns {this|*} 设置时返回 this，获取时返回样式值
+   * @example
+   * // 设置单个样式
+   * el.style('color', 'red');
+   * // 设置多个样式
+   * el.style({ color: 'red', fontSize: '14px' });
+   * // 获取样式值
+   * const color = el.style('color');
+   */
   style(name, value) {
     if (value === undefined && typeof name === 'string') {
       return this._styles[name];
@@ -220,7 +316,13 @@ class Tag {
     return this;
   }
 
-  // 批量设置样式：存储 + 同步到 _el
+  /**
+   * 批量设置样式
+   * @param {Object} stylesObj - 样式对象
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.styles({ color: 'red', padding: '10px', margin: '0 auto' });
+   */
   styles(stylesObj) {
     for (const [name, value] of Object.entries(stylesObj)) {
       this._styles[name] = value;
@@ -234,17 +336,34 @@ class Tag {
   // 所有 HTML 元素都可以使用这些方法
   // ============================================
 
+  /**
+   * 设置/获取元素 id
+   * @param {string} [value] - id 值（不传则返回当前值）
+   * @returns {this|string} 设置时返回 this，获取时返回 id 值
+   */
   id(value) {
     if (value === undefined) return this.attr('id');
     return this.attr('id', value);
   }
 
+  /**
+   * 设置/获取元素 name 属性
+   * @param {string} [value] - name 值（不传则返回当前值）
+   * @returns {this|string} 设置时返回 this，获取时返回 name 值
+   */
   name(value) {
     if (value === undefined) return this.attr('name');
     return this.attr('name', value);
   }
 
-  // 绑定事件
+  /**
+   * 绑定事件处理器
+   * @param {string} event - 事件名称
+   * @param {Function} handler - 事件处理函数
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.on('click', (e) => { console.log('clicked', e); });
+   */
   on(event, handler) {
     if (!this._events[event]) {
       this._events[event] = [];
@@ -280,8 +399,13 @@ class Tag {
   }
 
   /**
-   * 绑定标准点击事件 - 传递 {event, target}
-   * @param {Function} handler - 事件处理器 ({event, target}) => void
+   * 绑定标准点击事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.onClick(({ event, target }) => {
+   *   console.log('元素被点击', target);
+   * });
    */
   onClick(handler) {
     this.on('click', this._wrapHandler(handler));
@@ -289,8 +413,13 @@ class Tag {
   }
 
   /**
-   * 绑定值变化事件 - 传递 {event, value, oldValue, target}
-   * @param {Function} handler - 事件处理器 ({event, value, oldValue, target}) => void
+   * 绑定值变化事件
+   * @param {Function} handler - 事件处理器，接收 {event, value, oldValue, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.onChangeValue(({ value, oldValue }) => {
+   *   console.log('值从', oldValue, '变为', value);
+   * });
    */
   onChangeValue(handler) {
     const oldValue = this.value?.();
@@ -302,8 +431,9 @@ class Tag {
   }
 
   /**
-   * 绑定输入事件 - 传递 {event, value, target}
-   * @param {Function} handler - 事件处理器 ({event, value, target}) => void
+   * 绑定输入事件
+   * @param {Function} handler - 事件处理器，接收 {event, value, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onInputValue(handler) {
     this.on('input', this._wrapHandler(handler, (e) => {
@@ -313,8 +443,9 @@ class Tag {
   }
 
   /**
-   * 绑定布尔状态事件 - 传递 {event, value, oldValue, target}
-   * @param {Function} handler - 事件处理器 ({event, value, oldValue, target}) => void
+   * 绑定布尔状态切换事件
+   * @param {Function} handler - 事件处理器，接收 {event, value, oldValue, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onToggle(handler) {
     const oldValue = this.checked?.();
@@ -326,7 +457,9 @@ class Tag {
   }
 
   /**
-   * 绑定焦点事件 - 传递 {event, target}
+   * 绑定焦点事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onFocus(handler) {
     this.on('focus', this._wrapHandler(handler));
@@ -334,7 +467,9 @@ class Tag {
   }
 
   /**
-   * 绑定失焦事件 - 传递 {event, target}
+   * 绑定失焦事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onBlur(handler) {
     this.on('blur', this._wrapHandler(handler));
@@ -342,8 +477,9 @@ class Tag {
   }
 
   /**
-   * 绑定键盘事件 - 传递 {event, key, target}
-   * @param {Function} handler - 事件处理器 ({event, key, target}) => void
+   * 绑定键盘事件
+   * @param {Function} handler - 事件处理器，接收 {event, key, code, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onKey(handler) {
     this.on('keydown', this._wrapHandler(handler, (e) => {
@@ -353,7 +489,9 @@ class Tag {
   }
 
   /**
-   * 绑定鼠标进入事件 - 传递 {event, target}
+   * 绑定鼠标进入事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onMouseEnter(handler) {
     this.on('mouseenter', this._wrapHandler(handler));
@@ -361,14 +499,25 @@ class Tag {
   }
 
   /**
-   * 绑定鼠标离开事件 - 传递 {event, target}
+   * 绑定鼠标离开事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onMouseLeave(handler) {
     this.on('mouseleave', this._wrapHandler(handler));
     return this;
   }
 
-  // 添加文本节点（作为子元素）
+  /**
+   * 添加文本节点或子元素
+   * @param {string|number|Tag} content - 文本内容、数字或 Tag 实例
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * // 添加文本
+   * el.text('Hello World');
+   * // 添加 Tag 实例
+   * el.text(span('inner text'));
+   */
   text(content) {
     // 如果传入的是 Tag 对象（如 text('Hello')），直接添加为子元素
     if (content instanceof Tag) {
@@ -377,23 +526,45 @@ class Tag {
     }
     return this._addText(content);
   }
+
+  /**
+   * 清空并设置文本内容
+   * @param {string|number} content - 文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   textContent(content){
     this.clear()
     this.text(content)
   }
 
-  // 添加 HTML
+  /**
+   * 设置 HTML 内容
+   * @param {string} content - HTML 字符串
+   * @returns {this} 返回当前实例支持链式调用
+   */
   html(content) {
     this._htmlContent = content;
     return this;
   }
 
-  // 添加子元素
+  /**
+   * 添加一个或多个子元素
+   * @param {...(Tag|string|number|(Tag|string|number)[]|null|undefined)} children - 子元素，支持 Tag 实例、字符串、数字、数组
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.child(div('child1'), span('child2'));
+   * el.child([div('a'), span('b')]);
+   */
   child(...children) {
     this._addChildren(children);
     return this;
   }
 
+  /**
+   * 添加多个子元素（内部方法）
+   * @private
+   * @param {Array} children - 子元素数组
+   */
   _addChildren(children) {
     children.flat().forEach(child => {
       if (child === null || child === undefined) {
@@ -412,7 +583,10 @@ class Tag {
     });
   }
 
-  // 清空子元素
+  /**
+   * 清空子元素
+   * @returns {this} 返回当前实例支持链式调用
+   */
   clear() {
     this._children = [];
     this._htmlContent = null;
@@ -423,7 +597,19 @@ class Tag {
     return this;
   }
 
-  // 绑定到 DOM
+  /**
+   * 绑定到 DOM 元素
+   * 支持 CSS 选择器字符串、DOM 元素或 Tag 实例
+   * @param {string|Element|Tag} target - 绑定目标
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * // 绑定到 CSS 选择器
+   * el.bindTo('#app');
+   * // 绑定到 DOM 元素
+   * el.bindTo(document.getElementById('app'));
+   * // 绑定到 Tag 实例
+   * parent.child(el);
+   */
   bindTo(target) {
     const el = this.renderDom();
     if (!el) return this;
@@ -440,7 +626,11 @@ class Tag {
     return this;
   }
 
-  // Q6: renderDom 只处理子元素的智能增删，不重新应用属性
+  /**
+   * 渲染虚拟元素树为真实 DOM
+   * 智能更新子元素，只处理增删，不重新应用属性
+   * @returns {HTMLElement|null} 返回渲染后的 DOM 元素，如果已删除则返回 null
+   */
   renderDom() {
     if (this._deleted) return null;
 
@@ -494,7 +684,10 @@ class Tag {
     return this._el;
   }
 
-  // 事件同步到 _el（只在首次渲染时）
+  /**
+   * 将事件同步到 DOM 元素（仅在首次渲染时调用）
+   * @private
+   */
   _applyEventsToEl() {
     for (const [event, handlers] of Object.entries(this._events)) {
       if (handlers.length === 0) continue;
@@ -509,7 +702,10 @@ class Tag {
     }
   }
 
-  // 销毁元素
+  /**
+   * 销毁元素及其所有子元素
+   * @returns {this} 返回当前实例支持链式调用
+   */
   destroy() {
     this._deleted = true;
 
@@ -533,8 +729,8 @@ class Tag {
   /**
    * 设置元素状态
    * @param {string} state - 状态名称
-   * @param {boolean} enabled - 是否启用该状态
-   * @returns {this}
+   * @param {boolean} [enabled=true] - 是否启用该状态
+   * @returns {this} 返回当前实例支持链式调用
    */
   setState(state, enabled = true) {
     if (enabled) {
@@ -549,7 +745,7 @@ class Tag {
   /**
    * 检查元素是否处于某个状态
    * @param {string} state - 状态名称
-   * @returns {boolean}
+   * @returns {boolean} 如果处于该状态返回 true
    */
   hasState(state) {
     return this._states.has(state);
@@ -557,7 +753,7 @@ class Tag {
 
   /**
    * 获取当前所有状态
-   * @returns {Set<string>}
+   * @returns {Set<string>} 返回所有状态的副本
    */
   getStates() {
     return new Set(this._states);
@@ -566,6 +762,7 @@ class Tag {
   /**
    * 应用状态样式（由子类实现具体逻辑）
    * 默认实现：根据状态应用内联样式
+   * @private
    */
   _applyStateStyles() {
     // 组件可以通过覆盖此方法来自定义状态样式的处理方式
@@ -581,7 +778,7 @@ class Tag {
   /**
    * 设置状态样式映射
    * @param {Object} stateStyles - 状态与样式的映射对象
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   setStateStyles(stateStyles) {
     this._stateStyles = { ...this._stateStyles, ...stateStyles };
@@ -590,7 +787,7 @@ class Tag {
 
   /**
    * 清除所有状态
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   clearStates() {
     this._states.clear();
@@ -600,7 +797,7 @@ class Tag {
 
   /**
    * 保存基础样式快照（用于状态变更时恢复）
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   saveBaseStylesSnapshot() {
     this._baseStyles = { ...this._styles };
@@ -609,7 +806,7 @@ class Tag {
 
   /**
    * 清空状态样式（恢复基础样式）
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   clearStateStyles() {
     if (!this._baseStyles) return this;
@@ -628,7 +825,10 @@ class Tag {
     return this;
   }
 
-  // 转换为 HTML 字符串
+  /**
+   * 转换为 HTML 字符串
+   * @returns {string} 返回 HTML 字符串表示
+   */
   toHTML() {
     if (this._deleted) return '';
 
@@ -656,10 +856,6 @@ class Tag {
     return tagStart + htmlContent + childrenHtml + tagEnd;
   }
 }
-
-// ============================================
-// 基础容器元素
-// ============================================
 
 /**
  * 创建简单的 Tag 子类（无额外方法）
@@ -729,18 +925,33 @@ const { div, span, p, section, article, header, footer, nav, aside, main,
 // 任何元素都可以使用这些方法添加子元素
 // ============================================
 
+/**
+ * 添加 div 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this} 返回当前实例支持链式调用
+ */
 Tag.prototype.div = function(setup = null) {
   const el = div(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * 添加 span 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this} 返回当前实例支持链式调用
+ */
 Tag.prototype.span = function(setup = null) {
   const el = span(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * 添加 p 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this} 返回当前实例支持链式调用
+ */
 Tag.prototype.p = function(setup = null) {
   const el = p(setup);
   this.child(el);
