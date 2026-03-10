@@ -11,6 +11,7 @@
 | [yoya-form](./yoya-form.md) | 表单组件 | 输入框、选择器、复选框、日期选择器 |
 | [yoya-components](./yoya-components.md) | UI 组件 | Card、Menu、Message、Code、Button 等 |
 | [yoya-svg](./yoya-svg.md) | SVG 组件 | 绘制矢量图形、图表、图标 |
+| [component-priority](./component-priority.md) | 组件优先使用原则 | 页面开发、组件选型、新组件封装 |
 
 ## 快速开始
 
@@ -76,6 +77,15 @@ toast.success('操作成功！');
 - **制作表单** → 参考 `yoya-form`
 - **添加 UI 组件** → 参考 `yoya-components`
 - **绘制图形** → 参考 `yoya-svg`
+- **组件选型/封装新组件** → 参考 `component-priority`（组件优先使用原则）
+
+## 组件优先使用原则
+
+**核心理念**：优先使用组件，组件实现不了的才使用基础元素去实现页面。
+
+**优先级顺序**：`UI 组件` > `布局组件` > `SVG 组件` > `基础元素`
+
+详细指南请参考：[component-priority.md](./component-priority.md)
 
 ## 组件分类
 
