@@ -549,7 +549,7 @@ class Tag {
 
   /**
    * 添加一个或多个子元素
-   * @param {...(Tag|string|number|(Tag|string|number)[]|null|undefined)} children - 子元素，支持 Tag 实例、字符串、数字、数组
+   * @param {...(Tag|string|number|null|undefined|Array)} children - 子元素，支持 Tag 实例、字符串、数字、数组
    * @returns {this} 返回当前实例支持链式调用
    * @example
    * el.child(div('child1'), span('child2'));
