@@ -2,6 +2,7 @@
  * Yoya.Basic - Theme System
  * 主题系统：基于状态机的样式管理机制
  * 支持 boolean、string、number 多种状态值类型
+ * @module Yoya.Theme
  */
 
 // 注意：不在这里导入 Tag，而是在 initTagExtensions 中动态获取
@@ -14,11 +15,13 @@
 /**
  * 主题注册表
  * 存储每个组件类型的状态处理器
+ * @type {Map<string, Theme>}
  */
 const themeRegistry = new Map();
 
 /**
  * 全局主题配置
+ * @type {Object}
  */
 let globalTheme = {
   name: 'default',
@@ -31,10 +34,21 @@ let globalTheme = {
 // ============================================
 
 /**
+ * 状态值类型定义
  * @typedef {boolean | string | number} StateValue
  */
 
+/**
+ * StateMachine 状态机类
+ * 用于管理组件的状态（如 disabled, active, size 等）
+ * @class
+ */
 class StateMachine {
+  /**
+   * 创建 StateMachine 实例
+   * @param {Tag} host - 宿主元素（Tag 实例）
+   * @param {Array<string|Object>} [stateAttrs=[]] - 状态属性列表
+   */
   constructor(host, stateAttrs = []) {
     this._host = host;           // 宿主元素（Tag 实例）
     this._stateAttrs = new Set(stateAttrs);  // 关注的状态属性列表
@@ -404,7 +418,16 @@ class StateMachine {
 // Theme 主题类
 // ============================================
 
+/**
+ * Theme 主题类
+ * 用于定义和管理组件的状态样式和处理器
+ * @class
+ */
 class Theme {
+  /**
+   * 创建 Theme 实例
+   * @param {string} [name='default'] - 主题名称
+   */
   constructor(name = 'default') {
     this.name = name;
     this.stateStyles = {};      // { disabled: { opacity: '0.5' } }
@@ -417,7 +440,7 @@ class Theme {
    * @param {string} componentName - 组件名
    * @param {string} stateName - 状态名
    * @param {Object} styles - 样式对象
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   setComponentStateStyles(componentName, stateName, styles) {
     if (!this.componentThemes[componentName]) {
@@ -435,7 +458,7 @@ class Theme {
    * @param {string} componentName - 组件名
    * @param {string} stateName - 状态名
    * @param {Function} handler - 处理函数 (value, host, oldValue) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   setComponentStateHandler(componentName, stateName, handler) {
     if (!this.componentThemes[componentName]) {
@@ -450,7 +473,7 @@ class Theme {
 
   /**
    * 注册主题到注册表
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   register() {
     themeRegistry.set(this.name, this);
@@ -486,6 +509,8 @@ class Theme {
   /**
    * 移除样式（辅助方法）
    * @private
+   * @param {Tag} component - 组件实例
+   * @param {Object} styles - 样式对象
    */
   _removeStyles(component, styles) {
     for (const name of Object.keys(styles)) {
@@ -498,7 +523,15 @@ class Theme {
 // 主题管理器
 // ============================================
 
+/**
+ * ThemeManager 主题管理器
+ * 用于注册和管理多个主题
+ * @class
+ */
 class ThemeManager {
+  /**
+   * 创建 ThemeManager 实例
+   */
   constructor() {
     this._currentTheme = null;
     this._themes = new Map();
@@ -506,8 +539,8 @@ class ThemeManager {
 
   /**
    * 注册主题
-   * @param {Theme} theme
-   * @returns {this}
+   * @param {Theme} theme - 主题实例
+   * @returns {this} 返回当前实例支持链式调用
    */
   registerTheme(theme) {
     this._themes.set(theme.name, theme);
@@ -516,8 +549,8 @@ class ThemeManager {
 
   /**
    * 获取主题
-   * @param {string} name
-   * @returns {Theme|undefined}
+   * @param {string} name - 主题名称
+   * @returns {Theme|undefined} 主题实例或 undefined
    */
   getTheme(name) {
     return this._themes.get(name);
@@ -525,8 +558,8 @@ class ThemeManager {
 
   /**
    * 设置当前主题
-   * @param {string} name - 主题名
-   * @returns {this}
+   * @param {string} name - 主题名称
+   * @returns {this} 返回当前实例支持链式调用
    */
   setTheme(name) {
     const theme = this._themes.get(name);
@@ -540,7 +573,7 @@ class ThemeManager {
 
   /**
    * 获取当前主题
-   * @returns {Theme|null}
+   * @returns {Theme|null} 当前主题实例或 null
    */
   getCurrentTheme() {
     return this._currentTheme;
@@ -548,8 +581,8 @@ class ThemeManager {
 
   /**
    * 应用当前主题到组件
-   * @param {Tag} component
-   * @returns {this}
+   * @param {Tag} component - 组件实例
+   * @returns {this} 返回当前实例支持链式调用
    */
   applyTheme(component) {
     if (this._currentTheme) {
@@ -560,8 +593,8 @@ class ThemeManager {
 
   /**
    * 应用所有已注册主题到组件
-   * @param {Tag} component
-   * @returns {this}
+   * @param {Tag} component - 组件实例
+   * @returns {this} 返回当前实例支持链式调用
    */
   applyAllThemes(component) {
     for (const theme of this._themes.values()) {
@@ -575,6 +608,10 @@ class ThemeManager {
 // 创建全局单例
 // ============================================
 
+/**
+ * themeManager 全局主题管理器单例
+ * @type {ThemeManager}
+ */
 const themeManager = new ThemeManager();
 
 // ============================================
@@ -583,9 +620,16 @@ const themeManager = new ThemeManager();
 
 /**
  * 快速创建主题
- * @param {string} name - 主题名
- * @param {Object} definitions - 主题定义
- * @returns {Theme}
+ * @param {string} name - 主题名称
+ * @param {Object} definitions - 主题定义 { componentName: { stateName: { styles } } }
+ * @returns {Theme} 主题实例
+ * @example
+ * const theme = createTheme('dark', {
+ *   MenuItem: {
+ *     disabled: { opacity: '0.5' },
+ *     active: { background: 'blue' }
+ *   }
+ * });
  */
 function createTheme(name, definitions = {}) {
   const theme = new Theme(name);
@@ -608,11 +652,11 @@ function createTheme(name, definitions = {}) {
 
 /**
  * 快速注册状态处理器
- * @param {string} themeName - 主题名
- * @param {string} componentName - 组件名
- * @param {string} stateName - 状态名
- * @param {Function} handler - 处理函数
- * @returns {Theme}
+ * @param {string} themeName - 主题名称
+ * @param {string} componentName - 组件名称
+ * @param {string} stateName - 状态名称
+ * @param {Function} handler - 处理函数 (value, host, oldValue) => void
+ * @returns {Theme} 主题实例
  */
 function registerStateHandler(themeName, componentName, stateName, handler) {
   let theme = themeManager.getTheme(themeName);
@@ -630,6 +674,8 @@ function registerStateHandler(themeName, componentName, stateName, handler) {
 
 /**
  * 为 Tag 组件添加状态机支持
+ * @param {Array<string|Object>} [stateAttrs=[]] - 状态属性列表
+ * @returns {Function} 初始化函数
  */
 function initStateMachine(stateAttrs = []) {
   return function() {
@@ -642,6 +688,7 @@ function initStateMachine(stateAttrs = []) {
  * 初始化 Tag 原型扩展方法
  * 需要在 Tag 定义后调用
  * @param {Tag} TagClass - Tag 类
+ * @returns {boolean} 是否初始化成功
  */
 function initTagExtensions(TagClass) {
   if (!TagClass || typeof TagClass.prototype === 'undefined') {
@@ -656,7 +703,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 注册状态属性（支持类型定义）
-   * @param {...string|Object} attrs
+   * @param {...string|Object} attrs - 状态属性名或类型定义对象
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.registerStateAttrs = function(...attrs) {
     if (!this._stateMachine) {
@@ -669,6 +717,9 @@ function initTagExtensions(TagClass) {
 
   /**
    * 注册状态处理器
+   * @param {string} stateName - 状态名称
+   * @param {Function} handler - 处理函数 (value, host, oldValue) => void
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.registerStateHandler = function(stateName, handler) {
     if (!this._stateMachine) {
@@ -681,8 +732,9 @@ function initTagExtensions(TagClass) {
 
   /**
    * 设置状态（支持 boolean/string/number）
-   * @param {string} stateName
-   * @param {StateValue} value
+   * @param {string} stateName - 状态名称
+   * @param {StateValue} value - 状态值
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.setState = function(stateName, value) {
     if (!this._stateMachine) {
@@ -695,6 +747,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取状态值
+   * @param {string} stateName - 状态名称
+   * @returns {StateValue|undefined} 状态值
    */
   TagClass.prototype.getState = function(stateName) {
     if (!this._stateMachine) {
@@ -705,6 +759,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取布尔状态值
+   * @param {string} stateName - 状态名称
+   * @returns {boolean} 布尔状态值
    */
   TagClass.prototype.getBooleanState = function(stateName) {
     if (!this._stateMachine) {
@@ -715,6 +771,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取字符串状态值
+   * @param {string} stateName - 状态名称
+   * @returns {string} 字符串状态值
    */
   TagClass.prototype.getStringState = function(stateName) {
     if (!this._stateMachine) {
@@ -725,6 +783,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取数值状态值
+   * @param {string} stateName - 状态名称
+   * @returns {number} 数值状态值
    */
   TagClass.prototype.getNumberState = function(stateName) {
     if (!this._stateMachine) {
@@ -735,6 +795,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 检查状态（适用于 boolean）
+   * @param {string} stateName - 状态名称
+   * @returns {boolean} 是否处于该状态
    */
   TagClass.prototype.hasState = function(stateName) {
     if (!this._stateMachine) {
@@ -745,6 +807,7 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取所有状态
+   * @returns {Object} 所有状态对象
    */
   TagClass.prototype.getAllStates = function() {
     if (!this._stateMachine) {
@@ -754,7 +817,8 @@ function initTagExtensions(TagClass) {
   };
 
   /**
-   * 重置状态
+   * 重置所有状态
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.resetStates = function() {
     if (!this._stateMachine) {
@@ -765,6 +829,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 保存状态快照
+   * @param {string} [name='default'] - 快照名称
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.saveStateSnapshot = function(name = 'default') {
     if (!this._stateMachine) {
@@ -775,6 +841,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 恢复状态快照
+   * @param {string} [name='default'] - 快照名称
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.restoreStateSnapshot = function(name = 'default') {
     if (!this._stateMachine) {
@@ -784,7 +852,9 @@ function initTagExtensions(TagClass) {
   };
 
   /**
-   * 初始化状态
+   * 初始化状态（设置默认值）
+   * @param {Object} [defaultStates={}] - 默认状态对象
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.initializeStates = function(defaultStates = {}) {
     if (!this._stateMachine) {
@@ -795,6 +865,7 @@ function initTagExtensions(TagClass) {
 
   /**
    * 反初始化（恢复初始状态）
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.deinitializeStates = function() {
     if (!this._stateMachine) {
@@ -804,7 +875,9 @@ function initTagExtensions(TagClass) {
   };
 
   /**
-   * 注册拦截器
+   * 注册状态拦截器
+   * @param {Function} interceptor - 拦截函数 (stateName, value) => { stateName, value } | null
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.registerStateInterceptor = function(interceptor) {
     if (!this._stateMachine) {
