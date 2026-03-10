@@ -37,10 +37,12 @@ temp/
 
 # Playwright
 playwright-report/
-test-results/
 
 # TypeScript
 *.tsbuildinfo
 
 # Our test files
 test-input-callback.html
+
+# JSDoc 文档输出
+docs/

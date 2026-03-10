@@ -29,7 +29,9 @@
     "test:browser:debug": "playwright test --debug",
     "check": "tsc --noEmit",
     "build": "rollup -c rollup.config.js",
-    "build:echart": "rollup -c rollup.echart.config.js"
+    "build:echart": "rollup -c rollup.echart.config.js",
+    "docs": "jsdoc -c jsdoc.conf.json",
+    "docs:clean": "rm -rf docs && jsdoc -c jsdoc.conf.json"
   },
   "keywords": [
     "html",
@@ -42,9 +44,10 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "jsdoc": "^4.0.5",
     "jsdom": "^24.0.0",
+    "rollup": "^4.9.0",
     "typescript": "^5.0.0",
-    "vite": "^5.0.0",
-    "rollup": "^4.9.0"
+    "vite": "^5.0.0"
   }
 }

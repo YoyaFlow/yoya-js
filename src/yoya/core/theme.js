@@ -641,7 +641,7 @@ function initStateMachine(stateAttrs = []) {
 /**
  * 初始化 Tag 原型扩展方法
  * 需要在 Tag 定义后调用
- * @param {typeof Tag} TagClass - Tag 类
+ * @param {Tag} TagClass - Tag 类
  */
 function initTagExtensions(TagClass) {
   if (!TagClass || typeof TagClass.prototype === 'undefined') {

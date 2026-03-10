@@ -615,7 +615,7 @@ function clearModuleCache(loader) {
  * 获取模块缓存状态
  *
  * @param {Function} loader - 模块加载函数
- * @returns {{status: string, api?: any, error?: Error}|null}
+ * @returns {Object|null} 返回缓存状态对象 {status, api, error} 或 null
  */
 function getModuleCacheStatus(loader) {
   const key = loader.toString();
