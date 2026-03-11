@@ -136,6 +136,12 @@ export {
 
   // Echart 组件
   VEchart, vEchart,
+
+  // Router 组件
+  VRouter, vRouter,
+  VRoute, vRoute,
+  VLink, vLink,
+  VRouterView, vRouterView,
 } from './components/index.js';
 
 // 导出主题系统

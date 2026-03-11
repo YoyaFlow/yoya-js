@@ -104,3 +104,15 @@ export {
   VEchart,
   vEchart,
 } from './echart.js';
+
+// Router 路由组件
+export {
+  VRouter,
+  vRouter,
+  VRoute,
+  vRoute,
+  VLink,
+  vLink,
+  VRouterView,
+  vRouterView,
+} from './router.js';
