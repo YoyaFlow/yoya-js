@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VRouter - 路由组件示例</title>
+  <title>VRouter 路由组件演示</title>
   <style>
     * {
       margin: 0;
@@ -11,81 +11,332 @@
       box-sizing: border-box;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
     }
-    /* 布局样式 */
-    .app-container {
+    /* 应用布局 */
+    .app-layout {
       display: flex;
       min-height: 100vh;
     }
+    /* 侧边导航栏 */
     .sidebar {
-      width: 200px;
-      background: #2c3e50;
-      color: white;
-      padding: 20px 0;
+      width: 240px;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 16px rgba(0,0,0,0.2);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
     }
-    .sidebar .nav-item {
+    .sidebar-header {
+      padding: 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sidebar-header p {
+      font-size: 12px;
+      color: #8892b0;
+      margin-top: 4px;
+    }
+    .nav-section {
+      padding: 16px 0;
+    }
+    .nav-section-title {
+      padding: 8px 20px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8892b0;
+      font-weight: 600;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
       padding: 12px 20px;
-      display: block;
-      color: #ecf0f1;
+      color: #a8b2d1;
       text-decoration: none;
-      transition: background 0.2s;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border-left: 3px solid transparent;
     }
-    .sidebar .nav-item:hover {
-      background: #34495e;
+    .nav-item:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #fff;
     }
-    .sidebar .nav-item.active {
-      background: #3498db;
+    .nav-item.active {
+      background: rgba(102, 126, 234, 0.15);
+      color: #fff;
+      border-left-color: #667eea;
     }
+    .nav-item-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .nav-item-text {
+      font-size: 14px;
+      flex: 1;
+    }
+    /* 主内容区 */
     .main-content {
       flex: 1;
-      padding: 20px;
-      background: #f5f6fa;
+      margin-left: 240px;
+      min-height: 100vh;
+      background: #f0f2f5;
     }
-    /* 页面样式 */
-    .page {
-      background: white;
-      border-radius: 8px;
+    .content-wrapper {
       padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    .page h1 {
-      color: #2c3e50;
+    /* 页面卡片 */
+    .page-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+    .page-card h1 {
+      font-size: 28px;
+      color: #1a1a2e;
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .page p {
-      color: #7f8c8d;
-      line-height: 1.6;
+    .page-card p {
+      color: #666;
+      line-height: 1.8;
+      font-size: 15px;
     }
-    .user-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
+    /* 特性列表 */
+    .feature-list {
+      list-style: none;
+      margin: 20px 0;
+    }
+    .feature-list li {
+      padding: 12px 16px;
+      background: #f8f9fa;
       border-radius: 8px;
-      margin-top: 20px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
+    .feature-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+    }
+    /* 统计卡片网格 */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 24px 0;
     }
     .stat-card {
-      background: #f8f9fa;
-      padding: 16px;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 24px;
+      border-radius: 12px;
       text-align: center;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
     }
     .stat-value {
-      font-size: 24px;
+      font-size: 36px;
       font-weight: bold;
-      color: #3498db;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .stat-label {
+      color: #888;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    /* 用户卡片 */
+    .user-profile {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 32px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .user-profile h3 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .user-profile p {
+      color: rgba(255,255,255,0.8);
+    }
+    .user-meta {
+      display: flex;
+      gap: 24px;
+      margin-top: 20px;
+    }
+    .user-meta-item {
+      text-align: center;
+    }
+    .user-meta-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .user-meta-label {
       font-size: 12px;
-      color: #95a5a6;
-      margin-top: 4px;
+      color: rgba(255,255,255,0.7);
+    }
+    /* 内联链接 */
+    .inline-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .inline-links a {
+      color: #667eea;
+      text-decoration: none;
+      padding: 8px 16px;
+      background: #f0f0ff;
+      border-radius: 20px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .inline-links a:hover {
+      background: #667eea;
+      color: #fff;
+    }
+    /* 代码块 */
+    .code-block {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    .code-block .keyword {
+      color: #c792ea;
+    }
+    .code-block .string {
+      color: #c3e88d;
+    }
+    .code-block .function {
+      color: #82aaff;
+    }
+    /* 设置项 */
+    .settings-list {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      transition: background 0.2s;
+    }
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+    .settings-item:hover {
+      background: #f8f9fa;
+    }
+    .settings-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .settings-icon {
+      width: 40px;
+      height: 40px;
+      background: #f0f0ff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    /* 开关 */
+    .switch {
+      width: 44px;
+      height: 24px;
+      background: #ddd;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .switch.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+    .switch-knob {
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .switch.active .switch-knob {
+      transform: translateX(20px);
+    }
+    /* 404 页面 */
+    .not-found {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .not-found h1 {
+      font-size: 72px;
+      color: #667eea;
+      margin-bottom: 16px;
+    }
+    .not-found p {
+      font-size: 18px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+    /* 动画 */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .page-card {
+      animation: fadeInUp 0.4s ease;
     }
   </style>
 </head>
@@ -94,8 +345,9 @@
 
   <script type="module">
     import {
-      vRouter, vLink, vRouterView,
-      div, h1, h2, p, ul, li, b
+      vRouter, vLink, vRouterView, vRoute,
+      div, h1, h2, h3, p, ul, li, span, b,
+      flex, vstack, hstack
     } from './src/yoya/index.js';
 
     // ============================================
@@ -104,13 +356,9 @@
     const router = vRouter(r => {
       r.default('/home');
 
-      // 首页路由
+      // 首页
       r.route('/home', h => {
         h.component(() => createHomePage());
-        h.beforeEnter((to, from) => {
-          console.log('进入首页');
-          return true;
-        });
       });
 
       // 关于页面
@@ -118,7 +366,7 @@
         h.component(() => createAboutPage());
       });
 
-      // 用户详情页（带参数）
+      // 用户详情（带参数）
       r.route('/user/:id', h => {
         h.component((params) => createUserPage(params.id));
       });
@@ -128,15 +376,36 @@
         h.component(() => createSettingsPage());
       });
 
-      // 全局前置守卫
+      // 仪表盘
+      r.route('/dashboard', h => {
+        h.component(() => createDashboardPage());
+      });
+
+      // 路由守卫示例
+      r.route('/protected', h => {
+        h.component(() => div('.page-card', box => {
+          box.h1('🔒 受保护页面');
+          box.p('您已通过权限验证');
+        }));
+        h.beforeEnter((to, from) => {
+          const authenticated = true; // 模拟认证
+          if (!authenticated) {
+            alert('请先登录');
+            return false;
+          }
+          return true;
+        });
+      });
+
+      // 全局守卫
       r.beforeEach((to, from) => {
-        console.log('全局守卫：从', from?.path, '到', to?.path);
+        console.log('[全局守卫] 导航：', from?.path || '初始', '→', to?.path);
         return true;
       });
 
-      // 全局后置钩子
       r.afterEach((to, from) => {
-        console.log('路由已变更:', to?.path);
+        console.log('[全局钩子] 路由已变更:', to?.path);
+        updateActiveNav(to?.path);
       });
     });
 
@@ -145,20 +414,46 @@
     // ============================================
 
     function createHomePage() {
-      return div('.page', box => {
-        box.h1('🏠 首页');
-        box.p('欢迎使用 VRouter 路由组件！');
+      return div('.page-card', box => {
+        box.h1('🏠 首页', title => title.style('margin-bottom', '16px'));
+        box.p('欢迎使用 VRouter 路由组件！这是一个基于 URL Hash 的轻量级路由系统。');
 
+        // 统计卡片
         box.div('.stats-grid', stats => {
-          stats.child(createStatCard('1,234', '访问量'));
-          stats.child(createStatCard('567', '订单数'));
-          stats.child(createStatCard('89%', '满意度'));
+          stats.child(createStatCard('12,345', '总访问量'));
+          stats.child(createStatCard('1,234', '今日访问'));
+          stats.child(createStatCard('89.5%', '用户满意度'));
+          stats.child(createStatCard('24/7', '在线服务'));
         });
 
-        box.div('.user-card', card => {
-          card.h2('🎉 快速开始');
-          card.p('点击左侧导航栏切换页面，或者试试下面的链接：');
-          child(createNavLinks());
+        // 特性介绍
+        box.h2('✨ 主要特性', h2 => h2.style('margin', '32px 0 16px'));
+        box.ul('.feature-list', list => {
+          list.li(box => {
+            box.span('.feature-icon', '🎯');
+            box.span('简单易用的 API 设计');
+          });
+          list.li(box => {
+            box.span('.feature-icon', '🔀');
+            box.span('支持动态路由参数');
+          });
+          list.li(box => {
+            box.span('.feature-icon', '🛡️');
+            box.span('路由守卫和钩子函数');
+          });
+          list.li(box => {
+            box.span('.feature-icon', '⚡');
+            box.span('零依赖，纯原生实现');
+          });
+        });
+
+        // 快速导航
+        box.h2('🚀 快速导航', h2 => h2.style('margin', '32px 0 16px'));
+        box.div('.inline-links', links => {
+          links.vLink('/about', '📖 关于');
+          links.vLink('/user/1001', '👤 用户');
+          links.vLink('/settings', '⚙️ 设置');
+          links.vLink('/dashboard', '📊 仪表盘');
         });
       });
     }
@@ -171,89 +466,311 @@
     }
 
     function createAboutPage() {
-      return div('.page', box => {
+      return div('.page-card', box => {
         box.h1('📖 关于 VRouter');
-        box.div(content => {
-          content.p('VRouter 是一个基于 URL Hash 的简单路由系统。');
-          content.p('它支持：');
-          content.ul(list => {
-            list.li('✅ 路由匹配和参数提取');
-            list.li('✅ 路由守卫和钩子函数');
-            list.li('✅ 前进/后退导航');
-            list.li('✅ 声明式配置');
+        box.p('VRouter 是一个基于 URL Hash 的轻量级路由系统，专为 Yoya.Basic DSL 库设计。它提供了简单直观的 API，让您可以轻松构建单页应用。');
+
+        // 代码示例
+        box.h2('💡 使用示例', h2 => h2.style('margin', '24px 0 12px'));
+        box.div('.code-block', code => {
+          code.html(`
+<span class="keyword">import</span> { vRouter, vLink } <span class="keyword">from</span> <span class="string">'./yoya/index.js'</span>;
+
+<span class="function">vRouter</span>(r => {
+  <span class="comment">// 定义路由</span>
+  r.<span class="function">route</span>(<span class="string">'/home'</span>, h => {
+    h.<span class="function">component</span>(() => <span class="function">div</span>(<span class="string">'首页内容'</span>));
+  });
+
+  <span class="comment">// 带参数的路由</span>
+  r.<span class="function">route</span>(<span class="string">'/user/:id'</span>, h => {
+    h.<span class="function">component</span>((params) => <span class="function">div</span>(<span class="string">`用户：${params.id}`</span>));
+  });
+});
+
+<span class="comment">// 导航链接</span>
+<span class="function">vLink</span>(<span class="string">'/home'</span>, <span class="string">'首页'</span>);
+          `);
+        });
+
+        box.h2('🎯 核心功能', h2 => h2.style('margin', '24px 0 12px'));
+        box.ul('.feature-list', list => {
+          list.li(box => {
+            box.span('.feature-icon', '📍');
+            box.span('Hash 路由 - 无需服务器配置');
+          });
+          list.li(box => {
+            box.span('.feature-icon', '🔑');
+            box.span('参数提取 - 支持动态路由参数');
+          });
+          list.li(box => {
+            box.span('.feature-icon', '🚦');
+            box.span('导航守卫 - 控制路由跳转');
+          });
+          list.li(box => {
+            box.span('.feature-icon', '🔙');
+            box.span('历史记录 - 支持前进/后退');
           });
         });
       });
     }
 
     function createUserPage(userId) {
-      return div('.page', box => {
+      return div('.page-card', box => {
         box.h1('👤 用户详情');
-        box.div('.user-card', card => {
-          card.h2(`用户 ID: ${userId}`);
-          card.p(`这是用户 ${userId} 的详情页面`);
-          card.p('参数是通过路由模式 :id 动态提取的');
+
+        // 用户资料卡片
+        box.div('.user-profile', profile => {
+          profile.h3(`用户 ID: ${userId}`);
+          profile.p('这是通过动态路由参数加载的用户详情页面');
+          profile.div('.user-meta', meta => {
+            meta.child(createUserMetaItem('128', '关注'));
+            meta.child(createUserMetaItem('256', '粉丝'));
+            meta.child(createUserMetaItem('1.2k', '获赞'));
+          });
         });
 
-        box.div(b => {
-          b.p('其他用户：');
-          b.vLink('/user/1', '用户 1');
-          b.text(' | ');
-          b.vLink('/user/2', '用户 2');
-          b.text(' | ');
-          b.vLink('/user/3', '用户 3');
+        // 其他用户链接
+        box.h2('👥 其他用户', h2 => h2.style('margin', '24px 0 12px'));
+        box.div('.inline-links', links => {
+          links.vLink('/user/1001', '张三');
+          links.vLink('/user/1002', '李四');
+          links.vLink('/user/1003', '王五');
+          links.vLink('/user/1004', '赵六');
         });
+
+        // 用户信息表格
+        box.h2('📋 详细信息', h2 => h2.style('margin', '24px 0 12px'));
+        box.div(info => {
+          info.style('background', '#f8f9fa');
+          info.style('padding', '20px');
+          info.style('border-radius', '8px');
+          info.div(row => {
+            row.style('display', 'flex');
+            row.style('justifyContent', 'space-between');
+            row.style('padding', '12px 0');
+            row.style('borderBottom', '1px solid #e0e0e0');
+            row.span('用户名：', s => s.style('color', '#888'));
+            row.span('user_' + userId);
+          });
+          info.div(row => {
+            row.style('display', 'flex');
+            row.style('justifyContent', 'space-between');
+            row.style('padding', '12px 0');
+            row.style('borderBottom', '1px solid #e0e0e0');
+            row.span('注册时间：', s => s.style('color', '#888'));
+            row.span('2024-01-15');
+          });
+          info.div(row => {
+            row.style('display', 'flex');
+            row.style('justifyContent', 'space-between');
+            row.style('padding', '12px 0');
+            row.span('状态：', s => s.style('color', '#888'));
+            row.span('🟢 在线', s => s.style('color', '#28a745'));
+          });
+        });
+      });
+    }
+
+    function createUserMetaItem(value, label) {
+      return div('.user-meta-item', item => {
+        item.div('.user-meta-value', value);
+        item.div('.user-meta-label', label);
       });
     }
 
     function createSettingsPage() {
-      return div('.page', box => {
+      return div('.page-card', box => {
         box.h1('⚙️ 设置');
-        box.p('这是设置页面');
-        box.ul(list => {
-          list.li('🔔 通知设置');
-          list.li('🔒 隐私设置');
-          list.li('🎨 主题设置');
+        box.p('管理您的应用设置和偏好');
+
+        box.div('.settings-list', list => {
+          // 通知设置
+          list.child(createSettingsItem('🔔', '通知', '接收系统通知', true));
+          list.child(createSettingsItem('📧', '邮件订阅', '接收产品更新邮件', false));
+          list.child(createSettingsItem('🔒', '隐私模式', '隐藏个人信息', false));
+          list.child(createSettingsItem('🌙', '深色模式', '使用深色主题', true));
+          list.child(createSettingsItem('🔊', '音效', '播放操作音效', true));
+        });
+
+        // 账户操作
+        box.h2('🔐 账户安全', h2 => h2.style('margin', '24px 0 12px'));
+        box.div('.settings-list', list => {
+          list.child(createSettingsItem('🔑', '修改密码', '定期更换密码保障安全', false, 'button'));
+          list.child(createSettingsItem('📱', '两步验证', '增强账户安全性', false, 'button'));
+          list.child(createSettingsItem('🚪', '退出登录', '安全退出当前账户', false, 'button', true));
         });
       });
     }
 
-    // ============================================
-    // 创建侧边导航
-    // ============================================
+    function createSettingsItem(icon, title, desc, toggle, type = 'toggle', danger = false) {
+      return div('.settings-item', item => {
+        item.div('.settings-label', label => {
+          label.div('.settings-icon', icon);
+          label.div(info => {
+            info.div(title, t => {
+              t.style('font-weight', '500');
+              t.style('color', danger ? '#dc3545' : '#333');
+            });
+            info.div(desc, d => d.style('font-size', '12px').style('color', '#888'));
+          });
+        });
 
-    function createSidebar() {
-      return div('.sidebar', nav => {
-        nav.child(createNavLink('/home', '🏠 首页'));
-        nav.child(createNavLink('/about', '📖 关于'));
-        nav.child(createNavLink('/user/123', '👤 用户'));
-        nav.child(createNavLink('/settings', '⚙️ 设置'));
-      });
-    }
-
-    function createNavLink(to, text) {
-      return vLink(to, box => {
-        box.className('nav-item');
-        box.text(text);
-
-        // 高亮当前项
-        const currentHash = window.location.hash.slice(1) || '/';
-        if (currentHash.startsWith(to.replace('/:id', ''))) {
-          box.style('background', '#34495e');
+        if (type === 'toggle') {
+          item.div('.switch' + (toggle ? ' active' : ''), sw => {
+            sw.child(div('.switch-knob'));
+            sw.on('click', function() {
+              this.classList.toggle('active');
+            });
+          });
+        } else if (type === 'button') {
+          item.button(btn => {
+            btn.text('设置');
+            btn.style('padding', '8px 16px');
+            btn.style('border', '1px solid #ddd');
+            btn.style('borderRadius', '6px');
+            btn.style('background', danger ? '#dc3545' : '#fff');
+            btn.style('color', danger ? '#fff' : '#333');
+            btn.style('cursor', 'pointer');
+            btn.on('click', () => alert(`点击：${title}`));
+          });
         }
       });
     }
 
-    function createNavLinks() {
-      return div(links => {
-        links.style('marginTop', '16px');
-        links.vLink('/home', '首页');
-        links.text('  |  ');
-        links.vLink('/about', '关于');
-        links.text('  |  ');
-        links.vLink('/user/456', '用户详情');
-        links.text('  |  ');
-        links.vLink('/settings', '设置');
+    function createDashboardPage() {
+      return div('.page-card', box => {
+        box.h1('📊 仪表盘');
+        box.p('实时查看应用运行状态');
+
+        // 数据概览
+        box.div('.stats-grid', stats => {
+          stats.child(createDashboardStat('99.9%', '系统可用性', '🟢'));
+          stats.child(createDashboardStat('12ms', '平均响应', '⚡'));
+          stats.child(createDashboardStat('8', '运行服务', '🔧'));
+          stats.child(createDashboardStat('0', '异常告警', '✅'));
+        });
+
+        // 最近活动
+        box.h2('📝 最近活动', h2 => h2.style('margin', '24px 0 12px'));
+        box.div(activity => {
+          activity.style('background', '#f8f9fa');
+          activity.style('padding', '20px');
+          activity.style('borderRadius', '8px');
+          activity.div(item => {
+            item.style('padding', '12px 0');
+            item.style('borderBottom', '1px solid #e0e0e0');
+            item.span('🟢 ', s => s.style('marginRight', '8px'));
+            item.span('系统正常运行');
+            item.span(time => {
+              time.text('  10 分钟前');
+              time.style('float', 'right');
+              time.style('color', '#888');
+              time.style('fontSize', '12px');
+            });
+          });
+          activity.div(item => {
+            item.style('padding', '12px 0');
+            item.style('borderBottom', '1px solid #e0e0e0');
+            item.span('🔵 ', s => s.style('marginRight', '8px'));
+            item.span('用户 "张三" 登录系统');
+            item.span(time => {
+              time.text('  1 小时前');
+              time.style('float', 'right');
+              time.style('color', '#888');
+              time.style('fontSize', '12px');
+            });
+          });
+          activity.div(item => {
+            item.style('padding', '12px 0');
+            item.span('🟡 ', s => s.style('marginRight', '8px'));
+            item.span('配置文件已更新');
+            item.span(time => {
+              time.text('  2 小时前');
+              time.style('float', 'right');
+              time.style('color', '#888');
+              time.style('fontSize', '12px');
+            });
+          });
+        });
+      });
+    }
+
+    function createDashboardStat(value, label, icon) {
+      return div('.stat-card', stat => {
+        stat.div(icon, i => i.style('fontSize', '32px').style('marginBottom', '8px'));
+        stat.div('.stat-value', value);
+        stat.div('.stat-label', label);
+      });
+    }
+
+    // ============================================
+    // 侧边导航栏
+    // ============================================
+
+    function createSidebar() {
+      return div('.sidebar', nav => {
+        // 头部
+        nav.div('.sidebar-header', header => {
+          header.h2('🔀 VRouter');
+          header.p('路由组件演示');
+        });
+
+        // 导航组
+        nav.div('.nav-section', section => {
+          section.div('.nav-section-title', '主要');
+          section.child(createNavItem('/home', '🏠', '首页'));
+          section.child(createNavItem('/dashboard', '📊', '仪表盘'));
+          section.child(createNavItem('/about', '📖', '关于'));
+        });
+
+        nav.div('.nav-section', section => {
+          section.div('.nav-section-title', '功能');
+          section.child(createNavItem('/user/1001', '👤', '用户详情'));
+          section.child(createNavItem('/settings', '⚙️', '设置'));
+        });
+
+        nav.div('.nav-section', section => {
+          section.div('.nav-section-title', '示例');
+          section.child(createNavItem('/protected', '🔒', '受保护页面'));
+          section.child(createNavItem('/nonexistent', '❓', '404 演示'));
+        });
+
+        // 底部信息
+        nav.div(style => {
+          style.style('margin-top', 'auto');
+          style.style('padding', '20px');
+          style.style('borderTop', '1px solid rgba(255,255,255,0.1)');
+          style.p('v1.0.0', p => {
+            p.style('fontSize', '12px');
+            p.style('color', '#8892b0');
+          });
+        });
+      });
+    }
+
+    function createNavItem(path, icon, text) {
+      return vLink(path, item => {
+        item.className('nav-item');
+        item.attr('data-path', path);
+        item.div('.nav-item-icon', icon);
+        item.span('.nav-item-text', text);
+      });
+    }
+
+    // 更新导航激活状态
+    function updateActiveNav(currentPath) {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        const path = item.getAttribute('data-path');
+        // 处理动态路由
+        const isMatch = currentPath === path ||
+                       (path.includes(':id') && currentPath.startsWith('/user/'));
+        if (isMatch) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
       });
     }
 
@@ -262,10 +779,15 @@
     // ============================================
 
     function createApp() {
-      return div('.app-container', app => {
+      return div('.app-layout', app => {
+        // 侧边栏
         app.child(createSidebar());
+
+        // 主内容区
         app.child(div('.main-content', main => {
-          main.child(vRouterView(router));
+          main.div('.content-wrapper', wrapper => {
+            wrapper.child(vRouterView(router));
+          });
         }));
       });
     }
@@ -276,10 +798,12 @@
 
     createApp().bindTo('#app');
 
-    // 手动触发一次路由渲染（因为初始 hash 可能不是默认值）
+    // 初始化路由
     setTimeout(() => {
-      if (!window.location.hash) {
+      if (!window.location.hash || window.location.hash === '#/') {
         router.navigate('/home');
+      } else {
+        updateActiveNav(window.location.hash.slice(1));
       }
     }, 100);
 
