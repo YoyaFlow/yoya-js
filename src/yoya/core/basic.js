@@ -263,12 +263,19 @@ class Tag {
    * @example
    * el.className('active', 'highlight');
    * el.className(['btn', 'btn-primary']);
+   * el.className('btn btn-primary'); // 空格分隔的多个类名
    */
   className(...classes) {
     classes.flat().forEach(cls => {
       if (cls) {
-        this._classes.add(cls);
-        this._el.classList.add(cls);
+        // 处理字符串中包含空格的情况（如 'class1 class2'）
+        const classList = typeof cls === 'string' ? cls.trim().split(/\s+/) : [cls];
+        classList.forEach(c => {
+          if (c) {
+            this._classes.add(c);
+            this._el.classList.add(c);
+          }
+        });
       }
     });
     return this;

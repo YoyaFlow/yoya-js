@@ -196,6 +196,24 @@ const tests = {
     btn.span('按钮文本');
     btn.strong(' 强调 ');
     assertEquals(btn._children.length, 2, 'button 内可以添加 span 和 strong');
+  },
+
+  'className 支持空格分隔的多个类名': () => {
+    const el = div();
+    el.className('btn btn-primary');
+    assert(el._classes.has('btn'), '应该包含 btn 类');
+    assert(el._classes.has('btn-primary'), '应该包含 btn-primary 类');
+    assertEquals(el._classes.size, 2, '应该有两个类');
+  },
+
+  'className 支持多个参数和数组': () => {
+    const el = div();
+    el.className('btn', 'btn-large', ['active', 'highlight']);
+    assert(el._classes.has('btn'), '应该包含 btn 类');
+    assert(el._classes.has('btn-large'), '应该包含 btn-large 类');
+    assert(el._classes.has('active'), '应该包含 active 类');
+    assert(el._classes.has('highlight'), '应该包含 highlight 类');
+    assertEquals(el._classes.size, 4, '应该有四个类');
   }
 };
 
