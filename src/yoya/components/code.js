@@ -1,6 +1,22 @@
 /**
  * Yoya.Components - Code
- * 代码展示组件，支持语法高亮
+ * 代码展示组件，支持语法高亮和一键复制功能
+ * @module Yoya.Code
+ * @example
+ * // 基础用法
+ * import { vCode, toast } from '../yoya/index.js';
+ *
+ * vCode(c => {
+ *   c.content(`const hello = (name) => {
+ *   console.log('Hello, ' + name);
+ * };`);
+ *   c.title('JavaScript 示例');
+ *   c.onCopy(() => toast.success('代码已复制'));
+ * });
+ *
+ * // 快速创建代码块
+ * import { codeBlock } from '../yoya/index.js';
+ * codeBlock('示例代码', 'const x = 1;');
  */
 
 import { Tag, pre, code, div, span } from '../core/basic.js';
@@ -9,9 +25,19 @@ import { Tag, pre, code, div, span } from '../core/basic.js';
 // VCode 代码展示组件
 // ============================================
 
+/**
+ * VCode 代码展示组件
+ * 支持语法高亮、行号显示、一键复制功能
+ * @class
+ * @extends Tag
+ */
 class VCode extends Tag {
   static _stateAttrs = ['copied'];
 
+  /**
+   * 创建 VCode 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
 
@@ -48,6 +74,10 @@ class VCode extends Tag {
     this._createInternalElements();
   }
 
+  /**
+   * 设置基础样式
+   * @private
+   */
   _setupBaseStyles() {
     this.styles({
       display: 'block',
@@ -58,6 +88,10 @@ class VCode extends Tag {
     });
   }
 
+  /**
+   * 注册状态处理器
+   * @private
+   */
   _registerStateHandlers() {
     this.registerStateHandler('copied', (copied, host) => {
       if (host._copyButton) {
@@ -176,6 +210,10 @@ class VCode extends Tag {
     this._updateCodeContent();
   }
 
+  /**
+   * 更新代码内容
+   * @private
+   */
   _updateCodeContent() {
     if (this._codeElement && this._codeContent) {
       const highlighted = this._highlightCode(this._codeContent);
@@ -187,6 +225,12 @@ class VCode extends Tag {
     }
   }
 
+  /**
+   * 语法高亮处理
+   * @param {string} content - 代码内容
+   * @returns {string} 高亮后的 HTML
+   * @private
+   */
   _highlightCode(content) {
     // 1. 先提取字符串，使用占位符保护
     const strings = [];
@@ -258,6 +302,10 @@ class VCode extends Tag {
     return code;
   }
 
+  /**
+   * 处理复制操作
+   * @private
+   */
   _handleCopy() {
     // 复制代码到剪贴板
     if (navigator.clipboard) {
@@ -274,6 +322,10 @@ class VCode extends Tag {
     }
   }
 
+  /**
+   * 备用复制方法（当 navigator.clipboard 不可用时）
+   * @private
+   */
   _fallbackCopy() {
     // 备用复制方法
     const textarea = document.createElement('textarea');
