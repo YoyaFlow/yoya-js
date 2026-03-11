@@ -116,7 +116,10 @@
       "Bash(node test-sidebar.js 2>&1)",
       "Bash(git -C /home/join/code/cctest add README.md && git -C /home/join/code/cctest commit -m \"docs: 在 README 中添加 AI 生成式 UI 框架特性说明\n\n- 在标题下方添加 AI 友好设计说明\n- 新增'AI 生成式 UI 场景'章节，展示对话中生成/动态修改/组件化示例\n- 核心概念中增加'对象配置（AI 推荐）'说明\n- 表单组件分类下添加 AI 生成示例\n- 底部新增'为什么选择 Yoya.Basic 作为 AI UI 框架'对比表\")",
       "Bash(git add LICENSE README.md package.json)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(npm run docs 2>&1 | head -30)",
+      "Bash(git push origin master)",
+      "Bash(npm run docs 2>&1)"
     ]
   },
   "enableAllProjectMcpServers": true,
