@@ -10,11 +10,23 @@
       "types": "./src/yoya/index.d.ts",
       "default": "./src/yoya/index.js"
     },
+    "./dist": {
+      "types": "./src/yoya/index.d.ts",
+      "default": "./dist/yoya.esm.min.js"
+    },
+    "./dist/full": {
+      "types": "./src/yoya/index.d.ts",
+      "default": "./dist/yoya.esm.js"
+    },
     "./echart": {
       "types": "./src/yoya/yoya.echart.d.ts",
       "default": "./src/yoya/yoya.echart.js"
     },
     "./dist/echart": {
+      "types": "./src/yoya/yoya.echart.d.ts",
+      "default": "./dist/yoya.echart.esm.min.js"
+    },
+    "./dist/echart/full": {
       "types": "./src/yoya/yoya.echart.d.ts",
       "default": "./dist/yoya.echart.esm.js"
     }
@@ -44,6 +56,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@rollup/plugin-terser": "^1.0.0",
     "jsdoc": "^4.0.5",
     "jsdom": "^24.0.0",
     "rollup": "^4.9.0",
