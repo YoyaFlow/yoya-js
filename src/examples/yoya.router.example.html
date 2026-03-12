@@ -348,7 +348,7 @@
       vRouter, vLink, vRouterView, vRoute,
       div, h1, h2, h3, p, ul, li, span, b,
       flex, vstack, hstack
-    } from './src/yoya/index.js';
+    } from '../yoya/index.js';
 
     // ============================================
     // 创建路由器
@@ -428,22 +428,35 @@
 
         // 特性介绍
         box.h2('✨ 主要特性', h2 => h2.style('margin', '32px 0 16px'));
-        box.ul('.feature-list', list => {
-          list.li(box => {
-            box.span('.feature-icon', '🎯');
-            box.span('简单易用的 API 设计');
+        box.ul(list => {
+          list.className('feature-list');
+          list.li(item => {
+            item.span(icon => {
+              icon.className('feature-icon');
+              icon.text('🎯');
+            });
+            item.span('简单易用的 API 设计');
           });
-          list.li(box => {
-            box.span('.feature-icon', '🔀');
-            box.span('支持动态路由参数');
+          list.li(item => {
+            item.span(icon => {
+              icon.className('feature-icon');
+              icon.text('🔀');
+            });
+            item.span('支持动态路由参数');
           });
-          list.li(box => {
-            box.span('.feature-icon', '🛡️');
-            box.span('路由守卫和钩子函数');
+          list.li(item => {
+            item.span(icon => {
+              icon.className('feature-icon');
+              icon.text('🛡️');
+            });
+            item.span('路由守卫和钩子函数');
           });
-          list.li(box => {
-            box.span('.feature-icon', '⚡');
-            box.span('零依赖，纯原生实现');
+          list.li(item => {
+            item.span(icon => {
+              icon.className('feature-icon');
+              icon.text('⚡');
+            });
+            item.span('零依赖，纯原生实现');
           });
         });
 
@@ -496,19 +509,31 @@
         box.h2('🎯 核心功能', h2 => h2.style('margin', '24px 0 12px'));
         box.ul('.feature-list', list => {
           list.li(box => {
-            box.span('.feature-icon', '📍');
+            box.span(icon => {
+              icon.className('feature-icon');
+              icon.text('📍');
+            });
             box.span('Hash 路由 - 无需服务器配置');
           });
           list.li(box => {
-            box.span('.feature-icon', '🔑');
+            box.span(icon => {
+              icon.className('feature-icon');
+              icon.text('🔑');
+            });
             box.span('参数提取 - 支持动态路由参数');
           });
           list.li(box => {
-            box.span('.feature-icon', '🚦');
+            box.span(icon => {
+              icon.className('feature-icon');
+              icon.text('🚦');
+            });
             box.span('导航守卫 - 控制路由跳转');
           });
           list.li(box => {
-            box.span('.feature-icon', '🔙');
+            box.span(icon => {
+              icon.className('feature-icon');
+              icon.text('🔙');
+            });
             box.span('历史记录 - 支持前进/后退');
           });
         });
@@ -749,12 +774,18 @@
       });
     }
 
-    function createNavItem(path, icon, text) {
+    function createNavItem(path, iconText, text) {
       return vLink(path, item => {
         item.className('nav-item');
         item.attr('data-path', path);
-        item.div('.nav-item-icon', icon);
-        item.span('.nav-item-text', text);
+        item.div(icon => {
+          icon.className('nav-item-icon');
+          icon.text(iconText);
+        });
+        item.span(textEl => {
+          textEl.className('nav-item-text');
+          textEl.text(text);
+        });
       });
     }
 

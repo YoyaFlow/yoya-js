@@ -873,7 +873,26 @@ class Tag {
 function createSimpleClass(tagName, className) {
   return class extends Tag {
     constructor(setup = null) {
-      super(tagName, setup);
+      super(tagName, null);
+      // 支持传入 '.class1.class2' 或 '#id' 作为简写
+      if (typeof setup === 'string') {
+        if (setup.startsWith('.')) {
+          // .class1.class2 形式
+          const classes = setup.slice(1).split('.').filter(Boolean);
+          classes.forEach(c => this.className(c));
+        } else if (setup.startsWith('#')) {
+          // #id 形式
+          this.id(setup.slice(1));
+        } else {
+          // 普通字符串，作为文本内容
+          this.text(setup);
+        }
+        setup = null; // 已处理
+      }
+      // 执行 setup（函数或对象）
+      if (setup !== null) {
+        this.setup(setup);
+      }
     }
     static get name() { return className; }
   };
