@@ -3,17 +3,29 @@
  * API 属性表格
  */
 
-import { vCard, vCardBody, div, span, table, tr, th, td } from '../../../yoya/index.js';
+import { vCard, vCardHeader, vCardBody, div, span, table, tr, th, td, code } from '../../../yoya/index.js';
 
 /**
  * API 表格
- * @param {Array} items - API 项数组 [{ name, desc, type }]
+ * @param {Object} options - 配置选项
+ * @param {string} options.title - 表格标题
+ * @param {Array} options.items - API 项数组 [{ name, description, type, props, returns }]
  */
-export function ApiTable(items = []) {
+export function ApiTable(options = {}) {
+  // 支持传入 title 和 items，或者直接传入 items 数组
+  const title = options.title || '';
+  const items = options.items || (Array.isArray(options) ? options : []);
+
   return vCard(c => {
     c.styles({
       overflow: 'hidden',
+      marginBottom: '24px',
     });
+
+    if (title) {
+      c.vCardHeader(title);
+    }
+
     c.vCardBody(api => {
       api.styles({ padding: 0 });
 
@@ -34,9 +46,9 @@ export function ApiTable(items = []) {
               color: 'var(--islands-text, #333)',
               background: 'var(--islands-bg-secondary, #f7f8fa)',
               borderBottom: '2px solid var(--islands-border, #e0e0e0)',
-              width: '25%',
+              width: '20%',
             });
-            h.text('属性');
+            h.text('名称');
           }));
           header.child(th(h => {
             h.styles({
@@ -46,7 +58,7 @@ export function ApiTable(items = []) {
               color: 'var(--islands-text, #333)',
               background: 'var(--islands-bg-secondary, #f7f8fa)',
               borderBottom: '2px solid var(--islands-border, #e0e0e0)',
-              width: '45%',
+              width: '40%',
             });
             h.text('说明');
           }));
@@ -58,46 +70,103 @@ export function ApiTable(items = []) {
               color: 'var(--islands-text, #333)',
               background: 'var(--islands-bg-secondary, #f7f8fa)',
               borderBottom: '2px solid var(--islands-border, #e0e0e0)',
-              width: '30%',
+              width: '40%',
             });
-            h.text('类型');
+            h.text('参数');
           }));
         }));
 
         // 表体
         items.forEach((item, index) => {
           tbl.child(tr(row => {
+            // 名称列
             row.child(td(c => {
               c.styles({
                 padding: '12px 16px',
                 borderBottom: index < items.length - 1 ? '1px solid var(--islands-border, #e0e0e0)' : 'none',
                 color: 'var(--islands-primary, #667eea)',
-                fontWeight: '500',
+                fontWeight: '600',
                 fontFamily: 'monospace',
                 fontSize: '13px',
                 verticalAlign: 'top',
               });
               c.text(item.name);
             }));
+
+            // 说明列
             row.child(td(c => {
               c.styles({
                 padding: '12px 16px',
                 borderBottom: index < items.length - 1 ? '1px solid var(--islands-border, #e0e0e0)' : 'none',
                 color: 'var(--islands-text, #333)',
                 verticalAlign: 'top',
+                fontSize: '13px',
               });
-              c.text(item.desc);
+              c.text(item.description || item.desc || '');
             }));
+
+            // 参数/返回值列
             row.child(td(c => {
               c.styles({
                 padding: '12px 16px',
                 borderBottom: index < items.length - 1 ? '1px solid var(--islands-border, #e0e0e0)' : 'none',
                 color: 'var(--islands-text-secondary, #666)',
-                fontFamily: 'monospace',
-                fontSize: '13px',
                 verticalAlign: 'top',
+                fontSize: '13px',
               });
-              c.text(item.type || '');
+
+              // 如果有 props 参数
+              if (item.props && item.props.length > 0) {
+                c.child(div(propsDiv => {
+                  propsDiv.styles({ marginBottom: '8px' });
+                  propsDiv.child(span(s => {
+                    s.styles({ fontWeight: '600', color: '#555' });
+                    s.text('参数:');
+                  }));
+                  propsDiv.child(div(propList => {
+                    propList.styles({ marginTop: '4px', paddingLeft: '12px' });
+                    item.props.forEach(prop => {
+                      propList.child(div(p => {
+                        p.styles({ marginBottom: '4px' });
+                        p.child(code(c => {
+                          c.styles({
+                            background: '#f5f5f5',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            color: '#d63384',
+                          });
+                          c.text(prop.name);
+                        }));
+                        p.text(` - ${prop.type || ''}`);
+                        if (prop.description) {
+                          p.text(` - ${prop.description}`);
+                        }
+                      }));
+                    });
+                  }));
+                }));
+              }
+
+              // 返回值
+              if (item.returns) {
+                c.child(div(ret => {
+                  ret.styles({ fontWeight: '600', color: '#555' });
+                  ret.text('返回: ' + item.returns);
+                }));
+              }
+
+              // 简单类型显示
+              if (item.type && !item.props) {
+                c.child(code(c => {
+                  c.styles({
+                    background: '#f5f5f5',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    color: '#666',
+                  });
+                  c.text(item.type);
+                }));
+              }
             }));
           }));
         });

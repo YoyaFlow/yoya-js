@@ -20,6 +20,7 @@ export const routes = {
   'I18n': () => import('../pages/I18n/index.js').then(m => m.createI18nPage),
   'VTimer': () => import('../pages/VTimer/index.js').then(m => m.createVTimerPage),
   'Echart': () => import('../pages/Echart/index.js').then(m => m.createEchartPage),
+  'Router': () => import('../pages/Router/index.js').then(m => m.createRouterPage),
 };
 
 /**
@@ -42,6 +43,7 @@ export async function getPageComponent(fileName) {
     'i18n.html': 'I18n',
     'vtimer.html': 'VTimer',
     'echart.html': 'Echart',
+    'router.html': 'Router',
   };
 
   const pageName = pageMap[fileName];

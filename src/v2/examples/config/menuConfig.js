@@ -22,6 +22,7 @@ export const menuConfig = [
     group: '导航组件',
     items: [
       { label: 'Menu 菜单', page: 'Menu', file: 'menu.html' },
+      { label: 'Router 路由', page: 'Router', file: 'router.html' },
     ],
   },
   {
