@@ -143,6 +143,8 @@ class VRouter extends Tag {
     this._globalBeforeEnter = null; // 全局前置守卫
     this._globalAfterEach = null; // 全局后置钩子
     this._isNavigating = false; // 是否正在导航
+    this._view = null; // 路由视图容器
+    this._initialDispatchPending = true; // 标记初始派发是否待处理
 
     // 基础样式
     this.styles({
@@ -158,6 +160,7 @@ class VRouter extends Tag {
     this._startListening();
 
     // 如果有默认路径且当前是根路径，跳转到默认路径
+    // 注意：实际的初始路由派发会等待 _view 被设置后执行
     if (this._defaultPath && getCurrentHashPath() === '/') {
       this.navigate(this._defaultPath, { replace: true });
     }
@@ -215,7 +218,7 @@ class VRouter extends Tag {
     }
 
     // 路由守卫
-    if (matchedRoute && matchedRoute.beforeEnter) {
+    if (matchedRoute && typeof matchedRoute.beforeEnter === 'function') {
       const result = await matchedRoute.beforeEnter(to, from);
       if (result === false) return;
     }
@@ -238,21 +241,35 @@ class VRouter extends Tag {
    * @private
    */
   _renderRoute(route) {
+    let component = null;
+
     if (!route) {
       // 404 处理
-      this._children = [];
-      if (this._boundElement) {
-        this._boundElement.innerHTML = '<div>404 - 页面未找到</div>';
-      }
-      return;
+      component = div(div => {
+        div.style('text-align', 'center');
+        div.style('padding', '60px 20px');
+        div.h1(h => {
+          h.style('font-size', '72px');
+          h.style('color', '#667eea');
+          h.text('404');
+        });
+        div.p(p => {
+          p.style('font-size', '18px');
+          p.style('color', '#888');
+          p.text('页面未找到');
+        });
+      });
+    } else if (route.component) {
+      // 创建组件实例
+      component = route.component(this._currentParams);
     }
 
-    // 清空子元素
-    this._children = [];
-
-    // 创建组件实例
-    if (route.component) {
-      const component = route.component(this._currentParams);
+    // 渲染到 VRouterView
+    if (this._view) {
+      this._view._render(component);
+    } else {
+      // 如果没有 VRouterView，直接渲染到自己
+      this._children = [];
       if (component) {
         this.child(component);
       }
@@ -376,7 +393,18 @@ class VRouter extends Tag {
   route(pattern, config) {
     if (typeof config === 'function') {
       // 函数式配置
-      const handler = { component: null, beforeEnter: null };
+      const handler = {
+        component: null,
+        beforeEnter: null,
+        component(fn) {
+          this.component = fn;
+          return this;
+        },
+        beforeEnter(fn) {
+          this.beforeEnter = fn;
+          return this;
+        }
+      };
       config(handler);
       this._routes.set(pattern, {
         pattern,
@@ -595,11 +623,17 @@ class VRouterView extends Tag {
       display: 'block',
     });
 
-    // 监听路由变化
-    this._setupRouterListener();
+    // 将 VRouterView 设置为路由器的渲染容器
+    router._view = this;
 
-    // 渲染当前路由
-    this._renderCurrentRoute();
+    // 触发初始路由派发（如果之前有待处理的）
+    if (router._initialDispatchPending) {
+      router._initialDispatchPending = false;
+      // 等待微任务确保 DOM 准备就绪
+      Promise.resolve().then(() => {
+        router._dispatchRoute();
+      });
+    }
 
     if (setup !== null) {
       this.setup(setup);
@@ -607,53 +641,16 @@ class VRouterView extends Tag {
   }
 
   /**
-   * 设置路由监听
+   * 刷新视图（由路由器调用）
    * @private
    */
-  _setupRouterListener() {
-    // 初始渲染
-    this._renderCurrentRoute();
-  }
+  _render(component) {
+    // 清空子元素（包括真实 DOM）
+    this.clear();
 
-  /**
-   * 渲染当前路由
-   * @private
-   */
-  _renderCurrentRoute() {
-    if (!this._router) return;
-
-    // 清空子元素
-    this._children = [];
-
-    // 使用路由器的当前配置渲染
-    const currentPath = getCurrentHashPath();
-    let matchedRoute = null;
-    let matchResult = null;
-
-    for (const [pattern, route] of this._router._routes.entries()) {
-      matchResult = matchRoute(pattern, currentPath);
-      if (matchResult) {
-        matchedRoute = route;
-        break;
-      }
+    if (component) {
+      this.child(component);
     }
-
-    if (matchedRoute && matchedRoute.component) {
-      const params = matchResult ? matchResult.params : {};
-      const component = matchedRoute.component(params);
-      if (component) {
-        this.child(component);
-      }
-    }
-  }
-
-  /**
-   * 刷新视图
-   * @returns {this}
-   */
-  refresh() {
-    this._renderCurrentRoute();
-    return this;
   }
 }
 

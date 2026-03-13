@@ -55,11 +55,11 @@ class VCard extends Tag {
 
     // 3. 设置基础样式（使用主题变量）
     this.styles({
-      background: 'var(--islands-card-bg, var(--islands-bg))',
-      borderRadius: 'var(--islands-card-radius, 8px)',
-      boxShadow: 'var(--islands-card-shadow, var(--islands-shadow))',
+      background: 'var(--yoya-card-bg, var(--yoya-bg))',
+      borderRadius: 'var(--yoya-card-radius, 8px)',
+      boxShadow: 'var(--yoya-card-shadow, var(--yoya-shadow))',
       overflow: 'hidden',
-      border: 'var(--islands-card-border, 1px solid transparent)',
+      border: 'var(--yoya-card-border, 1px solid transparent)',
     });
 
     // 4. 保存基础样式快照
@@ -136,13 +136,13 @@ class VCard extends Tag {
         });
         host.on('mouseenter', () => {
           host.styles({
-            boxShadow: 'var(--islands-card-hover-shadow, var(--islands-shadow-hover))',
+            boxShadow: 'var(--yoya-card-hover-shadow, var(--yoya-shadow-hover))',
             transform: 'translateY(-2px)',
           });
         });
         host.on('mouseleave', () => {
           host.styles({
-            boxShadow: 'var(--islands-card-shadow, var(--islands-shadow))',
+            boxShadow: 'var(--yoya-card-shadow, var(--yoya-shadow))',
             transform: 'translateY(0)',
           });
         });
@@ -153,20 +153,20 @@ class VCard extends Tag {
     this.registerStateHandler('bordered', (enabled, host) => {
       if (enabled) {
         host.styles({
-          border: 'var(--islands-card-border-color, 1px solid var(--islands-border))',
+          border: 'var(--yoya-card-border-color, 1px solid var(--yoya-border))',
           boxShadow: 'none',
         });
       } else {
         host.styles({
-          border: 'var(--islands-card-border, 1px solid transparent)',
-          boxShadow: 'var(--islands-card-shadow, var(--islands-shadow))',
+          border: 'var(--yoya-card-border, 1px solid transparent)',
+          boxShadow: 'var(--yoya-card-shadow, var(--yoya-shadow))',
         });
       }
     });
 
     // noShadow 状态
     this.registerStateHandler('noShadow', (enabled, host) => {
-      host.style('boxShadow', enabled ? 'none' : 'var(--islands-card-shadow, var(--islands-shadow))');
+      host.style('boxShadow', enabled ? 'none' : 'var(--yoya-card-shadow, var(--yoya-shadow))');
     });
   }
 
@@ -272,12 +272,12 @@ class VCardHeader extends Tag {
   constructor(setup = null) {
     super('div', setup);
     this.styles({
-      padding: 'var(--islands-card-header-padding, 16px)',
-      borderBottom: 'var(--islands-card-header-border, 1px solid var(--islands-border-light))',
-      fontWeight: 'var(--islands-card-header-font-weight, 600)',
-      fontSize: 'var(--islands-card-header-font-size, 16px)',
-      color: 'var(--islands-card-header-color, var(--islands-text))',
-      background: 'var(--islands-card-header-bg, var(--islands-bg-secondary))',
+      padding: 'var(--yoya-card-header-padding, 16px)',
+      borderBottom: 'var(--yoya-card-header-border, 1px solid var(--yoya-border-light))',
+      fontWeight: 'var(--yoya-card-header-font-weight, 600)',
+      fontSize: 'var(--yoya-card-header-font-size, 16px)',
+      color: 'var(--yoya-card-header-color, var(--yoya-text))',
+      background: 'var(--yoya-card-header-bg, var(--yoya-bg-secondary))',
     });
   }
 }
@@ -308,10 +308,10 @@ class VCardBody extends Tag {
   constructor(setup = null) {
     super('div', setup);
     this.styles({
-      padding: 'var(--islands-card-body-padding, 16px)',
-      fontSize: 'var(--islands-card-body-font-size, 14px)',
-      color: 'var(--islands-card-body-color, var(--islands-text))',
-      background: 'var(--islands-card-body-bg, transparent)',
+      padding: 'var(--yoya-card-body-padding, 16px)',
+      fontSize: 'var(--yoya-card-body-font-size, 14px)',
+      color: 'var(--yoya-card-body-color, var(--yoya-text))',
+      background: 'var(--yoya-card-body-bg, transparent)',
     });
   }
 }
@@ -342,13 +342,13 @@ class VCardFooter extends Tag {
   constructor(setup = null) {
     super('div', setup);
     this.styles({
-      padding: 'var(--islands-card-footer-padding, 16px)',
-      borderTop: 'var(--islands-card-footer-border, 1px solid var(--islands-border-light))',
+      padding: 'var(--yoya-card-footer-padding, 16px)',
+      borderTop: 'var(--yoya-card-footer-border, 1px solid var(--yoya-border-light))',
       display: 'flex',
-      gap: 'var(--islands-card-footer-gap, 8px)',
-      fontSize: 'var(--islands-card-footer-font-size, 14px)',
-      color: 'var(--islands-card-footer-color, var(--islands-text-secondary))',
-      background: 'var(--islands-card-footer-bg, transparent)',
+      gap: 'var(--yoya-card-footer-gap, 8px)',
+      fontSize: 'var(--yoya-card-footer-font-size, 14px)',
+      color: 'var(--yoya-card-footer-color, var(--yoya-text-secondary))',
+      background: 'var(--yoya-card-footer-bg, transparent)',
     });
   }
 }

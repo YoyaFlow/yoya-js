@@ -37,9 +37,9 @@ class VDetail extends Tag {
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
-      fontSize: 'var(--islands-descriptions-font-size, 14px)',
-      color: 'var(--islands-descriptions-text, var(--islands-text, #333))',
-      background: 'var(--islands-descriptions-bg, transparent)',
+      fontSize: 'var(--yoya-descriptions-font-size, 14px)',
+      color: 'var(--yoya-descriptions-text, var(--yoya-text, #333))',
+      background: 'var(--yoya-descriptions-bg, transparent)',
     });
   }
 
@@ -51,11 +51,11 @@ class VDetail extends Tag {
     if (this._title) {
       const titleEl = div(t => {
         t.styles({
-          padding: 'var(--islands-descriptions-title-padding, 12px 0)',
-          fontSize: 'var(--islands-descriptions-title-size, 16px)',
-          fontWeight: 'var(--islands-descriptions-title-font-weight, 600)',
-          color: 'var(--islands-descriptions-title-color, var(--islands-text, #333))',
-          marginBottom: 'var(--islands-descriptions-title-margin, 12px)',
+          padding: 'var(--yoya-descriptions-title-padding, 12px 0)',
+          fontSize: 'var(--yoya-descriptions-title-size, 16px)',
+          fontWeight: 'var(--yoya-descriptions-title-font-weight, 600)',
+          color: 'var(--yoya-descriptions-title-color, var(--yoya-text, #333))',
+          marginBottom: 'var(--yoya-descriptions-title-margin, 12px)',
         });
         t.text(this._title);
       });
@@ -82,7 +82,7 @@ class VDetail extends Tag {
           });
 
           if (this._bordered) {
-            t.style('border', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+            t.style('border', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
           }
         });
 
@@ -92,7 +92,7 @@ class VDetail extends Tag {
         rows.forEach(rowItems => {
           const trEl = tr(r => {
             if (this._bordered) {
-              r.style('borderBottom', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+              r.style('borderBottom', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
             }
           });
 
@@ -100,19 +100,19 @@ class VDetail extends Tag {
             // 标签单元格
             const labelTd = td(l => {
               l.styles({
-                padding: 'var(--islands-descriptions-padding, 12px 16px)',
+                padding: 'var(--yoya-descriptions-padding, 12px 16px)',
                 background: this._bordered
-                  ? 'var(--islands-descriptions-label-bg, var(--islands-bg-secondary, #f7f8fa))'
+                  ? 'var(--yoya-descriptions-label-bg, var(--yoya-bg-secondary, #f7f8fa))'
                   : 'transparent',
-                color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
-                fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
+                color: 'var(--yoya-descriptions-label-color, var(--yoya-text-secondary, #666))',
+                fontWeight: 'var(--yoya-descriptions-label-font-weight, 500)',
                 textAlign: 'left',
-                width: 'var(--islands-descriptions-label-width, 120px)',
+                width: 'var(--yoya-descriptions-label-width, 120px)',
                 boxSizing: 'border-box',
               });
 
               if (this._bordered) {
-                l.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+                l.style('borderRight', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
               }
 
               if (item.label) {
@@ -123,13 +123,13 @@ class VDetail extends Tag {
             // 内容单元格
             const contentTd = td(c => {
               c.styles({
-                padding: 'var(--islands-descriptions-padding, 12px 16px)',
-                color: 'var(--islands-descriptions-content-color, var(--islands-text, #333))',
+                padding: 'var(--yoya-descriptions-padding, 12px 16px)',
+                color: 'var(--yoya-descriptions-content-color, var(--yoya-text, #333))',
                 boxSizing: 'border-box',
               });
 
               if (this._bordered) {
-                c.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+                c.style('borderRight', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
               }
 
               if (item.content) {
@@ -160,7 +160,7 @@ class VDetail extends Tag {
       g.styles({
         display: 'grid',
         gridTemplateColumns: `repeat(${this._column}, 1fr)`,
-        gap: 'var(--islands-descriptions-vertical-gap, 16px)',
+        gap: 'var(--yoya-descriptions-vertical-gap, 16px)',
       });
 
       this._items.forEach(item => {
@@ -168,15 +168,15 @@ class VDetail extends Tag {
           i.styles({
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--islands-descriptions-vertical-item-gap, 6px)',
+            gap: 'var(--yoya-descriptions-vertical-item-gap, 6px)',
           });
 
           // 标签
           const labelEl = span(l => {
             l.styles({
-              fontSize: 'var(--islands-descriptions-label-font-size, 12px)',
-              color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
-              fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
+              fontSize: 'var(--yoya-descriptions-label-font-size, 12px)',
+              color: 'var(--yoya-descriptions-label-color, var(--yoya-text-secondary, #666))',
+              fontWeight: 'var(--yoya-descriptions-label-font-weight, 500)',
             });
             if (item.label) l.text(item.label);
           });
@@ -184,9 +184,9 @@ class VDetail extends Tag {
           // 内容
           const contentEl = div(c => {
             c.styles({
-              fontSize: 'var(--islands-descriptions-content-font-size, 14px)',
-              color: 'var(--islands-descriptions-content-color, var(--islands-text, #333))',
-              padding: 'var(--islands-descriptions-vertical-content-padding, 8px 0)',
+              fontSize: 'var(--yoya-descriptions-content-font-size, 14px)',
+              color: 'var(--yoya-descriptions-content-color, var(--yoya-text, #333))',
+              padding: 'var(--yoya-descriptions-vertical-content-padding, 8px 0)',
             });
 
             if (item.content) {

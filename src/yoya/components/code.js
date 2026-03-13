@@ -81,10 +81,10 @@ class VCode extends Tag {
   _setupBaseStyles() {
     this.styles({
       display: 'block',
-      borderRadius: 'var(--islands-code-radius, 8px)',
+      borderRadius: 'var(--yoya-code-radius, 8px)',
       overflow: 'hidden',
-      background: 'var(--islands-code-bg, #1e1e1e)',
-      border: 'var(--islands-code-border, 1px solid rgba(255,255,255,0.1))',
+      background: 'var(--yoya-code-bg, #1e1e1e)',
+      border: 'var(--yoya-code-border, 1px solid rgba(255,255,255,0.1))',
     });
   }
 
@@ -98,8 +98,8 @@ class VCode extends Tag {
         if (copied) {
           host._copyButton.textContent('✓ 已复制');
           host._copyButton.styles({
-            background: 'var(--islands-code-copy-success-bg, #28a745)',
-            color: 'var(--islands-code-copy-success-color, white)',
+            background: 'var(--yoya-code-copy-success-bg, #28a745)',
+            color: 'var(--yoya-code-copy-success-color, white)',
           });
           // 2 秒后恢复
           setTimeout(() => {
@@ -108,8 +108,8 @@ class VCode extends Tag {
         } else {
           host._copyButton.textContent('📋 复制');
           host._copyButton.styles({
-            background: 'var(--islands-code-copy-bg, #444)',
-            color: 'var(--islands-code-copy-color, #ccc)',
+            background: 'var(--yoya-code-copy-bg, #444)',
+            color: 'var(--yoya-code-copy-color, #ccc)',
           });
         }
       }
@@ -124,18 +124,18 @@ class VCode extends Tag {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: 'var(--islands-code-header-padding, 10px 16px)',
-          background: 'var(--islands-code-header-bg, rgba(255,255,255,0.05))',
-          borderBottom: 'var(--islands-code-header-border, 1px solid rgba(255,255,255,0.1))',
+          padding: 'var(--yoya-code-header-padding, 10px 16px)',
+          background: 'var(--yoya-code-header-bg, rgba(255,255,255,0.05))',
+          borderBottom: 'var(--yoya-code-header-border, 1px solid rgba(255,255,255,0.1))',
         });
 
         // 标题
         if (this._title) {
           h.child(span(t => {
             t.styles({
-              color: 'var(--islands-code-title-color, #007acc)',
-              fontSize: 'var(--islands-code-title-font-size, 13px)',
-              fontWeight: 'var(--islands-code-title-font-weight, 600)',
+              color: 'var(--yoya-code-title-color, #007acc)',
+              fontSize: 'var(--yoya-code-title-font-size, 13px)',
+              fontWeight: 'var(--yoya-code-title-font-weight, 600)',
             });
             t.text(this._title);
           }));
@@ -147,12 +147,12 @@ class VCode extends Tag {
         if (this._showCopyButton) {
           h.child(this._copyButton = span(b => {
             b.styles({
-              padding: 'var(--islands-code-copy-padding, 4px 10px)',
-              borderRadius: 'var(--islands-code-copy-radius, 4px)',
-              fontSize: 'var(--islands-code-copy-font-size, 12px)',
+              padding: 'var(--yoya-code-copy-padding, 4px 10px)',
+              borderRadius: 'var(--yoya-code-copy-radius, 4px)',
+              fontSize: 'var(--yoya-code-copy-font-size, 12px)',
               cursor: 'pointer',
-              background: 'var(--islands-code-copy-bg, #444)',
-              color: 'var(--islands-code-copy-color, #ccc)',
+              background: 'var(--yoya-code-copy-bg, #444)',
+              color: 'var(--yoya-code-copy-color, #ccc)',
               transition: 'all 0.2s',
               userSelect: 'none',
             });
@@ -161,16 +161,16 @@ class VCode extends Tag {
             b.on('mouseenter', () => {
               if (!this.hasState('copied')) {
                 b.styles({
-                  background: 'var(--islands-code-copy-hover-bg, #555)',
-                  color: 'var(--islands-code-copy-hover-color, white)',
+                  background: 'var(--yoya-code-copy-hover-bg, #555)',
+                  color: 'var(--yoya-code-copy-hover-color, white)',
                 });
               }
             });
             b.on('mouseleave', () => {
               if (!this.hasState('copied')) {
                 b.styles({
-                  background: 'var(--islands-code-copy-bg, #444)',
-                  color: 'var(--islands-code-copy-color, #ccc)',
+                  background: 'var(--yoya-code-copy-bg, #444)',
+                  color: 'var(--yoya-code-copy-color, #ccc)',
                 });
               }
             });
@@ -185,17 +185,17 @@ class VCode extends Tag {
     this._codeContainer = pre(c => {
       c.styles({
         margin: 0,
-        padding: 'var(--islands-code-padding, 16px)',
+        padding: 'var(--yoya-code-padding, 16px)',
         overflow: 'auto',
-        fontSize: 'var(--islands-code-font-size, 13px)',
-        lineHeight: 'var(--islands-code-line-height, 1.6)',
-        color: 'var(--islands-code-text-color, #d4d4d4)',
-        fontFamily: 'var(--islands-code-font-family, "Fira Code", "Consolas", "Monaco", monospace)',
+        fontSize: 'var(--yoya-code-font-size, 13px)',
+        lineHeight: 'var(--yoya-code-line-height, 1.6)',
+        color: 'var(--yoya-code-text-color, #d4d4d4)',
+        fontFamily: 'var(--yoya-code-font-family, "Fira Code", "Consolas", "Monaco", monospace)',
       });
 
       c.child(this._codeElement = code(inner => {
         inner.styles({
-          color: 'var(--islands-code-text-color, #d4d4d4)',
+          color: 'var(--yoya-code-text-color, #d4d4d4)',
           fontFamily: 'inherit',
         });
         if (this._showLineNumbers) {

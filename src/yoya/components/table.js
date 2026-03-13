@@ -45,9 +45,9 @@ class VTable extends Tag {
     this.styles({
       width: '100%',
       borderCollapse: 'collapse',
-      fontSize: 'var(--islands-table-font-size, 14px)',
-      color: 'var(--islands-table-text, var(--islands-text))',
-      background: 'var(--islands-table-bg, var(--islands-bg))',
+      fontSize: 'var(--yoya-table-font-size, 14px)',
+      color: 'var(--yoya-table-text, var(--yoya-text))',
+      background: 'var(--yoya-table-bg, var(--yoya-bg))',
     });
   }
 
@@ -56,7 +56,7 @@ class VTable extends Tag {
     this.registerStateHandler('bordered', (enabled, host) => {
       if (enabled) {
         host.styles({
-          border: '1px solid var(--islands-table-border, var(--islands-border))',
+          border: '1px solid var(--yoya-table-border, var(--yoya-border))',
         });
       } else {
         host.style('border', '');
@@ -69,9 +69,9 @@ class VTable extends Tag {
       const el = host._boundElement || host._el;
       if (el) {
         if (enabled) {
-          el.style.setProperty('--islands-table-striped-bg', 'var(--islands-bg-secondary)');
+          el.style.setProperty('--yoya-table-striped-bg', 'var(--yoya-bg-secondary)');
         } else {
-          el.style.removeProperty('--islands-table-striped-bg');
+          el.style.removeProperty('--yoya-table-striped-bg');
         }
       }
       // 通知所有 VTr 子元素更新样式
@@ -84,9 +84,9 @@ class VTable extends Tag {
       const el = host._boundElement || host._el;
       if (el) {
         if (enabled) {
-          el.style.setProperty('--islands-table-hover-bg', 'var(--islands-hover-bg)');
+          el.style.setProperty('--yoya-table-hover-bg', 'var(--yoya-hover-bg)');
         } else {
-          el.style.removeProperty('--islands-table-hover-bg');
+          el.style.removeProperty('--yoya-table-hover-bg');
         }
       }
       // 通知所有 VTr 子元素更新样式
@@ -98,9 +98,9 @@ class VTable extends Tag {
       const el = host._boundElement || host._el;
       if (el) {
         if (enabled) {
-          el.style.setProperty('--islands-table-cell-padding', '8px 12px');
+          el.style.setProperty('--yoya-table-cell-padding', '8px 12px');
         } else {
-          el.style.removeProperty('--islands-table-cell-padding');
+          el.style.removeProperty('--yoya-table-cell-padding');
         }
       }
     });
@@ -179,8 +179,8 @@ class VThead extends Tag {
     super('thead', null);
 
     this.styles({
-      background: 'var(--islands-table-head-bg, var(--islands-bg-secondary))',
-      borderBottom: '2px solid var(--islands-table-border, var(--islands-border))',
+      background: 'var(--yoya-table-head-bg, var(--yoya-bg-secondary))',
+      borderBottom: '2px solid var(--yoya-table-border, var(--yoya-border))',
     });
 
     if (setup !== null) {
@@ -233,7 +233,7 @@ class VTbody extends Tag {
     super('tbody', null);
 
     this.styles({
-      background: 'var(--islands-table-body-bg, var(--islands-bg))',
+      background: 'var(--yoya-table-body-bg, var(--yoya-bg))',
     });
 
     if (setup !== null) {
@@ -286,8 +286,8 @@ class VTfoot extends Tag {
     super('tfoot', null);
 
     this.styles({
-      background: 'var(--islands-table-foot-bg, var(--islands-bg-secondary))',
-      borderTop: '2px solid var(--islands-table-border, var(--islands-border))',
+      background: 'var(--yoya-table-foot-bg, var(--yoya-bg-secondary))',
+      borderTop: '2px solid var(--yoya-table-border, var(--yoya-border))',
     });
 
     if (setup !== null) {
@@ -373,7 +373,7 @@ class VTr extends Tag {
     this.registerStateHandler('isEvenRow', (isEven, host) => {
       // 只有当 striped 状态启用且是偶数行时才应用背景色
       if (isEven && host.hasState('striped')) {
-        host.style('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+        host.style('background', 'var(--yoya-table-striped-bg, var(--yoya-bg-secondary))');
         host._hasStripedBg = true;
       } else {
         host.style('background', '');
@@ -384,7 +384,7 @@ class VTr extends Tag {
     // striped 状态 - 重新应用偶数行样式
     this.registerStateHandler('striped', (enabled, host) => {
       if (enabled && host.hasState('isEvenRow')) {
-        host.style('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+        host.style('background', 'var(--yoya-table-striped-bg, var(--yoya-bg-secondary))');
         host._hasStripedBg = true;
       } else {
         if (!host.hasState('hoverable')) {
@@ -412,14 +412,14 @@ class VTr extends Tag {
         host._mouseenterHandler = () => {
           // 直接设置 DOM 元素的 style.setProperty 来覆盖简写属性
           if (host._el) {
-            host._el.style.setProperty('background', 'var(--islands-table-hover-bg, var(--islands-hover-bg))');
+            host._el.style.setProperty('background', 'var(--yoya-table-hover-bg, var(--yoya-hover-bg))');
           }
         };
         host._mouseleaveHandler = () => {
           // 若有条纹且是偶数行，恢复条纹色；否则恢复透明
           if (host._hasStripedBg) {
             if (host._el) {
-              host._el.style.setProperty('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+              host._el.style.setProperty('background', 'var(--yoya-table-striped-bg, var(--yoya-bg-secondary))');
             }
           } else {
             if (host._el) {
@@ -459,11 +459,11 @@ class VTh extends Tag {
     super('th', null);
 
     this.styles({
-      padding: 'var(--islands-table-head-padding, 12px 16px)',
+      padding: 'var(--yoya-table-head-padding, 12px 16px)',
       textAlign: 'left',
       fontWeight: '600',
-      color: 'var(--islands-table-head-color, var(--islands-text))',
-      borderBottom: '2px solid var(--islands-table-border, var(--islands-border))',
+      color: 'var(--yoya-table-head-color, var(--yoya-text))',
+      borderBottom: '2px solid var(--yoya-table-border, var(--yoya-border))',
       whiteSpace: 'nowrap',
     });
 
@@ -486,9 +486,9 @@ class VTd extends Tag {
     super('td', null);
 
     this.styles({
-      padding: 'var(--islands-table-cell-padding, 12px 16px)',
-      borderBottom: '1px solid var(--islands-table-row-border, var(--islands-border))',
-      color: 'var(--islands-table-cell-color, var(--islands-text))',
+      padding: 'var(--yoya-table-cell-padding, 12px 16px)',
+      borderBottom: '1px solid var(--yoya-table-row-border, var(--yoya-border))',
+      color: 'var(--yoya-table-cell-color, var(--yoya-text))',
       verticalAlign: 'middle',
     });
 

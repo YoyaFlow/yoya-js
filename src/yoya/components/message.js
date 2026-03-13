@@ -57,7 +57,7 @@ class VMessage extends Tag {
       gap: '10px',
       padding: '12px 16px',
       borderRadius: '8px',
-      boxShadow: 'var(--islands-message-box-shadow, 0 4px 12px rgba(0,0,0,0.15))',
+      boxShadow: 'var(--yoya-message-box-shadow, 0 4px 12px rgba(0,0,0,0.15))',
       minWidth: '280px',
       maxWidth: '400px',
       animation: 'slideIn 0.3s ease',
@@ -79,24 +79,24 @@ class VMessage extends Tag {
   _applyTypeStyles() {
     const typeStyles = {
       success: {
-        background: 'var(--islands-message-success-bg)',
-        color: 'var(--islands-message-success-color)',
-        border: 'var(--islands-message-success-border)',
+        background: 'var(--yoya-message-success-bg)',
+        color: 'var(--yoya-message-success-color)',
+        border: 'var(--yoya-message-success-border)',
       },
       error: {
-        background: 'var(--islands-message-error-bg)',
-        color: 'var(--islands-message-error-color)',
-        border: 'var(--islands-message-error-border)',
+        background: 'var(--yoya-message-error-bg)',
+        color: 'var(--yoya-message-error-color)',
+        border: 'var(--yoya-message-error-border)',
       },
       warning: {
-        background: 'var(--islands-message-warning-bg)',
-        color: 'var(--islands-message-warning-color)',
-        border: 'var(--islands-message-warning-border)',
+        background: 'var(--yoya-message-warning-bg)',
+        color: 'var(--yoya-message-warning-color)',
+        border: 'var(--yoya-message-warning-border)',
       },
       info: {
-        background: 'var(--islands-message-info-bg)',
-        color: 'var(--islands-message-info-color)',
-        border: 'var(--islands-message-info-border)',
+        background: 'var(--yoya-message-info-bg)',
+        color: 'var(--yoya-message-info-color)',
+        border: 'var(--yoya-message-info-border)',
       }
     };
 
@@ -127,10 +127,10 @@ class VMessage extends Tag {
     this.child(span(icon => {
       icon.text(this._getTypeIcon());
       icon.styles({
-        fontSize: 'var(--islands-message-icon-size, 18px)',
+        fontSize: 'var(--yoya-message-icon-size, 18px)',
         fontWeight: 'bold',
         flexShrink: '0',
-        marginRight: 'var(--islands-message-icon-margin, 10px)',
+        marginRight: 'var(--yoya-message-icon-margin, 10px)',
       });
     }));
 
@@ -138,9 +138,9 @@ class VMessage extends Tag {
       text.text(this._content);
       text.styles({
         flex: 1,
-        fontSize: 'var(--islands-message-font-size, 14px)',
-        lineHeight: 'var(--islands-message-line-height, 1.5)',
-        color: 'var(--islands-message-text-color, inherit)',
+        fontSize: 'var(--yoya-message-font-size, 14px)',
+        lineHeight: 'var(--yoya-message-line-height, 1.5)',
+        color: 'var(--yoya-message-text-color, inherit)',
       });
     }));
 
@@ -148,19 +148,19 @@ class VMessage extends Tag {
       this.child(span(closeBtn => {
         closeBtn.text('×');
         closeBtn.styles({
-          fontSize: 'var(--islands-message-close-size, 20px)',
+          fontSize: 'var(--yoya-message-close-size, 20px)',
           cursor: 'pointer',
-          padding: 'var(--islands-message-close-padding, 0 4px)',
-          opacity: 'var(--islands-message-close-opacity, 0.7)',
+          padding: 'var(--yoya-message-close-padding, 0 4px)',
+          opacity: 'var(--yoya-message-close-opacity, 0.7)',
           transition: 'opacity 0.2s',
           flexShrink: '0',
-          color: 'var(--islands-message-close-color, inherit)',
+          color: 'var(--yoya-message-close-color, inherit)',
         });
         closeBtn.on('mouseenter', () => {
-          closeBtn.style('opacity', 'var(--islands-message-close-hover-opacity, 1)');
+          closeBtn.style('opacity', 'var(--yoya-message-close-hover-opacity, 1)');
         });
         closeBtn.on('mouseleave', () => {
-          closeBtn.style('opacity', 'var(--islands-message-close-opacity, 0.7)');
+          closeBtn.style('opacity', 'var(--yoya-message-close-opacity, 0.7)');
         });
         closeBtn.on('click', (e) => {
           e.stopPropagation();
@@ -296,12 +296,12 @@ class VMessageContainer extends Tag {
 
     this.styles({
       position: 'fixed',
-      zIndex: 'var(--islands-message-z-index, 9999)',
+      zIndex: 'var(--yoya-message-z-index, 9999)',
       display: 'flex',
       flexDirection: 'column',
-      gap: 'var(--islands-message-gap, 10px)',
-      padding: 'var(--islands-message-container-padding, 16px)',
-      maxWidth: 'var(--islands-message-max-width, 420px)',
+      gap: 'var(--yoya-message-gap, 10px)',
+      padding: 'var(--yoya-message-container-padding, 16px)',
+      maxWidth: 'var(--yoya-message-max-width, 420px)',
     });
 
     this._applyPosition();

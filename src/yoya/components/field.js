@@ -68,15 +68,15 @@ class VField extends Tag {
     this.styles({
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 'var(--islands-field-gap, 6px)',
+      gap: 'var(--yoya-field-gap, 6px)',
       padding: '0',
-      minWidth: 'var(--islands-field-min-width, 80px)',
-      minHeight: 'var(--islands-field-min-height, 32px)',
+      minWidth: 'var(--yoya-field-min-width, 80px)',
+      minHeight: 'var(--yoya-field-min-height, 32px)',
       position: 'relative',
       boxSizing: 'border-box',
       cursor: 'pointer',
-      fontSize: 'var(--islands-field-font-size, 14px)',
-      color: 'var(--islands-field-text-color, var(--islands-text, #333))',
+      fontSize: 'var(--yoya-field-font-size, 14px)',
+      color: 'var(--yoya-field-text-color, var(--yoya-text, #333))',
     });
   }
 
@@ -106,8 +106,8 @@ class VField extends Tag {
       host.clearStateStyles();
       if (disabled) {
         host.styles({
-          opacity: 'var(--islands-field-disabled-opacity, 0.5)',
-          cursor: 'var(--islands-field-disabled-cursor, not-allowed)',
+          opacity: 'var(--yoya-field-disabled-opacity, 0.5)',
+          cursor: 'var(--yoya-field-disabled-cursor, not-allowed)',
           pointerEvents: 'none',
         });
       } else {
@@ -122,7 +122,7 @@ class VField extends Tag {
     this.registerStateHandler('loading', (loading, host) => {
       host.clearStateStyles();
       host.style('pointerEvents', loading ? 'none' : 'auto');
-      host.style('opacity', loading ? 'var(--islands-field-loading-opacity, 0.7)' : '1');
+      host.style('opacity', loading ? 'var(--yoya-field-loading-opacity, 0.7)' : '1');
     });
   }
 
@@ -146,11 +146,11 @@ class VField extends Tag {
     // 编辑图标
     this._editIcon = span(e => {
       e.styles({
-        fontSize: 'var(--islands-field-edit-icon-size, 14px)',
-        color: 'var(--islands-field-edit-icon-color, #999)',
+        fontSize: 'var(--yoya-field-edit-icon-size, 14px)',
+        color: 'var(--yoya-field-edit-icon-color, #999)',
         opacity: '0',
         transition: 'opacity 0.2s',
-        marginLeft: 'var(--islands-field-edit-icon-margin, 4px)',
+        marginLeft: 'var(--yoya-field-edit-icon-margin, 4px)',
         cursor: 'pointer',
       });
       e.html('📝');
@@ -167,12 +167,12 @@ class VField extends Tag {
       s.styles({
         display: 'flex',
         alignItems: 'center',
-        gap: 'var(--islands-field-show-gap, 4px)',
-        height: 'var(--islands-field-show-height, 32px)',
-        padding: 'var(--islands-field-show-padding, 8px 12px)',
-        borderRadius: 'var(--islands-field-radius, 6px)',
-        border: 'var(--islands-field-show-border, 1px solid transparent)',
-        background: 'var(--islands-field-show-bg, transparent)',
+        gap: 'var(--yoya-field-show-gap, 4px)',
+        height: 'var(--yoya-field-show-height, 32px)',
+        padding: 'var(--yoya-field-show-padding, 8px 12px)',
+        borderRadius: 'var(--yoya-field-radius, 6px)',
+        border: 'var(--yoya-field-show-border, 1px solid transparent)',
+        background: 'var(--yoya-field-show-bg, transparent)',
         boxSizing: 'border-box',
         transition: 'background-color 0.2s, border-color 0.2s',
       });
@@ -228,46 +228,46 @@ class VField extends Tag {
     this._btnContainer = div(a => {
       a.styles({
         display: 'flex',
-        gap: 'var(--islands-field-btn-gap, 4px)',
+        gap: 'var(--yoya-field-btn-gap, 4px)',
       });
       a.child(button(save => {
         save.styles({
-          minWidth: 'var(--islands-field-btn-size, 24px)',
-          height: 'var(--islands-field-btn-size, 24px)',
-          padding: 'var(--islands-field-btn-padding, 0 6px)',
-          border: 'var(--islands-field-save-border, 1px solid #28a745)',
-          borderRadius: 'var(--islands-field-btn-radius, 4px)',
-          background: 'var(--islands-field-save-bg, #28a745)',
-          color: 'var(--islands-field-save-color, white)',
-          fontSize: 'var(--islands-field-btn-font-size, 11px)',
+          minWidth: 'var(--yoya-field-btn-size, 24px)',
+          height: 'var(--yoya-field-btn-size, 24px)',
+          padding: 'var(--yoya-field-btn-padding, 0 6px)',
+          border: 'var(--yoya-field-save-border, 1px solid #28a745)',
+          borderRadius: 'var(--yoya-field-btn-radius, 4px)',
+          background: 'var(--yoya-field-save-bg, #28a745)',
+          color: 'var(--yoya-field-save-color, white)',
+          fontSize: 'var(--yoya-field-btn-font-size, 11px)',
           cursor: 'pointer',
           transition: 'all 0.2s',
         });
         save.text('✓');
         save.on('mouseenter', () => {
           save.styles({
-            background: 'var(--islands-field-save-hover-bg, #218838)',
+            background: 'var(--yoya-field-save-hover-bg, #218838)',
           });
         });
         save.on('click', (ev) => { ev.stopPropagation(); that._handleSave(); });
       }));
       a.child(button(cancel => {
         cancel.styles({
-          minWidth: 'var(--islands-field-btn-size, 24px)',
-          height: 'var(--islands-field-btn-size, 24px)',
-          padding: 'var(--islands-field-btn-padding, 0 6px)',
-          border: 'var(--islands-field-cancel-border, 1px solid #e0e0e0)',
-          borderRadius: 'var(--islands-field-btn-radius, 4px)',
-          background: 'var(--islands-field-cancel-bg, white)',
-          color: 'var(--islands-field-cancel-color, #666)',
-          fontSize: 'var(--islands-field-btn-font-size, 11px)',
+          minWidth: 'var(--yoya-field-btn-size, 24px)',
+          height: 'var(--yoya-field-btn-size, 24px)',
+          padding: 'var(--yoya-field-btn-padding, 0 6px)',
+          border: 'var(--yoya-field-cancel-border, 1px solid #e0e0e0)',
+          borderRadius: 'var(--yoya-field-btn-radius, 4px)',
+          background: 'var(--yoya-field-cancel-bg, white)',
+          color: 'var(--yoya-field-cancel-color, #666)',
+          fontSize: 'var(--yoya-field-btn-font-size, 11px)',
           cursor: 'pointer',
           transition: 'all 0.2s',
         });
         cancel.text('✕');
         cancel.on('mouseenter', () => {
           cancel.styles({
-            background: 'var(--islands-field-cancel-hover-bg, #f5f5f5)',
+            background: 'var(--yoya-field-cancel-hover-bg, #f5f5f5)',
           });
         });
         cancel.on('click', (ev) => { ev.stopPropagation(); that._handleCancel(); });
@@ -281,14 +281,14 @@ class VField extends Tag {
       e.styles({
         display: 'none',
         alignItems: 'center',
-        gap: 'var(--islands-field-edit-gap, 6px)',
+        gap: 'var(--yoya-field-edit-gap, 6px)',
         width: '100%',
         boxSizing: 'border-box',
-        padding: 'var(--islands-field-edit-padding, 4px)',
-        background: 'var(--islands-field-edit-bg, white)',
-        borderRadius: 'var(--islands-field-radius, 6px)',
-        border: 'var(--islands-field-edit-border, 1px solid var(--islands-border, #e0e0e0))',
-        boxShadow: 'var(--islands-field-edit-shadow, 0 2px 8px rgba(0,0,0,0.1))',
+        padding: 'var(--yoya-field-edit-padding, 4px)',
+        background: 'var(--yoya-field-edit-bg, white)',
+        borderRadius: 'var(--yoya-field-radius, 6px)',
+        border: 'var(--yoya-field-edit-border, 1px solid var(--yoya-border, #e0e0e0))',
+        boxShadow: 'var(--yoya-field-edit-shadow, 0 2px 8px rgba(0,0,0,0.1))',
       });
       e.child(this._editEl);
       // 按钮（手动保存模式）

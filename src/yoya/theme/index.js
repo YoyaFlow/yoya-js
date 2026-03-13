@@ -27,6 +27,10 @@ const themeRegistry = new Map();
 let currentThemeId = null;
 let currentMode = 'auto'; // 'auto' | 'light' | 'dark'
 
+// 已创建的组件实例引用（用于主题切换时重新应用样式）
+const componentInstances = new WeakSet();
+const componentInstanceRefs = new Set();
+
 // localStorage 键名
 const STORAGE_KEY_THEME = 'yoya-theme';
 const STORAGE_KEY_MODE = 'yoya-mode';
@@ -406,6 +410,7 @@ export function applyTheme(theme, save = true) {
 export function switchTheme(themeId) {
   const theme = getThemeWithMode(themeId, currentMode === 'auto' ? null : currentMode);
   if (theme) {
+    // 应用新主题
     applyTheme(theme, true);
     return true;
   }

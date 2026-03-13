@@ -58,14 +58,14 @@ class VInput extends Tag {
       alignItems: 'center',
       width: '100%',
       maxWidth: '100%',
-      fontSize: 'var(--islands-input-font-size, 14px)',
-      borderRadius: 'var(--islands-input-radius, 6px)',
-      border: '1px solid var(--islands-input-border, var(--islands-border))',
-      background: 'var(--islands-input-bg, var(--islands-bg))',
-      color: 'var(--islands-input-text, var(--islands-text))',
+      fontSize: 'var(--yoya-input-font-size, 14px)',
+      borderRadius: 'var(--yoya-input-radius, 6px)',
+      border: '1px solid var(--yoya-input-border, var(--yoya-border))',
+      background: 'var(--yoya-input-bg, var(--yoya-bg))',
+      color: 'var(--yoya-input-text, var(--yoya-text))',
       transition: 'all 0.2s',
       outline: 'none',
-      height: 'var(--islands-input-height, 32px)',
+      height: 'var(--yoya-input-height, 32px)',
       boxSizing: 'border-box',
       cursor: 'text',
     });
@@ -86,7 +86,7 @@ class VInput extends Tag {
         minWidth: 0,
         width: '100%',
         height: '100%',
-        padding: 'var(--islands-input-padding, 8px 12px)',
+        padding: 'var(--yoya-input-padding, 8px 12px)',
       });
     });
 
@@ -113,8 +113,8 @@ class VInput extends Tag {
 
     // 点击外层容器时聚焦到 input
     this.on('click', () => {
-      if (this._inputEl) {
-        this._inputEl.focus();
+      if (this._inputEl && this._inputEl._el) {
+        this._inputEl._el.focus();
       }
     });
   }
@@ -153,7 +153,7 @@ class VInput extends Tag {
         host.styles({
           opacity: '0.5',
           cursor: 'not-allowed',
-          background: 'var(--islands-input-disabled-bg, var(--islands-bg-tertiary))',
+          background: 'var(--yoya-input-disabled-bg, var(--yoya-bg-tertiary))',
         });
         if (host._inputEl) {
           host._inputEl.attr('disabled', 'disabled');
@@ -162,7 +162,7 @@ class VInput extends Tag {
         host.styles({
           opacity: '1',
           cursor: 'text',
-          background: 'var(--islands-input-bg, var(--islands-bg))',
+          background: 'var(--yoya-input-bg, var(--yoya-bg))',
         });
         if (host._inputEl) {
           host._inputEl.attr('disabled', null);
@@ -182,8 +182,8 @@ class VInput extends Tag {
       host.clearStateStyles();  // 先清空状态样式
 
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, var(--islands-border-error))');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-bg, rgba(224, 82, 82, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, var(--yoya-border-error))');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-bg, rgba(224, 82, 82, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -250,19 +250,19 @@ class VInput extends Tag {
     this._size = s;
     const sizeStyles = {
       large: {
-        padding: 'var(--islands-input-padding-lg, 10px 16px)',
-        fontSize: 'var(--islands-input-font-size-lg, 16px)',
-        height: 'var(--islands-input-height-lg, 40px)',
+        padding: 'var(--yoya-input-padding-lg, 10px 16px)',
+        fontSize: 'var(--yoya-input-font-size-lg, 16px)',
+        height: 'var(--yoya-input-height-lg, 40px)',
       },
       default: {
-        padding: 'var(--islands-input-padding, 8px 12px)',
-        fontSize: 'var(--islands-input-font-size, 14px)',
-        height: 'var(--islands-input-height, 32px)',
+        padding: 'var(--yoya-input-padding, 8px 12px)',
+        fontSize: 'var(--yoya-input-font-size, 14px)',
+        height: 'var(--yoya-input-height, 32px)',
       },
       small: {
-        padding: 'var(--islands-input-padding-sm, 4px 8px)',
-        fontSize: 'var(--islands-input-font-size-sm, 12px)',
-        height: 'var(--islands-input-height-sm, 24px)',
+        padding: 'var(--yoya-input-padding-sm, 4px 8px)',
+        fontSize: 'var(--yoya-input-font-size-sm, 12px)',
+        height: 'var(--yoya-input-height-sm, 24px)',
       },
     };
     const styles = sizeStyles[s] || sizeStyles.default;
@@ -309,6 +309,22 @@ class VInput extends Tag {
       this._inputEl.blur();
     }
     return this;
+  }
+
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  readonly(value = true) {
+    return this.setState('readonly', value);
+  }
+
+  error(value = true) {
+    return this.setState('error', value);
+  }
+
+  loading(value = true) {
+    return this.setState('loading', value);
   }
 }
 
@@ -362,7 +378,28 @@ class VSelect extends Tag {
   // 重写 setup 方法，字符串作为 placeholder 处理
   setup(setup) {
     if (typeof setup === 'function') {
-      setup(this);
+      // 使用 Proxy 拦截属性赋值
+      const handler = {
+        set: (target, prop, value) => {
+          if (prop === 'options') {
+            target.options(value);
+          } else if (prop === 'value') {
+            target.value(value);
+          } else if (prop === 'placeholder') {
+            target.placeholder(value);
+          } else if (prop.startsWith('on') && typeof value === 'function') {
+            const eventName = prop.slice(2).toLowerCase();
+            if (eventName === 'change') {
+              target.onChange(value);
+            }
+          } else {
+            target[prop] = value;
+          }
+          return true;
+        }
+      };
+      const proxy = new Proxy(this, handler);
+      setup(proxy);
     } else if (typeof setup === 'string') {
       // 字符串作为 placeholder
       this._placeholder = setup;
@@ -372,19 +409,52 @@ class VSelect extends Tag {
     return this;
   }
 
+  // 重写 _setupObject 处理 options 等属性
+  _setupObject(config) {
+    // 处理 options
+    if (config.options) {
+      this.options(config.options);
+    }
+    // 处理 value
+    if (config.value !== undefined) {
+      this.value(config.value);
+    }
+    // 处理 placeholder
+    if (config.placeholder) {
+      this.placeholder(config.placeholder);
+    }
+    // 处理事件
+    for (const [key, value] of Object.entries(config)) {
+      if (key.startsWith('on') && typeof value === 'function') {
+        const eventName = key.slice(2).toLowerCase();
+        if (eventName === 'change') {
+          this.onChange(value);
+        }
+      }
+    }
+    // 调用父类的 _setupObject 处理 class/className/style 等
+    if (config.class || config.className || config.style) {
+      const parentSetup = {};
+      if (config.class) parentSetup.class = config.class;
+      if (config.className) parentSetup.className = config.className;
+      if (config.style) parentSetup.style = config.style;
+      Tag.prototype._setupObject.call(this, parentSetup);
+    }
+  }
+
   _setupBaseStyles() {
     this.styles({
       display: 'inline-flex',
       alignItems: 'center',
       width: '100%',
-      fontSize: 'var(--islands-select-font-size, 14px)',
-      borderRadius: 'var(--islands-select-radius, 6px)',
-      border: '1px solid var(--islands-select-border, var(--islands-border, #e0e0e0))',
-      background: 'var(--islands-select-bg, var(--islands-bg, white))',
-      color: 'var(--islands-select-text, var(--islands-text, #333))',
+      fontSize: 'var(--yoya-select-font-size, 14px)',
+      borderRadius: 'var(--yoya-select-radius, 6px)',
+      border: '1px solid var(--yoya-select-border, var(--yoya-border, #e0e0e0))',
+      background: 'var(--yoya-select-bg, var(--yoya-bg, white))',
+      color: 'var(--yoya-select-text, var(--yoya-text, #333))',
       transition: 'all 0.2s',
       outline: 'none',
-      height: 'var(--islands-select-height, 32px)',
+      height: 'var(--yoya-select-height, 32px)',
       boxSizing: 'border-box',
       cursor: 'pointer',
       position: 'relative',
@@ -435,7 +505,7 @@ class VSelect extends Tag {
         host.styles({
           opacity: '0.5',
           cursor: 'not-allowed',
-          background: 'var(--islands-select-disabled-bg, var(--islands-bg-tertiary, #f5f5f5))',
+          background: 'var(--yoya-select-disabled-bg, var(--yoya-bg-tertiary, #f5f5f5))',
         });
         if (host._selectEl) {
           host._selectEl.attr('disabled', 'disabled');
@@ -455,8 +525,8 @@ class VSelect extends Tag {
       host.clearStateStyles();  // 先清空状态样式
 
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -543,19 +613,19 @@ class VSelect extends Tag {
     if (s === undefined) return this._size;
     const sizeStyles = {
       large: {
-        padding: 'var(--islands-select-padding-lg, 10px 16px)',
-        fontSize: 'var(--islands-select-font-size-lg, 16px)',
-        height: 'var(--islands-select-height-lg, 40px)',
+        padding: 'var(--yoya-select-padding-lg, 10px 16px)',
+        fontSize: 'var(--yoya-select-font-size-lg, 16px)',
+        height: 'var(--yoya-select-height-lg, 40px)',
       },
       default: {
-        padding: 'var(--islands-select-padding, 8px 12px)',
-        fontSize: 'var(--islands-select-font-size, 14px)',
-        height: 'var(--islands-select-height, 32px)',
+        padding: 'var(--yoya-select-padding, 8px 12px)',
+        fontSize: 'var(--yoya-select-font-size, 14px)',
+        height: 'var(--yoya-select-height, 32px)',
       },
       small: {
-        padding: 'var(--islands-select-padding-sm, 4px 8px)',
-        fontSize: 'var(--islands-select-font-size-sm, 12px)',
-        height: 'var(--islands-select-height-sm, 24px)',
+        padding: 'var(--yoya-select-padding-sm, 4px 8px)',
+        fontSize: 'var(--yoya-select-font-size-sm, 12px)',
+        height: 'var(--yoya-select-height-sm, 24px)',
       },
     };
 
@@ -563,6 +633,25 @@ class VSelect extends Tag {
     const styles = sizeStyles[s] || sizeStyles.default;
     this.styles(styles);
     return this;
+  }
+
+  onChange(handler) {
+    if (this._selectEl) {
+      const oldValue = this._value;
+      this._selectEl.on('change', (e) => {
+        const newValue = this._selectEl._el?.value || this._value;
+        handler({ event: e, value: newValue, oldValue, target: this });
+      });
+    }
+    return this;
+  }
+
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  error(value = true) {
+    return this.setState('error', value);
   }
 }
 
@@ -629,15 +718,15 @@ class VTextarea extends Tag {
     this.styles({
       display: 'inline-flex',
       width: '100%',
-      fontSize: 'var(--islands-textarea-font-size, 14px)',
-      borderRadius: 'var(--islands-textarea-radius, 6px)',
-      border: '1px solid var(--islands-textarea-border, var(--islands-border, #e0e0e0))',
-      background: 'var(--islands-textarea-bg, var(--islands-bg, white))',
-      color: 'var(--islands-textarea-text, var(--islands-text, #333))',
+      fontSize: 'var(--yoya-textarea-font-size, 14px)',
+      borderRadius: 'var(--yoya-textarea-radius, 6px)',
+      border: '1px solid var(--yoya-textarea-border, var(--yoya-border, #e0e0e0))',
+      background: 'var(--yoya-textarea-bg, var(--yoya-bg, white))',
+      color: 'var(--yoya-textarea-text, var(--yoya-text, #333))',
       transition: 'all 0.2s',
       outline: 'none',
       boxSizing: 'border-box',
-      minHeight: 'var(--islands-textarea-min-height, 80px)',
+      minHeight: 'var(--yoya-textarea-min-height, 80px)',
       cursor: 'text',
     });
   }
@@ -650,7 +739,7 @@ class VTextarea extends Tag {
         host.styles({
           opacity: '0.5',
           cursor: 'not-allowed',
-          background: 'var(--islands-textarea-disabled-bg, var(--islands-bg-tertiary, #f5f5f5))',
+          background: 'var(--yoya-textarea-disabled-bg, var(--yoya-bg-tertiary, #f5f5f5))',
         });
         if (host._textareaEl) {
           host._textareaEl.attr('disabled', 'disabled');
@@ -676,8 +765,8 @@ class VTextarea extends Tag {
       host.clearStateStyles();  // 先清空状态样式
 
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -702,7 +791,7 @@ class VTextarea extends Tag {
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
-        padding: 'var(--islands-textarea-padding, 8px 12px)',
+        padding: 'var(--yoya-textarea-padding, 8px 12px)',
       });
       t.attr('rows', this._rows);
 
@@ -720,8 +809,8 @@ class VTextarea extends Tag {
 
     // 点击外层容器时聚焦到 textarea
     this.on('click', () => {
-      if (this._textareaEl) {
-        this._textareaEl.focus();
+      if (this._textareaEl && this._textareaEl._el) {
+        this._textareaEl._el.focus();
       }
     });
   }
@@ -799,6 +888,18 @@ class VTextarea extends Tag {
     }
     return this;
   }
+
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  readonly(value = true) {
+    return this.setState('readonly', value);
+  }
+
+  error(value = true) {
+    return this.setState('error', value);
+  }
 }
 
 function vTextarea(setup = null) {
@@ -857,10 +958,10 @@ class VCheckbox extends Tag {
     this.styles({
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 'var(--islands-gap-sm, 6px)',
+      gap: 'var(--yoya-gap-sm, 6px)',
       cursor: 'pointer',
-      fontSize: 'var(--islands-checkbox-font-size, 14px)',
-      color: 'var(--islands-checkbox-text, var(--islands-text, #333))',
+      fontSize: 'var(--yoya-checkbox-font-size, 14px)',
+      color: 'var(--yoya-checkbox-text, var(--yoya-text, #333))',
       userSelect: 'none',
     });
   }
@@ -906,7 +1007,7 @@ class VCheckbox extends Tag {
       host.clearStateStyles();  // 先清空状态样式
 
       if (hasError) {
-        host.style('color', 'var(--islands-error, #dc3545)');
+        host.style('color', 'var(--yoya-error, #dc3545)');
       }
     });
   }
@@ -1071,10 +1172,10 @@ class VSwitch extends Tag {
       s.styles({
         display: 'inline-flex',
         alignItems: 'center',
-        width: 'var(--islands-switch-width, 44px)',
-        height: 'var(--islands-switch-height, 22px)',
-        borderRadius: 'var(--islands-switch-radius, 11px)',
-        background: this._checked ? 'var(--islands-primary, #667eea)' : 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))',
+        width: 'var(--yoya-switch-width, 44px)',
+        height: 'var(--yoya-switch-height, 22px)',
+        borderRadius: 'var(--yoya-switch-radius, 11px)',
+        background: this._checked ? 'var(--yoya-primary, #667eea)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))',
         padding: '2px',
         cursor: 'pointer',
         transition: 'all 0.2s',
@@ -1139,7 +1240,7 @@ class VSwitch extends Tag {
       host._checked = checked;
       if (host._switchEl) {
         host._switchEl.style('background',
-          checked ? 'var(--islands-primary, #667eea)' : 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))');
+          checked ? 'var(--yoya-primary, #667eea)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))');
       }
       // 更新滑块位置
       const knob = host._switchEl?._children?.find(c => c._isKnob);
@@ -1182,8 +1283,8 @@ class VSwitch extends Tag {
 
     const size = sizes[value] || sizes.default;
     this.styles({
-      width: `var(--islands-switch-width, ${size.width})`,
-      height: `var(--islands-switch-height, ${size.height})`,
+      width: `var(--yoya-switch-width, ${size.width})`,
+      height: `var(--yoya-switch-height, ${size.height})`,
     });
     return this;
   }
@@ -1217,7 +1318,7 @@ class VForm extends Tag {
     this.styles({
       display: 'flex',
       flexDirection: 'column',
-      gap: 'var(--islands-form-gap, 16px)',
+      gap: 'var(--yoya-form-gap, 16px)',
       width: '100%',
     });
   }
@@ -1342,16 +1443,85 @@ class VCheckboxes extends Tag {
       this.setup(setup);
     }
 
-    // 7. 创建内部元素
+    // 7. 创建内部元素（在 setup 之后，确保 options 已设置）
     this._updateContent();
+  }
+
+  // 重写 setup 方法，支持属性赋值
+  setup(setup) {
+    if (typeof setup === 'function') {
+      // 使用 Proxy 拦截属性赋值
+      const handler = {
+        set: (target, prop, value) => {
+          if (prop === 'options') {
+            target.options(value);
+          } else if (prop === 'value') {
+            target.value(value);
+          } else if (prop === 'multiple') {
+            target.multiple(value);
+          } else if (prop === 'layout') {
+            target.layout(value);
+          } else if (prop === 'columns') {
+            target.columns(value);
+          } else if (prop === 'disabled') {
+            target.disabled(value);
+          } else if (prop === 'error') {
+            target.error(value);
+          } else if (prop.startsWith('on') && typeof value === 'function') {
+            const eventName = prop.slice(2).toLowerCase();
+            if (eventName === 'change') {
+              target.onChange(value);
+            }
+          } else {
+            target[prop] = value;
+          }
+          return true;
+        }
+      };
+      const proxy = new Proxy(this, handler);
+      setup(proxy);
+    } else if (typeof setup === 'object' && setup !== null) {
+      this._setupObject(setup);
+    }
+    return this;
+  }
+
+  // 处理对象配置
+  _setupObject(config) {
+    if (config.options) {
+      this.options(config.options);
+    }
+    if (config.value !== undefined) {
+      this.value(config.value);
+    }
+    if (config.multiple !== undefined) {
+      this.multiple(config.multiple);
+    }
+    if (config.layout !== undefined) {
+      this.layout(config.layout);
+    }
+    if (config.columns !== undefined) {
+      this.columns(config.columns);
+    }
+    if (config.onChange && typeof config.onChange === 'function') {
+      this.onChange(config.onChange);
+    }
+    // 调用父类处理 class/className/style
+    if (config.class || config.className || config.style) {
+      const parentSetup = {};
+      if (config.class) parentSetup.class = config.class;
+      if (config.className) parentSetup.className = config.className;
+      if (config.style) parentSetup.style = config.style;
+      Tag.prototype._setupObject.call(this, parentSetup);
+    }
   }
 
   _setupBaseStyles() {
     this.styles({
       display: 'flex',
-      gap: 'var(--islands-gap, 12px)',
-      fontSize: 'var(--islands-checkbox-font-size, 14px)',
-      color: 'var(--islands-checkbox-text, var(--islands-text, #333))',
+      gap: 'var(--yoya-gap, 12px)',
+      fontSize: 'var(--yoya-checkbox-font-size, 14px)',
+      color: 'var(--yoya-checkbox-text, var(--yoya-text, #333))',
     });
   }
 
@@ -1388,8 +1558,8 @@ class VCheckboxes extends Tag {
       host.clearStateStyles();
 
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -1465,17 +1635,17 @@ class VCheckboxes extends Tag {
     const layoutStyles = {
       column: {
         flexDirection: 'column',
-        gap: 'var(--islands-gap, 12px)',
+        gap: 'var(--yoya-gap, 12px)',
       },
       row: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 'var(--islands-gap, 12px)',
+        gap: 'var(--yoya-gap, 12px)',
       },
       grid: {
         display: 'grid',
         gridTemplateColumns: `repeat(${this._columns}, 1fr)`,
-        gap: 'var(--islands-gap, 12px)',
+        gap: 'var(--yoya-gap, 12px)',
       },
     };
 
@@ -1647,8 +1817,8 @@ class VTimer extends Tag {
     this.registerStateHandler('error', (hasError, host) => {
       host.clearStateStyles();
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -1672,10 +1842,10 @@ class VTimer extends Tag {
       i.styles({
         padding: '8px 12px',
         borderRadius: '6px',
-        border: '1px solid var(--islands-border, #d1d5db)',
+        border: '1px solid var(--yoya-border, #d1d5db)',
         background: 'white',
         fontSize: '14px',
-        color: 'var(--islands-text, #333)',
+        color: 'var(--yoya-text, #333)',
         outline: 'none',
         cursor: 'pointer',
       });
@@ -1845,8 +2015,8 @@ class VTimer2 extends Tag {
     this.registerStateHandler('error', (hasError, host) => {
       host.clearStateStyles();
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -1871,10 +2041,10 @@ class VTimer2 extends Tag {
       i.styles({
         padding: '8px 12px',
         borderRadius: '6px',
-        border: '1px solid var(--islands-border, #d1d5db)',
+        border: '1px solid var(--yoya-border, #d1d5db)',
         background: 'white',
         fontSize: '14px',
-        color: 'var(--islands-text, #333)',
+        color: 'var(--yoya-text, #333)',
         outline: 'none',
         cursor: 'pointer',
       });
@@ -1896,10 +2066,10 @@ class VTimer2 extends Tag {
       i.styles({
         padding: '8px 12px',
         borderRadius: '6px',
-        border: '1px solid var(--islands-border, #d1d5db)',
+        border: '1px solid var(--yoya-border, #d1d5db)',
         background: 'white',
         fontSize: '14px',
-        color: 'var(--islands-text, #333)',
+        color: 'var(--yoya-text, #333)',
         outline: 'none',
         cursor: 'pointer',
       });

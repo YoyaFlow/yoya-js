@@ -52,12 +52,12 @@ class VMenu extends Tag {
     super('div', null);
     this.styles({
       display: 'inline-block',
-      background: 'var(--islands-menu-bg, var(--islands-bg))',
-      borderRadius: 'var(--islands-menu-radius, var(--islands-radius-md))',
-      boxShadow: 'var(--islands-menu-shadow, var(--islands-shadow-dropdown))',
-      padding: 'var(--islands-menu-padding, 8px) 0',
-      minWidth: 'var(--islands-menu-min-width, 160px)',
-      border: 'var(--islands-menu-border, 1px solid var(--islands-border))',
+      background: 'var(--yoya-menu-bg, var(--yoya-bg))',
+      borderRadius: 'var(--yoya-menu-radius, var(--yoya-radius-md))',
+      boxShadow: 'var(--yoya-menu-shadow, var(--yoya-shadow-dropdown))',
+      padding: 'var(--yoya-menu-padding, 8px) 0',
+      minWidth: 'var(--yoya-menu-min-width, 160px)',
+      border: 'var(--yoya-menu-border, 1px solid var(--yoya-border))',
       pointerEvents: 'auto',
     });
 
@@ -197,15 +197,15 @@ class VMenuItem extends Tag {
     this._registerStateHandlers();
 
     this.styles({
-      padding: 'var(--islands-menu-item-padding, 10px) var(--islands-menu-item-horizontal-padding, 16px)',
+      padding: 'var(--yoya-menu-item-padding, 10px) var(--yoya-menu-item-horizontal-padding, 16px)',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      gap: 'var(--islands-menu-item-gap, 10px)',
+      gap: 'var(--yoya-menu-item-gap, 10px)',
       transition: 'background-color 0.2s',
-      borderRadius: 'var(--islands-menu-item-radius, 4px)',
-      color: 'var(--islands-menu-item-color, var(--islands-text))',
-      fontSize: 'var(--islands-menu-item-font-size, 13px)',
+      borderRadius: 'var(--yoya-menu-item-radius, 4px)',
+      color: 'var(--yoya-menu-item-color, var(--yoya-text))',
+      fontSize: 'var(--yoya-menu-item-font-size, 13px)',
       background: 'transparent',
     });
 
@@ -235,14 +235,14 @@ class VMenuItem extends Tag {
       const el = host._boundElement;
       if (enabled) {
         host.styles({
-          opacity: 'var(--islands-menu-item-disabled-opacity, 0.5)',
-          cursor: 'var(--islands-menu-item-disabled-cursor, not-allowed)',
+          opacity: 'var(--yoya-menu-item-disabled-opacity, 0.5)',
+          cursor: 'var(--yoya-menu-item-disabled-cursor, not-allowed)',
           pointerEvents: 'none',
-          color: 'var(--islands-menu-item-disabled-color, var(--islands-text-secondary))',
+          color: 'var(--yoya-menu-item-disabled-color, var(--yoya-text-secondary))',
         });
         if (el) {
-          el.style.opacity = 'var(--islands-menu-item-disabled-opacity, 0.5)';
-          el.style.cursor = 'var(--islands-menu-item-disabled-cursor, not-allowed)';
+          el.style.opacity = 'var(--yoya-menu-item-disabled-opacity, 0.5)';
+          el.style.cursor = 'var(--yoya-menu-item-disabled-cursor, not-allowed)';
           el.style.pointerEvents = 'none';
         }
       } else {
@@ -263,14 +263,14 @@ class VMenuItem extends Tag {
       const el = host._boundElement;
       if (enabled) {
         host.styles({
-          background: 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha))',
-          fontWeight: 'var(--islands-menu-item-active-font-weight, 500)',
-          color: 'var(--islands-menu-item-active-color, var(--islands-primary))',
+          background: 'var(--yoya-menu-item-active-bg, var(--yoya-primary-alpha))',
+          fontWeight: 'var(--yoya-menu-item-active-font-weight, 500)',
+          color: 'var(--yoya-menu-item-active-color, var(--yoya-primary))',
         });
         if (el) {
-          el.style.background = 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha))';
-          el.style.fontWeight = 'var(--islands-menu-item-active-font-weight, 500)';
-          el.style.color = 'var(--islands-menu-item-active-color, var(--islands-primary))';
+          el.style.background = 'var(--yoya-menu-item-active-bg, var(--yoya-primary-alpha))';
+          el.style.fontWeight = 'var(--yoya-menu-item-active-font-weight, 500)';
+          el.style.color = 'var(--yoya-menu-item-active-color, var(--yoya-primary))';
         }
       } else {
         host.style('background', '');
@@ -287,9 +287,9 @@ class VMenuItem extends Tag {
     this.registerStateHandler('danger', (enabled, host) => {
       const el = host._boundElement;
       if (enabled) {
-        host.style('color', 'var(--islands-menu-item-danger-color, var(--islands-error))');
+        host.style('color', 'var(--yoya-menu-item-danger-color, var(--yoya-error))');
         if (el) {
-          el.style.color = 'var(--islands-menu-item-danger-color, var(--islands-error))';
+          el.style.color = 'var(--yoya-menu-item-danger-color, var(--yoya-error))';
         }
       } else {
         host.style('color', '');
@@ -314,7 +314,7 @@ class VMenuItem extends Tag {
           submenuContainer._boundElement.style.display = 'flex';
           arrowEl._boundElement.style.transform = 'rotate(90deg)';
           // 展开时高亮父菜单项
-          host.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))');
+          host.style('background', 'var(--yoya-menu-item-hover-bg, var(--yoya-hover-bg))');
         } else {
           submenuContainer._boundElement.style.display = 'none';
           arrowEl._boundElement.style.transform = 'rotate(0deg)';
@@ -349,9 +349,9 @@ class VMenuItem extends Tag {
 
     this.on('mouseenter', () => {
       if (!self.hasState('disabled')) {
-        self.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))');
+        self.style('background', 'var(--yoya-menu-item-hover-bg, var(--yoya-hover-bg))');
         if (self._boundElement) {
-          self._boundElement.style.background = 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))';
+          self._boundElement.style.background = 'var(--yoya-menu-item-hover-bg, var(--yoya-hover-bg))';
         }
       }
     }).on('mouseleave', () => {
@@ -675,9 +675,9 @@ class VMenuDivider extends Tag {
     super('hr', setup);
     this.styles({
       border: 'none',
-      height: 'var(--islands-menu-divider-height, 1px)',
-      background: 'var(--islands-menu-divider-bg, var(--islands-border))',
-      margin: 'var(--islands-menu-divider-margin, 8px) 0',
+      height: 'var(--yoya-menu-divider-height, 1px)',
+      background: 'var(--yoya-menu-divider-bg, var(--yoya-border))',
+      margin: 'var(--yoya-menu-divider-margin, 8px) 0',
     });
   }
 }
@@ -762,12 +762,12 @@ class VMenuGroup extends Tag {
         label.text(this._label);
         label.styles({
           display: 'block',
-          padding: 'var(--islands-menu-group-label-padding, 8px 16px 4px)',
-          fontSize: 'var(--islands-menu-group-label-font-size, 12px)',
-          color: 'var(--islands-menu-group-label-color, var(--islands-text-tertiary))',
-          fontWeight: 'var(--islands-menu-group-label-font-weight, 500)',
+          padding: 'var(--yoya-menu-group-label-padding, 8px 16px 4px)',
+          fontSize: 'var(--yoya-menu-group-label-font-size, 12px)',
+          color: 'var(--yoya-menu-group-label-color, var(--yoya-text-tertiary))',
+          fontWeight: 'var(--yoya-menu-group-label-font-weight, 500)',
           textTransform: 'uppercase',
-          letterSpacing: 'var(--islands-menu-group-label-letter-spacing, 0.5px)',
+          letterSpacing: 'var(--yoya-menu-group-label-letter-spacing, 0.5px)',
         });
         label._isLabel = true;
       });
@@ -878,21 +878,21 @@ class VDropdownMenu extends Tag {
     this._triggerWrap = div(wrap => {
       wrap.styles({
         cursor: 'pointer',
-        padding: 'var(--islands-dropdown-trigger-padding, 8px 16px)',
-        background: 'var(--islands-dropdown-trigger-bg, var(--islands-primary))',
-        color: 'var(--islands-dropdown-trigger-color, white)',
-        borderRadius: 'var(--islands-dropdown-trigger-radius, 6px)',
+        padding: 'var(--yoya-dropdown-trigger-padding, 8px 16px)',
+        background: 'var(--yoya-dropdown-trigger-bg, var(--yoya-primary))',
+        color: 'var(--yoya-dropdown-trigger-color, white)',
+        borderRadius: 'var(--yoya-dropdown-trigger-radius, 6px)',
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 'var(--islands-dropdown-trigger-gap, 6px)',
+        gap: 'var(--yoya-dropdown-trigger-gap, 6px)',
         userSelect: 'none',
         transition: 'all 0.2s',
       });
       wrap.on('mouseenter', () => {
-        wrap.style('background', 'var(--islands-dropdown-trigger-hover-bg, var(--islands-primary-dark))');
+        wrap.style('background', 'var(--yoya-dropdown-trigger-hover-bg, var(--yoya-primary-dark))');
       });
       wrap.on('mouseleave', () => {
-        wrap.style('background', 'var(--islands-dropdown-trigger-bg, var(--islands-primary))');
+        wrap.style('background', 'var(--yoya-dropdown-trigger-bg, var(--yoya-primary))');
       });
 
       if (typeof this._triggerContent === 'string') {
@@ -903,7 +903,7 @@ class VDropdownMenu extends Tag {
 
       wrap.span(arrow => {
         arrow.text('▼');
-        arrow.styles({ fontSize: 'var(--islands-dropdown-arrow-size, 10px)', transition: 'transform 0.2s' });
+        arrow.styles({ fontSize: 'var(--yoya-dropdown-arrow-size, 10px)', transition: 'transform 0.2s' });
         this._arrow = arrow;
       });
 
@@ -919,14 +919,14 @@ class VDropdownMenu extends Tag {
       this._menuContainer = div(menuWrap => {
         menuWrap.styles({
           position: 'absolute',
-          top: 'calc(100% + var(--islands-dropdown-menu-offset, 4px))',
+          top: 'calc(100% + var(--yoya-dropdown-menu-offset, 4px))',
           left: '0',
-          minWidth: 'var(--islands-dropdown-menu-min-width, 160px)',
-          background: 'var(--islands-dropdown-menu-bg, var(--islands-bg))',
-          borderRadius: 'var(--islands-dropdown-menu-radius, var(--islands-radius-md))',
-          boxShadow: 'var(--islands-dropdown-menu-shadow, var(--islands-shadow-dropdown))',
-          padding: 'var(--islands-dropdown-menu-padding, 8px) 0',
-          zIndex: 'var(--islands-dropdown-z-index, 1000)',
+          minWidth: 'var(--yoya-dropdown-menu-min-width, 160px)',
+          background: 'var(--yoya-dropdown-menu-bg, var(--yoya-bg))',
+          borderRadius: 'var(--yoya-dropdown-menu-radius, var(--yoya-radius-md))',
+          boxShadow: 'var(--yoya-dropdown-menu-shadow, var(--yoya-shadow-dropdown))',
+          padding: 'var(--yoya-dropdown-menu-padding, 8px) 0',
+          zIndex: 'var(--yoya-dropdown-z-index, 1000)',
           display: 'none',
         });
 
@@ -985,14 +985,14 @@ class VContextMenu extends Tag {
     super('div', null);
     this.styles({
       position: 'fixed',
-      zIndex: 'var(--islands-context-menu-z-index, 9999)',
+      zIndex: 'var(--yoya-context-menu-z-index, 9999)',
       display: 'none',
-      background: 'var(--islands-context-menu-bg, var(--islands-bg))',
-      borderRadius: 'var(--islands-context-menu-radius, var(--islands-radius-md))',
-      boxShadow: 'var(--islands-context-menu-shadow, var(--islands-shadow-dropdown))',
-      padding: 'var(--islands-context-menu-padding, 8px) 0',
-      minWidth: 'var(--islands-context-menu-min-width, 160px)',
-      border: 'var(--islands-context-menu-border, 1px solid var(--islands-border))',
+      background: 'var(--yoya-context-menu-bg, var(--yoya-bg))',
+      borderRadius: 'var(--yoya-context-menu-radius, var(--yoya-radius-md))',
+      boxShadow: 'var(--yoya-context-menu-shadow, var(--yoya-shadow-dropdown))',
+      padding: 'var(--yoya-context-menu-padding, 8px) 0',
+      minWidth: 'var(--yoya-context-menu-min-width, 160px)',
+      border: 'var(--yoya-context-menu-border, 1px solid var(--yoya-border))',
     });
     this._target = null;
     this._menu = null;
@@ -1272,7 +1272,7 @@ class VSubMenu extends Tag {
         flexDirection: 'column',
         marginLeft: '16px',
         paddingLeft: '8px',
-        borderLeft: '1px solid var(--islands-border, #e0e0e0)',
+        borderLeft: '1px solid var(--yoya-border, #e0e0e0)',
         marginTop: '4px',
       });
     });
@@ -1391,8 +1391,8 @@ class VSidebar extends Tag {
     this.registerStateAttrs(...this.constructor._stateAttrs);
 
     // 配置
-    this._width = 'var(--islands-sidebar-width, 240px)';
-    this._collapsedWidth = 'var(--islands-sidebar-collapsed-width, 64px)';
+    this._width = 'var(--yoya-sidebar-width, 240px)';
+    this._collapsedWidth = 'var(--yoya-sidebar-collapsed-width, 64px)';
 
     // 内部元素引用
     this._headerEl = null;
@@ -1435,8 +1435,8 @@ class VSidebar extends Tag {
       width: this._width,
       minWidth: this._width,
       height: '100%',
-      background: 'var(--islands-sidebar-bg, var(--islands-card-bg, white))',
-      borderRight: 'var(--islands-sidebar-border, 1px solid var(--islands-border, #e0e0e0))',
+      background: 'var(--yoya-sidebar-bg, var(--yoya-card-bg, white))',
+      borderRight: 'var(--yoya-sidebar-border, 1px solid var(--yoya-border, #e0e0e0))',
       transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'hidden',
       boxSizing: 'border-box',
@@ -1597,9 +1597,9 @@ class VSidebar extends Tag {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: 'var(--islands-sidebar-header-padding, 16px)',
-          borderBottom: 'var(--islands-sidebar-header-border, 1px solid var(--islands-border, #e0e0e0))',
-          background: 'var(--islands-sidebar-header-bg, var(--islands-bg-secondary, #f7f8fa))',
+          padding: 'var(--yoya-sidebar-header-padding, 16px)',
+          borderBottom: 'var(--yoya-sidebar-header-border, 1px solid var(--yoya-border, #e0e0e0))',
+          background: 'var(--yoya-sidebar-header-bg, var(--yoya-bg-secondary, #f7f8fa))',
         });
       });
       this.child(this._headerEl);
@@ -1628,7 +1628,7 @@ class VSidebar extends Tag {
           flex: 1,
           overflowY: 'auto',
           overflowX: 'hidden',
-          padding: 'var(--islands-sidebar-content-padding, 8px 0)',
+          padding: 'var(--yoya-sidebar-content-padding, 8px 0)',
         });
       });
       this.child(this._contentEl);
@@ -1678,9 +1678,9 @@ class VSidebar extends Tag {
         footer.styles({
           display: 'flex',
           alignItems: 'center',
-          padding: 'var(--islands-sidebar-footer-padding, 16px)',
-          borderTop: 'var(--islands-sidebar-footer-border, 1px solid var(--islands-border, #e0e0e0))',
-          background: 'var(--islands-sidebar-footer-bg, var(--islands-bg-secondary, #f7f8fa))',
+          padding: 'var(--yoya-sidebar-footer-padding, 16px)',
+          borderTop: 'var(--yoya-sidebar-footer-border, 1px solid var(--yoya-border, #e0e0e0))',
+          background: 'var(--yoya-sidebar-footer-bg, var(--yoya-bg-secondary, #f7f8fa))',
         });
       });
       this.child(this._footerEl);
@@ -1722,8 +1722,8 @@ class VSidebar extends Tag {
     }
     const el = vMenuDivider();
     el.styles({
-      marginLeft: 'var(--islands-sidebar-divider-margin, 8px)',
-      marginRight: 'var(--islands-sidebar-divider-margin, 8px)',
+      marginLeft: 'var(--yoya-sidebar-divider-margin, 8px)',
+      marginRight: 'var(--yoya-sidebar-divider-margin, 8px)',
     });
     this._contentEl.child(el);
     return this;
@@ -1797,26 +1797,26 @@ class VSidebar extends Tag {
         background: 'transparent',
         border: 'none',
         cursor: 'pointer',
-        padding: 'var(--islands-sidebar-toggle-padding, 8px)',
-        borderRadius: 'var(--islands-sidebar-toggle-radius, 6px)',
+        padding: 'var(--yoya-sidebar-toggle-padding, 8px)',
+        borderRadius: 'var(--yoya-sidebar-toggle-radius, 6px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         transition: 'all 0.2s ease',
-        color: 'var(--islands-text-secondary, #666)',
+        color: 'var(--yoya-text-secondary, #666)',
         fontSize: '16px',
       });
       btn.text('◀');
       btn.on('mouseenter', () => {
         btn.styles({
-          background: 'var(--islands-hover-bg, rgba(102, 126, 234, 0.1))',
-          color: 'var(--islands-primary, #667eea)',
+          background: 'var(--yoya-hover-bg, rgba(102, 126, 234, 0.1))',
+          color: 'var(--yoya-primary, #667eea)',
         });
       });
       btn.on('mouseleave', () => {
         btn.styles({
           background: 'transparent',
-          color: 'var(--islands-text-secondary, #666)',
+          color: 'var(--yoya-text-secondary, #666)',
         });
       });
       btn.on('click', () => {
@@ -1828,7 +1828,7 @@ class VSidebar extends Tag {
     this.registerStateInterceptor((stateName, value) => {
       if (stateName === 'collapsed' && this._toggleBtnEl && this._toggleBtnEl._boundElement) {
         setTimeout(() => {
-          this._toggleBtnEl.text(value ? '▶' : '◀');
+          this._toggleBtnEl.textContent(value ? '▶' : '◀');
           this._toggleBtnEl.styles({
             transform: value ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.3s ease',
@@ -1848,19 +1848,19 @@ class VSidebar extends Tag {
    */
   dark() {
     this.styles({
-      background: 'var(--islands-sidebar-bg-dark, var(--islands-bg-dark, #1a1a1a))',
-      borderRight: 'var(--islands-sidebar-border-dark, 1px solid var(--islands-border-dark, #333))',
+      background: 'var(--yoya-sidebar-bg-dark, var(--yoya-bg-dark, #1a1a1a))',
+      borderRight: 'var(--yoya-sidebar-border-dark, 1px solid var(--yoya-border-dark, #333))',
     });
     if (this._headerEl) {
       this._headerEl.styles({
-        background: 'var(--islands-sidebar-header-bg-dark, var(--islands-bg-dark-secondary, #2a2a2a))',
-        borderBottom: 'var(--islands-sidebar-header-border-dark, 1px solid var(--islands-border-dark, #333))',
+        background: 'var(--yoya-sidebar-header-bg-dark, var(--yoya-bg-dark-secondary, #2a2a2a))',
+        borderBottom: 'var(--yoya-sidebar-header-border-dark, 1px solid var(--yoya-border-dark, #333))',
       });
     }
     if (this._footerEl) {
       this._footerEl.styles({
-        background: 'var(--islands-sidebar-footer-bg-dark, var(--islands-bg-dark-secondary, #2a2a2a))',
-        borderTop: 'var(--islands-sidebar-footer-border-dark, 1px solid var(--islands-border-dark, #333))',
+        background: 'var(--yoya-sidebar-footer-bg-dark, var(--yoya-bg-dark-secondary, #2a2a2a))',
+        borderTop: 'var(--yoya-sidebar-footer-border-dark, 1px solid var(--yoya-border-dark, #333))',
       });
     }
     return this;

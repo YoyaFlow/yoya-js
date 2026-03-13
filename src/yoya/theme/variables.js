@@ -3,6 +3,11 @@
  * 所有组件支持的主题变量列表
  *
  * 使用方式：在 CSS 中定义这些变量，或在 JavaScript 中通过 style.setProperty 设置
+ *
+ * 变量命名规范:
+ * - 前缀：--yoya-* (通用主题变量前缀)
+ * - 格式：--yoya-{component}-{property}-{modifier}
+ * - 示例：--yoya-card-bg-hover (卡片组件 - 背景色 - 悬停状态)
  */
 
 // ============================================
@@ -11,51 +16,51 @@
 
 export const baseVariables = {
   // 主色
-  '--islands-primary': '#667eea',
-  '--islands-primary-hover': '#5a6fd6',
-  '--islands-primary-alpha': 'rgba(102, 126, 234, 0.1)',
+  '--yoya-primary': '#667eea',
+  '--yoya-primary-hover': '#5a6fd6',
+  '--yoya-primary-alpha': 'rgba(102, 126, 234, 0.1)',
 
   // 成功色
-  '--islands-success': '#28a745',
-  '--islands-success-hover': '#218838',
+  '--yoya-success': '#28a745',
+  '--yoya-success-hover': '#218838',
 
   // 警告色
-  '--islands-warning': '#ffc107',
-  '--islands-warning-hover': '#e0a800',
+  '--yoya-warning': '#ffc107',
+  '--yoya-warning-hover': '#e0a800',
 
   // 错误色
-  '--islands-error': '#dc3545',
-  '--islands-error-hover': '#c82333',
+  '--yoya-error': '#dc3545',
+  '--yoya-error-hover': '#c82333',
 
   // 背景色
-  '--islands-bg': 'white',
-  '--islands-bg-secondary': '#f7f8fa',
+  '--yoya-bg': 'white',
+  '--yoya-bg-secondary': '#f7f8fa',
 
   // 文本色
-  '--islands-text': '#333',
-  '--islands-text-secondary': '#666',
+  '--yoya-text': '#333',
+  '--yoya-text-secondary': '#666',
 
   // 边框色
-  '--islands-border': '#e0e0e0',
+  '--yoya-border': '#e0e0e0',
 
   // 间距
-  '--islands-padding-sm': '8px',
-  '--islands-padding-md': '16px',
-  '--islands-padding-lg': '24px',
-  '--islands-margin-md': '8px',
-  '--islands-gap-sm': '6px',
-  '--islands-gap-md': '12px',
+  '--yoya-padding-sm': '8px',
+  '--yoya-padding-md': '16px',
+  '--yoya-padding-lg': '24px',
+  '--yoya-margin-md': '8px',
+  '--yoya-gap-sm': '6px',
+  '--yoya-gap-md': '12px',
 
   // 圆角
-  '--islands-radius-sm': '4px',
-  '--islands-radius-md': '8px',
-  '--islands-radius-lg': '12px',
+  '--yoya-radius-sm': '4px',
+  '--yoya-radius-md': '8px',
+  '--yoya-radius-lg': '12px',
 
   // 阴影
-  '--islands-shadow': '0 4px 12px rgba(0,0,0,0.15)',
+  '--yoya-shadow': '0 4px 12px rgba(0,0,0,0.15)',
 
   // 悬停背景
-  '--islands-hover-bg': 'rgba(102, 126, 234, 0.05)',
+  '--yoya-hover-bg': 'rgba(102, 126, 234, 0.05)',
 };
 
 // ============================================
@@ -63,33 +68,33 @@ export const baseVariables = {
 // ============================================
 
 export const cardVariables = {
-  '--islands-card-bg': 'white',
-  '--islands-card-radius': '8px',
-  '--islands-card-shadow': '0 2px 8px rgba(0,0,0,0.1)',
-  '--islands-card-border': '1px solid transparent',
-  '--islands-card-hover-shadow': '0 4px 16px rgba(0,0,0,0.15)',
+  '--yoya-card-bg': 'white',
+  '--yoya-card-radius': '8px',
+  '--yoya-card-shadow': '0 2px 8px rgba(0,0,0,0.1)',
+  '--yoya-card-border': '1px solid transparent',
+  '--yoya-card-hover-shadow': '0 4px 16px rgba(0,0,0,0.15)',
 
   // 头部
-  '--islands-card-header-padding': '16px',
-  '--islands-card-header-border': '1px solid #e0e0e0',
-  '--islands-card-header-font-weight': '600',
-  '--islands-card-header-font-size': '16px',
-  '--islands-card-header-color': '#333',
-  '--islands-card-header-bg': 'transparent',
+  '--yoya-card-header-padding': '16px',
+  '--yoya-card-header-border': '1px solid #e0e0e0',
+  '--yoya-card-header-font-weight': '600',
+  '--yoya-card-header-font-size': '16px',
+  '--yoya-card-header-color': '#333',
+  '--yoya-card-header-bg': 'transparent',
 
   // 内容
-  '--islands-card-body-padding': '16px',
-  '--islands-card-body-font-size': '14px',
-  '--islands-card-body-color': '#333',
-  '--islands-card-body-bg': 'transparent',
+  '--yoya-card-body-padding': '16px',
+  '--yoya-card-body-font-size': '14px',
+  '--yoya-card-body-color': '#333',
+  '--yoya-card-body-bg': 'transparent',
 
   // 底部
-  '--islands-card-footer-padding': '16px',
-  '--islands-card-footer-border': '1px solid #e0e0e0',
-  '--islands-card-footer-gap': '8px',
-  '--islands-card-footer-font-size': '14px',
-  '--islands-card-footer-color': '#666',
-  '--islands-card-footer-bg': 'transparent',
+  '--yoya-card-footer-padding': '16px',
+  '--yoya-card-footer-border': '1px solid #e0e0e0',
+  '--yoya-card-footer-gap': '8px',
+  '--yoya-card-footer-font-size': '14px',
+  '--yoya-card-footer-color': '#666',
+  '--yoya-card-footer-bg': 'transparent',
 };
 
 // ============================================
@@ -97,17 +102,17 @@ export const cardVariables = {
 // ============================================
 
 export const buttonVariables = {
-  '--islands-button-padding': '8px 16px',
-  '--islands-button-padding-sm': '4px 10px',
-  '--islands-button-padding-lg': '10px 20px',
-  '--islands-button-font-size': '14px',
-  '--islands-button-font-size-sm': '12px',
-  '--islands-button-font-size-lg': '16px',
-  '--islands-button-height': '32px',
-  '--islands-button-height-sm': '24px',
-  '--islands-button-height-lg': '40px',
-  '--islands-button-min-width': '64px',
-  '--islands-button-radius': '6px',
+  '--yoya-button-padding': '8px 16px',
+  '--yoya-button-padding-sm': '4px 10px',
+  '--yoya-button-padding-lg': '10px 20px',
+  '--yoya-button-font-size': '14px',
+  '--yoya-button-font-size-sm': '12px',
+  '--yoya-button-font-size-lg': '16px',
+  '--yoya-button-height': '32px',
+  '--yoya-button-height-sm': '24px',
+  '--yoya-button-height-lg': '40px',
+  '--yoya-button-min-width': '64px',
+  '--yoya-button-radius': '6px',
 };
 
 // ============================================
@@ -116,65 +121,65 @@ export const buttonVariables = {
 
 export const menuVariables = {
   // 菜单容器
-  '--islands-menu-bg': 'white',
-  '--islands-menu-radius': '8px',
-  '--islands-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-  '--islands-menu-padding': '8px 0',
-  '--islands-menu-min-width': '160px',
-  '--islands-menu-border': '1px solid #e0e0e0',
+  '--yoya-menu-bg': 'white',
+  '--yoya-menu-radius': '8px',
+  '--yoya-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
+  '--yoya-menu-padding': '8px 0',
+  '--yoya-menu-min-width': '160px',
+  '--yoya-menu-border': '1px solid #e0e0e0',
 
   // 菜单项
-  '--islands-menu-item-padding': '10px',
-  '--islands-menu-item-horizontal-padding': '16px',
-  '--islands-menu-item-gap': '10px',
-  '--islands-menu-item-radius': '4px',
-  '--islands-menu-item-color': '#333',
-  '--islands-menu-item-font-size': '13px',
-  '--islands-menu-item-hover-bg': 'rgba(102, 126, 234, 0.05)',
-  '--islands-menu-item-active-bg': 'rgba(102, 126, 234, 0.1)',
-  '--islands-menu-item-active-font-weight': '500',
-  '--islands-menu-item-active-color': '#667eea',
-  '--islands-menu-item-disabled-opacity': '0.5',
-  '--islands-menu-item-disabled-cursor': 'not-allowed',
-  '--islands-menu-item-disabled-color': '#999',
-  '--islands-menu-item-danger-color': '#dc3545',
+  '--yoya-menu-item-padding': '10px',
+  '--yoya-menu-item-horizontal-padding': '16px',
+  '--yoya-menu-item-gap': '10px',
+  '--yoya-menu-item-radius': '4px',
+  '--yoya-menu-item-color': '#333',
+  '--yoya-menu-item-font-size': '13px',
+  '--yoya-menu-item-hover-bg': 'rgba(102, 126, 234, 0.05)',
+  '--yoya-menu-item-active-bg': 'rgba(102, 126, 234, 0.1)',
+  '--yoya-menu-item-active-font-weight': '500',
+  '--yoya-menu-item-active-color': '#667eea',
+  '--yoya-menu-item-disabled-opacity': '0.5',
+  '--yoya-menu-item-disabled-cursor': 'not-allowed',
+  '--yoya-menu-item-disabled-color': '#999',
+  '--yoya-menu-item-danger-color': '#dc3545',
 
   // 分割线
-  '--islands-menu-divider-height': '1px',
-  '--islands-menu-divider-bg': '#e0e0e0',
-  '--islands-menu-divider-margin': '8px',
+  '--yoya-menu-divider-height': '1px',
+  '--yoya-menu-divider-bg': '#e0e0e0',
+  '--yoya-menu-divider-margin': '8px',
 
   // 菜单组
-  '--islands-menu-group-label-padding': '8px 16px 4px',
-  '--islands-menu-group-label-font-size': '12px',
-  '--islands-menu-group-label-color': '#999',
-  '--islands-menu-group-label-font-weight': '500',
-  '--islands-menu-group-label-letter-spacing': '0.5px',
+  '--yoya-menu-group-label-padding': '8px 16px 4px',
+  '--yoya-menu-group-label-font-size': '12px',
+  '--yoya-menu-group-label-color': '#999',
+  '--yoya-menu-group-label-font-weight': '500',
+  '--yoya-menu-group-label-letter-spacing': '0.5px',
 
   // 下拉菜单
-  '--islands-dropdown-trigger-padding': '8px 16px',
-  '--islands-dropdown-trigger-bg': '#667eea',
-  '--islands-dropdown-trigger-color': 'white',
-  '--islands-dropdown-trigger-radius': '6px',
-  '--islands-dropdown-trigger-gap': '6px',
-  '--islands-dropdown-trigger-hover-bg': '#5a6fd6',
-  '--islands-dropdown-arrow-size': '10px',
-  '--islands-dropdown-menu-offset': '4px',
-  '--islands-dropdown-menu-min-width': '160px',
-  '--islands-dropdown-menu-bg': 'white',
-  '--islands-dropdown-menu-radius': '8px',
-  '--islands-dropdown-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-  '--islands-dropdown-menu-padding': '8px 0',
-  '--islands-dropdown-z-index': '1000',
+  '--yoya-dropdown-trigger-padding': '8px 16px',
+  '--yoya-dropdown-trigger-bg': '#667eea',
+  '--yoya-dropdown-trigger-color': 'white',
+  '--yoya-dropdown-trigger-radius': '6px',
+  '--yoya-dropdown-trigger-gap': '6px',
+  '--yoya-dropdown-trigger-hover-bg': '#5a6fd6',
+  '--yoya-dropdown-arrow-size': '10px',
+  '--yoya-dropdown-menu-offset': '4px',
+  '--yoya-dropdown-menu-min-width': '160px',
+  '--yoya-dropdown-menu-bg': 'white',
+  '--yoya-dropdown-menu-radius': '8px',
+  '--yoya-dropdown-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
+  '--yoya-dropdown-menu-padding': '8px 0',
+  '--yoya-dropdown-z-index': '1000',
 
   // 右键菜单
-  '--islands-context-menu-z-index': '9999',
-  '--islands-context-menu-bg': 'white',
-  '--islands-context-menu-radius': '8px',
-  '--islands-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-  '--islands-context-menu-padding': '8px 0',
-  '--islands-context-menu-min-width': '160px',
-  '--islands-context-menu-border': '1px solid #e0e0e0',
+  '--yoya-context-menu-z-index': '9999',
+  '--yoya-context-menu-bg': 'white',
+  '--yoya-context-menu-radius': '8px',
+  '--yoya-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
+  '--yoya-context-menu-padding': '8px 0',
+  '--yoya-context-menu-min-width': '160px',
+  '--yoya-context-menu-border': '1px solid #e0e0e0',
 };
 
 // ============================================
@@ -183,42 +188,42 @@ export const menuVariables = {
 
 export const messageVariables = {
   // 容器
-  '--islands-message-z-index': '9999',
-  '--islands-message-gap': '10px',
-  '--islands-message-container-padding': '16px',
-  '--islands-message-max-width': '420px',
+  '--yoya-message-z-index': '9999',
+  '--yoya-message-gap': '10px',
+  '--yoya-message-container-padding': '16px',
+  '--yoya-message-max-width': '420px',
 
   // 消息体
-  '--islands-message-icon-size': '18px',
-  '--islands-message-icon-margin': '10px',
-  '--islands-message-font-size': '14px',
-  '--islands-message-line-height': '1.5',
-  '--islands-message-text-color': 'inherit',
-  '--islands-message-close-size': '20px',
-  '--islands-message-close-padding': '0 4px',
-  '--islands-message-close-opacity': '0.7',
-  '--islands-message-close-hover-opacity': '1',
-  '--islands-message-close-color': 'inherit',
+  '--yoya-message-icon-size': '18px',
+  '--yoya-message-icon-margin': '10px',
+  '--yoya-message-font-size': '14px',
+  '--yoya-message-line-height': '1.5',
+  '--yoya-message-text-color': 'inherit',
+  '--yoya-message-close-size': '20px',
+  '--yoya-message-close-padding': '0 4px',
+  '--yoya-message-close-opacity': '0.7',
+  '--yoya-message-close-hover-opacity': '1',
+  '--yoya-message-close-color': 'inherit',
 
   // 成功消息
-  '--islands-message-success-bg': 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
-  '--islands-message-success-color': '#155724',
-  '--islands-message-success-border': '1px solid #c3e6cb',
+  '--yoya-message-success-bg': 'rgba(74, 222, 128, 0.15)',
+  '--yoya-message-success-color': '#166534',
+  '--yoya-message-success-border': '1px solid rgba(74, 222, 128, 0.3)',
 
   // 错误消息
-  '--islands-message-error-bg': 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)',
-  '--islands-message-error-color': '#721c24',
-  '--islands-message-error-border': '1px solid #f5c6cb',
+  '--yoya-message-error-bg': 'rgba(248, 113, 113, 0.15)',
+  '--yoya-message-error-color': '#991b1b',
+  '--yoya-message-error-border': '1px solid rgba(248, 113, 113, 0.3)',
 
   // 警告消息
-  '--islands-message-warning-bg': 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)',
-  '--islands-message-warning-color': '#856404',
-  '--islands-message-warning-border': '1px solid #ffeaa7',
+  '--yoya-message-warning-bg': 'rgba(251, 191, 36, 0.15)',
+  '--yoya-message-warning-color': '#92400e',
+  '--yoya-message-warning-border': '1px solid rgba(251, 191, 36, 0.3)',
 
   // 信息消息
-  '--islands-message-info-bg': 'linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)',
-  '--islands-message-info-color': '#0c5460',
-  '--islands-message-info-border': '1px solid #bee5eb',
+  '--yoya-message-info-bg': 'rgba(34, 211, 238, 0.15)',
+  '--yoya-message-info-color': '#0e7490',
+  '--yoya-message-info-border': '1px solid rgba(34, 211, 238, 0.3)',
 };
 
 // ============================================
@@ -227,40 +232,40 @@ export const messageVariables = {
 
 export const codeVariables = {
   // 容器
-  '--islands-code-bg': '#1e1e1e',
-  '--islands-code-radius': '8px',
-  '--islands-code-border': '1px solid rgba(255,255,255,0.1)',
-  '--islands-code-padding': '16px',
-  '--islands-code-font-size': '13px',
-  '--islands-code-line-height': '1.6',
-  '--islands-code-text-color': '#d4d4d4',
-  '--islands-code-font-family': '"Fira Code", "Consolas", "Monaco", monospace',
+  '--yoya-code-bg': '#1e1e1e',
+  '--yoya-code-radius': '8px',
+  '--yoya-code-border': '1px solid rgba(255,255,255,0.1)',
+  '--yoya-code-padding': '16px',
+  '--yoya-code-font-size': '13px',
+  '--yoya-code-line-height': '1.6',
+  '--yoya-code-text-color': '#d4d4d4',
+  '--yoya-code-font-family': '"Fira Code", "Consolas", "Monaco", monospace',
 
   // 标题栏
-  '--islands-code-header-padding': '10px 16px',
-  '--islands-code-header-bg': 'rgba(255,255,255,0.05)',
-  '--islands-code-header-border': '1px solid rgba(255,255,255,0.1)',
-  '--islands-code-title-color': '#007acc',
-  '--islands-code-title-font-size': '13px',
-  '--islands-code-title-font-weight': '600',
+  '--yoya-code-header-padding': '10px 16px',
+  '--yoya-code-header-bg': 'rgba(255,255,255,0.05)',
+  '--yoya-code-header-border': '1px solid rgba(255,255,255,0.1)',
+  '--yoya-code-title-color': '#007acc',
+  '--yoya-code-title-font-size': '13px',
+  '--yoya-code-title-font-weight': '600',
 
   // 复制按钮
-  '--islands-code-copy-padding': '4px 10px',
-  '--islands-code-copy-radius': '4px',
-  '--islands-code-copy-font-size': '12px',
-  '--islands-code-copy-bg': '#444',
-  '--islands-code-copy-color': '#ccc',
-  '--islands-code-copy-hover-bg': '#555',
-  '--islands-code-copy-hover-color': 'white',
-  '--islands-code-copy-success-bg': '#28a745',
-  '--islands-code-copy-success-color': 'white',
+  '--yoya-code-copy-padding': '4px 10px',
+  '--yoya-code-copy-radius': '4px',
+  '--yoya-code-copy-font-size': '12px',
+  '--yoya-code-copy-bg': '#444',
+  '--yoya-code-copy-color': '#ccc',
+  '--yoya-code-copy-hover-bg': '#555',
+  '--yoya-code-copy-hover-color': 'white',
+  '--yoya-code-copy-success-bg': '#28a745',
+  '--yoya-code-copy-success-color': 'white',
 
   // 语法高亮
-  '--islands-code-token-comment': '#6a9955',
-  '--islands-code-token-keyword': '#569cd6',
-  '--islands-code-token-string': '#ce9178',
-  '--islands-code-token-function': '#dcdcaa',
-  '--islands-code-token-number': '#b5cea8',
+  '--yoya-code-token-comment': '#6a9955',
+  '--yoya-code-token-keyword': '#569cd6',
+  '--yoya-code-token-string': '#ce9178',
+  '--yoya-code-token-function': '#dcdcaa',
+  '--yoya-code-token-number': '#b5cea8',
 };
 
 // ============================================
@@ -269,53 +274,53 @@ export const codeVariables = {
 
 export const fieldVariables = {
   // 基础
-  '--islands-field-gap': '6px',
-  '--islands-field-min-width': '80px',
-  '--islands-field-min-height': '32px',
-  '--islands-field-font-size': '14px',
-  '--islands-field-text-color': '#333',
-  '--islands-field-radius': '6px',
+  '--yoya-field-gap': '6px',
+  '--yoya-field-min-width': '80px',
+  '--yoya-field-min-height': '32px',
+  '--yoya-field-font-size': '14px',
+  '--yoya-field-text-color': '#333',
+  '--yoya-field-radius': '6px',
 
   // 显示状态
-  '--islands-field-show-gap': '4px',
-  '--islands-field-show-height': '32px',
-  '--islands-field-show-padding': '8px 12px',
-  '--islands-field-show-bg': 'transparent',
-  '--islands-field-show-border': '1px solid transparent',
-  '--islands-field-show-hover-bg': 'rgba(0,0,0,0.03)',
-  '--islands-field-show-hover-border': '#e0e0e0',
+  '--yoya-field-show-gap': '4px',
+  '--yoya-field-show-height': '32px',
+  '--yoya-field-show-padding': '8px 12px',
+  '--yoya-field-show-bg': 'transparent',
+  '--yoya-field-show-border': '1px solid transparent',
+  '--yoya-field-show-hover-bg': 'rgba(0,0,0,0.03)',
+  '--yoya-field-show-hover-border': '#e0e0e0',
 
   // 编辑图标
-  '--islands-field-edit-icon-size': '12px',
-  '--islands-field-edit-icon-color': '#999',
-  '--islands-field-edit-icon-margin': '6px',
+  '--yoya-field-edit-icon-size': '12px',
+  '--yoya-field-edit-icon-color': '#999',
+  '--yoya-field-edit-icon-margin': '6px',
 
   // 编辑状态
-  '--islands-field-edit-gap': '6px',
-  '--islands-field-edit-padding': '4px',
-  '--islands-field-edit-bg': 'white',
-  '--islands-field-edit-border': '1px solid #e0e0e0',
-  '--islands-field-edit-shadow': '0 2px 8px rgba(0,0,0,0.1)',
+  '--yoya-field-edit-gap': '6px',
+  '--yoya-field-edit-padding': '4px',
+  '--yoya-field-edit-bg': 'white',
+  '--yoya-field-edit-border': '1px solid #e0e0e0',
+  '--yoya-field-edit-shadow': '0 2px 8px rgba(0,0,0,0.1)',
 
   // 按钮
-  '--islands-field-btn-size': '24px',
-  '--islands-field-btn-padding': '0 6px',
-  '--islands-field-btn-radius': '4px',
-  '--islands-field-btn-font-size': '11px',
-  '--islands-field-btn-gap': '4px',
-  '--islands-field-save-bg': '#28a745',
-  '--islands-field-save-color': 'white',
-  '--islands-field-save-border': '1px solid #28a745',
-  '--islands-field-save-hover-bg': '#218838',
-  '--islands-field-cancel-bg': 'white',
-  '--islands-field-cancel-color': '#666',
-  '--islands-field-cancel-border': '1px solid #e0e0e0',
-  '--islands-field-cancel-hover-bg': '#f5f5f5',
+  '--yoya-field-btn-size': '24px',
+  '--yoya-field-btn-padding': '0 6px',
+  '--yoya-field-btn-radius': '4px',
+  '--yoya-field-btn-font-size': '11px',
+  '--yoya-field-btn-gap': '4px',
+  '--yoya-field-save-bg': '#28a745',
+  '--yoya-field-save-color': 'white',
+  '--yoya-field-save-border': '1px solid #28a745',
+  '--yoya-field-save-hover-bg': '#218838',
+  '--yoya-field-cancel-bg': 'white',
+  '--yoya-field-cancel-color': '#666',
+  '--yoya-field-cancel-border': '1px solid #e0e0e0',
+  '--yoya-field-cancel-hover-bg': '#f5f5f5',
 
   // 状态
-  '--islands-field-disabled-opacity': '0.5',
-  '--islands-field-disabled-cursor': 'not-allowed',
-  '--islands-field-loading-opacity': '0.7',
+  '--yoya-field-disabled-opacity': '0.5',
+  '--yoya-field-disabled-cursor': 'not-allowed',
+  '--yoya-field-loading-opacity': '0.7',
 };
 
 // ============================================
@@ -323,29 +328,29 @@ export const fieldVariables = {
 // ============================================
 
 export const descriptionsVariables = {
-  '--islands-descriptions-font-size': '14px',
-  '--islands-descriptions-text': '#333',
-  '--islands-descriptions-bg': 'transparent',
+  '--yoya-descriptions-font-size': '14px',
+  '--yoya-descriptions-text': '#333',
+  '--yoya-descriptions-bg': 'transparent',
 
   // 标题
-  '--islands-descriptions-title-padding': '12px 0',
-  '--islands-descriptions-title-size': '16px',
-  '--islands-descriptions-title-font-weight': '600',
-  '--islands-descriptions-title-color': '#333',
-  '--islands-descriptions-title-margin': '12px',
+  '--yoya-descriptions-title-padding': '12px 0',
+  '--yoya-descriptions-title-size': '16px',
+  '--yoya-descriptions-title-font-weight': '600',
+  '--yoya-descriptions-title-color': '#333',
+  '--yoya-descriptions-title-margin': '12px',
 
   // 表格
-  '--islands-descriptions-padding': '12px 16px',
-  '--islands-descriptions-border': '#e0e0e0',
+  '--yoya-descriptions-padding': '12px 16px',
+  '--yoya-descriptions-border': '#e0e0e0',
 
   // 标签
-  '--islands-descriptions-label-bg': '#f7f8fa',
-  '--islands-descriptions-label-color': '#666',
-  '--islands-descriptions-label-font-weight': '500',
-  '--islands-descriptions-label-width': '120px',
+  '--yoya-descriptions-label-bg': '#f7f8fa',
+  '--yoya-descriptions-label-color': '#666',
+  '--yoya-descriptions-label-font-weight': '500',
+  '--yoya-descriptions-label-width': '120px',
 
   // 内容
-  '--islands-descriptions-content-color': '#333',
+  '--yoya-descriptions-content-color': '#333',
 };
 
 // ============================================
@@ -354,29 +359,29 @@ export const descriptionsVariables = {
 
 export const bodyVariables = {
   // 背景
-  '--islands-body-bg': 'var(--islands-bg, white)',
-  '--islands-body-bg-color': 'var(--islands-body-bg, var(--islands-bg, white))',
+  '--yoya-body-bg': 'var(--yoya-bg, white)',
+  '--yoya-body-bg-color': 'var(--yoya-body-bg, var(--yoya-bg, white))',
 
   // 尺寸
-  '--islands-body-min-height': '100vh',
-  '--islands-body-width': '100%',
+  '--yoya-body-min-height': '100vh',
+  '--yoya-body-width': '100%',
 
   // 布局
-  '--islands-body-display': 'flex',
-  '--islands-body-flex-direction': 'column',
-  '--islands-body-align-items': 'stretch',
-  '--islands-body-justify-content': 'flex-start',
+  '--yoya-body-display': 'flex',
+  '--yoya-body-flex-direction': 'column',
+  '--yoya-body-align-items': 'stretch',
+  '--yoya-body-justify-content': 'flex-start',
 
   // 间距
-  '--islands-body-padding': '0',
-  '--islands-body-margin': '0',
+  '--yoya-body-padding': '0',
+  '--yoya-body-margin': '0',
 
   // 过渡
-  '--islands-body-transition': 'background-color 0.3s ease, min-height 0.3s ease',
+  '--yoya-body-transition': 'background-color 0.3s ease, min-height 0.3s ease',
 
   // 全屏模式
-  '--islands-body-fullscreen-min-height': '100vh',
-  '--islands-body-fullscreen-width': '100%',
+  '--yoya-body-fullscreen-min-height': '100vh',
+  '--yoya-body-fullscreen-width': '100%',
 };
 
 // ============================================
@@ -421,20 +426,83 @@ export function applyGlobalVariables(variables) {
 
 /**
  * 创建暗色主题变量
+ * 完整的暗色主题变量定义 - 覆盖所有组件变量
  */
 export function createDarkTheme() {
   return {
-    '--islands-bg': '#1a1a1a',
-    '--islands-bg-secondary': '#2a2a2a',
-    '--islands-text': '#e0e0e0',
-    '--islands-text-secondary': '#a0a0a0',
-    '--islands-border': '#404040',
-    '--islands-card-bg': '#2a2a2a',
-    '--islands-menu-bg': '#2a2a2a',
-    '--islands-dropdown-menu-bg': '#2a2a2a',
-    '--islands-context-menu-bg': '#2a2a2a',
-    '--islands-field-edit-bg': '#2a2a2a',
-    '--islands-button-bg': '#3a3a3a',
-    '--islands-hover-bg': 'rgba(255,255,255,0.05)',
+    // 基础色
+    '--yoya-bg': '#1a1a1a',
+    '--yoya-bg-secondary': '#2a2a2a',
+    '--yoya-text': '#e0e0e0',
+    '--yoya-text-secondary': '#a0a0a0',
+    '--yoya-border': '#404040',
+    '--yoya-hover-bg': 'rgba(255,255,255,0.05)',
+    '--yoya-shadow': '0 4px 12px rgba(0,0,0,0.3)',
+
+    // Card
+    '--yoya-card-bg': '#2a2a2a',
+    '--yoya-card-shadow': '0 2px 8px rgba(0,0,0,0.3)',
+    '--yoya-card-header-border': '1px solid #404040',
+    '--yoya-card-header-color': '#e0e0e0',
+    '--yoya-card-body-color': '#e0e0e0',
+    '--yoya-card-footer-border': '1px solid #404040',
+    '--yoya-card-footer-color': '#a0a0a0',
+
+    // Button
+    '--yoya-button-bg': '#3a3a3a',
+    '--yoya-button-text': '#e0e0e0',
+    '--yoya-button-border': '1px solid #404040',
+
+    // Menu
+    '--yoya-menu-bg': '#2a2a2a',
+    '--yoya-menu-shadow': '0 4px 12px rgba(0,0,0,0.3)',
+    '--yoya-menu-border': '1px solid #404040',
+    '--yoya-menu-item-color': '#e0e0e0',
+    '--yoya-menu-item-hover-bg': 'rgba(255,255,255,0.05)',
+    '--yoya-menu-item-active-bg': 'rgba(255,255,255,0.1)',
+    '--yoya-menu-divider-bg': '#404040',
+    '--yoya-menu-group-label-color': '#888',
+
+    // Dropdown
+    '--yoya-dropdown-menu-bg': '#2a2a2a',
+    '--yoya-dropdown-menu-shadow': '0 4px 12px rgba(0,0,0,0.3)',
+    '--yoya-context-menu-bg': '#2a2a2a',
+    '--yoya-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.3)',
+
+    // Message (暗色模式使用纯色背景)
+    '--yoya-message-success-bg': 'rgba(34, 197, 94, 0.15)',
+    '--yoya-message-success-color': '#4ade80',
+    '--yoya-message-success-border': '1px solid rgba(34, 197, 94, 0.3)',
+    '--yoya-message-error-bg': 'rgba(239, 68, 68, 0.15)',
+    '--yoya-message-error-color': '#f87171',
+    '--yoya-message-error-border': '1px solid rgba(239, 68, 68, 0.3)',
+    '--yoya-message-warning-bg': 'rgba(245, 158, 11, 0.15)',
+    '--yoya-message-warning-color': '#fbbf24',
+    '--yoya-message-warning-border': '1px solid rgba(245, 158, 11, 0.3)',
+    '--yoya-message-info-bg': 'rgba(56, 189, 248, 0.15)',
+    '--yoya-message-info-color': '#38bdf8',
+    '--yoya-message-info-border': '1px solid rgba(56, 189, 248, 0.3)',
+
+    // Code
+    '--yoya-code-bg': '#2d2d2d',
+    '--yoya-code-border': '1px solid rgba(255,255,255,0.1)',
+    '--yoya-code-text-color': '#d4d4d4',
+
+    // Field
+    '--yoya-field-text-color': '#e0e0e0',
+    '--yoya-field-edit-bg': '#2a2a2a',
+    '--yoya-field-edit-border': '1px solid #404040',
+    '--yoya-field-show-hover-bg': 'rgba(255,255,255,0.03)',
+    '--yoya-field-show-hover-border': '#404040',
+
+    // Descriptions
+    '--yoya-descriptions-text': '#e0e0e0',
+    '--yoya-descriptions-border': '#404040',
+    '--yoya-descriptions-label-bg': '#2a2a2a',
+    '--yoya-descriptions-label-color': '#a0a0a0',
+    '--yoya-descriptions-content-color': '#e0e0e0',
+
+    // Body
+    '--yoya-body-bg': 'var(--yoya-bg, #1a1a1a)',
   };
 }

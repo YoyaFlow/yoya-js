@@ -72,17 +72,17 @@ class VButton extends Tag {
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 'var(--islands-gap-sm, 6px)',
-      padding: 'var(--islands-button-padding, 8px 16px)',
-      fontSize: 'var(--islands-button-font-size, 14px)',
+      gap: 'var(--yoya-gap-sm, 6px)',
+      padding: 'var(--yoya-button-padding, 8px 16px)',
+      fontSize: 'var(--yoya-button-font-size, 14px)',
       fontWeight: '400',
-      borderRadius: 'var(--islands-button-radius, 6px)',
+      borderRadius: 'var(--yoya-button-radius, 6px)',
       border: '1px solid transparent',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
       outline: 'none',
-      minWidth: 'var(--islands-button-min-width, 64px)',
-      height: 'var(--islands-button-height, 32px)',
+      minWidth: 'var(--yoya-button-min-width, 64px)',
+      height: 'var(--yoya-button-height, 32px)',
       transform: 'scale(1)',
       transformOrigin: 'center center',
     });
@@ -123,19 +123,19 @@ class VButton extends Tag {
     const isGhost = this.hasState('ghost');
     const hoverStyles = {
       primary: {
-        background: isGhost ? 'var(--islands-primary-alpha)' : 'var(--islands-button-primary-hover)',
+        background: isGhost ? 'var(--yoya-primary-alpha)' : 'var(--yoya-button-primary-hover)',
       },
       success: {
-        background: isGhost ? 'var(--islands-success-bg)' : 'var(--islands-button-success-hover)',
+        background: isGhost ? 'var(--yoya-success-bg)' : 'var(--yoya-button-success-hover)',
       },
       warning: {
-        background: isGhost ? 'var(--islands-warning-bg)' : 'var(--islands-button-warning-hover)',
+        background: isGhost ? 'var(--yoya-warning-bg)' : 'var(--yoya-button-warning-hover)',
       },
       danger: {
-        background: isGhost ? 'var(--islands-error-bg)' : 'var(--islands-button-danger-hover)',
+        background: isGhost ? 'var(--yoya-error-bg)' : 'var(--yoya-button-danger-hover)',
       },
       default: {
-        background: isGhost ? 'var(--islands-hover-bg)' : 'var(--islands-button-default-hover)',
+        background: isGhost ? 'var(--yoya-hover-bg)' : 'var(--yoya-button-default-hover)',
       },
     };
     return hoverStyles[type] || hoverStyles.default;
@@ -208,29 +208,29 @@ class VButton extends Tag {
 
     const typeStyles = {
       primary: {
-        background: isGhost ? 'transparent' : 'var(--islands-primary)',
-        color: isGhost ? 'var(--islands-primary)' : 'white',
-        border: '1px solid var(--islands-primary)',
+        background: isGhost ? 'transparent' : 'var(--yoya-primary)',
+        color: isGhost ? 'var(--yoya-primary)' : 'white',
+        border: '1px solid var(--yoya-primary)',
       },
       success: {
-        background: isGhost ? 'transparent' : 'var(--islands-success)',
-        color: isGhost ? 'var(--islands-success)' : 'white',
-        border: '1px solid var(--islands-success)',
+        background: isGhost ? 'transparent' : 'var(--yoya-success)',
+        color: isGhost ? 'var(--yoya-success)' : 'white',
+        border: '1px solid var(--yoya-success)',
       },
       warning: {
-        background: isGhost ? 'transparent' : 'var(--islands-warning)',
-        color: isGhost ? 'var(--islands-warning)' : 'var(--islands-text-primary)',
-        border: '1px solid var(--islands-warning)',
+        background: isGhost ? 'transparent' : 'var(--yoya-warning)',
+        color: isGhost ? 'var(--yoya-warning)' : 'var(--yoya-text-primary)',
+        border: '1px solid var(--yoya-warning)',
       },
       danger: {
-        background: isGhost ? 'transparent' : 'var(--islands-error)',
-        color: isGhost ? 'var(--islands-error)' : 'white',
-        border: '1px solid var(--islands-error)',
+        background: isGhost ? 'transparent' : 'var(--yoya-error)',
+        color: isGhost ? 'var(--yoya-error)' : 'white',
+        border: '1px solid var(--yoya-error)',
       },
       default: {
-        background: isGhost ? 'transparent' : 'var(--islands-bg)',
-        color: isGhost ? 'var(--islands-text)' : 'var(--islands-text)',
-        border: '1px solid var(--islands-button-default-border)',
+        background: isGhost ? 'transparent' : 'var(--yoya-bg)',
+        color: isGhost ? 'var(--yoya-text)' : 'var(--yoya-text)',
+        border: '1px solid var(--yoya-button-default-border)',
       },
     };
 
@@ -319,19 +319,19 @@ class VButton extends Tag {
 
     const sizeStyles = {
       large: {
-        padding: 'var(--islands-button-padding-lg, 10px 20px)',
-        fontSize: 'var(--islands-button-font-size-lg, 16px)',
-        height: 'var(--islands-button-height-lg, 40px)',
+        padding: 'var(--yoya-button-padding-lg, 10px 20px)',
+        fontSize: 'var(--yoya-button-font-size-lg, 16px)',
+        height: 'var(--yoya-button-height-lg, 40px)',
       },
       default: {
-        padding: 'var(--islands-button-padding, 8px 16px)',
-        fontSize: 'var(--islands-button-font-size, 14px)',
-        height: 'var(--islands-button-height, 32px)',
+        padding: 'var(--yoya-button-padding, 8px 16px)',
+        fontSize: 'var(--yoya-button-font-size, 14px)',
+        height: 'var(--yoya-button-height, 32px)',
       },
       small: {
-        padding: 'var(--islands-button-padding-sm, 4px 10px)',
-        fontSize: 'var(--islands-button-font-size-sm, 12px)',
-        height: 'var(--islands-button-height-sm, 24px)',
+        padding: 'var(--yoya-button-padding-sm, 4px 10px)',
+        fontSize: 'var(--yoya-button-font-size-sm, 12px)',
+        height: 'var(--yoya-button-height-sm, 24px)',
       },
     };
 

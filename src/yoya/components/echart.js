@@ -153,9 +153,9 @@ class VEchart extends Tag {
       if (loading) {
         this._chartInstance.showLoading({
           text: text,
-          color: 'var(--islands-primary-color, #5470c6)',
-          textColor: 'var(--islands-text-color, #333)',
-          maskColor: 'var(--islands-mask-bg, rgba(255, 255, 255, 0.8))',
+          color: 'var(--yoya-primary-color, #5470c6)',
+          textColor: 'var(--yoya-text-color, #333)',
+          maskColor: 'var(--yoya-mask-bg, rgba(255, 255, 255, 0.8))',
           lineWidth: 2,
         });
       } else {

@@ -101,9 +101,9 @@ class VDynamicLoader extends Tag {
     this._loadingContent = options.loadingContent || div('加载中...');
     this._errorContent = options.errorContent || div(c => {
       c.styles({
-        color: 'var(--islands-error, #dc3545)',
+        color: 'var(--yoya-error, #dc3545)',
         padding: '12px',
-        background: 'var(--islands-bg-error, #fff5f5)',
+        background: 'var(--yoya-bg-error, #fff5f5)',
         borderRadius: '4px',
       });
       c.text('组件加载失败');

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic 主题切换测试</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import {
+      vBody, vCard, vButton, vMenu, flex, hstack,
+      toast, initTheme, switchTheme, getThemeMode, setThemeMode
+    } from '../yoya/index.js';
+
+    // 初始化主题
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'light'
+    });
+
+    // 创建测试页面
+    vBody(b => {
+      b.padding('20px');
+
+      // 主题切换按钮
+      b.child(hstack(h => {
+        h.gap('12px');
+        h.child(vButton('浅色主题').onclick(() => {
+          switchTheme('islands');
+          setThemeMode('light');
+          toast.success('已切换到浅色主题');
+        }));
+        h.child(vButton('深色主题').onclick(() => {
+          switchTheme('islands');
+          setThemeMode('dark');
+          toast.success('已切换到深色主题');
+        }));
+        h.child(vButton('自动模式').onclick(() => {
+          setThemeMode('auto');
+          toast.info('已切换到自动模式');
+        }));
+      }));
+
+      b.child(flex(f => {
+        f.gap('20px');
+        f.marginTop('20px');
+
+        // 卡片测试
+        f.child(vCard(c => {
+          c.cardHeader('卡片测试');
+          c.cardBody('这是一个卡片组件，用于测试主题切换是否正常工作。');
+          c.cardFooter(fb => {
+            fb.child(vButton('确定').type('primary'));
+            fb.child(vButton('取消'));
+          });
+        }).style('width', '300px'));
+
+        // 菜单测试
+        f.child(vCard(mc => {
+          mc.cardHeader('菜单测试');
+          mc.cardBody(m => {
+            m.child(vMenu(menu => {
+              menu.item(it => {
+                it.text('📋 新建');
+              });
+              menu.item(it => {
+                it.text('📂 打开');
+              });
+              menu.divider();
+              menu.item(it => {
+                it.text('⚙️ 设置');
+              });
+            }));
+          });
+        }).style('width', '300px'));
+      }));
+
+      // 状态测试说明
+      b.child(vCard(info => {
+        info.cardHeader('主题系统说明');
+        info.cardBody(`
+          <p>当前主题系统使用 CSS 变量实现，所有组件样式都使用 <code>var(--yoya-*)</code> 形式的变量。</p>
+          <p>主题切换时，CSS 变量值会更新，浏览器自动重新计算样式。</p>
+          <p>变量前缀已从 <code>--islands-*</code> 改为 <code>--yoya-*</code>，支持多主题扩展。</p>
+        `);
+      }).style('width', '620px'));
+    }).bindTo('#app');
+  </script>
+</body>
+</html>

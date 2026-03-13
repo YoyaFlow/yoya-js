@@ -32,23 +32,23 @@ export class VBody extends Tag {
     // 应用基础样式（使用主题变量）
     this.styles({
       // 背景色
-      background: 'var(--islands-body-bg, var(--islands-bg, white))',
-      backgroundColor: 'var(--islands-body-bg-color, var(--islands-body-bg, var(--islands-bg, white)))',
+      background: 'var(--yoya-body-bg, var(--yoya-bg, white))',
+      backgroundColor: 'var(--yoya-body-bg-color, var(--yoya-body-bg, var(--yoya-bg, white)))',
 
       // 最小高度
-      minHeight: 'var(--islands-body-min-height, 100vh)',
+      minHeight: 'var(--yoya-body-min-height, 100vh)',
 
       // 宽度
-      width: 'var(--islands-body-width, 100%)',
+      width: 'var(--yoya-body-width, 100%)',
 
       // 布局
-      display: 'var(--islands-body-display, flex)',
-      flexDirection: 'var(--islands-body-flex-direction, column)',
-      alignItems: 'var(--islands-body-align-items, stretch)',
+      display: 'var(--yoya-body-display, flex)',
+      flexDirection: 'var(--yoya-body-flex-direction, column)',
+      alignItems: 'var(--yoya-body-align-items, stretch)',
 
       // 内边距
-      padding: 'var(--islands-body-padding, 0)',
-      margin: 'var(--islands-body-margin, 0)',
+      padding: 'var(--yoya-body-padding, 0)',
+      margin: 'var(--yoya-body-margin, 0)',
       boxSizing: 'border-box',
 
       // 过渡效果
@@ -113,7 +113,7 @@ export class VBody extends Tag {
   fullscreen(enabled) {
     this.setState('fullscreen', enabled);
     if (enabled) {
-      this.style('minHeight', 'var(--islands-body-min-height, 100vh)');
+      this.style('minHeight', 'var(--yoya-body-min-height, 100vh)');
     }
     return this;
   }
@@ -172,8 +172,8 @@ export class VBody extends Tag {
     this.registerStateHandler('fullscreen', (enabled, host) => {
       if (enabled) {
         host.styles({
-          minHeight: 'var(--islands-body-min-height, 100vh)',
-          width: 'var(--islands-body-width, 100%)',
+          minHeight: 'var(--yoya-body-min-height, 100vh)',
+          width: 'var(--yoya-body-width, 100%)',
         });
       } else {
         host.style('minHeight', '');
