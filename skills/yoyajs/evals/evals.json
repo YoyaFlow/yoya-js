@@ -1,0 +1,92 @@
+{
+  "skill_name": "yoyajs",
+  "evals": [
+    {
+      "id": 1,
+      "name": "简单登录页面",
+      "prompt": "我想用 Yoya.Basic 创建一个简单的登录页面，包含用户名和密码输入框，以及一个登录按钮。点击登录按钮时，如果用户名和密码都不为空，显示成功消息，否则显示错误提示。",
+      "expected_output": "一个完整的登录页面代码，使用 vBody 作为页面容器，使用 vCard 组件包裹表单，包含两个 vInput 输入框和一个 vButton 按钮，使用 toast 显示消息提示",
+      "files": [],
+      "assertions": [
+        {
+          "name": "使用 vBody 作为页面容器",
+          "description": "应该使用 vBody 组件作为页面的根容器，而不是直接使用 div 或 flex"
+        },
+        {
+          "name": "使用 vCard 组件",
+          "description": "应该使用 vCard 组件包裹登录表单，而不是手动创建卡片样式"
+        },
+        {
+          "name": "使用 vInput 输入框",
+          "description": "应该使用 vInput 组件创建用户名和密码输入框"
+        },
+        {
+          "name": "使用 vButton 按钮",
+          "description": "应该使用 vButton 组件创建登录按钮"
+        },
+        {
+          "name": "使用 toast 消息提示",
+          "description": "应该使用 toast.success 和 toast.error 显示消息"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "数据卡片列表",
+      "prompt": "需要一个展示产品列表的页面，每个产品用卡片展示，包含产品名称、价格和购买按钮。使用网格布局，每行显示 3 个卡片，响应式适配。",
+      "expected_output": "使用 vBody 作为页面容器，使用 responsiveGrid 或 grid 布局组件和 vCard 组件创建产品列表，每个卡片包含产品信息和购买按钮，支持响应式布局",
+      "files": [],
+      "assertions": [
+        {
+          "name": "使用 vBody 作为页面容器",
+          "description": "应该使用 vBody 组件作为页面的根容器"
+        },
+        {
+          "name": "使用网格布局组件",
+          "description": "应该使用 responsiveGrid 或 grid 组件创建网格布局，而不是手动设置 CSS Grid"
+        },
+        {
+          "name": "使用 vCard 组件",
+          "description": "每个产品卡片应该使用 vCard 组件"
+        },
+        {
+          "name": "包含产品信息",
+          "description": "每个卡片应该包含产品名称、价格和购买按钮"
+        },
+        {
+          "name": "响应式适配",
+          "description": "布局应该支持响应式，在不同屏幕宽度下自动调整列数"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "微前端组件集成",
+      "prompt": "我有两个微服务，用户服务需要导出一个用户表格组件，订单服务需要导入并使用这个组件。请展示如何创建和集成这个组件。",
+      "expected_output": "展示如何创建可导出的用户表格组件（使用 table 元素），以及主应用如何导入和使用该组件，包含用户数据和选择回调",
+      "files": [],
+      "assertions": [
+        {
+          "name": "导出表格组件",
+          "description": "应该创建一个可导出的用户表格组件函数"
+        },
+        {
+          "name": "使用 table 元素",
+          "description": "表格组件应该使用 table、thead、tbody、tr、td 等元素"
+        },
+        {
+          "name": "支持 props 传入数据",
+          "description": "组件应该支持通过参数传入用户数据"
+        },
+        {
+          "name": "支持回调函数",
+          "description": "组件应该支持 onSelect 回调函数"
+        },
+        {
+          "name": "主应用导入使用",
+          "description": "应该展示主应用如何导入和使用该组件"
+        }
+      ]
+    }
+  ]
+}
