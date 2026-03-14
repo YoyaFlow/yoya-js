@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya Tabs - 简洁测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1e1e1e;
+      color: #cccccc;
+    }
+
+    #app {
+      height: 100%;
+    }
+
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #2d2d2d;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #4a4a4a;
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #5a5a5a;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import {
+      vTabs,
+      vBody,
+      div,
+      pre,
+      code,
+      initTheme,
+      createLightTheme,
+      createDarkTheme,
+      allVariables,
+      buttonVariables,
+      menuVariables,
+      codeVariables
+    } from '../yoya/index.js';
+
+    // 初始化主题
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'dark',
+      themes: new Map([
+        ['islands', {
+          lightFactory: () => createLightTheme(allVariables, buttonVariables, menuVariables, codeVariables),
+          darkFactory: () => createDarkTheme(allVariables, buttonVariables, menuVariables, codeVariables),
+        }]
+      ])
+    });
+
+    // 创建示例代码内容
+    function createCodeContent(language, codeText) {
+      return (c) => {
+        c.styles({
+          padding: '16px',
+          height: '100%',
+          overflow: 'auto',
+        });
+        c.child(
+          pre(p => {
+            p.styles({
+              margin: 0,
+              fontFamily: 'var(--yoya-font-mono, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace)',
+              fontSize: '13px',
+              lineHeight: '1.6',
+              color: '#d4d4d4',
+            });
+            p.child(
+              code(cc => {
+                cc.text(codeText);
+              })
+            );
+          })
+        );
+      };
+    }
+
+    // 示例代码
+    const jsCode = `// JavaScript 示例
+function greet(name) {
+  console.log('Hello, ' + name + '!');
+  return {
+    message: 'Welcome to Yoya Tabs',
+    timestamp: new Date()
+  };
+}
+
+const result = greet('Developer');
+console.log(result);`;
+
+    const tsCode = `// TypeScript 示例
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+class UserService {
+  private users: User[] = [];
+
+  addUser(user: User): void {
+    this.users.push(user);
+  }
+
+  getUser(id: number): User | undefined {
+    return this.users.find(u => u.id === id);
+  }
+}`;
+
+    const cssCode = `/* CSS 示例 */
+.editor-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tab-header {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding-top: 8px;
+  background: #252526;
+}`;
+
+    const htmlCode = `<!-- HTML 示例 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Yoya Tabs Demo</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { vTabs } from './yoya/index.js';
+
+    vTabs(tabs => {
+      tabs.addTab('file1', 'index.html', content);
+    });
+  <\/script>
+</body>
+</html>`;
+
+    const readmeCode = `# Yoya Tabs 组件
+
+IDEA 风格的标签页组件
+
+## 特性
+
+- 紧凑的标签设计
+- 流畅的切换动画
+- 支持关闭按钮
+- 支持图标
+- 标签与内容完美结合
+
+## 使用示例
+
+\`\`\`javascript
+import { vTabs } from '@yoya/tabs';
+
+vTabs(tabs => {
+  tabs.addTab('file1', 'index.html', content);
+  tabs.addTab('file2', 'style.css', content);
+  tabs.onChange((id, data) => {
+    console.log('切换:', id);
+  });
+});
+\`\`\``;
+
+    // 创建 Tabs 组件
+    const tabs = vTabs((t) => {
+      // 添加示例标签页
+      t.addTab('readme', 'README.md', createCodeContent('markdown', readmeCode), {
+        icon: '📄'
+      });
+
+      t.addTab('index.html', 'index.html', createCodeContent('html', htmlCode), {
+        icon: '🌐'
+      });
+
+      t.addTab('app.js', 'app.js', createCodeContent('javascript', jsCode), {
+        icon: '📜'
+      });
+
+      t.addTab('utils.ts', 'utils.ts', createCodeContent('typescript', tsCode), {
+        icon: '📘'
+      });
+
+      t.addTab('styles.css', 'styles.css', createCodeContent('css', cssCode), {
+        icon: '🎨'
+      });
+
+      // 标签变化回调
+      t.onChange((id, data) => {
+        console.log('标签切换:', id, data.title);
+      });
+    });
+
+    // 创建 Body 并绑定
+    vBody((b) => {
+      b.styles({
+        padding: '16px',
+      });
+      b.child(
+        div(d => {
+          d.styles({
+            height: 'calc(100% - 32px)',
+            background: '#252526',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            border: '1px solid #3c3c3c',
+          });
+          d.child(tabs);
+        })
+      );
+    }).bindTo('#app');
+
+    // 页面加载后激活第一个标签
+    setTimeout(() => {
+      tabs.setActiveTab('app.js');
+    }, 100);
+  </script>
+</body>
+</html>

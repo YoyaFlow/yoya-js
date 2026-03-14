@@ -3,7 +3,7 @@
  * 应用主布局：顶部导航 + 左侧菜单 + 内容区 + 右侧目录
  */
 
-import { vstack, flex, container } from '../../../yoya/index.js';
+import { vBody, vstack, flex, container } from '../../../yoya/index.js';
 import { TopNavbar } from './TopNavbar.js';
 import { Sidebar } from './Sidebar.js';
 import { TableOfContents } from './TableOfContents.js';
@@ -16,9 +16,7 @@ import { TableOfContents } from './TableOfContents.js';
  * @param {Array} options.tocItems - 右侧目录项
  */
 export function AppShell({ currentPage = '', content, tocItems = [] }) {
-  return vstack(layout => {
-    layout.styles({ minHeight: '100vh', background: 'var(--islands-bg, #f8f9fa)' });
-
+  return vBody(layout => {
     // ========== 顶部导航栏 ==========
     layout.child(TopNavbar());
 

@@ -703,8 +703,8 @@ class Tag {
       this._el.addEventListener(event, (nativeEvent) => {
         // 为原生事件对象附加_vnode 属性，指向虚拟元素
         nativeEvent._vnode = this;
-        // 分发所有处理器
-        handlers.forEach(handler => handler(nativeEvent));
+        // 分发所有处理器，绑定 this 到 DOM 元素
+        handlers.forEach(handler => handler.call(this._el, nativeEvent));
       });
     }
   }
@@ -909,8 +909,26 @@ function createSimpleElements(definitions) {
     result[className] = createSimpleClass(tagName, className);
     // 创建工厂函数（小写类名）
     const factoryName = className.charAt(0).toLowerCase() + className.slice(1);
-    result[factoryName] = function(setup = null) {
-      return new result[className](setup);
+    // 支持 factory('.class', fn) 或 factory(fn) 或 factory('text')
+    result[factoryName] = function(selectorOrSetup = null, setup = null) {
+      // 处理 factory('.class', fn) 情况
+      if (typeof selectorOrSetup === 'string' && typeof setup === 'function') {
+        return new result[className]((el) => {
+          // 先应用选择器
+          if (selectorOrSetup.startsWith('.')) {
+            const classes = selectorOrSetup.slice(1).split('.').filter(Boolean);
+            classes.forEach(c => el.className(c));
+          } else if (selectorOrSetup.startsWith('#')) {
+            el.id(selectorOrSetup.slice(1));
+          } else {
+            el.text(selectorOrSetup);
+          }
+          // 再应用 setup 函数
+          setup(el);
+        });
+      }
+      // 其他情况直接传入
+      return new result[className](selectorOrSetup);
     };
   }
   return result;
@@ -952,115 +970,68 @@ const { div, span, p, section, article, header, footer, nav, aside, main,
 // ============================================
 
 /**
- * 添加 div 子元素
- * @param {Function} [setup=null] - 初始化函数
- * @returns {this} 返回当前实例支持链式调用
+ * 创建支持两个参数的 Tag 原型方法
+ * @param {string} methodName - 方法名（如 'div', 'h1'）
+ * @param {Function} factoryFn - 工厂函数（如 div, h1）
  */
-Tag.prototype.div = function(setup = null) {
-  const el = div(setup);
-  this.child(el);
-  return this;
-};
+function createTagProtoMethod(methodName, factoryFn) {
+  return function(selectorOrSetup = null, setup = null) {
+    let finalSetup = selectorOrSetup;
+    if (typeof selectorOrSetup === 'string' && setup !== null) {
+      finalSetup = (el) => {
+        if (selectorOrSetup.startsWith('.')) {
+          const classes = selectorOrSetup.slice(1).split('.').filter(Boolean);
+          classes.forEach(c => el.className(c));
+        } else if (selectorOrSetup.startsWith('#')) {
+          el.id(selectorOrSetup.slice(1));
+        } else {
+          el.text(selectorOrSetup);
+        }
+        if (typeof setup === 'function') {
+          setup(el);
+        }
+      };
+    } else if (typeof selectorOrSetup === 'string') {
+      finalSetup = (el) => {
+        if (selectorOrSetup.startsWith('.')) {
+          const classes = selectorOrSetup.slice(1).split('.').filter(Boolean);
+          classes.forEach(c => el.className(c));
+        } else if (selectorOrSetup.startsWith('#')) {
+          el.id(selectorOrSetup.slice(1));
+        } else {
+          el.text(selectorOrSetup);
+        }
+      };
+    }
+    const el = factoryFn(finalSetup);
+    this.child(el);
+    return this;
+  };
+}
 
-/**
- * 添加 span 子元素
- * @param {Function} [setup=null] - 初始化函数
- * @returns {this} 返回当前实例支持链式调用
- */
-Tag.prototype.span = function(setup = null) {
-  const el = span(setup);
-  this.child(el);
-  return this;
-};
+// 批量创建 Tag 原型方法
+Tag.prototype.div = createTagProtoMethod('div', div);
+Tag.prototype.span = createTagProtoMethod('span', span);
+Tag.prototype.p = createTagProtoMethod('p', p);
+Tag.prototype.section = createTagProtoMethod('section', section);
+Tag.prototype.article = createTagProtoMethod('article', article);
+Tag.prototype.header = createTagProtoMethod('header', header);
+Tag.prototype.footer = createTagProtoMethod('footer', footer);
+Tag.prototype.nav = createTagProtoMethod('nav', nav);
+Tag.prototype.aside = createTagProtoMethod('aside', aside);
+Tag.prototype.main = createTagProtoMethod('main', main);
+Tag.prototype.h1 = createTagProtoMethod('h1', h1);
+Tag.prototype.h2 = createTagProtoMethod('h2', h2);
+Tag.prototype.h3 = createTagProtoMethod('h3', h3);
+Tag.prototype.h4 = createTagProtoMethod('h4', h4);
+Tag.prototype.h5 = createTagProtoMethod('h5', h5);
+Tag.prototype.h6 = createTagProtoMethod('h6', h6);
 
-/**
- * 添加 p 子元素
- * @param {Function} [setup=null] - 初始化函数
- * @returns {this} 返回当前实例支持链式调用
- */
-Tag.prototype.p = function(setup = null) {
-  const el = p(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.section = function(setup = null) {
-  const el = section(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.article = function(setup = null) {
-  const el = article(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.header = function(setup = null) {
-  const el = header(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.footer = function(setup = null) {
-  const el = footer(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.nav = function(setup = null) {
-  const el = nav(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.aside = function(setup = null) {
-  const el = aside(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.main = function(setup = null) {
-  const el = main(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h1 = function(setup = null) {
-  const el = h1(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h2 = function(setup = null) {
-  const el = h2(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h3 = function(setup = null) {
-  const el = h3(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h4 = function(setup = null) {
-  const el = h4(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h5 = function(setup = null) {
-  const el = h5(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h6 = function(setup = null) {
-  const el = h6(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.h2 = createTagProtoMethod('h2', h2);
+Tag.prototype.h3 = createTagProtoMethod('h3', h3);
+Tag.prototype.h4 = createTagProtoMethod('h4', h4);
+Tag.prototype.h5 = createTagProtoMethod('h5', h5);
+Tag.prototype.h6 = createTagProtoMethod('h6', h6);
 
 // ============================================
 // 文本格式化元素
@@ -1100,41 +1071,12 @@ function a(setup = null) { return new A(setup); }
 // Tag 原型扩展方法 - 文本格式化
 // ============================================
 
-Tag.prototype.a = function(setup = null) {
-  const el = a(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.strong = function(setup = null) {
-  const el = strong(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.em = function(setup = null) {
-  const el = em(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.code = function(setup = null) {
-  const el = code(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.pre = function(setup = null) {
-  const el = pre(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.blockquote = function(setup = null) {
-  const el = blockquote(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.a = createTagProtoMethod('a', a);
+Tag.prototype.strong = createTagProtoMethod('strong', strong);
+Tag.prototype.em = createTagProtoMethod('em', em);
+Tag.prototype.code = createTagProtoMethod('code', code);
+Tag.prototype.pre = createTagProtoMethod('pre', pre);
+Tag.prototype.blockquote = createTagProtoMethod('blockquote', blockquote);
 
 // ============================================
 // 表单元素
@@ -1341,35 +1283,11 @@ class Form extends Tag {
 }
 
 // 表单扩展方法
-Select.prototype.option = function(setup = null) {
-  const optionEl = option(setup);
-  this.child(optionEl);
-  return this;
-};
-
-Form.prototype.input = function(setup = null) {
-  const inputEl = input(setup);
-  this.child(inputEl);
-  return this;
-};
-
-Form.prototype.button = function(setup = null) {
-  const btnEl = button(setup);
-  this.child(btnEl);
-  return this;
-};
-
-Form.prototype.textarea = function(setup = null) {
-  const textareaEl = textarea(setup);
-  this.child(textareaEl);
-  return this;
-};
-
-Form.prototype.select = function(setup = null) {
-  const selectEl = select(setup);
-  this.child(selectEl);
-  return this;
-};
+Select.prototype.option = createTagProtoMethod('option', option);
+Form.prototype.input = createTagProtoMethod('input', input);
+Form.prototype.button = createTagProtoMethod('button', button);
+Form.prototype.textarea = createTagProtoMethod('textarea', textarea);
+Form.prototype.select = createTagProtoMethod('select', select);
 
 function button(setup = null) { return new Button(setup); }
 function input(setup = null) { return new Input(setup); }
@@ -1384,47 +1302,13 @@ function form(setup = null) { return new Form(setup); }
 // Tag 原型扩展方法 - 表单
 // ============================================
 
-Tag.prototype.button = function(setup = null) {
-  const el = button(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.input = function(setup = null) {
-  const el = input(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.textarea = function(setup = null) {
-  const el = textarea(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.select = function(setup = null) {
-  const el = select(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.option = function(setup = null) {
-  const el = option(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.label = function(setup = null) {
-  const el = label(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.form = function(setup = null) {
-  const el = form(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.button = createTagProtoMethod('button', button);
+Tag.prototype.input = createTagProtoMethod('input', input);
+Tag.prototype.textarea = createTagProtoMethod('textarea', textarea);
+Tag.prototype.select = createTagProtoMethod('select', select);
+Tag.prototype.option = createTagProtoMethod('option', option);
+Tag.prototype.label = createTagProtoMethod('label', label);
+Tag.prototype.form = createTagProtoMethod('form', form);
 
 // ============================================
 // 列表元素
@@ -1443,69 +1327,22 @@ const { Ul, Ol, Li, Dl, Dt, Dd } = listElements;
 const { ul, ol, li, dl, dt, dd } = listElements;
 
 // 列表扩展方法
-Ul.prototype.li = function(setup = null) {
-  const liEl = li(setup);
-  this.child(liEl);
-  return this;
-};
+Ul.prototype.li = createTagProtoMethod('li', li);
 
-Ol.prototype.li = function(setup = null) {
-  const liEl = li(setup);
-  this.child(liEl);
-  return this;
-};
-
-Dl.prototype.dt = function(setup = null) {
-  const dtEl = dt(setup);
-  this.child(dtEl);
-  return this;
-};
-
-Dl.prototype.dd = function(setup = null) {
-  const ddEl = dd(setup);
-  this.child(ddEl);
-  return this;
-};
+Ol.prototype.li = createTagProtoMethod('li', li);
+Dl.prototype.dt = createTagProtoMethod('dt', dt);
+Dl.prototype.dd = createTagProtoMethod('dd', dd);
 
 // ============================================
 // Tag 原型扩展方法 - 列表
 // ============================================
 
-Tag.prototype.ul = function(setup = null) {
-  const el = ul(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.ol = function(setup = null) {
-  const el = ol(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.li = function(setup = null) {
-  const el = li(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.dl = function(setup = null) {
-  const el = dl(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.dt = function(setup = null) {
-  const el = dt(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.dd = function(setup = null) {
-  const el = dd(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.ul = createTagProtoMethod('ul', ul);
+Tag.prototype.ol = createTagProtoMethod('ol', ol);
+Tag.prototype.li = createTagProtoMethod('li', li);
+Tag.prototype.dl = createTagProtoMethod('dl', dl);
+Tag.prototype.dt = createTagProtoMethod('dt', dt);
+Tag.prototype.dd = createTagProtoMethod('dd', dd);
 
 // ============================================
 // 表格元素
@@ -1575,87 +1412,24 @@ function td(setup = null) { return new Td(setup); }
 function th(setup = null) { return new Th(setup); }
 
 // 表格扩展方法
-Table.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
-
-Tr.prototype.td = function(setup = null) {
-  const tdEl = td(setup);
-  this.child(tdEl);
-  return this;
-};
-
-Tr.prototype.th = function(setup = null) {
-  const thEl = th(setup);
-  this.child(thEl);
-  return this;
-};
-
-Thead.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
-
-Tbody.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
-
-Tfoot.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
+Table.prototype.tr = createTagProtoMethod('tr', tr);
+Tr.prototype.td = createTagProtoMethod('td', td);
+Tr.prototype.th = createTagProtoMethod('th', th);
+Thead.prototype.tr = createTagProtoMethod('tr', tr);
+Tbody.prototype.tr = createTagProtoMethod('tr', tr);
+Tfoot.prototype.tr = createTagProtoMethod('tr', tr);
 
 // ============================================
 // Tag 原型扩展方法 - 表格
 // ============================================
 
-Tag.prototype.table = function(setup = null) {
-  const el = table(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.tr = function(setup = null) {
-  const el = tr(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.td = function(setup = null) {
-  const el = td(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.th = function(setup = null) {
-  const el = th(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.thead = function(setup = null) {
-  const el = thead(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.tbody = function(setup = null) {
-  const el = tbody(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.tfoot = function(setup = null) {
-  const el = tfoot(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.table = createTagProtoMethod('table', table);
+Tag.prototype.tr = createTagProtoMethod('tr', tr);
+Tag.prototype.td = createTagProtoMethod('td', td);
+Tag.prototype.th = createTagProtoMethod('th', th);
+Tag.prototype.thead = createTagProtoMethod('thead', thead);
+Tag.prototype.tbody = createTagProtoMethod('tbody', tbody);
+Tag.prototype.tfoot = createTagProtoMethod('tfoot', tfoot);
 
 // ============================================
 // 媒体元素
@@ -1774,29 +1548,10 @@ function source(setup = null) { return new Source(setup); }
 // Tag 原型扩展方法 - 媒体
 // ============================================
 
-Tag.prototype.img = function(setup = null) {
-  const el = img(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.video = function(setup = null) {
-  const el = video(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.audio = function(setup = null) {
-  const el = audio(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.source = function(setup = null) {
-  const el = source(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.img = createTagProtoMethod('img', img);
+Tag.prototype.video = createTagProtoMethod('video', video);
+Tag.prototype.audio = createTagProtoMethod('audio', audio);
+Tag.prototype.source = createTagProtoMethod('source', source);
 
 // ============================================
 // 其他元素
@@ -1814,17 +1569,12 @@ const { br, hr } = otherElements;
 // Tag 原型扩展方法 - 其他
 // ============================================
 
-Tag.prototype.br = function(setup = null) {
-  const el = br(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.br = createTagProtoMethod('br', br);
+Tag.prototype.hr = createTagProtoMethod('hr', hr);
 
-Tag.prototype.hr = function(setup = null) {
-  const el = hr(setup);
-  this.child(el);
-  return this;
-};
+// ============================================
+// IFrame, Canvas 元素
+// ============================================
 
 class IFrame extends Tag {
   constructor(setup = null) {
@@ -1875,17 +1625,8 @@ function canvas(setup = null) { return new Canvas(setup); }
 // Tag 原型扩展方法 - IFrame, Canvas
 // ============================================
 
-Tag.prototype.iframe = function(setup = null) {
-  const el = iframe(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.canvas = function(setup = null) {
-  const el = canvas(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.iframe = createTagProtoMethod('iframe', iframe);
+Tag.prototype.canvas = createTagProtoMethod('canvas', canvas);
 
 // ============================================
 // 通用 tag 工厂函数

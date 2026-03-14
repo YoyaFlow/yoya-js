@@ -505,6 +505,90 @@ declare class VTd extends Tag {
 declare function vTd(setup?: Setup<VTd>): VTd;
 
 // ============================================
+// VTabs 标签页组件
+// ============================================
+
+interface VTabsTabData {
+  id: string;
+  title: string;
+  icon?: string;
+  closable: boolean;
+  data: Record<string, any>;
+  content: ((container: Tag) => void) | Tag;
+  el?: Tag;
+  contentEl?: Tag;
+}
+
+declare class VTabs extends Tag {
+  constructor(setup?: Setup<VTabs>);
+  editable(value?: boolean): this | boolean;
+  closable(value?: boolean): this | boolean;
+  dragable(value?: boolean): this | boolean;
+  addTab(id: string, title: string, content: ((container: Tag) => void) | Tag, options?: {
+    icon?: string;
+    closable?: boolean;
+    data?: Record<string, any>;
+  }): this;
+  setActiveTab(id: string): this;
+  removeTab(id: string): this;
+  updateTabTitle(id: string, title: string): this;
+  getActiveTabId(): string | null;
+  getActiveTab(): VTabsTabData | null;
+  getTabs(): VTabsTabData[];
+  onChange(fn: (id: string, tab: VTabsTabData) => void): this;
+}
+
+declare function vTabs(setup?: Setup<VTabs>): VTabs;
+
+// ============================================
+// VRouter 路由组件
+// ============================================
+
+interface VRoute {
+  pattern: string;
+  component: ((params: Record<string, any>) => Tag) | Tag;
+  beforeEnter?: (to: { path: string; pattern: string; params: Record<string, any> }, from: any) => boolean | Promise<boolean>;
+}
+
+declare class VRouter extends Tag {
+  constructor(setup?: Setup<VRouter>);
+  mode(mode: 'hash'): this;
+  default(path: string): this;
+  route(pattern: string, config: VRoute | ((handler: { component: any; beforeEnter: any }) => void)): this;
+  navigate(path: string, options?: { replace?: boolean }): this;
+  go(delta: number): this;
+  back(): this;
+  forward(): this;
+  currentPath(): string;
+  currentParams(): Record<string, any>;
+  refresh(): this;
+  beforeEach(guard: (to: any, from: any) => boolean | Promise<boolean>): this;
+  afterEach(hook: (to: any, from: any) => void): this;
+}
+
+declare function vRouter(setup?: Setup<VRouter>): VRouter;
+
+declare function vRoute(pattern: string): {
+  component(fn: (params: Record<string, any>) => Tag): this;
+  beforeEnter(fn: (to: any, from: any) => boolean | Promise<boolean>): this;
+  build(): VRoute;
+};
+
+declare class VLink extends Tag {
+  constructor(to?: string, setup?: Setup<VLink>);
+  to(path: string): this;
+  replace(value?: boolean): this | boolean;
+}
+
+declare function vLink(to?: string, content?: string | ((link: VLink) => void), setup?: Setup<VLink>): VLink;
+
+declare class VRouterView extends Tag {
+  constructor(router: VRouter, setup?: Setup<VRouterView>);
+}
+
+declare function vRouterView(router: VRouter, setup?: Setup<VRouterView>): VRouterView;
+
+// ============================================
 // 导出
 // ============================================
 
@@ -552,4 +636,13 @@ export {
   VTr, vTr,
   VTh, vTh,
   VTd, vTd,
+
+  // VTabs
+  VTabs, vTabs,
+
+  // VRouter
+  VRouter, vRouter,
+  VRoute, vRoute,
+  VLink, vLink,
+  VRouterView, vRouterView,
 };

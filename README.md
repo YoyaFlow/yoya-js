@@ -420,7 +420,9 @@ UserSelectTable({
 
 ---
 
-## 📚 技能文档
+## 📚 文档索引
+
+### 技能教程
 
 本项目在 `skills/` 目录下提供了详细的使用技能文档：
 
@@ -431,6 +433,30 @@ UserSelectTable({
 | [yoya-form](./skills/yoya-form.md) | 表单组件使用 |
 | [yoya-components](./skills/yoya-components.md) | Card、Menu、Message 等 UI 组件 |
 | [yoya-svg](./skills/yoya-svg.md) | SVG 图形绘制 |
+
+### 示例代码
+
+| 文档 | 用途 |
+|------|------|
+| [示例索引](./src/examples/README.md) | 所有示例代码的索引和说明 |
+| [入口导航](./src/examples/yoya.example.html) | 在线运行所有示例 |
+
+### API 参考
+
+| 文档 | 用途 |
+|------|------|
+| [JSDoc 文档](./docs/index.html) | 完整的 API 参考文档 |
+| [架构分析](./docs/architecture-analysis.md) | 架构设计分析 |
+| [虚拟 DOM](./docs/component-virtual-dom-architecture.md) | 虚拟 DOM 架构详解 |
+| [状态机](./docs/state-machine-architecture.md) | 状态机系统说明 |
+| [元素生命周期](./docs/element-lifecycle-analysis.md) | 元素生命周期分析 |
+
+### 设计文档
+
+| 文档 | 用途 |
+|------|------|
+| [DESIGN.md](./DESIGN.md) | 详细设计文档 |
+| [CLAUDE.md](./CLAUDE.md) | 开发和架构说明 |
 
 ---
 

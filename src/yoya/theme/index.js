@@ -27,6 +27,14 @@ const themeRegistry = new Map();
 let currentThemeId = null;
 let currentMode = 'auto'; // 'auto' | 'light' | 'dark'
 
+// 自动注册 Islands 主题
+import { createLightTheme as createIslandsLight } from './islands/light.js';
+import { createDarkTheme as createIslandsDark } from './islands/dark.js';
+registerTheme('islands', null, {
+  lightFactory: createIslandsLight,
+  darkFactory: createIslandsDark,
+});
+
 // 已创建的组件实例引用（用于主题切换时重新应用样式）
 const componentInstances = new WeakSet();
 const componentInstanceRefs = new Set();
@@ -241,33 +249,39 @@ function applyStateStyles(componentClass, componentName, stateStyles) {
 
   const proto = componentClass.prototype;
 
-  // 包装 _registerStateHandlers 方法
+  // 包装 _registerStateHandlers 方法，在组件注册处理器后检查是否需要注册主题处理器
   const originalRegisterHandlers = proto._registerStateHandlers;
   proto._registerStateHandlers = function (...args) {
     // 先调用原有的状态处理器注册
     const result = originalRegisterHandlers ? originalRegisterHandlers.call(this, ...args) : undefined;
 
     // 注册主题状态样式处理器
+    // 只为主题独有的状态注册处理器，避免与组件内部处理器冲突
     for (const [stateName, styles] of Object.entries(stateStyles)) {
-      this.registerStateHandler(stateName, (value, host) => {
-        if (value) {
-          host.styles(styles);
-          // 如果已经绑定到 DOM，直接更新 DOM 样式
-          if (host._boundElement) {
-            for (const [prop, val] of Object.entries(styles)) {
-              host._boundElement.style[prop] = val;
-            }
-          }
-        } else {
-          // 恢复样式
-          for (const prop of Object.keys(styles)) {
-            host.style(prop, '');
+      // 检查该状态是否已有处理器（组件内部注册的）
+      const hasExistingHandler = this._stateMachine?._handlers?.has(stateName);
+
+      if (!hasExistingHandler) {
+        // 组件没有该状态的处理器，注册主题处理器
+        this.registerStateHandler(stateName, (value, host) => {
+          if (value) {
+            host.styles(styles);
             if (host._boundElement) {
-              host._boundElement.style[prop] = '';
+              for (const [prop, val] of Object.entries(styles)) {
+                host._boundElement.style[prop] = val;
+              }
+            }
+          } else {
+            // 恢复样式
+            for (const prop of Object.keys(styles)) {
+              host.style(prop, '');
+              if (host._boundElement) {
+                host._boundElement.style[prop] = '';
+              }
             }
           }
-        }
-      });
+        });
+      }
     }
 
     return result;
@@ -392,14 +406,28 @@ export function applyTheme(theme, save = true) {
   // 更新主题管理器
   themeManager.setTheme(theme.name);
 
+  // 设置全局主题引用（供 VBody 等组件使用）
+  if (typeof window !== 'undefined') {
+    window._yoyaTheme = theme;
+  }
+
   // 保存到 localStorage（保存主题 ID，不含 mode）
   if (save) {
     saveThemeToStorage(currentThemeId);
   }
 
-  // 派发事件
+  // 获取当前生效的 mode
+  const effectiveMode = getEffectiveMode();
+
+  // 派发事件（带上 mode 信息）
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme } }));
+    window.dispatchEvent(new CustomEvent('theme-changed', {
+      detail: {
+        theme,
+        mode: effectiveMode,
+        currentMode
+      }
+    }));
   }
 }
 
@@ -424,6 +452,11 @@ export function switchTheme(themeId) {
 export function setThemeMode(mode) {
   currentMode = mode;
   saveModeToStorage(mode);
+
+  // 同步到全局 window 变量
+  if (typeof window !== 'undefined') {
+    window._yoyaMode = mode;
+  }
 
   // 重新应用当前主题
   if (currentThemeId) {

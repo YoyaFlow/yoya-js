@@ -25,6 +25,7 @@ export {
   VDropdownMenu,
   VContextMenu,
   VSidebar,
+  VTopNavbar,
   vMenu,
   vMenuItem,
   vMenuDivider,
@@ -32,7 +33,8 @@ export {
   vSubMenu,
   vDropdownMenu,
   vContextMenu,
-  vSidebar
+  vSidebar,
+  vTopNavbar
 } from './menu.js';
 
 // Message 消息组件
@@ -116,3 +118,15 @@ export {
   VRouterView,
   vRouterView,
 } from './router.js';
+
+// Tabs 标签页组件
+export {
+  VTabs,
+  vTabs,
+} from './tabs.js';
+
+// Pager 分页组件
+export {
+  VPager,
+  vPager,
+} from './pager.js';

@@ -126,13 +126,13 @@ class VButton extends Tag {
         background: isGhost ? 'var(--yoya-primary-alpha)' : 'var(--yoya-button-primary-hover)',
       },
       success: {
-        background: isGhost ? 'var(--yoya-success-bg)' : 'var(--yoya-button-success-hover)',
+        background: isGhost ? 'var(--yoya-success-hover)' : 'var(--yoya-button-success-hover)',
       },
       warning: {
-        background: isGhost ? 'var(--yoya-warning-bg)' : 'var(--yoya-button-warning-hover)',
+        background: isGhost ? 'var(--yoya-warning-hover)' : 'var(--yoya-button-warning-hover)',
       },
       danger: {
-        background: isGhost ? 'var(--yoya-error-bg)' : 'var(--yoya-button-danger-hover)',
+        background: isGhost ? 'var(--yoya-error-hover)' : 'var(--yoya-button-danger-hover)',
       },
       default: {
         background: isGhost ? 'var(--yoya-hover-bg)' : 'var(--yoya-button-default-hover)',
@@ -145,8 +145,6 @@ class VButton extends Tag {
   _registerStateHandlers() {
     // disabled 状态
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
         host.styles({
           opacity: '0.5',
@@ -164,8 +162,6 @@ class VButton extends Tag {
 
     // loading 状态
     this.registerStateHandler('loading', (loading, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (loading) {
         host.styles({
           cursor: 'wait',
@@ -213,22 +209,22 @@ class VButton extends Tag {
         border: '1px solid var(--yoya-primary)',
       },
       success: {
-        background: isGhost ? 'transparent' : 'var(--yoya-success)',
+        background: isGhost ? 'var(--yoya-success-bg)' : 'var(--yoya-success)',
         color: isGhost ? 'var(--yoya-success)' : 'white',
         border: '1px solid var(--yoya-success)',
       },
       warning: {
-        background: isGhost ? 'transparent' : 'var(--yoya-warning)',
+        background: isGhost ? 'var(--yoya-warning-bg)' : 'var(--yoya-warning)',
         color: isGhost ? 'var(--yoya-warning)' : 'var(--yoya-text-primary)',
         border: '1px solid var(--yoya-warning)',
       },
       danger: {
-        background: isGhost ? 'transparent' : 'var(--yoya-error)',
+        background: isGhost ? 'var(--yoya-error-bg)' : 'var(--yoya-error)',
         color: isGhost ? 'var(--yoya-error)' : 'white',
         border: '1px solid var(--yoya-error)',
       },
       default: {
-        background: isGhost ? 'transparent' : 'var(--yoya-bg)',
+        background: isGhost ? 'transparent' : 'var(--yoya-button-default-bg, var(--yoya-bg))',
         color: isGhost ? 'var(--yoya-text)' : 'var(--yoya-text)',
         border: '1px solid var(--yoya-button-default-border)',
       },

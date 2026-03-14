@@ -1175,7 +1175,7 @@ class VSwitch extends Tag {
         width: 'var(--yoya-switch-width, 44px)',
         height: 'var(--yoya-switch-height, 22px)',
         borderRadius: 'var(--yoya-switch-radius, 11px)',
-        background: this._checked ? 'var(--yoya-primary, #667eea)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))',
+        background: this._checked ? 'var(--yoya-primary)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))',
         padding: '2px',
         cursor: 'pointer',
         transition: 'all 0.2s',
@@ -1240,7 +1240,7 @@ class VSwitch extends Tag {
       host._checked = checked;
       if (host._switchEl) {
         host._switchEl.style('background',
-          checked ? 'var(--yoya-primary, #667eea)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))');
+          checked ? 'var(--yoya-primary)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))');
       }
       // 更新滑块位置
       const knob = host._switchEl?._children?.find(c => c._isKnob);

@@ -497,7 +497,7 @@
 
   <span class="comment">// 带参数的路由</span>
   r.<span class="function">route</span>(<span class="string">'/user/:id'</span>, h => {
-    h.<span class="function">component</span>((params) => <span class="function">div</span>(<span class="string">`用户：${params.id}`</span>));
+    h.<span class="function">component</span>((params) => <span class="function">div</span>(<span class="string">'用户：' + params.id</span>));
   });
 });
 

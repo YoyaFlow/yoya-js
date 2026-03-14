@@ -88,8 +88,8 @@ export {
   vCard, vCardHeader, vCardBody, vCardFooter,
 
   // Menu 组件
-  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu, VSidebar,
-  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu, vSidebar,
+  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu, VSidebar, VTopNavbar,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu, vSidebar, vTopNavbar,
 
   // Message 组件
   VMessage, VMessageContainer, VMessageManager,
@@ -142,6 +142,12 @@ export {
   VRoute, vRoute,
   VLink, vLink,
   VRouterView, vRouterView,
+
+  // Tabs 组件
+  VTabs, vTabs,
+
+  // Pager 组件
+  VPager, vPager,
 } from './components/index.js';
 
 // 导出主题系统

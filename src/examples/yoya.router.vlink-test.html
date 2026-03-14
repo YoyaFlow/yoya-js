@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vLink 测试</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { div, vLink } from '../yoya/index.js';
+
+    console.log('vLink:', typeof vLink);
+    console.log('div:', typeof div);
+
+    // 测试 div('.class', fn) - 两个参数
+    const pageDiv = div('.page-card', box => {
+      console.log('div setup called');
+      box.h1('🏠 首页');
+      box.p('欢迎使用 VRouter！');
+    });
+
+    console.log('pageDiv:', pageDiv);
+    console.log('pageDiv._el.outerHTML:', pageDiv._el.outerHTML);
+
+    pageDiv.bindTo('#app');
+
+    console.log('After bindTo, #app.innerHTML:', document.getElementById('app').innerHTML);
+  </script>
+</body>
+</html>

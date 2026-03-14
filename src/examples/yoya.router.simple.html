@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>路由测试</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f0f2f5;
+    }
+    .nav { margin: 20px 0; }
+    .nav a {
+      margin-right: 10px;
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .page {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { vRouter, vLink, vRouterView, div, h1, p } from '../yoya/index.js';
+
+    // 创建路由器
+    const router = vRouter(r => {
+      r.default('/home');
+
+      r.route('/home', h => {
+        h.component(() => div('.page', box => {
+          box.h1('🏠 首页');
+          box.p('欢迎使用 VRouter！');
+        }));
+      });
+
+      r.route('/about', h => {
+        h.component(() => div('.page', box => {
+          box.h1('📖 关于');
+          box.p('这是关于页面');
+        }));
+      });
+
+      r.route('/user/:id', h => {
+        h.component((params) => div('.page', box => {
+          box.h1('👤 用户详情');
+          box.p(`用户 ID: ${params.id}`);
+        }));
+      });
+    });
+
+    // 创建应用
+    div(app => {
+      app.className('app');
+      app.div('.nav', nav => {
+        nav.vLink('/home', '首页');
+        nav.vLink('/about', '关于');
+        nav.vLink('/user/123', '用户 123');
+      });
+      app.child(vRouterView(router));
+    }).bindTo('#app');
+
+    // 初始化
+    setTimeout(() => {
+      if (!window.location.hash) {
+        router.navigate('/home');
+      }
+    }, 100);
+  </script>
+</body>
+</html>

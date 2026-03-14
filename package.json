@@ -35,7 +35,7 @@
     "dev": "vite",
     "serve": "node server.js",
     "start": "node server.js",
-    "test": "node tests/basic.test.js",
+    "test": "node tests/basic.test.js && node tests/pager.test.js",
     "test:browser": "playwright test",
     "test:browser:ui": "playwright test --ui",
     "test:browser:debug": "playwright test --debug",

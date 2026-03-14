@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPager 分页组件演示</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+    .demo-section {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .demo-section h2 {
+      margin-bottom: 16px;
+      font-size: 18px;
+      color: #333;
+    }
+    .demo-section p {
+      margin-bottom: 16px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="margin-bottom: 24px; color: #333;">VPager 分页组件演示</h1>
+
+  <!-- 基础用法 -->
+  <div class="demo-section">
+    <h2>基础用法</h2>
+    <div id="basic"></div>
+  </div>
+
+  <!-- 显示总记录数 -->
+  <div class="demo-section">
+    <h2>显示总记录数</h2>
+    <div id="withTotal"></div>
+  </div>
+
+  <!-- 显示快速跳转 -->
+  <div class="demo-section">
+    <h2>显示快速跳转</h2>
+    <div id="withJumper"></div>
+  </div>
+
+  <!-- 简洁模式 -->
+  <div class="demo-section">
+    <h2>简洁模式</h2>
+    <div id="simple"></div>
+  </div>
+
+  <!-- 小数据量 -->
+  <div class="demo-section">
+    <h2>小数据量（只有 5 页）</h2>
+    <div id="small"></div>
+  </div>
+
+  <script type="module">
+    import { vPager, toast } from '../yoya/index.js';
+
+    // 基础用法
+    vPager(p => {
+      p.total(125);
+      p.pageSize(10);
+      p.current(1);
+      p.onChange((page, info) => {
+        toast.info(`第 ${page} 页 / 共 ${info.totalPage} 页`);
+      });
+    }).bindTo('#basic');
+
+    // 显示总记录数
+    vPager(p => {
+      p.total(256);
+      p.pageSize(20);
+      p.current(3);
+      p.showTotal(true);
+      p.onChange((page) => {
+        console.log('切换到第', page, '页');
+      });
+    }).bindTo('#withTotal');
+
+    // 显示快速跳转
+    vPager(p => {
+      p.total(500);
+      p.pageSize(50);
+      p.current(1);
+      p.showTotal(true);
+      p.showQuickJumper(true);
+      p.onChange((page) => {
+        console.log('切换到第', page, '页');
+      });
+    }).bindTo('#withJumper');
+
+    // 简洁模式
+    vPager(p => {
+      p.total(1000);
+      p.pageSize(10);
+      p.current(5);
+      p.simple(true);
+      p.onChange((page) => {
+        console.log('切换到第', page, '页');
+      });
+    }).bindTo('#simple');
+
+    // 小数据量
+    vPager(p => {
+      p.total(45);
+      p.pageSize(10);
+      p.current(2);
+      p.onChange((page) => {
+        console.log('切换到第', page, '页');
+      });
+    }).bindTo('#small');
+  </script>
+</body>
+</html>

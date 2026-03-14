@@ -50,7 +50,7 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
           item.styles({
             fontSize: '12px',
             fontWeight: '600',
-            color: 'var(--islands-text-secondary, #999)',
+            color: 'var(--yoya-text-secondary, #666)',
             padding: '8px 16px 4px',
             textTransform: 'uppercase',
             pointerEvents: 'none',
@@ -65,13 +65,13 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
               fontSize: '14px',
               padding: '8px 16px',
               color: isActive
-                ? 'var(--islands-primary, #667eea)'
-                : 'var(--islands-text, #333)',
+                ? 'var(--yoya-primary, #2563EB)'
+                : 'var(--yoya-text, #333)',
               background: isActive
-                ? 'var(--islands-primary-alpha, rgba(102, 126, 234, 0.1))'
+                ? 'var(--yoya-primary-alpha, rgba(37, 99, 235, 0.1))'
                 : 'transparent',
               borderRight: isActive
-                ? '3px solid var(--islands-primary, #667eea)'
+                ? '3px solid var(--yoya-primary, #2563EB)'
                 : '3px solid transparent',
               cursor: 'pointer',
             });
@@ -91,7 +91,7 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
     sidebar.footer(footer => {
       footer.styles({
         fontSize: '12px',
-        color: 'var(--islands-text-secondary, #999)',
+        color: 'var(--yoya-text-secondary, #666)',
         textAlign: 'center',
       });
       footer.text('© 2024 Yoya.Basic');

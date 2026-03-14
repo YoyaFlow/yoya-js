@@ -23,6 +23,8 @@ export const menuConfig = [
     items: [
       { label: 'Menu 菜单', page: 'Menu', file: 'menu.html' },
       { label: 'Router 路由', page: 'Router', file: 'router.html' },
+      { label: 'Tabs 标签页', page: 'Tabs', file: 'tabs.html' },
+      { label: 'Pager 分页', page: 'VPager', file: 'pager.html' },
     ],
   },
   {
@@ -51,6 +53,7 @@ export const menuConfig = [
     group: '工具',
     items: [
       { label: '动态加载', page: 'DynamicLoader', file: 'dynamic-loader.html' },
+      { label: '主题系统', page: 'Theme', file: 'theme.html' },
     ],
   },
   {

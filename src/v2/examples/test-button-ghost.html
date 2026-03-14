@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VButton Ghost Warning 测试</title>
+  <style>
+    body {
+      padding: 40px;
+      font-family: system-ui, sans-serif;
+    }
+    .test-section {
+      margin-bottom: 40px;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>VButton Ghost Warning 测试</h1>
+  <p>测试 ghost warning 按钮的 hover 效果</p>
+
+  <div class="test-section">
+    <h2>Ghost Warning 按钮</h2>
+    <p>鼠标移入应该有背景色，移出后恢复浅色背景（不是 transparent）</p>
+    <div id="test1"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Ghost Success 按钮</h2>
+    <div id="test2"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Ghost Danger 按钮</h2>
+    <div id="test3"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Ghost Default 按钮</h2>
+    <div id="test4"></div>
+  </div>
+
+  <script type="module">
+    import { vButton, initTheme, createLightTheme, createDarkTheme } from '../../yoya/index.js';
+
+    // 初始化主题
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'light',
+      themes: new Map([
+        ['islands', {
+          factory: createLightTheme,
+          lightFactory: createLightTheme,
+          darkFactory: createDarkTheme,
+        }],
+      ]),
+    });
+
+    // Test 1: Ghost Warning
+    vButton(b => {
+      b.text('Ghost Warning');
+      b.type('warning');
+      b.ghost();
+    }).bindTo('#test1');
+
+    // Test 2: Ghost Success
+    vButton(b => {
+      b.text('Ghost Success');
+      b.type('success');
+      b.ghost();
+    }).bindTo('#test2');
+
+    // Test 3: Ghost Danger
+    vButton(b => {
+      b.text('Ghost Danger');
+      b.type('danger');
+      b.ghost();
+    }).bindTo('#test3');
+
+    // Test 4: Ghost Default
+    vButton(b => {
+      b.text('Ghost Default');
+      b.ghost();
+    }).bindTo('#test4');
+  </script>
+</body>
+</html>

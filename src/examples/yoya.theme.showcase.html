@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic 主题展示</title>
+  <style>
+    /* 页面加载动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--yoya-bg-secondary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--yoya-border);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--yoya-text-secondary);
+    }
+
+    /* 主题切换按钮动画 */
+    .theme-btn {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .theme-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import {
+      vBody, vCard, vButton, vMenu, vDropdownMenu,
+      flex, grid, responsiveGrid, vstack, hstack, center, spacer, divider,
+      toast, vCode, vDetail, vDetailItem,
+      div, span, h3,
+      initTheme, switchTheme, setThemeMode, getThemeMode
+    } from '../yoya/index.js';
+
+    // 初始化主题
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'light'
+    });
+
+    // 主题图标
+    const themeIcons = {
+      light: '☀️',
+      dark: '🌙',
+      auto: '🔄'
+    };
+
+    // 创建导航栏
+    function createNavbar() {
+      return hstack(nav => {
+        nav.style('padding', '16px 24px');
+        nav.style('background', 'var(--yoya-bg)');
+        nav.style('borderBottom', '1px solid var(--yoya-border)');
+        nav.style('position', 'sticky');
+        nav.style('top', '0');
+        nav.style('zIndex', '100');
+
+        // Logo
+        nav.child(hstack(logo => {
+          logo.style('font-size', '20px');
+          logo.style('font-weight', '700');
+          logo.style('color', 'var(--yoya-primary)');
+          logo.text('🏝️ Yoya.Basic');
+        }));
+
+        nav.child(spacer());
+
+        // 主题切换按钮组
+        nav.child(hstack(btns => {
+          btns.gap('8px');
+
+          // 浅色按钮
+          btns.child(vButton(btn => {
+            btn.text(`${themeIcons.light} 浅色`);
+            btn.type('primary');
+            btn.size('sm');
+            btn.onClick(() => {
+              switchTheme('islands');
+              setThemeMode('light');
+              toast.success('已切换到浅色主题');
+            });
+          }));
+
+          // 深色按钮
+          btns.child(vButton(btn => {
+            btn.text(`${themeIcons.dark} 深色`);
+            btn.type('primary');
+            btn.size('sm');
+            btn.onClick(() => {
+              switchTheme('islands');
+              setThemeMode('dark');
+              toast.success('已切换到深色主题');
+            });
+          }));
+
+          // 自动按钮
+          btns.child(vButton(btn => {
+            btn.text(`${themeIcons.auto} 自动`);
+            btn.type('default');
+            btn.size('sm');
+            btn.onClick(() => {
+              setThemeMode('auto');
+              toast.info('已切换到自动模式');
+            });
+          }));
+        }));
+      });
+    }
+
+    // 创建主题预览卡片
+    function createThemePreviewCard() {
+      return vCard(card => {
+        card.cardHeader('🎨 主题变量预览');
+        card.cardBody(preview => {
+          // 颜色展示
+          preview.child(grid(colorGrid => {
+            colorGrid.columns(4);
+            colorGrid.gap('12px');
+            colorGrid.style("marginBottom", '16px');
+
+            const colors = [
+              { name: 'Primary', var: '--yoya-primary' },
+              { name: 'Success', var: '--yoya-success' },
+              { name: 'Warning', var: '--yoya-warning' },
+              { name: 'Error', var: '--yoya-error' },
+              { name: 'Background', var: '--yoya-bg' },
+              { name: 'Secondary BG', var: '--yoya-bg-secondary' },
+              { name: 'Text', var: '--yoya-text' },
+              { name: 'Border', var: '--yoya-border' },
+            ];
+
+            colors.forEach(color => {
+              colorGrid.child(div(box => {
+                box.style('padding', '12px');
+                box.style('borderRadius', '8px');
+                box.style('border', '1px solid var(--yoya-border)');
+                box.style('text-align', 'center');
+                box.style('font-size', '12px');
+                box.style('background', `var(${color.var})`);
+                box.style('color', color.var.includes('bg') || color.var.includes('Background')
+                  ? 'var(--yoya-text)' : 'inherit');
+                box.text(color.name);
+              }));
+            });
+          }));
+
+          // 当前模式
+          preview.child(hstack(mode => {
+            mode.style('padding', '12px');
+            mode.style('background', 'var(--yoya-bg-secondary)');
+            mode.style('borderRadius', '8px');
+            mode.style('margin-top', '12px');
+
+            mode.child(span(s => {
+              s.style('color', 'var(--yoya-text-secondary)');
+              s.style('font-size', '13px');
+              s.text('当前模式：');
+            }));
+
+            mode.child(span(current => {
+              current.id('current-mode');
+              current.style('font-weight', '600');
+              current.style('color', 'var(--yoya-primary)');
+              current.style('font-size', '13px');
+              current.text(getThemeMode());
+            }));
+          }));
+        });
+      });
+    }
+
+    // 创建组件展示
+    function createComponentShowcase() {
+      return vCard(card => {
+        card.cardHeader('🧩 组件展示');
+        card.cardBody(showcase => {
+
+          // 按钮组
+          showcase.child(vstack(section => {
+            section.style('margin-bottom', '24px');
+
+            section.child(h3(h => {
+              h.style('margin', '0 0 12px 0');
+              h.style('font-size', '14px');
+              h.style('color', 'var(--yoya-text-secondary)');
+              h.style('font-weight', '500');
+              h.text('按钮样式');
+            }));
+
+            section.child(hstack(btns => {
+              btns.gap('12px');
+
+              btns.child(vButton('Primary').type('primary'));
+              btns.child(vButton('Secondary'));
+              btns.child(vButton('Success').style('background', 'var(--yoya-success)').style('color', 'white'));
+              btns.child(vButton('Warning').style('background', 'var(--yoya-warning)').style('color', '#333'));
+              btns.child(vButton('Danger').style('background', 'var(--yoya-error)').style('color', 'white'));
+            }));
+          }));
+
+          // 菜单展示
+          showcase.child(divider());
+
+          showcase.child(vstack(section => {
+            section.style('margin-top', '24px');
+
+            section.child(h3(h => {
+              h.style('margin', '0 0 12px 0');
+              h.style('font-size', '14px');
+              h.style('color', 'var(--yoya-text-secondary)');
+              h.style('font-weight', '500');
+              h.text('下拉菜单');
+            }));
+
+            section.child(vDropdownMenu(dropdown => {
+              dropdown.trigger(vButton('📋 点击打开菜单'));
+              dropdown.menuContent(vMenu(menu => {
+                menu.item(it => {
+                  it.text('📄 新建文件');
+                });
+                menu.item(it => {
+                  it.text('📂 打开文件');
+                });
+                menu.divider();
+                menu.item(it => {
+                  it.text('⚙️ 设置');
+                });
+                menu.item(it => {
+                  it.text('❓ 帮助');
+                });
+              }));
+              dropdown.closeOnClickOutside();
+            }));
+          }));
+
+          // 状态消息
+          showcase.child(divider());
+
+          showcase.child(vstack(section => {
+            section.style('margin-top', '24px');
+
+            section.child(h3(h => {
+              h.style('margin', '0 0 12px 0');
+              h.style('font-size', '14px');
+              h.style('color', 'var(--yoya-text-secondary)');
+              h.style('font-weight', '500');
+              h.text('消息提示');
+            }));
+
+            section.child(hstack(msgs => {
+              msgs.gap('12px');
+
+              msgs.child(vButton(btn => {
+                btn.text('成功');
+                btn.onClick(() => toast.success('操作成功完成！'));
+              }));
+
+              msgs.child(vButton(btn => {
+                btn.text('错误');
+                btn.onClick(() => toast.error('发生错误，请重试！'));
+              }));
+
+              msgs.child(vButton(btn => {
+                btn.text('警告');
+                btn.onClick(() => toast.warning('请注意此操作的影响！'));
+              }));
+
+              msgs.child(vButton(btn => {
+                btn.text('信息');
+                btn.onClick(() => toast.info('这是一条提示信息！'));
+              }));
+            }));
+          }));
+        });
+      });
+    }
+
+    // 创建代码展示
+    function createCodeShowcase() {
+      return vCard(card => {
+        card.cardHeader('💻 代码主题适配');
+        card.cardBody(code => {
+          code.child(vCode(vc => {
+            vc.content(`// Yoya.Basic 主题系统使用示例
+import {
+  vBody, vCard, vButton,
+  initTheme, switchTheme, setThemeMode
+} from 'yoya-basic';
+
+// 初始化主题
+initTheme({
+  defaultTheme: 'islands',
+  defaultMode: 'auto'
+});
+
+// 切换主题
+switchTheme('islands');
+setThemeMode('dark');
+
+// 创建页面
+vBody(b => {
+  b.child(vCard(c => {
+    c.cardHeader('欢迎使用');
+    c.cardBody('主题系统已就绪');
+  }));
+}).bindTo('#app');`);
+            vc.title('JavaScript');
+            vc.showLineNumbers(true);
+          }));
+        });
+      });
+    }
+
+    // 创建详情展示
+    function createDetailShowcase() {
+      return vCard(card => {
+        card.cardHeader('📋 主题信息');
+        card.cardBody(detail => {
+          detail.child(vDetail(vd => {
+            vd.title('主题系统详情');
+
+            vd.item(it => {
+              it.label('主题名称');
+              it.content('Islands');
+            });
+
+            vd.item(it => {
+              it.label('支持模式');
+              it.content('浅色 / 深色 / 自动');
+            });
+
+            vd.item(it => {
+              it.label('变量前缀');
+              it.content('--yoya-*');
+            });
+
+            vd.item(it => {
+              it.label('组件数量');
+              it.content('20+ 组件');
+            });
+          }));
+        });
+      });
+    }
+
+    // 主页面
+    vBody(b => {
+      // 导航栏
+      b.child(createNavbar());
+
+      // 主内容区
+      b.child(grid(main => {
+        main.columns(3);
+        main.gap('20px');
+        main.style("padding", '24px');
+
+        // 左侧 - 主题预览
+        main.child(createThemePreviewCard());
+
+        // 中间 - 组件展示
+        main.child(createComponentShowcase());
+
+        // 右侧 - 代码和信息
+        main.child(vstack(right => {
+          right.gap('20px');
+          right.child(createCodeShowcase());
+          right.child(createDetailShowcase());
+        }));
+      }));
+    }).bindTo('#app');
+
+    // 定时更新当前模式显示
+    setInterval(() => {
+      const el = document.getElementById('current-mode');
+      if (el) {
+        el.textContent = getThemeMode();
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

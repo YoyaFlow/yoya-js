@@ -250,7 +250,7 @@ class VRouter extends Tag {
         div.style('padding', '60px 20px');
         div.h1(h => {
           h.style('font-size', '72px');
-          h.style('color', '#667eea');
+          h.style('color', 'var(--yoya-primary)');
           h.text('404');
         });
         div.p(p => {

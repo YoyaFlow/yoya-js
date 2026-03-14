@@ -1,13 +1,35 @@
 /**
  * Yoya.Basic - Browser-native HTML DSL Library
  * 提供类似 Kotlin HTML DSL 的声明式语法
+ * @module Yoya.Basic
  */
 
 // ============================================
 // Tag 基类
 // ============================================
 
+/**
+ * Tag 类 - 所有 HTML 元素的基类
+ * 提供声明式语法构建 DOM 元素，支持链式调用和虚拟 DOM
+ * @class
+ * @example
+ * // 创建 div 元素
+ * const divEl = div(box => {
+ *   box.className('container');
+ *   box.text('Hello World');
+ * }).bindTo('#app');
+ */
 class Tag {
+  /**
+   * 创建 Tag 实例
+   * @param {string} tagName - HTML 标签名
+   * @param {Function|Object|string|null} [setup=null] - 初始化配置，可以是函数、对象或字符串
+   * @example
+   * new Tag('div', box => {
+   *   box.className('container');
+   *   box.text('内容');
+   * });
+   */
   constructor(tagName, setup = null) {
     this._tagName = tagName;
 
@@ -36,7 +58,15 @@ class Tag {
     }
   }
 
-  // setup 统一初始化
+  /**
+   * setup 统一初始化方法
+   * 根据传入参数类型执行不同的初始化逻辑
+   * @param {Function|Object|string|null} setup - 初始化配置
+   * - 函数：执行回调函数
+   * - 对象：应用配置属性
+   * - 字符串：添加文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   setup(setup) {
     if (typeof setup === 'function') {
       this._setupFunction(setup);
@@ -47,19 +77,47 @@ class Tag {
     }
     return this;
   }
+
+  /**
+   * 字符串 setup 处理 - 添加文本内容
+   * @private
+   * @param {string} setupString - 文本内容
+   */
   _setupString(setupString){
     this._addText(setupString);
   }
+
+  /**
+   * 函数 setup 处理 - 执行回调
+   * @private
+   * @param {Function} setupFn - 回调函数
+   */
   _setupFunction(setupFn){
     setupFn(this);
   }
+
+  /**
+   * 对象 setup 处理 - 应用配置属性
+   * 处理 class/className, style, 事件 (onXxx), children 和其他属性
+   * @private
+   * @param {Object} config - 配置对象
+   */
   _setupObject(config) {
     // 处理 class
     if (config.class) {
       if (Array.isArray(config.class)) {
-        this.class(...config.class);
+        this.className(...config.class);
       } else {
-        this.class(config.class);
+        this.className(config.class);
+      }
+    }
+
+    // 处理 className（别名）
+    if (config.className) {
+      if (Array.isArray(config.className)) {
+        this.className(...config.className);
+      } else {
+        this.className(config.className);
       }
     }
 
@@ -111,7 +169,12 @@ class Tag {
     }
   }
 
-  // 添加文本节点
+  /**
+   * 添加文本节点
+   * @private
+   * @param {string|number} content - 文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   _addText(content) {
     const textNode = document.createTextNode(String(content));
     this._el.appendChild(textNode);
@@ -126,7 +189,19 @@ class Tag {
     return this;
   }
 
-  // 属性操作：存储 + 同步到 _el
+  /**
+   * 属性操作：存储并同步到 DOM 元素
+   * @param {string|Object} name - 属性名或属性对象
+   * @param {*} [value] - 属性值（不传则返回当前值）
+   * @returns {this|*} 设置时返回 this，获取时返回属性值
+   * @example
+   * // 设置单个属性
+   * el.attr('id', 'my-id');
+   * // 设置多个属性
+   * el.attr({ id: 'test', name: 'input1' });
+   * // 获取属性值
+   * const id = el.attr('id');
+   */
   attr(name, value) {
     if (value === undefined && typeof name === 'string') {
       return this._attrs[name];
@@ -144,6 +219,12 @@ class Tag {
     return this;
   }
 
+  /**
+   * 将属性应用到 DOM 元素
+   * @private
+   * @param {string} name - 属性名
+   * @param {*} value - 属性值
+   */
   _applyAttrToEl(name, value) {
     if (value === null || value === undefined) {
       this._el.removeAttribute(name);
@@ -175,18 +256,54 @@ class Tag {
     }
   }
 
-  // 添加类：同步到 _el
-  class(...classes) {
+  /**
+   * 添加 CSS 类名（同步到 DOM）
+   * @param {...(string|string[])} classes - 类名，支持多个参数或数组
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.className('active', 'highlight');
+   * el.className(['btn', 'btn-primary']);
+   * el.className('btn btn-primary'); // 空格分隔的多个类名
+   */
+  className(...classes) {
     classes.flat().forEach(cls => {
       if (cls) {
-        this._classes.add(cls);
-        this._el.classList.add(cls);
+        // 处理字符串中包含空格的情况（如 'class1 class2'）
+        const classList = typeof cls === 'string' ? cls.trim().split(/\s+/) : [cls];
+        classList.forEach(c => {
+          if (c) {
+            this._classes.add(c);
+            this._el.classList.add(c);
+          }
+        });
       }
     });
     return this;
   }
 
-  // 样式操作：存储 + 同步到 _el
+  /**
+   * className 的别名，保持向后兼容
+   * @deprecated 推荐使用 className()
+   * @param {...(string|string[])} classes - 类名
+   * @returns {this}
+   */
+  class(...classes) {
+    return this.className(...classes);
+  }
+
+  /**
+   * 样式操作：存储并同步到 DOM 元素
+   * @param {string|Object} name - 样式名或样式对象
+   * @param {string|number} [value] - 样式值（不传则返回当前值）
+   * @returns {this|*} 设置时返回 this，获取时返回样式值
+   * @example
+   * // 设置单个样式
+   * el.style('color', 'red');
+   * // 设置多个样式
+   * el.style({ color: 'red', fontSize: '14px' });
+   * // 获取样式值
+   * const color = el.style('color');
+   */
   style(name, value) {
     if (value === undefined && typeof name === 'string') {
       return this._styles[name];
@@ -206,7 +323,13 @@ class Tag {
     return this;
   }
 
-  // 批量设置样式：存储 + 同步到 _el
+  /**
+   * 批量设置样式
+   * @param {Object} stylesObj - 样式对象
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.styles({ color: 'red', padding: '10px', margin: '0 auto' });
+   */
   styles(stylesObj) {
     for (const [name, value] of Object.entries(stylesObj)) {
       this._styles[name] = value;
@@ -220,17 +343,34 @@ class Tag {
   // 所有 HTML 元素都可以使用这些方法
   // ============================================
 
+  /**
+   * 设置/获取元素 id
+   * @param {string} [value] - id 值（不传则返回当前值）
+   * @returns {this|string} 设置时返回 this，获取时返回 id 值
+   */
   id(value) {
     if (value === undefined) return this.attr('id');
     return this.attr('id', value);
   }
 
+  /**
+   * 设置/获取元素 name 属性
+   * @param {string} [value] - name 值（不传则返回当前值）
+   * @returns {this|string} 设置时返回 this，获取时返回 name 值
+   */
   name(value) {
     if (value === undefined) return this.attr('name');
     return this.attr('name', value);
   }
 
-  // 绑定事件
+  /**
+   * 绑定事件处理器
+   * @param {string} event - 事件名称
+   * @param {Function} handler - 事件处理函数
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.on('click', (e) => { console.log('clicked', e); });
+   */
   on(event, handler) {
     if (!this._events[event]) {
       this._events[event] = [];
@@ -266,8 +406,13 @@ class Tag {
   }
 
   /**
-   * 绑定标准点击事件 - 传递 {event, target}
-   * @param {Function} handler - 事件处理器 ({event, target}) => void
+   * 绑定标准点击事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.onClick(({ event, target }) => {
+   *   console.log('元素被点击', target);
+   * });
    */
   onClick(handler) {
     this.on('click', this._wrapHandler(handler));
@@ -275,8 +420,13 @@ class Tag {
   }
 
   /**
-   * 绑定值变化事件 - 传递 {event, value, oldValue, target}
-   * @param {Function} handler - 事件处理器 ({event, value, oldValue, target}) => void
+   * 绑定值变化事件
+   * @param {Function} handler - 事件处理器，接收 {event, value, oldValue, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.onChangeValue(({ value, oldValue }) => {
+   *   console.log('值从', oldValue, '变为', value);
+   * });
    */
   onChangeValue(handler) {
     const oldValue = this.value?.();
@@ -288,8 +438,9 @@ class Tag {
   }
 
   /**
-   * 绑定输入事件 - 传递 {event, value, target}
-   * @param {Function} handler - 事件处理器 ({event, value, target}) => void
+   * 绑定输入事件
+   * @param {Function} handler - 事件处理器，接收 {event, value, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onInputValue(handler) {
     this.on('input', this._wrapHandler(handler, (e) => {
@@ -299,8 +450,9 @@ class Tag {
   }
 
   /**
-   * 绑定布尔状态事件 - 传递 {event, value, oldValue, target}
-   * @param {Function} handler - 事件处理器 ({event, value, oldValue, target}) => void
+   * 绑定布尔状态切换事件
+   * @param {Function} handler - 事件处理器，接收 {event, value, oldValue, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onToggle(handler) {
     const oldValue = this.checked?.();
@@ -312,7 +464,9 @@ class Tag {
   }
 
   /**
-   * 绑定焦点事件 - 传递 {event, target}
+   * 绑定焦点事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onFocus(handler) {
     this.on('focus', this._wrapHandler(handler));
@@ -320,7 +474,9 @@ class Tag {
   }
 
   /**
-   * 绑定失焦事件 - 传递 {event, target}
+   * 绑定失焦事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onBlur(handler) {
     this.on('blur', this._wrapHandler(handler));
@@ -328,8 +484,9 @@ class Tag {
   }
 
   /**
-   * 绑定键盘事件 - 传递 {event, key, target}
-   * @param {Function} handler - 事件处理器 ({event, key, target}) => void
+   * 绑定键盘事件
+   * @param {Function} handler - 事件处理器，接收 {event, key, code, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onKey(handler) {
     this.on('keydown', this._wrapHandler(handler, (e) => {
@@ -339,7 +496,9 @@ class Tag {
   }
 
   /**
-   * 绑定鼠标进入事件 - 传递 {event, target}
+   * 绑定鼠标进入事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onMouseEnter(handler) {
     this.on('mouseenter', this._wrapHandler(handler));
@@ -347,14 +506,25 @@ class Tag {
   }
 
   /**
-   * 绑定鼠标离开事件 - 传递 {event, target}
+   * 绑定鼠标离开事件
+   * @param {Function} handler - 事件处理器，接收 {event, target} 参数
+   * @returns {this} 返回当前实例支持链式调用
    */
   onMouseLeave(handler) {
     this.on('mouseleave', this._wrapHandler(handler));
     return this;
   }
 
-  // 添加文本节点（作为子元素）
+  /**
+   * 添加文本节点或子元素
+   * @param {string|number|Tag} content - 文本内容、数字或 Tag 实例
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * // 添加文本
+   * el.text('Hello World');
+   * // 添加 Tag 实例
+   * el.text(span('inner text'));
+   */
   text(content) {
     // 如果传入的是 Tag 对象（如 text('Hello')），直接添加为子元素
     if (content instanceof Tag) {
@@ -363,23 +533,45 @@ class Tag {
     }
     return this._addText(content);
   }
+
+  /**
+   * 清空并设置文本内容
+   * @param {string|number} content - 文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   textContent(content){
     this.clear();
     this.text(content);
   }
 
-  // 添加 HTML
+  /**
+   * 设置 HTML 内容
+   * @param {string} content - HTML 字符串
+   * @returns {this} 返回当前实例支持链式调用
+   */
   html(content) {
     this._htmlContent = content;
     return this;
   }
 
-  // 添加子元素
+  /**
+   * 添加一个或多个子元素
+   * @param {...(Tag|string|number|null|undefined|Array)} children - 子元素，支持 Tag 实例、字符串、数字、数组
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * el.child(div('child1'), span('child2'));
+   * el.child([div('a'), span('b')]);
+   */
   child(...children) {
     this._addChildren(children);
     return this;
   }
 
+  /**
+   * 添加多个子元素（内部方法）
+   * @private
+   * @param {Array} children - 子元素数组
+   */
   _addChildren(children) {
     children.flat().forEach(child => {
       if (child === null || child === undefined) {
@@ -398,7 +590,10 @@ class Tag {
     });
   }
 
-  // 清空子元素
+  /**
+   * 清空子元素
+   * @returns {this} 返回当前实例支持链式调用
+   */
   clear() {
     this._children = [];
     this._htmlContent = null;
@@ -409,7 +604,19 @@ class Tag {
     return this;
   }
 
-  // 绑定到 DOM
+  /**
+   * 绑定到 DOM 元素
+   * 支持 CSS 选择器字符串、DOM 元素或 Tag 实例
+   * @param {string|Element|Tag} target - 绑定目标
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * // 绑定到 CSS 选择器
+   * el.bindTo('#app');
+   * // 绑定到 DOM 元素
+   * el.bindTo(document.getElementById('app'));
+   * // 绑定到 Tag 实例
+   * parent.child(el);
+   */
   bindTo(target) {
     const el = this.renderDom();
     if (!el) return this;
@@ -426,7 +633,11 @@ class Tag {
     return this;
   }
 
-  // Q6: renderDom 只处理子元素的智能增删，不重新应用属性
+  /**
+   * 渲染虚拟元素树为真实 DOM
+   * 智能更新子元素，只处理增删，不重新应用属性
+   * @returns {HTMLElement|null} 返回渲染后的 DOM 元素，如果已删除则返回 null
+   */
   renderDom() {
     if (this._deleted) return null;
 
@@ -480,7 +691,10 @@ class Tag {
     return this._el;
   }
 
-  // 事件同步到 _el（只在首次渲染时）
+  /**
+   * 将事件同步到 DOM 元素（仅在首次渲染时调用）
+   * @private
+   */
   _applyEventsToEl() {
     for (const [event, handlers] of Object.entries(this._events)) {
       if (handlers.length === 0) continue;
@@ -495,7 +709,10 @@ class Tag {
     }
   }
 
-  // 销毁元素
+  /**
+   * 销毁元素及其所有子元素
+   * @returns {this} 返回当前实例支持链式调用
+   */
   destroy() {
     this._deleted = true;
 
@@ -519,8 +736,8 @@ class Tag {
   /**
    * 设置元素状态
    * @param {string} state - 状态名称
-   * @param {boolean} enabled - 是否启用该状态
-   * @returns {this}
+   * @param {boolean} [enabled=true] - 是否启用该状态
+   * @returns {this} 返回当前实例支持链式调用
    */
   setState(state, enabled = true) {
     if (enabled) {
@@ -535,7 +752,7 @@ class Tag {
   /**
    * 检查元素是否处于某个状态
    * @param {string} state - 状态名称
-   * @returns {boolean}
+   * @returns {boolean} 如果处于该状态返回 true
    */
   hasState(state) {
     return this._states.has(state);
@@ -543,7 +760,7 @@ class Tag {
 
   /**
    * 获取当前所有状态
-   * @returns {Set<string>}
+   * @returns {Set<string>} 返回所有状态的副本
    */
   getStates() {
     return new Set(this._states);
@@ -552,6 +769,7 @@ class Tag {
   /**
    * 应用状态样式（由子类实现具体逻辑）
    * 默认实现：根据状态应用内联样式
+   * @private
    */
   _applyStateStyles() {
     // 组件可以通过覆盖此方法来自定义状态样式的处理方式
@@ -567,7 +785,7 @@ class Tag {
   /**
    * 设置状态样式映射
    * @param {Object} stateStyles - 状态与样式的映射对象
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   setStateStyles(stateStyles) {
     this._stateStyles = { ...this._stateStyles, ...stateStyles };
@@ -576,7 +794,7 @@ class Tag {
 
   /**
    * 清除所有状态
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   clearStates() {
     this._states.clear();
@@ -586,7 +804,7 @@ class Tag {
 
   /**
    * 保存基础样式快照（用于状态变更时恢复）
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   saveBaseStylesSnapshot() {
     this._baseStyles = { ...this._styles };
@@ -595,7 +813,7 @@ class Tag {
 
   /**
    * 清空状态样式（恢复基础样式）
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   clearStateStyles() {
     if (!this._baseStyles) return this;
@@ -614,7 +832,10 @@ class Tag {
     return this;
   }
 
-  // 转换为 HTML 字符串
+  /**
+   * 转换为 HTML 字符串
+   * @returns {string} 返回 HTML 字符串表示
+   */
   toHTML() {
     if (this._deleted) return '';
 
@@ -642,10 +863,6 @@ class Tag {
     return tagStart + htmlContent + childrenHtml + tagEnd;
   }
 }
-
-// ============================================
-// 基础容器元素
-// ============================================
 
 /**
  * 创建简单的 Tag 子类（无额外方法）
@@ -715,18 +932,33 @@ const { div, span, p, section, article, header, footer, nav, aside, main,
 // 任何元素都可以使用这些方法添加子元素
 // ============================================
 
+/**
+ * 添加 div 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this} 返回当前实例支持链式调用
+ */
 Tag.prototype.div = function(setup = null) {
   const el = div(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * 添加 span 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this} 返回当前实例支持链式调用
+ */
 Tag.prototype.span = function(setup = null) {
   const el = span(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * 添加 p 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this} 返回当前实例支持链式调用
+ */
 Tag.prototype.p = function(setup = null) {
   const el = p(setup);
   this.child(el);
@@ -1703,6 +1935,7 @@ function text(content) {
  * Yoya.Basic - Theme System
  * 主题系统：基于状态机的样式管理机制
  * 支持 boolean、string、number 多种状态值类型
+ * @module Yoya.Theme
  */
 
 // 注意：不在这里导入 Tag，而是在 initTagExtensions 中动态获取
@@ -1715,11 +1948,13 @@ function text(content) {
 /**
  * 主题注册表
  * 存储每个组件类型的状态处理器
+ * @type {Map<string, Theme>}
  */
 const themeRegistry$1 = new Map();
 
 /**
  * 全局主题配置
+ * @type {Object}
  */
 let globalTheme = {
   components: {}
@@ -1730,10 +1965,21 @@ let globalTheme = {
 // ============================================
 
 /**
+ * 状态值类型定义
  * @typedef {boolean | string | number} StateValue
  */
 
+/**
+ * StateMachine 状态机类
+ * 用于管理组件的状态（如 disabled, active, size 等）
+ * @class
+ */
 class StateMachine {
+  /**
+   * 创建 StateMachine 实例
+   * @param {Tag} host - 宿主元素（Tag 实例）
+   * @param {Array<string|Object>} [stateAttrs=[]] - 状态属性列表
+   */
   constructor(host, stateAttrs = []) {
     this._host = host;           // 宿主元素（Tag 实例）
     this._stateAttrs = new Set(stateAttrs);  // 关注的状态属性列表
@@ -2103,7 +2349,16 @@ class StateMachine {
 // Theme 主题类
 // ============================================
 
+/**
+ * Theme 主题类
+ * 用于定义和管理组件的状态样式和处理器
+ * @class
+ */
 class Theme {
+  /**
+   * 创建 Theme 实例
+   * @param {string} [name='default'] - 主题名称
+   */
   constructor(name = 'default') {
     this.name = name;
     this.stateStyles = {};      // { disabled: { opacity: '0.5' } }
@@ -2116,7 +2371,7 @@ class Theme {
    * @param {string} componentName - 组件名
    * @param {string} stateName - 状态名
    * @param {Object} styles - 样式对象
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   setComponentStateStyles(componentName, stateName, styles) {
     if (!this.componentThemes[componentName]) {
@@ -2134,7 +2389,7 @@ class Theme {
    * @param {string} componentName - 组件名
    * @param {string} stateName - 状态名
    * @param {Function} handler - 处理函数 (value, host, oldValue) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   setComponentStateHandler(componentName, stateName, handler) {
     if (!this.componentThemes[componentName]) {
@@ -2149,7 +2404,7 @@ class Theme {
 
   /**
    * 注册主题到注册表
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   register() {
     themeRegistry$1.set(this.name, this);
@@ -2185,6 +2440,8 @@ class Theme {
   /**
    * 移除样式（辅助方法）
    * @private
+   * @param {Tag} component - 组件实例
+   * @param {Object} styles - 样式对象
    */
   _removeStyles(component, styles) {
     for (const name of Object.keys(styles)) {
@@ -2197,7 +2454,15 @@ class Theme {
 // 主题管理器
 // ============================================
 
+/**
+ * ThemeManager 主题管理器
+ * 用于注册和管理多个主题
+ * @class
+ */
 class ThemeManager {
+  /**
+   * 创建 ThemeManager 实例
+   */
   constructor() {
     this._currentTheme = null;
     this._themes = new Map();
@@ -2205,8 +2470,8 @@ class ThemeManager {
 
   /**
    * 注册主题
-   * @param {Theme} theme
-   * @returns {this}
+   * @param {Theme} theme - 主题实例
+   * @returns {this} 返回当前实例支持链式调用
    */
   registerTheme(theme) {
     this._themes.set(theme.name, theme);
@@ -2215,8 +2480,8 @@ class ThemeManager {
 
   /**
    * 获取主题
-   * @param {string} name
-   * @returns {Theme|undefined}
+   * @param {string} name - 主题名称
+   * @returns {Theme|undefined} 主题实例或 undefined
    */
   getTheme(name) {
     return this._themes.get(name);
@@ -2224,8 +2489,8 @@ class ThemeManager {
 
   /**
    * 设置当前主题
-   * @param {string} name - 主题名
-   * @returns {this}
+   * @param {string} name - 主题名称
+   * @returns {this} 返回当前实例支持链式调用
    */
   setTheme(name) {
     const theme = this._themes.get(name);
@@ -2239,7 +2504,7 @@ class ThemeManager {
 
   /**
    * 获取当前主题
-   * @returns {Theme|null}
+   * @returns {Theme|null} 当前主题实例或 null
    */
   getCurrentTheme() {
     return this._currentTheme;
@@ -2247,8 +2512,8 @@ class ThemeManager {
 
   /**
    * 应用当前主题到组件
-   * @param {Tag} component
-   * @returns {this}
+   * @param {Tag} component - 组件实例
+   * @returns {this} 返回当前实例支持链式调用
    */
   applyTheme(component) {
     if (this._currentTheme) {
@@ -2259,8 +2524,8 @@ class ThemeManager {
 
   /**
    * 应用所有已注册主题到组件
-   * @param {Tag} component
-   * @returns {this}
+   * @param {Tag} component - 组件实例
+   * @returns {this} 返回当前实例支持链式调用
    */
   applyAllThemes(component) {
     for (const theme of this._themes.values()) {
@@ -2274,6 +2539,10 @@ class ThemeManager {
 // 创建全局单例
 // ============================================
 
+/**
+ * themeManager 全局主题管理器单例
+ * @type {ThemeManager}
+ */
 const themeManager = new ThemeManager();
 
 // ============================================
@@ -2282,9 +2551,16 @@ const themeManager = new ThemeManager();
 
 /**
  * 快速创建主题
- * @param {string} name - 主题名
- * @param {Object} definitions - 主题定义
- * @returns {Theme}
+ * @param {string} name - 主题名称
+ * @param {Object} definitions - 主题定义 { componentName: { stateName: { styles } } }
+ * @returns {Theme} 主题实例
+ * @example
+ * const theme = createTheme('dark', {
+ *   MenuItem: {
+ *     disabled: { opacity: '0.5' },
+ *     active: { background: 'blue' }
+ *   }
+ * });
  */
 function createTheme(name, definitions = {}) {
   const theme = new Theme(name);
@@ -2307,11 +2583,11 @@ function createTheme(name, definitions = {}) {
 
 /**
  * 快速注册状态处理器
- * @param {string} themeName - 主题名
- * @param {string} componentName - 组件名
- * @param {string} stateName - 状态名
- * @param {Function} handler - 处理函数
- * @returns {Theme}
+ * @param {string} themeName - 主题名称
+ * @param {string} componentName - 组件名称
+ * @param {string} stateName - 状态名称
+ * @param {Function} handler - 处理函数 (value, host, oldValue) => void
+ * @returns {Theme} 主题实例
  */
 function registerStateHandler(themeName, componentName, stateName, handler) {
   let theme = themeManager.getTheme(themeName);
@@ -2329,6 +2605,8 @@ function registerStateHandler(themeName, componentName, stateName, handler) {
 
 /**
  * 为 Tag 组件添加状态机支持
+ * @param {Array<string|Object>} [stateAttrs=[]] - 状态属性列表
+ * @returns {Function} 初始化函数
  */
 function initStateMachine(stateAttrs = []) {
   return function() {
@@ -2340,7 +2618,8 @@ function initStateMachine(stateAttrs = []) {
 /**
  * 初始化 Tag 原型扩展方法
  * 需要在 Tag 定义后调用
- * @param {typeof Tag} TagClass - Tag 类
+ * @param {Tag} TagClass - Tag 类
+ * @returns {boolean} 是否初始化成功
  */
 function initTagExtensions(TagClass) {
   if (!TagClass || typeof TagClass.prototype === 'undefined') {
@@ -2355,7 +2634,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 注册状态属性（支持类型定义）
-   * @param {...string|Object} attrs
+   * @param {...string|Object} attrs - 状态属性名或类型定义对象
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.registerStateAttrs = function(...attrs) {
     if (!this._stateMachine) {
@@ -2368,6 +2648,9 @@ function initTagExtensions(TagClass) {
 
   /**
    * 注册状态处理器
+   * @param {string} stateName - 状态名称
+   * @param {Function} handler - 处理函数 (value, host, oldValue) => void
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.registerStateHandler = function(stateName, handler) {
     if (!this._stateMachine) {
@@ -2380,8 +2663,9 @@ function initTagExtensions(TagClass) {
 
   /**
    * 设置状态（支持 boolean/string/number）
-   * @param {string} stateName
-   * @param {StateValue} value
+   * @param {string} stateName - 状态名称
+   * @param {StateValue} value - 状态值
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.setState = function(stateName, value) {
     if (!this._stateMachine) {
@@ -2394,6 +2678,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取状态值
+   * @param {string} stateName - 状态名称
+   * @returns {StateValue|undefined} 状态值
    */
   TagClass.prototype.getState = function(stateName) {
     if (!this._stateMachine) {
@@ -2404,6 +2690,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取布尔状态值
+   * @param {string} stateName - 状态名称
+   * @returns {boolean} 布尔状态值
    */
   TagClass.prototype.getBooleanState = function(stateName) {
     if (!this._stateMachine) {
@@ -2414,6 +2702,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取字符串状态值
+   * @param {string} stateName - 状态名称
+   * @returns {string} 字符串状态值
    */
   TagClass.prototype.getStringState = function(stateName) {
     if (!this._stateMachine) {
@@ -2424,6 +2714,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取数值状态值
+   * @param {string} stateName - 状态名称
+   * @returns {number} 数值状态值
    */
   TagClass.prototype.getNumberState = function(stateName) {
     if (!this._stateMachine) {
@@ -2434,6 +2726,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 检查状态（适用于 boolean）
+   * @param {string} stateName - 状态名称
+   * @returns {boolean} 是否处于该状态
    */
   TagClass.prototype.hasState = function(stateName) {
     if (!this._stateMachine) {
@@ -2444,6 +2738,7 @@ function initTagExtensions(TagClass) {
 
   /**
    * 获取所有状态
+   * @returns {Object} 所有状态对象
    */
   TagClass.prototype.getAllStates = function() {
     if (!this._stateMachine) {
@@ -2453,7 +2748,8 @@ function initTagExtensions(TagClass) {
   };
 
   /**
-   * 重置状态
+   * 重置所有状态
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.resetStates = function() {
     if (!this._stateMachine) {
@@ -2464,6 +2760,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 保存状态快照
+   * @param {string} [name='default'] - 快照名称
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.saveStateSnapshot = function(name = 'default') {
     if (!this._stateMachine) {
@@ -2474,6 +2772,8 @@ function initTagExtensions(TagClass) {
 
   /**
    * 恢复状态快照
+   * @param {string} [name='default'] - 快照名称
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.restoreStateSnapshot = function(name = 'default') {
     if (!this._stateMachine) {
@@ -2483,7 +2783,9 @@ function initTagExtensions(TagClass) {
   };
 
   /**
-   * 初始化状态
+   * 初始化状态（设置默认值）
+   * @param {Object} [defaultStates={}] - 默认状态对象
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.initializeStates = function(defaultStates = {}) {
     if (!this._stateMachine) {
@@ -2494,6 +2796,7 @@ function initTagExtensions(TagClass) {
 
   /**
    * 反初始化（恢复初始状态）
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.deinitializeStates = function() {
     if (!this._stateMachine) {
@@ -2503,7 +2806,9 @@ function initTagExtensions(TagClass) {
   };
 
   /**
-   * 注册拦截器
+   * 注册状态拦截器
+   * @param {Function} interceptor - 拦截函数 (stateName, value) => { stateName, value } | null
+   * @returns {this} 返回当前实例支持链式调用
    */
   TagClass.prototype.registerStateInterceptor = function(interceptor) {
     if (!this._stateMachine) {
@@ -2519,7 +2824,8 @@ function initTagExtensions(TagClass) {
 
 /**
  * Yoya.Basic - Layout Components
- * 提供常用布局组件
+ * 提供常用布局组件（Flex, Grid, Stack 等）
+ * @module Yoya.Layout
  */
 
 
@@ -2527,98 +2833,197 @@ function initTagExtensions(TagClass) {
 // Flex 布局容器
 // ============================================
 
+/**
+ * Flex 弹性布局容器
+ * @class
+ * @extends Tag
+ * @example
+ * flex(f => {
+ *   f.justifyCenter().alignCenter();
+ *   f.div('项目 1');
+ *   f.div('项目 2');
+ * });
+ */
 class Flex extends Tag {
+  /**
+   * 创建 Flex 布局容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.style('display', 'flex');
   }
 
-  // 主轴方向
+  /**
+   * 设置主轴方向为 row
+   * @returns {this} 返回当前实例支持链式调用
+   */
   row() {
     return this.style('flexDirection', 'row');
   }
 
+  /**
+   * 设置主轴方向为 column
+   * @returns {this} 返回当前实例支持链式调用
+   */
   column() {
     return this.style('flexDirection', 'column');
   }
 
+  /**
+   * 设置主轴方向为 row-reverse
+   * @returns {this} 返回当前实例支持链式调用
+   */
   rowReverse() {
     return this.style('flexDirection', 'row-reverse');
   }
 
+  /**
+   * 设置主轴方向为 column-reverse
+   * @returns {this} 返回当前实例支持链式调用
+   */
   columnReverse() {
     return this.style('flexDirection', 'column-reverse');
   }
 
-  // 主轴对齐
+  /**
+   * 设置主轴对齐方式
+   * @param {string} value - justify-content 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyContent(value) {
     return this.style('justifyContent', value);
   }
 
+  /**
+   * 主轴起点对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyStart() {
     return this.justifyContent('flex-start');
   }
 
+  /**
+   * 主轴终点对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyEnd() {
     return this.justifyContent('flex-end');
   }
 
+  /**
+   * 主轴居中对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyCenter() {
     return this.justifyContent('center');
   }
 
+  /**
+   * 主轴两端对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyBetween() {
     return this.justifyContent('space-between');
   }
 
+  /**
+   * 主轴环绕对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyAround() {
     return this.justifyContent('space-around');
   }
 
+  /**
+   * 主轴均匀分布
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyEvenly() {
     return this.justifyContent('space-evenly');
   }
 
-  // 交叉轴对齐
+  /**
+   * 设置交叉轴对齐方式
+   * @param {string} value - align-items 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignItems(value) {
     return this.style('alignItems', value);
   }
 
+  /**
+   * 交叉轴起点对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignStart() {
     return this.alignItems('flex-start');
   }
 
+  /**
+   * 交叉轴终点对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignEnd() {
     return this.alignItems('flex-end');
   }
 
+  /**
+   * 交叉轴居中对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignCenter() {
     return this.alignItems('center');
   }
 
+  /**
+   * 交叉轴拉伸（默认）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignStretch() {
     return this.alignItems('stretch');
   }
 
+  /**
+   * 交叉轴基线对齐
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignBaseline() {
     return this.alignItems('baseline');
   }
 
-  // 换行
+  /**
+   * 设置换行行为
+   * @param {string} [value='wrap'] - flex-wrap 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   wrap(value = 'wrap') {
     return this.style('flexWrap', value);
   }
 
+  /**
+   * 不换行
+   * @returns {this} 返回当前实例支持链式调用
+   */
   noWrap() {
     return this.style('flexWrap', 'nowrap');
   }
 
-  // 子元素间距
+  /**
+   * 设置子元素间距
+   * @param {string} value - gap 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gap(value) {
     return this.style('gap', value);
   }
 }
 
+/**
+ * 创建 Flex 布局容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {Flex} Flex 实例
+ */
 function flex(setup = null) {
   return new Flex(setup);
 }
@@ -2627,67 +3032,129 @@ function flex(setup = null) {
 // Grid 布局容器
 // ============================================
 
+/**
+ * Grid 网格布局容器
+ * @class
+ * @extends Tag
+ */
 class Grid extends Tag {
+  /**
+   * 创建 Grid 布局容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.style('display', 'grid');
   }
 
-  // 定义列
+  /**
+   * 设置网格列模板
+   * @param {string} value - grid-template-columns 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gridTemplateColumns(value) {
     return this.style('gridTemplateColumns', value);
   }
 
+  /**
+   * 设置列数和每列大小
+   * @param {number} count - 列数
+   * @param {string} [size='1fr'] - 每列大小
+   * @returns {this} 返回当前实例支持链式调用
+   */
   columns(count, size = '1fr') {
     return this.gridTemplateColumns(`repeat(${count}, ${size})`);
   }
 
-  // 定义行
+  /**
+   * 设置网格行模板
+   * @param {string} value - grid-template-rows 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gridTemplateRows(value) {
     return this.style('gridTemplateRows', value);
   }
 
+  /**
+   * 设置行数和每行大小
+   * @param {number} count - 行数
+   * @param {string} [size='1fr'] - 每行大小
+   * @returns {this} 返回当前实例支持链式调用
+   */
   rows(count, size = '1fr') {
     return this.gridTemplateRows(`repeat(${count}, ${size})`);
   }
 
-  // 列间距
+  /**
+   * 设置列间距
+   * @param {string} value - column-gap 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   columnGap(value) {
     return this.style('columnGap', value);
   }
 
-  // 行间距
+  /**
+   * 设置行间距
+   * @param {string} value - row-gap 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   rowGap(value) {
     return this.style('rowGap', value);
   }
 
-  // 间距
+  /**
+   * 设置间距（行列间距相同）
+   * @param {string} value - gap 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gap(value) {
     return this.style('gap', value);
   }
 
-  // 主轴对齐
+  /**
+   * 设置主轴对齐方式
+   * @param {string} value - justify-content 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justifyContent(value) {
     return this.style('justifyContent', value);
   }
 
-  // 交叉轴对齐
+  /**
+   * 设置交叉轴对齐方式
+   * @param {string} value - align-items 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignItems(value) {
     return this.style('alignItems', value);
   }
 
-  // 网格区域
+  /**
+   * 设置网格区域
+   * @param {string} value - grid-area 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gridArea(value) {
     return this.style('gridArea', value);
   }
 
-  // 子元素工厂方法
+  /**
+   * 添加 div 子元素
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this} 返回当前实例支持链式调用
+   */
   div(setup = null) {
     const el = new Tag('div', setup);
     this._children.push(el);
     return this;
   }
 
+  /**
+   * 添加响应式网格子元素
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this} 返回当前实例支持链式调用
+   */
   responsiveGrid(setup = null) {
     const el = responsiveGrid(setup);
     this._children.push(el);
@@ -2695,6 +3162,11 @@ class Grid extends Tag {
   }
 }
 
+/**
+ * 创建 Grid 布局容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {Grid} Grid 实例
+ */
 function grid(setup = null) {
   return new Grid(setup);
 }
@@ -2703,25 +3175,52 @@ function grid(setup = null) {
 // 响应式 Grid 项
 // ============================================
 
+/**
+ * 响应式网格容器（自动适应列数）
+ * @class
+ * @extends Grid
+ */
 class ResponsiveGrid extends Grid {
+  /**
+   * 创建响应式网格容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super(setup);
     this.style('gridTemplateColumns', 'repeat(auto-fit, minmax(250px, 1fr))');
   }
 
+  /**
+   * 设置最小列宽
+   * @param {string} value - 最小宽度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   minSize(value) {
     return this.style('gridTemplateColumns', `repeat(auto-fit, minmax(${value}, 1fr))`);
   }
 
+  /**
+   * 使用 auto-fit 自适应
+   * @returns {this} 返回当前实例支持链式调用
+   */
   autoFit() {
     return this.style('gridTemplateColumns', 'repeat(auto-fit, minmax(200px, 1fr))');
   }
 
+  /**
+   * 使用 auto-fill 填充
+   * @returns {this} 返回当前实例支持链式调用
+   */
   autoFill() {
     return this.style('gridTemplateColumns', 'repeat(auto-fill, minmax(200px, 1fr))');
   }
 }
 
+/**
+ * 创建响应式网格容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {ResponsiveGrid} ResponsiveGrid 实例
+ */
 function responsiveGrid(setup = null) {
   return new ResponsiveGrid(setup);
 }
@@ -2730,37 +3229,72 @@ function responsiveGrid(setup = null) {
 // Stack 堆叠布局
 // ============================================
 
+/**
+ * Stack 堆叠布局容器（默认垂直）
+ * @class
+ * @extends Tag
+ */
 class Stack extends Tag {
+  /**
+   * 创建 Stack 堆叠容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.style('display', 'flex');
     this.style('flexDirection', 'column');
   }
 
-  // 水平堆叠
+  /**
+   * 设置为水平堆叠
+   * @returns {this} 返回当前实例支持链式调用
+   */
   horizontal() {
     return this.style('flexDirection', 'row');
   }
 
-  // 间距
+  /**
+   * 设置子元素间距
+   * @param {string} value - gap 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gap(value) {
     return this.style('gap', value);
   }
 
-  // 对齐
+  /**
+   * 设置对齐方式
+   * @param {string} value - align-items 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   align(value) {
     return this.style('alignItems', value);
   }
 
+  /**
+   * 设置交叉轴对齐方式
+   * @param {string} value - align-items 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   alignItems(value) {
     return this.style('alignItems', value);
   }
 
+  /**
+   * 设置主轴对齐方式
+   * @param {string} value - justify-content 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   justify(value) {
     return this.style('justifyContent', value);
   }
 }
 
+/**
+ * 创建 Stack 堆叠容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {Stack} Stack 实例
+ */
 function stack(setup = null) {
   return new Stack(setup);
 }
@@ -2769,13 +3303,27 @@ function stack(setup = null) {
 // HStack 水平堆叠
 // ============================================
 
+/**
+ * HStack 水平堆叠容器
+ * @class
+ * @extends Stack
+ */
 class HStack extends Stack {
+  /**
+   * 创建 HStack 水平堆叠容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super(setup);
     this.style('flexDirection', 'row');
   }
 }
 
+/**
+ * 创建 HStack 水平堆叠容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {HStack} HStack 实例
+ */
 function hstack(setup = null) {
   return new HStack(setup);
 }
@@ -2784,13 +3332,32 @@ function hstack(setup = null) {
 // VStack 垂直堆叠
 // ============================================
 
+/**
+ * VStack 垂直堆叠容器
+ * @class
+ * @extends Stack
+ */
+/**
+ * VStack 垂直堆叠容器
+ * @class
+ * @extends Stack
+ */
 class VStack extends Stack {
+  /**
+   * 创建 VStack 垂直堆叠容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super(setup);
     this.style('flexDirection', 'column');
   }
 }
 
+/**
+ * 创建 VStack 垂直堆叠容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VStack} VStack 实例
+ */
 function vstack(setup = null) {
   return new VStack(setup);
 }
@@ -2799,7 +3366,16 @@ function vstack(setup = null) {
 // Center 居中布局
 // ============================================
 
+/**
+ * Center 居中布局容器（水平 + 垂直居中）
+ * @class
+ * @extends Tag
+ */
 class Center extends Tag {
+  /**
+   * 创建 Center 居中容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.style('display', 'flex');
@@ -2807,22 +3383,36 @@ class Center extends Tag {
     this.style('alignItems', 'center');
   }
 
-  // 水平居中
+  /**
+   * 设置水平居中
+   * @returns {this} 返回当前实例支持链式调用
+   */
   horizontal() {
     return this.style('justifyContent', 'center');
   }
 
-  // 垂直居中
+  /**
+   * 设置垂直居中
+   * @returns {this} 返回当前实例支持链式调用
+   */
   vertical() {
     return this.style('alignItems', 'center');
   }
 
-  // 完全居中（默认）
+  /**
+   * 设置完全居中（默认）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   center() {
     return this.style('justifyContent', 'center').style('alignItems', 'center');
   }
 }
 
+/**
+ * 创建 Center 居中容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {Center} Center 实例
+ */
 function center(setup = null) {
   return new Center(setup);
 }
@@ -2831,25 +3421,54 @@ function center(setup = null) {
 // Spacer 弹性 spacer
 // ============================================
 
+/**
+ * Spacer 弹性占位组件
+ * @class
+ * @extends Tag
+ */
 class Spacer extends Tag {
+  /**
+   * 创建 Spacer 弹性占位
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.style('flex', '1');
   }
 
+  /**
+   * 设置弹性大小
+   * @param {string} value - flex 值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   size(value) {
     return this.style('flex', value);
   }
 
+  /**
+   * 设置宽度
+   * @param {string} value - 宽度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   width(value) {
     return this.style('width', value);
   }
 
+  /**
+   * 设置高度
+   * @param {string} value - 高度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   height(value) {
     return this.style('height', value);
   }
 }
 
+/**
+ * 创建 Spacer 弹性占位
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {Spacer} Spacer 实例
+ */
 function spacer(setup = null) {
   return new Spacer(setup);
 }
@@ -2858,7 +3477,16 @@ function spacer(setup = null) {
 // Container 响应式容器
 // ============================================
 
+/**
+ * Container 响应式容器（最大宽度 1200px，自动居中）
+ * @class
+ * @extends Tag
+ */
 class Container extends Tag {
+  /**
+   * 创建 Container 响应式容器
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.style('maxWidth', '1200px');
@@ -2866,19 +3494,38 @@ class Container extends Tag {
     this.style('padding', '0 16px');
   }
 
+  /**
+   * 设置最大宽度
+   * @param {string} value - 最大宽度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   maxWidth(value) {
     return this.style('maxWidth', value);
   }
 
+  /**
+   * 设置内边距
+   * @param {string} value - 内边距值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   padding(value) {
     return this.style('padding', value);
   }
 
+  /**
+   * 设置流体布局（100% 宽度）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   fluid() {
     return this.style('maxWidth', '100%');
   }
 }
 
+/**
+ * 创建 Container 响应式容器
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {Container} Container 实例
+ */
 function container(setup = null) {
   return new Container(setup);
 }
@@ -2887,7 +3534,16 @@ function container(setup = null) {
 // Divider 分割线
 // ============================================
 
+/**
+ * Divider 分割线组件
+ * @class
+ * @extends Tag
+ */
 class Divider extends Tag {
+  /**
+   * 创建 Divider 分割线
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('hr', setup);
     this.style('border', 'none');
@@ -2896,21 +3552,40 @@ class Divider extends Tag {
     this.style('margin', '0');
   }
 
+  /**
+   * 设置分割线颜色
+   * @param {string} value - 颜色值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   color(value) {
     return this.style('background', value);
   }
 
+  /**
+   * 设置为垂直分割线
+   * @returns {this} 返回当前实例支持链式调用
+   */
   vertical() {
     return this.style('width', '1px')
       .style('height', 'auto')
       .style('border-right', '1px solid currentColor');
   }
 
+  /**
+   * 设置外边距
+   * @param {string} value - 外边距值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   margin(value) {
     return this.style('margin', value);
   }
 }
 
+/**
+ * 创建 Divider 分割线
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {Divider} Divider 实例
+ */
 function divider(setup = null) {
   return new Divider(setup);
 }
@@ -2919,60 +3594,110 @@ function divider(setup = null) {
 // Tag 原型扩展方法
 // ============================================
 
+/**
+ * Tag 原型扩展 - 添加 flex 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.flex = function(setup = null) {
   const el = flex(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 grid 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.grid = function(setup = null) {
   const el = grid(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 responsiveGrid 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.responsiveGrid = function(setup = null) {
   const el = responsiveGrid(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 stack 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.stack = function(setup = null) {
   const el = stack(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 hstack 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.hstack = function(setup = null) {
   const el = hstack(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vstack 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vstack = function(setup = null) {
   const el = vstack(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 center 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.center = function(setup = null) {
   const el = center(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 spacer 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.spacer = function(setup = null) {
   const el = spacer(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 container 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.container = function(setup = null) {
   const el = container(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 divider 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.divider = function(setup = null) {
   const el = divider(setup);
   this.child(el);
@@ -2982,6 +3707,7 @@ Tag.prototype.divider = function(setup = null) {
 /**
  * Yoya.Basic - SVG Components
  * SVG 图形组件
+ * @module Yoya.SVG
  */
 
 
@@ -2992,7 +3718,17 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 // SvgTag 基类
 // ============================================
 
+/**
+ * SVG 元素基类，所有 SVG 元素的父类
+ * @class
+ * @extends Tag
+ */
 class SvgTag extends Tag {
+  /**
+   * 创建 SVG 元素
+   * @param {string} tagName - SVG 标签名
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(tagName, setup = null) {
     // 先调用父类构造函数
     super(tagName, null);
@@ -3010,7 +3746,11 @@ class SvgTag extends Tag {
     }
   }
 
-  // 重写 renderDom，处理 SVG 子元素的智能增删
+  /**
+   * 渲染 SVG 元素到 DOM（重写 Tag 的 renderDom）
+   * 支持 SVG 子元素的智能增删
+   * @returns {SVGElement|null} 渲染后的 SVG 元素
+   */
   renderDom() {
     if (this._deleted) return null;
 
@@ -3058,7 +3798,10 @@ class SvgTag extends Tag {
     return this._el;
   }
 
-  // 重写 toHTML，生成 SVG XML 格式
+  /**
+   * 生成 SVG XML 格式 HTML（重写 Tag 的 toHTML）
+   * @returns {string} SVG XML 字符串
+   */
   toHTML() {
     const attrs = Object.entries(this._attrs)
       .map(([k, v]) => `${k}="${v}"`)
@@ -3080,7 +3823,11 @@ class SvgTag extends Tag {
     return tagStart + children + `</${this._tagName}>`;
   }
 
-  // 重写 child 方法，支持 SVG 子元素
+  /**
+   * 添加 SVG 子元素（重写 child 方法）
+   * @param {...(SvgTag|null|undefined|Array)} children - SVG 子元素
+   * @returns {this} 返回当前实例支持链式调用
+   */
   child(...children) {
     for (const child of children) {
       if (Array.isArray(child)) {
@@ -3097,34 +3844,63 @@ class SvgTag extends Tag {
 // SVG 基类
 // ============================================
 
+/**
+ * Svg SVG 画布容器
+ * @class
+ * @extends SvgTag
+ */
 class Svg extends SvgTag {
+  /**
+   * 创建 Svg 画布容器
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('svg', setup);
     this.style('display', 'inline-block');
   }
 
-  // 视口
-  viewBox(value) {
-    return this.attr('viewBox', value);
-  }
-
+  /**
+   * 设置 SVG 视口
+   * @param {number} x - 左上角 x 坐标
+   * @param {number} y - 左上角 y 坐标
+   * @param {number} width - 视口宽度
+   * @param {number} height - 视口高度
+   * @returns {this} 返回当前实例支持链式调用
+   * @example
+   * svg(s => {
+   *   s.viewBox(0, 0, 100, 100);
+   * });
+   */
   viewBox(x, y, width, height) {
     if (arguments.length === 4) {
       return this.attr('viewBox', `${x} ${y} ${width} ${height}`);
     }
-    return this.attr('viewBox', value);
+    return this.attr('viewBox', x);
   }
 
-  // 尺寸
+  /**
+   * 设置 SVG 宽度
+   * @param {string|number} value - 宽度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   width(value) {
     return this.attr('width', value);
   }
 
+  /**
+   * 设置 SVG 高度
+   * @param {string|number} value - 高度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   height(value) {
     return this.attr('height', value);
   }
 
-  // 命名空间
+  /**
+   * 设置 SVG 命名空间
+   * @param {string} [value='http://www.w3.org/2000/svg'] - 命名空间 URI
+   * @returns {this} 返回当前实例支持链式调用
+   */
   xmlns(value = 'http://www.w3.org/2000/svg') {
     return this.attr('xmlns', value);
   }
@@ -3214,18 +3990,35 @@ class Svg extends SvgTag {
     return this;
   }
 
+  /**
+   * 添加 image 子元素
+   * @param {string} [href=''] - 图片 URL
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   image(href = '', setup = null) {
     const el = svgImage(href, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加任意 SVG 元素子元素
+   * @param {string} tagName - SVG 标签名
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   svgElement(tagName, setup = null) {
     const el = svgElement(tagName, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 defs 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   defs(setup = null) {
     const el = defs(setup);
     this.child(el);
@@ -3233,6 +4026,11 @@ class Svg extends SvgTag {
   }
 }
 
+/**
+ * 创建 Svg 画布容器
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Svg} Svg 实例
+ */
 function svg(setup = null) {
   return new Svg(setup);
 }
@@ -3241,115 +4039,266 @@ function svg(setup = null) {
 // 基础形状
 // ============================================
 
+/**
+ * Circle 圆形
+ * @class
+ * @extends SvgTag
+ */
 class Circle extends SvgTag {
+  /**
+   * 创建 Circle 圆形
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('circle', setup);
   }
 
+  /**
+   * 设置圆心 x 坐标
+   * @param {number|string} value - 圆心 x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   cx(value) {
     return this.attr('cx', value);
   }
 
+  /**
+   * 设置圆心 y 坐标
+   * @param {number|string} value - 圆心 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   cy(value) {
     return this.attr('cy', value);
   }
 
+  /**
+   * 设置半径
+   * @param {number|string} value - 半径值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   r(value) {
     return this.attr('r', value);
   }
 }
 
+/**
+ * 创建 Circle 圆形
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Circle} Circle 实例
+ */
 function circle(setup = null) {
   return new Circle(setup);
 }
 
+/**
+ * Ellipse 椭圆
+ * @class
+ * @extends SvgTag
+ */
 class Ellipse extends SvgTag {
+  /**
+   * 创建 Ellipse 椭圆
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('ellipse', setup);
   }
 
+  /**
+   * 设置圆心 x 坐标
+   * @param {number|string} value - 圆心 x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   cx(value) {
     return this.attr('cx', value);
   }
 
+  /**
+   * 设置圆心 y 坐标
+   * @param {number|string} value - 圆心 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   cy(value) {
     return this.attr('cy', value);
   }
 
+  /**
+   * 设置 x 轴半径
+   * @param {number|string} value - x 轴半径
+   * @returns {this} 返回当前实例支持链式调用
+   */
   rx(value) {
     return this.attr('rx', value);
   }
 
+  /**
+   * 设置 y 轴半径
+   * @param {number|string} value - y 轴半径
+   * @returns {this} 返回当前实例支持链式调用
+   */
   ry(value) {
     return this.attr('ry', value);
   }
 }
 
+/**
+ * 创建 Ellipse 椭圆
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Ellipse} Ellipse 实例
+ */
 function ellipse(setup = null) {
   return new Ellipse(setup);
 }
 
+/**
+ * Rect 矩形
+ * @class
+ * @extends SvgTag
+ */
 class Rect extends SvgTag {
+  /**
+   * 创建 Rect 矩形
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('rect', setup);
   }
 
+  /**
+   * 设置左上角 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x(value) {
     return this.attr('x', value);
   }
 
+  /**
+   * 设置左上角 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y(value) {
     return this.attr('y', value);
   }
 
+  /**
+   * 设置宽度
+   * @param {number|string} value - 宽度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   width(value) {
     return this.attr('width', value);
   }
 
+  /**
+   * 设置高度
+   * @param {number|string} value - 高度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   height(value) {
     return this.attr('height', value);
   }
 
+  /**
+   * 设置 x 轴圆角半径
+   * @param {number|string} value - 圆角半径
+   * @returns {this} 返回当前实例支持链式调用
+   */
   rx(value) {
     return this.attr('rx', value);
   }
 
+  /**
+   * 设置 y 轴圆角半径
+   * @param {number|string} value - 圆角半径
+   * @returns {this} 返回当前实例支持链式调用
+   */
   ry(value) {
     return this.attr('ry', value);
   }
 }
 
+/**
+ * 创建 Rect 矩形
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Rect} Rect 实例
+ */
 function rect(setup = null) {
   return new Rect(setup);
 }
 
+/**
+ * Line 线段
+ * @class
+ * @extends SvgTag
+ */
 class Line extends SvgTag {
+  /**
+   * 创建 Line 线段
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('line', setup);
   }
 
+  /**
+   * 设置起点 x 坐标
+   * @param {number|string} value - 起点 x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x1(value) {
     return this.attr('x1', value);
   }
 
+  /**
+   * 设置起点 y 坐标
+   * @param {number|string} value - 起点 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y1(value) {
     return this.attr('y1', value);
   }
 
+  /**
+   * 设置终点 x 坐标
+   * @param {number|string} value - 终点 x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x2(value) {
     return this.attr('x2', value);
   }
 
+  /**
+   * 设置终点 y 坐标
+   * @param {number|string} value - 终点 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y2(value) {
     return this.attr('y2', value);
   }
 }
 
+/**
+ * 创建 Line 线段
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Line} Line 实例
+ */
 function line(setup = null) {
   return new Line(setup);
 }
 
+/**
+ * Polyline 折线
+ * @class
+ * @extends SvgTag
+ */
 class Polyline extends SvgTag {
+  /**
+   * 创建 Polyline 折线
+   * @param {Array<Array<number>>|string|null} [points=null] - 点坐标数组
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(points = null, setup = null) {
     super('polyline', setup);
     if (points) {
@@ -3357,6 +4306,11 @@ class Polyline extends SvgTag {
     }
   }
 
+  /**
+   * 设置折线点坐标
+   * @param {Array<Array<number>>|string} value - 点坐标数组或字符串
+   * @returns {this} 返回当前实例支持链式调用
+   */
   points(value) {
     if (Array.isArray(value)) {
       return this.attr('points', value.join(' '));
@@ -3365,11 +4319,27 @@ class Polyline extends SvgTag {
   }
 }
 
+/**
+ * 创建 Polyline 折线
+ * @param {Array<Array<number>>|string|null} [points=null] - 点坐标数组
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Polyline} Polyline 实例
+ */
 function polyline(points = null, setup = null) {
   return new Polyline(points, setup);
 }
 
+/**
+ * Polygon 多边形
+ * @class
+ * @extends SvgTag
+ */
 class Polygon extends SvgTag {
+  /**
+   * 创建 Polygon 多边形
+   * @param {Array<Array<number>>|string|null} [points=null] - 点坐标数组
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(points = null, setup = null) {
     super('polygon', setup);
     if (points) {
@@ -3377,6 +4347,11 @@ class Polygon extends SvgTag {
     }
   }
 
+  /**
+   * 设置多边形点坐标
+   * @param {Array<Array<number>>|string} value - 点坐标数组或字符串
+   * @returns {this} 返回当前实例支持链式调用
+   */
   points(value) {
     if (Array.isArray(value)) {
       return this.attr('points', value.join(' '));
@@ -3385,6 +4360,12 @@ class Polygon extends SvgTag {
   }
 }
 
+/**
+ * 创建 Polygon 多边形
+ * @param {Array<Array<number>>|string|null} [points=null] - 点坐标数组
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Polygon} Polygon 实例
+ */
 function polygon(points = null, setup = null) {
   return new Polygon(points, setup);
 }
@@ -3393,7 +4374,17 @@ function polygon(points = null, setup = null) {
 // 路径
 // ============================================
 
+/**
+ * Path 路径
+ * @class
+ * @extends SvgTag
+ */
 class Path extends SvgTag {
+  /**
+   * 创建 Path 路径
+   * @param {string|null} [d=null] - 路径数据
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(d = null, setup = null) {
     super('path', setup);
     if (d) {
@@ -3401,57 +4392,127 @@ class Path extends SvgTag {
     }
   }
 
+  /**
+   * 设置路径数据
+   * @param {string} value - SVG 路径数据
+   * @returns {this} 返回当前实例支持链式调用
+   */
   d(value) {
     return this.attr('d', value);
   }
 
-  // 路径命令辅助方法
+  /**
+   * 移动到指定点（M 命令）
+   * @param {number} x - x 坐标
+   * @param {number} y - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   moveTo(x, y) {
     this._pathCommand(`M ${x} ${y}`);
     return this;
   }
 
+  /**
+   * 画线到指定点（L 命令）
+   * @param {number} x - x 坐标
+   * @param {number} y - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   lineTo(x, y) {
     this._pathCommand(`L ${x} ${y}`);
     return this;
   }
 
+  /**
+   * 画水平线到指定点（H 命令）
+   * @param {number} x - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   hlineTo(x) {
     this._pathCommand(`H ${x}`);
     return this;
   }
 
+  /**
+   * 画垂直线到指定点（V 命令）
+   * @param {number} y - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   vlineTo(y) {
     this._pathCommand(`V ${y}`);
     return this;
   }
 
+  /**
+   * 画三次贝塞尔曲线（C 命令）
+   * @param {number} cp1x - 第一个控制点 x 坐标
+   * @param {number} cp1y - 第一个控制点 y 坐标
+   * @param {number} cp2x - 第二个控制点 x 坐标
+   * @param {number} cp2y - 第二个控制点 y 坐标
+   * @param {number} x - 终点 x 坐标
+   * @param {number} y - 终点 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   curveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
     this._pathCommand(`C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y}`);
     return this;
   }
 
+  /**
+   * 画二次贝塞尔曲线（Q 命令）
+   * @param {number} cpx - 控制点 x 坐标
+   * @param {number} cpy - 控制点 y 坐标
+   * @param {number} x - 终点 x 坐标
+   * @param {number} y - 终点 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   quadraticCurveTo(cpx, cpy, x, y) {
     this._pathCommand(`Q ${cpx} ${cpy} ${x} ${y}`);
     return this;
   }
 
+  /**
+   * 画弧线（A 命令）
+   * @param {number} rx - x 轴半径
+   * @param {number} ry - y 轴半径
+   * @param {number} xAxisRotation - x 轴旋转角度
+   * @param {number} largeArcFlag - 大弧标志
+   * @param {number} sweepFlag - 顺时针标志
+   * @param {number} x - 终点 x 坐标
+   * @param {number} y - 终点 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   arcTo(rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y) {
     this._pathCommand(`A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`);
     return this;
   }
 
+  /**
+   * 闭合路径（Z 命令）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   closePath() {
     this._pathCommand('Z');
     return this;
   }
 
+  /**
+   * 添加路径命令
+   * @private
+   * @param {string} cmd - 路径命令字符串
+   */
   _pathCommand(cmd) {
     const current = this._attrs.d || '';
     this._attrs.d = current ? `${current} ${cmd}` : cmd;
   }
 }
 
+/**
+ * 创建 Path 路径
+ * @param {string|null} [d=null] - 路径数据
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Path} Path 实例
+ */
 function path(d = null, setup = null) {
   return new Path(d, setup);
 }
@@ -3460,7 +4521,17 @@ function path(d = null, setup = null) {
 // 文本
 // ============================================
 
+/**
+ * Text SVG 文本元素
+ * @class
+ * @extends SvgTag
+ */
 class Text extends SvgTag {
+  /**
+   * 创建 Text 文本元素
+   * @param {string|Function} [content=''] - 文本内容或 setup 函数
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(content = '', setup = null) {
     // 如果 content 是函数，则它是 setup
     if (typeof content === 'function') {
@@ -3473,37 +4544,77 @@ class Text extends SvgTag {
     }
   }
 
+  /**
+   * 设置 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x(value) {
     return this.attr('x', value);
   }
 
+  /**
+   * 设置 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y(value) {
     return this.attr('y', value);
   }
 
+  /**
+   * 设置相对 x 偏移
+   * @param {number|string} value - x 偏移量
+   * @returns {this} 返回当前实例支持链式调用
+   */
   dx(value) {
     return this.attr('dx', value);
   }
 
+  /**
+   * 设置相对 y 偏移
+   * @param {number|string} value - y 偏移量
+   * @returns {this} 返回当前实例支持链式调用
+   */
   dy(value) {
     return this.attr('dy', value);
   }
 
+  /**
+   * 设置文本锚点（对齐方式）
+   * @param {string} value - 对齐方式（start, middle, end）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   textAnchor(value) {
     return this.attr('text-anchor', value);
   }
 
+  /**
+   * 设置文本内容
+   * @param {string} content - 文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   text(content) {
     this._text = content;
     return this;
   }
 
+  /**
+   * 添加 tspan 子元素
+   * @param {string} [content=''] - 文本内容
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   tspan(content = '', setup = null) {
     const el = tspan(content, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 渲染文本元素到 DOM
+   * @returns {SVGTextElement|null} 渲染后的 SVG 文本元素
+   */
   renderDom() {
     if (this._deleted) return null;
 
@@ -3556,6 +4667,10 @@ class Text extends SvgTag {
     return this._el;
   }
 
+  /**
+   * 生成 SVG XML 格式 HTML
+   * @returns {string} SVG XML 字符串
+   */
   toHTML() {
     const attrs = Object.entries(this._attrs)
       .map(([k, v]) => `${k}="${v}"`)
@@ -3571,6 +4686,12 @@ class Text extends SvgTag {
   }
 }
 
+/**
+ * 创建 Text 文本元素
+ * @param {string|Function} [content=''] - 文本内容或 setup 函数
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Text} Text 实例
+ */
 function svgText(content = '', setup = null) {
   return new Text(content, setup);
 }
@@ -3579,7 +4700,17 @@ function svgText(content = '', setup = null) {
 // Tspan
 // ============================================
 
+/**
+ * Tspan SVG 文本片段元素
+ * @class
+ * @extends SvgTag
+ */
 class Tspan extends SvgTag {
+  /**
+   * 创建 Tspan 文本片段
+   * @param {string|Function} [content=''] - 文本内容或 setup 函数
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(content = '', setup = null) {
     // 如果 content 是函数，则它是 setup
     if (typeof content === 'function') {
@@ -3592,27 +4723,56 @@ class Tspan extends SvgTag {
     }
   }
 
+  /**
+   * 设置 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x(value) {
     return this.attr('x', value);
   }
 
+  /**
+   * 设置 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y(value) {
     return this.attr('y', value);
   }
 
+  /**
+   * 设置相对 x 偏移
+   * @param {number|string} value - x 偏移量
+   * @returns {this} 返回当前实例支持链式调用
+   */
   dx(value) {
     return this.attr('dx', value);
   }
 
+  /**
+   * 设置相对 y 偏移
+   * @param {number|string} value - y 偏移量
+   * @returns {this} 返回当前实例支持链式调用
+   */
   dy(value) {
     return this.attr('dy', value);
   }
 
+  /**
+   * 设置文本内容
+   * @param {string} content - 文本内容
+   * @returns {this} 返回当前实例支持链式调用
+   */
   text(content) {
     this._text = content;
     return this;
   }
 
+  /**
+   * 渲染文本片段到 DOM
+   * @returns {SVGTSpanElement|null} 渲染后的 SVG tspan 元素
+   */
   renderDom() {
     if (this._deleted) return null;
 
@@ -3631,6 +4791,12 @@ class Tspan extends SvgTag {
   }
 }
 
+/**
+ * 创建 Tspan 文本片段
+ * @param {string|Function} [content=''] - 文本内容或 setup 函数
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Tspan} Tspan 实例
+ */
 function tspan(content = '', setup = null) {
   return new Tspan(content, setup);
 }
@@ -3639,31 +4805,72 @@ function tspan(content = '', setup = null) {
 // 渐变
 // ============================================
 
+/**
+ * LinearGradient 线性渐变
+ * @class
+ * @extends SvgTag
+ */
 class LinearGradient extends SvgTag {
+  /**
+   * 创建 LinearGradient 线性渐变
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('linearGradient', setup);
   }
 
+  /**
+   * 设置渐变起点 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x1(value) {
     return this.attr('x1', value);
   }
 
+  /**
+   * 设置渐变起点 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y1(value) {
     return this.attr('y1', value);
   }
 
+  /**
+   * 设置渐变终点 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x2(value) {
     return this.attr('x2', value);
   }
 
+  /**
+   * 设置渐变终点 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y2(value) {
     return this.attr('y2', value);
   }
 
+  /**
+   * 设置渐变单位
+   * @param {string} value - 单位类型（objectBoundingBox 或 userSpaceOnUse）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gradientUnits(value) {
     return this.attr('gradientUnits', value);
   }
 
+  /**
+   * 添加渐变色阶
+   * @param {number} offset - 色阶位置（0-100）
+   * @param {string} color - 颜色值
+   * @param {number} [opacity=1] - 不透明度
+   * @returns {this} 返回当前实例支持链式调用
+   */
   stop(offset, color, opacity = 1) {
     const stopEl = new Stop(offset, color, opacity);
     this._children.push(stopEl);
@@ -3671,35 +4878,81 @@ class LinearGradient extends SvgTag {
   }
 }
 
+/**
+ * 创建 LinearGradient 线性渐变
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {LinearGradient} LinearGradient 实例
+ */
 function linearGradient(setup = null) {
   return new LinearGradient(setup);
 }
 
+/**
+ * RadialGradient 径向渐变
+ * @class
+ * @extends SvgTag
+ */
 class RadialGradient extends SvgTag {
+  /**
+   * 创建 RadialGradient 径向渐变
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('radialGradient', setup);
   }
 
+  /**
+   * 设置渐变圆心 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   cx(value) {
     return this.attr('cx', value);
   }
 
+  /**
+   * 设置渐变圆心 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   cy(value) {
     return this.attr('cy', value);
   }
 
+  /**
+   * 设置渐变半径
+   * @param {number|string} value - 半径值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   r(value) {
     return this.attr('r', value);
   }
 
+  /**
+   * 设置焦点 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   fx(value) {
     return this.attr('fx', value);
   }
 
+  /**
+   * 设置焦点 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   fy(value) {
     return this.attr('fy', value);
   }
 
+  /**
+   * 添加渐变色阶
+   * @param {number} offset - 色阶位置（0-100）
+   * @param {string} color - 颜色值
+   * @param {number} [opacity=1] - 不透明度
+   * @returns {this} 返回当前实例支持链式调用
+   */
   stop(offset, color, opacity = 1) {
     const stopEl = new Stop(offset, color, opacity);
     this._children.push(stopEl);
@@ -3707,11 +4960,27 @@ class RadialGradient extends SvgTag {
   }
 }
 
+/**
+ * 创建 RadialGradient 径向渐变
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {RadialGradient} RadialGradient 实例
+ */
 function radialGradient(setup = null) {
   return new RadialGradient(setup);
 }
 
+/**
+ * Stop 渐变色阶
+ * @class
+ * @extends SvgTag
+ */
 class Stop extends SvgTag {
+  /**
+   * 创建 Stop 渐变色阶
+   * @param {number} [offset=0] - 色阶位置（0-100）
+   * @param {string} [color='#000'] - 颜色值
+   * @param {number} [opacity=1] - 不透明度
+   */
   constructor(offset = 0, color = '#000', opacity = 1) {
     super('stop');
     this.offset(offset);
@@ -3719,19 +4988,41 @@ class Stop extends SvgTag {
     this.stopOpacity(opacity);
   }
 
+  /**
+   * 设置色阶位置
+   * @param {number|string} value - 位置（百分比或数值）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   offset(value) {
     return this.attr('offset', typeof value === 'number' ? `${value}%` : value);
   }
 
+  /**
+   * 设置色阶颜色
+   * @param {string} value - 颜色值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   stopColor(value) {
     return this.attr('stop-color', value);
   }
 
+  /**
+   * 设置色阶不透明度
+   * @param {number} value - 不透明度（0-1）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   stopOpacity(value) {
     return this.attr('stop-opacity', value);
   }
 }
 
+/**
+ * 创建 Stop 渐变色阶
+ * @param {number} [offset=0] - 色阶位置
+ * @param {string} [color='#000'] - 颜色值
+ * @param {number} [opacity=1] - 不透明度
+ * @returns {Stop} Stop 实例
+ */
 function stop(offset = 0, color = '#000', opacity = 1) {
   return new Stop(offset, color, opacity);
 }
@@ -3740,36 +5031,80 @@ function stop(offset = 0, color = '#000', opacity = 1) {
 // 图案
 // ============================================
 
+/**
+ * Pattern SVG 图案元素
+ * @class
+ * @extends SvgTag
+ */
 class Pattern extends SvgTag {
+  /**
+   * 创建 Pattern 图案元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('pattern', setup);
   }
 
+  /**
+   * 设置图案 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x(value) {
     return this.attr('x', value);
   }
 
+  /**
+   * 设置图案 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y(value) {
     return this.attr('y', value);
   }
 
+  /**
+   * 设置图案宽度
+   * @param {number|string} value - 宽度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   width(value) {
     return this.attr('width', value);
   }
 
+  /**
+   * 设置图案高度
+   * @param {number|string} value - 高度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   height(value) {
     return this.attr('height', value);
   }
 
+  /**
+   * 设置图案单位
+   * @param {string} value - 单位类型（objectBoundingBox 或 userSpaceOnUse）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   patternUnits(value) {
     return this.attr('patternUnits', value);
   }
 
+  /**
+   * 设置图案内容单位
+   * @param {string} value - 单位类型（objectBoundingBox 或 userSpaceOnUse）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   patternContentUnits(value) {
     return this.attr('patternContentUnits', value);
   }
 }
 
+/**
+ * 创建 Pattern 图案元素
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Pattern} Pattern 实例
+ */
 function pattern(setup = null) {
   return new Pattern(setup);
 }
@@ -3778,7 +5113,17 @@ function pattern(setup = null) {
 // 滤镜
 // ============================================
 
+/**
+ * FilterPrimitive 滤镜基类
+ * @class
+ * @extends SvgTag
+ */
 class FilterPrimitive extends SvgTag {
+  /**
+   * 创建 FilterPrimitive 滤镜元素
+   * @param {string} tagName - SVG 滤镜标签名
+   * @param {Object} [attrs={}] - 初始属性
+   */
   constructor(tagName, attrs = {}) {
     super(tagName);
     for (const [k, v] of Object.entries(attrs)) {
@@ -3787,7 +5132,17 @@ class FilterPrimitive extends SvgTag {
   }
 }
 
+/**
+ * Filter SVG 滤镜容器
+ * @class
+ * @extends SvgTag
+ */
 class Filter extends SvgTag {
+  /**
+   * 创建 Filter 滤镜容器
+   * @param {string} id - 滤镜 ID
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(id, setup = null) {
     super('filter', setup);
     if (id) {
@@ -3795,22 +5150,49 @@ class Filter extends SvgTag {
     }
   }
 
+  /**
+   * 添加滤镜基元
+   * @param {string} type - 滤镜类型（如 GaussianBlur, DropShadow）
+   * @param {Object} [attrs={}] - 滤镜属性
+   * @returns {this} 返回当前实例支持链式调用
+   */
   primitive(type, attrs = {}) {
     const el = new FilterPrimitive(`fe${type}`, attrs);
     this._children.push(el);
     return this;
   }
 
+  /**
+   * 添加高斯模糊滤镜
+   * @param {number} stdDeviation - 模糊半径
+   * @param {Object} [attrs={}] - 其他滤镜属性
+   * @returns {this} 返回当前实例支持链式调用
+   */
   gaussianBlur(stdDeviation, attrs = {}) {
     return this.primitive('GaussianBlur', { stdDeviation, ...attrs });
   }
 
+  /**
+   * 添加投影滤镜
+   * @param {number} dx - x 方向偏移
+   * @param {number} dy - y 方向偏移
+   * @param {number} stdDeviation - 模糊半径
+   * @param {string} [floodColor='#000'] - 阴影颜色
+   * @param {number} [floodOpacity=0.5] - 阴影不透明度
+   * @returns {this} 返回当前实例支持链式调用
+   */
   dropShadow(dx, dy, stdDeviation, floodColor = '#000', floodOpacity = 0.5) {
     return this
       .primitive('DropShadow', { dx, dy, stdDeviation, floodColor, floodOpacity });
   }
 }
 
+/**
+ * 创建 Filter 滤镜容器
+ * @param {string} id - 滤镜 ID
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Filter} Filter 实例
+ */
 function filter(id, setup = null) {
   return new Filter(id, setup);
 }
@@ -3819,7 +5201,17 @@ function filter(id, setup = null) {
 // 图像
 // ============================================
 
+/**
+ * Image SVG 图像元素
+ * @class
+ * @extends SvgTag
+ */
 class Image extends SvgTag {
+  /**
+   * 创建 Image SVG 图像元素
+   * @param {string} [href=''] - 图片 URL
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(href = '', setup = null) {
     super('image', setup);
     if (href) {
@@ -3827,31 +5219,67 @@ class Image extends SvgTag {
     }
   }
 
+  /**
+   * 设置图片 URL
+   * @param {string} value - 图片 URL
+   * @returns {this} 返回当前实例支持链式调用
+   */
   href(value) {
     return this.attr('href', value);
   }
 
+  /**
+   * 设置 x 坐标
+   * @param {number|string} value - x 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   x(value) {
     return this.attr('x', value);
   }
 
+  /**
+   * 设置 y 坐标
+   * @param {number|string} value - y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   y(value) {
     return this.attr('y', value);
   }
 
+  /**
+   * 设置宽度
+   * @param {number|string} value - 宽度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   width(value) {
     return this.attr('width', value);
   }
 
+  /**
+   * 设置高度
+   * @param {number|string} value - 高度值
+   * @returns {this} 返回当前实例支持链式调用
+   */
   height(value) {
     return this.attr('height', value);
   }
 
+  /**
+   * 设置preserveAspectRatio 属性
+   * @param {string} value - 缩放比例（none, xMinYMin, xMidYMid, xMaxYMax 等）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   preserveAspectRatio(value) {
     return this.attr('preserveAspectRatio', value);
   }
 }
 
+/**
+ * 创建 Image SVG 图像元素
+ * @param {string} [href=''] - 图片 URL
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Image} Image 实例
+ */
 function svgImage(href = '', setup = null) {
   return new Image(href, setup);
 }
@@ -3860,11 +5288,25 @@ function svgImage(href = '', setup = null) {
 // 组
 // ============================================
 
+/**
+ * G SVG 组元素
+ * @class
+ * @extends SvgTag
+ */
 class G extends SvgTag {
+  /**
+   * 创建 G 组元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('g', setup);
   }
 
+  /**
+   * 设置变换
+   * @param {string} value - 变换字符串
+   * @returns {this} 返回当前实例支持链式调用
+   */
   transform(value) {
     if (value) {
       this._transforms.push(value);
@@ -3873,14 +5315,33 @@ class G extends SvgTag {
     return this;
   }
 
+  /**
+   * 平移变换
+   * @param {number} x - x 方向平移距离
+   * @param {number} y - y 方向平移距离
+   * @returns {this} 返回当前实例支持链式调用
+   */
   translate(x, y) {
     return this.transform(`translate(${x}, ${y})`);
   }
 
+  /**
+   * 缩放变换
+   * @param {number} sx - x 方向缩放比例
+   * @param {number} [sy=sx] - y 方向缩放比例（默认为 sx）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   scale(sx, sy = sx) {
     return this.transform(`scale(${sx}, ${sy})`);
   }
 
+  /**
+   * 旋转变换
+   * @param {number} angle - 旋转角度（度）
+   * @param {number} [cx] - 旋转中心 x 坐标
+   * @param {number} [cy] - 旋转中心 y 坐标
+   * @returns {this} 返回当前实例支持链式调用
+   */
   rotate(angle, cx, cy) {
     if (cx !== undefined && cy !== undefined) {
       return this.transform(`rotate(${angle} ${cx} ${cy})`);
@@ -3888,111 +5349,211 @@ class G extends SvgTag {
     return this.transform(`rotate(${angle})`);
   }
 
+  /**
+   * 斜切变换（X 轴）
+   * @param {number} angle - 斜切角度（度）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   skewX(angle) {
     return this.transform(`skewX(${angle})`);
   }
 
+  /**
+   * 斜切变换（Y 轴）
+   * @param {number} angle - 斜切角度（度）
+   * @returns {this} 返回当前实例支持链式调用
+   */
   skewY(angle) {
     return this.transform(`skewY(${angle})`);
   }
 
   // SVG 子元素工厂方法
+  /**
+   * 添加 circle 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   circle(setup = null) {
     const el = circle(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 ellipse 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   ellipse(setup = null) {
     const el = ellipse(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 rect 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   rect(setup = null) {
     const el = rect(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 line 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   line(setup = null) {
     const el = line(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 polyline 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   polyline(setup = null) {
     const el = polyline(null, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 polygon 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   polygon(setup = null) {
     const el = polygon(null, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 path 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   path(setup = null) {
     const el = path(null, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 text 子元素
+   * @param {string} [content=''] - 文本内容
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   text(content = '', setup = null) {
     const el = svgText(content, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 tspan 子元素
+   * @param {string} [content=''] - 文本内容
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   tspan(content = '', setup = null) {
     const el = tspan(content, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 g 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   g(setup = null) {
     const el = g(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 linearGradient 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   linearGradient(setup = null) {
     const el = linearGradient(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 radialGradient 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   radialGradient(setup = null) {
     const el = radialGradient(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 pattern 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   pattern(setup = null) {
     const el = pattern(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 filter 子元素
+   * @param {string} id - 滤镜 ID
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   filter(id, setup = null) {
     const el = filter(id, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 image 子元素
+   * @param {string} [href=''] - 图片 URL
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   image(href = '', setup = null) {
     const el = svgImage(href, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加任意 SVG 元素子元素
+   * @param {string} tagName - SVG 标签名
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   svgElement(tagName, setup = null) {
     const el = svgElement(tagName, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 defs 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   defs(setup = null) {
     const el = defs(setup);
     this.child(el);
@@ -4000,6 +5561,11 @@ class G extends SvgTag {
   }
 }
 
+/**
+ * 创建 G 组元素
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {G} G 实例
+ */
 function g(setup = null) {
   return new G(setup);
 }
@@ -4008,17 +5574,37 @@ function g(setup = null) {
 // 通用 SVG 元素
 // ============================================
 
+/**
+ * SvgElement 通用 SVG 元素
+ * @class
+ * @extends SvgTag
+ */
 class SvgElement extends SvgTag {
+  /**
+   * 创建 SvgElement 通用 SVG 元素
+   * @param {string} tagName - SVG 标签名
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(tagName, setup = null) {
     super(tagName, setup);
   }
 
+  /**
+   * 渲染元素到 DOM
+   * @returns {SVGElement|null} 渲染后的 SVG 元素
+   */
   renderDom() {
     if (this._deleted) return null;
     return super.renderDom();
   }
 }
 
+/**
+ * 创建 SvgElement 通用 SVG 元素
+ * @param {string} tagName - SVG 标签名
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {SvgElement} SvgElement 实例
+ */
 function svgElement(tagName, setup = null) {
   return new SvgElement(tagName, setup);
 }
@@ -4027,30 +5613,60 @@ function svgElement(tagName, setup = null) {
 // 定义容器
 // ============================================
 
+/**
+ * Defs SVG 定义容器
+ * @class
+ * @extends SvgTag
+ */
 class Defs extends SvgTag {
+  /**
+   * 创建 Defs 定义容器
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(setup = null) {
     super('defs', setup);
   }
 
   // SVG 子元素工厂方法
+  /**
+   * 添加 linearGradient 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   linearGradient(setup = null) {
     const el = linearGradient(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 radialGradient 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   radialGradient(setup = null) {
     const el = radialGradient(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 filter 子元素
+   * @param {string} id - 滤镜 ID
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   filter(id, setup = null) {
     const el = filter(id, setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加 pattern 子元素
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   * @returns {this} 返回当前实例支持链式调用
+   */
   pattern(setup = null) {
     const el = pattern(setup);
     this.child(el);
@@ -4058,6 +5674,11 @@ class Defs extends SvgTag {
   }
 }
 
+/**
+ * 创建 Defs 定义容器
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {Defs} Defs 实例
+ */
 function defs(setup = null) {
   return new Defs(setup);
 }
@@ -4066,6 +5687,11 @@ function defs(setup = null) {
 // Tag 原型扩展方法
 // ============================================
 
+/**
+ * Tag 原型扩展 - 添加 svg 子元素
+ * @param {Function|Object|null} [setup=null] - 初始化配置
+ * @returns {this} 返回当前实例支持链式调用
+ */
 Tag.prototype.svg = function(setup = null) {
   const el = svg(setup);
   this.child(el);
@@ -4074,7 +5700,25 @@ Tag.prototype.svg = function(setup = null) {
 
 /**
  * Yoya.Basic - Card Component
- * 卡片组件
+ * 卡片组件：提供卡片布局容器，支持头部、内容、底部结构
+ * @module Yoya.Card
+ * @example
+ * // 基础卡片
+ * import { vCard, vCardHeader, vCardBody, vCardFooter } from '../yoya/index.js';
+ *
+ * vCard(c => {
+ *   c.vCardHeader('卡片标题');
+ *   c.vCardBody('卡片内容');
+ *   c.vCardFooter(b => {
+ *     b.button('操作');
+ *   });
+ * });
+ *
+ * // 悬浮卡片
+ * vCard(c => {
+ *   c.hoverable();
+ *   c.vCardBody('悬浮效果卡片');
+ * });
  */
 
 
@@ -4082,9 +5726,19 @@ Tag.prototype.svg = function(setup = null) {
 // VCard 卡片布局
 // ============================================
 
+/**
+ * VCard 卡片容器
+ * 支持 hoverable、bordered、noShadow 等状态
+ * @class
+ * @extends Tag
+ */
 class VCard extends Tag {
   static _stateAttrs = ['hoverable', 'bordered', 'noShadow'];
 
+  /**
+   * 创建 VCard 卡片实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
 
@@ -4119,7 +5773,11 @@ class VCard extends Tag {
     }
   }
 
-  // 重写 setup 方法，支持对象配置
+  /**
+   * 设置卡片内容（支持函数/字符串/对象配置）
+   * @param {Function|string|Object} setup - 初始化配置
+   * @returns {this}
+   */
   setup(setup) {
     if (typeof setup === 'function') {
       setup(this);
@@ -4156,14 +5814,17 @@ class VCard extends Tag {
         }
       }
       // 处理其他配置（class, style 等）
-      if (setup.class) this.class(setup.class);
+      if (setup.class) this.className(setup.class);
       if (setup.style) this.styles(setup.style);
       if (setup.onclick) this.on('click', setup.onclick);
     }
     return this;
   }
 
-  // 注册状态处理器
+  /**
+   * 注册状态处理器
+   * @private
+   */
   _registerStateHandlers() {
     // hoverable 状态
     this.registerStateHandler('hoverable', (enabled, host) => {
@@ -4208,39 +5869,70 @@ class VCard extends Tag {
     });
   }
 
-  // 悬浮效果
+  /**
+   * 启用悬浮效果（鼠标悬停时上移 + 阴影）
+   * @returns {this}
+   */
   hoverable() {
     return this.setState('hoverable', true);
   }
 
-  // 无边框
+  /**
+   * 移除边框
+   * @returns {this}
+   */
   noBorder() {
     return this.style('border', 'none');
   }
 
-  // 无边框阴影
+  /**
+   * 移除阴影
+   * @returns {this}
+   */
   noShadow() {
     return this.setState('noShadow', true);
   }
 
-  // 边框
+  /**
+   * 启用边框样式
+   * @returns {this}
+   */
   bordered() {
     return this.setState('bordered', true);
   }
 
-  // 子元素工厂方法
+  /**
+   * 添加卡片头部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
+  /**
+   * 添加卡片头部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   vCardHeader(setup = null) {
     const el = vCardHeader(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加卡片内容
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   vCardBody(setup = null) {
     const el = vCardBody(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加卡片底部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   vCardFooter(setup = null) {
     const el = vCardFooter(setup);
     this.child(el);
@@ -4253,6 +5945,11 @@ class VCard extends Tag {
   cardFooter(setup = null) { return this.vCardFooter(setup); }
 }
 
+/**
+ * 创建 VCard 卡片
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCard}
+ */
 function vCard(setup = null) {
   return new VCard(setup);
 }
@@ -4261,7 +5958,16 @@ function vCard(setup = null) {
 // VCardHeader 卡片头部
 // ============================================
 
+/**
+ * VCardHeader 卡片头部容器
+ * @class
+ * @extends Tag
+ */
 class VCardHeader extends Tag {
+  /**
+   * 创建 VCardHeader 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -4275,6 +5981,11 @@ class VCardHeader extends Tag {
   }
 }
 
+/**
+ * 创建 VCardHeader 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCardHeader}
+ */
 function vCardHeader(setup = null) {
   return new VCardHeader(setup);
 }
@@ -4283,7 +5994,16 @@ function vCardHeader(setup = null) {
 // VCardBody 卡片内容
 // ============================================
 
+/**
+ * VCardBody 卡片内容容器
+ * @class
+ * @extends Tag
+ */
 class VCardBody extends Tag {
+  /**
+   * 创建 VCardBody 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -4295,6 +6015,11 @@ class VCardBody extends Tag {
   }
 }
 
+/**
+ * 创建 VCardBody 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCardBody}
+ */
 function vCardBody(setup = null) {
   return new VCardBody(setup);
 }
@@ -4303,7 +6028,16 @@ function vCardBody(setup = null) {
 // VCardFooter 卡片底部
 // ============================================
 
+/**
+ * VCardFooter 卡片底部容器
+ * @class
+ * @extends Tag
+ */
 class VCardFooter extends Tag {
+  /**
+   * 创建 VCardFooter 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -4318,6 +6052,11 @@ class VCardFooter extends Tag {
   }
 }
 
+/**
+ * 创建 VCardFooter 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VCardFooter}
+ */
 function vCardFooter(setup = null) {
   return new VCardFooter(setup);
 }
@@ -4326,24 +6065,44 @@ function vCardFooter(setup = null) {
 // Tag 原型扩展方法
 // ============================================
 
+/**
+ * Tag 原型扩展 - 添加 vCard 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCard = function(setup = null) {
   const el = vCard(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vCardHeader 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCardHeader = function(setup = null) {
   const el = vCardHeader(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vCardBody 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCardBody = function(setup = null) {
   const el = vCardBody(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vCardFooter 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vCardFooter = function(setup = null) {
   const el = vCardFooter(setup);
   this.child(el);
@@ -4358,7 +6117,35 @@ Tag.prototype.cardFooter = Tag.prototype.vCardFooter;
 
 /**
  * Yoya.Basic - Menu Components
- * 菜单组件库
+ * 菜单组件库：提供菜单、下拉菜单、右键菜单、侧边栏等组件
+ * @module Yoya.Menu
+ * @example
+ * // 基础菜单
+ * import { vMenu, vMenuItem, vMenuDivider } from '../yoya/index.js';
+ *
+ * vMenu(m => {
+ *   m.item(it => {
+ *     it.text('📋 菜单项 1')
+ *       .onclick(() => console.log('点击 1'));
+ *   });
+ *   m.item(it => {
+ *     it.text('📁 菜单项 2')
+ *       .onclick(() => console.log('点击 2'));
+ *   });
+ *   m.divider();
+ *   m.item(it => {
+ *     it.text('⚙️ 设置')
+ *       .onclick(() => console.log('设置'));
+ *   });
+ * });
+ *
+ * // 带图标的菜单项
+ * vMenuItem(item => {
+ *   item.icon('<span>🏠</span>')
+ *       .text('首页')
+ *       .shortcut('Ctrl+H')
+ *       .active();
+ * });
  */
 
 
@@ -4366,7 +6153,17 @@ Tag.prototype.cardFooter = Tag.prototype.vCardFooter;
 // VMenu 菜单
 // ============================================
 
+/**
+ * VMenu 菜单容器
+ * 支持垂直/水平布局，可包含菜单项、分割线、子菜单等
+ * @class
+ * @extends Tag
+ */
 class VMenu extends Tag {
+  /**
+   * 创建 VMenu 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
     this.styles({
@@ -4385,10 +6182,18 @@ class VMenu extends Tag {
     }
   }
 
+  /**
+   * 设置垂直布局
+   * @returns {this}
+   */
   vertical() {
     return this.style('flexDirection', 'column');
   }
 
+  /**
+   * 设置水平布局
+   * @returns {this}
+   */
   horizontal() {
     this.style('display', 'flex');
     this.style('flexDirection', 'row');
@@ -4398,36 +6203,70 @@ class VMenu extends Tag {
     return this;
   }
 
+  /**
+   * 设置紧凑模式（减小内边距）
+   * @returns {this}
+   */
   compact() {
     return this.style('padding', '4px 0');
   }
 
+  /**
+   * 移除阴影
+   * @returns {this}
+   */
   noShadow() {
     return this.style('boxShadow', 'none');
   }
 
+  /**
+   * 添加边框
+   * @returns {this}
+   */
   bordered() {
     return this.style('border', '1px solid #e0e0e0');
   }
 
+  /**
+   * 添加菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
+   */
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
     this.child(el);
     return el;
   }
 
+  /**
+   * 添加分割线
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   divider(setup = null) {
     const el = vMenuDivider(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加菜单组
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuGroup}
+   */
   group(setup = null) {
     const el = vMenuGroup(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 添加子菜单
+   * @param {string} title - 子菜单标题
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VSubMenu}
+   */
   submenu(title, setup = null) {
     // 使用 vSubMenu 创建子菜单
     const subMenu = vSubMenu(title, setup);
@@ -4436,6 +6275,11 @@ class VMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VMenu 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenu}
+ */
 function vMenu(setup = null) {
   return new VMenu(setup);
 }
@@ -4444,9 +6288,20 @@ function vMenu(setup = null) {
 // VMenuItem 菜单项
 // ============================================
 
+/**
+ * VMenuItem 菜单项
+ * 支持 disabled、active、danger、hoverable、expanded 等状态
+ * @class
+ * @extends Tag
+ */
 class VMenuItem extends Tag {
   static _stateAttrs = ['disabled', 'active', 'danger', 'hoverable', 'expanded'];
 
+  /**
+   * 创建 VMenuItem 实例
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(content = '', setup = null) {
     if (typeof content === 'function') {
       setup = content;
@@ -4588,6 +6443,10 @@ class VMenuItem extends Tag {
     });
   }
 
+  /**
+   * 注册悬浮拦截器
+   * @private
+   */
   _registerHoverInterceptor() {
     this.registerStateInterceptor((stateName, value) => {
       if (this.hasState('disabled') && stateName !== 'disabled') {
@@ -4597,6 +6456,10 @@ class VMenuItem extends Tag {
     });
   }
 
+  /**
+   * 设置交互事件（悬浮、点击）
+   * @private
+   */
   _setupInteractions() {
     const self = this;
 
@@ -4643,7 +6506,12 @@ class VMenuItem extends Tag {
     });
   }
 
-  // 子菜单相关方法 - 使用 vSubMenu 创建子菜单
+  /**
+   * 添加子菜单
+   * @param {string} title - 子菜单标题
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VSubMenu}
+   */
   submenu(title, setup = null) {
     // 使用 vSubMenu 创建子菜单
     const subMenu = vSubMenu(title, setup);
@@ -4656,6 +6524,10 @@ class VMenuItem extends Tag {
     return subMenu;
   }
 
+  /**
+   * 确保箭头元素存在
+   * @private
+   */
   _ensureArrow() {
     if (this._arrowEl) return;
     this._arrowEl = span(arrow => {
@@ -4671,6 +6543,10 @@ class VMenuItem extends Tag {
     });
   }
 
+  /**
+   * 确保箭头元素已添加到子元素
+   * @private
+   */
   _ensureArrowEl() {
     if (!this._arrowEl) return;
     if (!this._children.includes(this._arrowEl)) {
@@ -4678,12 +6554,22 @@ class VMenuItem extends Tag {
     }
   }
 
+  /**
+   * 设置菜单项文本
+   * @param {string} content - 文本内容
+   * @returns {this}
+   */
   text(content) {
     this._text = content;
     this._updateContent();
     return this;
   }
 
+  /**
+   * 设置菜单项图标
+   * @param {string} content - 图标 HTML 或文本
+   * @returns {this}
+   */
   icon(content) {
     this._icon = content;
     this._ensureIconBox();
@@ -4693,51 +6579,98 @@ class VMenuItem extends Tag {
     return this;
   }
 
+  /**
+   * 设置点击事件处理
+   * @param {Function} fn - 事件处理函数
+   * @returns {this}
+   */
   onclick(fn) {
     this._onclick = fn;
     return this;
   }
 
-  // 统一事件格式的方法
+  /**
+   * 设置点击事件处理（统一事件格式）
+   * @param {Function} handler - 事件处理函数
+   * @returns {this}
+   */
   onClick(handler) {
     this._onclick = handler;
     return this;
   }
 
+  /**
+   * 禁用菜单项
+   * @returns {this}
+   */
   disabled() {
     return this.setState('disabled', true);
   }
 
+  /**
+   * 启用菜单项
+   * @returns {this}
+   */
   enabled() {
     return this.setState('disabled', false);
   }
 
+  /**
+   * 激活菜单项
+   * @returns {this}
+   */
   active() {
     return this.setState('active', true);
   }
 
+  /**
+   * 取消激活菜单项
+   * @returns {this}
+   */
   inactive() {
     return this.setState('active', false);
   }
 
+  /**
+   * 设置为危险样式（红色）
+   * @returns {this}
+   */
   danger() {
     return this.setState('danger', true);
   }
 
+  /**
+   * 启用悬浮效果
+   * @returns {this}
+   */
   hoverable() {
     return this.setState('hoverable', true);
   }
 
+  /**
+   * 设置快捷键提示
+   * @param {string} key - 快捷键文本
+   * @returns {this}
+   */
   shortcut(key) {
     this._shortcut = key;
     this._updateContent();
     return this;
   }
 
+  /**
+   * 切换状态
+   * @param {string} stateName - 状态名称
+   * @returns {this}
+   */
   toggleState(stateName) {
     return this.setState(stateName, !this.hasState(stateName));
   }
 
+  /**
+   * 确保图标容器存在
+   * @private
+   */
   _ensureIconBox() {
     if (this._iconBox) return;
     this._iconBox = span(iconEl => {
@@ -4746,6 +6679,10 @@ class VMenuItem extends Tag {
     this.child(this._iconBox);
   }
 
+  /**
+   * 确保文本容器存在
+   * @private
+   */
   _ensureTextBox() {
     if (this._textBox) return;
     this._textBox = span(textEl => {
@@ -4762,6 +6699,10 @@ class VMenuItem extends Tag {
     this.child(this._textBox);
   }
 
+  /**
+   * 确保快捷键容器存在
+   * @private
+   */
   _ensureShortcutBox() {
     if (this._shortcutBox) return;
     this._shortcutBox = span(shortcutEl => {
@@ -4809,6 +6750,10 @@ class VMenuItem extends Tag {
     }
   }
 
+  /**
+   * 渲染 DOM 元素
+   * @returns {HTMLElement|null}
+   */
   renderDom() {
     const element = super.renderDom();
     if (element) {
@@ -4818,6 +6763,12 @@ class VMenuItem extends Tag {
   }
 }
 
+/**
+ * 创建 VMenuItem 实例
+ * @param {string|Function} [content=''] - 内容或 setup 函数
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenuItem}
+ */
 function vMenuItem(content = '', setup = null) {
   return new VMenuItem(content, setup);
 }
@@ -4826,7 +6777,16 @@ function vMenuItem(content = '', setup = null) {
 // VMenuDivider 菜单分割线
 // ============================================
 
+/**
+ * VMenuDivider 菜单分割线
+ * @class
+ * @extends Tag
+ */
 class VMenuDivider extends Tag {
+  /**
+   * 创建 VMenuDivider 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('hr', setup);
     this.styles({
@@ -4838,6 +6798,11 @@ class VMenuDivider extends Tag {
   }
 }
 
+/**
+ * 创建 VMenuDivider 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenuDivider}
+ */
 function vMenuDivider(setup = null) {
   return new VMenuDivider(setup);
 }
@@ -4846,7 +6811,16 @@ function vMenuDivider(setup = null) {
 // VMenuGroup 菜单组
 // ============================================
 
+/**
+ * VMenuGroup 菜单组容器
+ * @class
+ * @extends Tag
+ */
 class VMenuGroup extends Tag {
+  /**
+   * 创建 VMenuGroup 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', setup);
     this.styles({
@@ -4855,24 +6829,44 @@ class VMenuGroup extends Tag {
     });
   }
 
+  /**
+   * 设置组标签
+   * @param {string} text - 标签文本
+   * @returns {this}
+   */
   label(text) {
     this._label = text;
     this._updateContent();
     return this;
   }
 
+  /**
+   * 添加菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
+   */
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
     this.child(el);
     return el;
   }
 
+  /**
+   * 添加分割线
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
   divider(setup = null) {
     const el = vMenuDivider(setup);
     this.child(el);
     return this;
   }
 
+  /**
+   * 更新内容（标签 + 菜单项）
+   * @private
+   */
   _updateContent() {
     const labelEl = this._children.find(c => c._isLabel);
     if (labelEl) {
@@ -4900,6 +6894,11 @@ class VMenuGroup extends Tag {
   }
 }
 
+/**
+ * 创建 VMenuGroup 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMenuGroup}
+ */
 function vMenuGroup(setup = null) {
   return new VMenuGroup(setup);
 }
@@ -4908,7 +6907,17 @@ function vMenuGroup(setup = null) {
 // VDropdownMenu 下拉菜单
 // ============================================
 
+/**
+ * VDropdownMenu 下拉菜单
+ * 支持点击触发展开/折叠，可设置点击外部关闭
+ * @class
+ * @extends Tag
+ */
 class VDropdownMenu extends Tag {
+  /**
+   * 创建 VDropdownMenu 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
     this.style('position', 'relative');
@@ -4927,21 +6936,39 @@ class VDropdownMenu extends Tag {
     this._buildStructure();
   }
 
+  /**
+   * 设置触发器内容
+   * @param {string|Tag} content - 内容或标签
+   * @returns {this}
+   */
   trigger(content) {
     this._triggerContent = content;
     return this;
   }
 
+  /**
+   * 设置菜单内容
+   * @param {VMenu} menu - 菜单实例
+   * @returns {this}
+   */
   menuContent(menu) {
     this._menu = menu;
     return this;
   }
 
+  /**
+   * 启用点击外部关闭
+   * @returns {this}
+   */
   closeOnClickOutside() {
     this._closeOnClickOutside = true;
     return this;
   }
 
+  /**
+   * 切换展开/折叠状态
+   * @private
+   */
   _toggle() {
     if (!this._menuContainer || !this._arrow) return;
 
@@ -4955,6 +6982,10 @@ class VDropdownMenu extends Tag {
     arrowEl.style.transform = isOpen ? '' : 'rotate(180deg)';
   }
 
+  /**
+   * 构建下拉菜单结构
+   * @private
+   */
   _buildStructure() {
     if (this._built) return;
 
@@ -5042,6 +7073,11 @@ class VDropdownMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VDropdownMenu 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VDropdownMenu}
+ */
 function vDropdownMenu(setup = null) {
   return new VDropdownMenu(setup);
 }
@@ -5050,7 +7086,17 @@ function vDropdownMenu(setup = null) {
 // VContextMenu 右键菜单
 // ============================================
 
+/**
+ * VContextMenu 右键菜单
+ * 绑定到指定元素的右键事件，在鼠标位置显示
+ * @class
+ * @extends Tag
+ */
 class VContextMenu extends Tag {
+  /**
+   * 创建 VContextMenu 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
     this.styles({
@@ -5075,17 +7121,31 @@ class VContextMenu extends Tag {
     this._buildContent();
   }
 
+  /**
+   * 绑定目标元素（右键触发）
+   * @param {HTMLElement} element - 目标 DOM 元素
+   * @returns {this}
+   */
   target(element) {
     this._target = element;
     this._bindTarget();
     return this;
   }
 
+  /**
+   * 设置菜单内容
+   * @param {VMenu} menu - 菜单实例
+   * @returns {this}
+   */
   menuContent(menu) {
     this._menu = menu;
     return this;
   }
 
+  /**
+   * 绑定目标元素事件
+   * @private
+   */
   _bindTarget() {
     if (!this._target) return;
 
@@ -5098,6 +7158,12 @@ class VContextMenu extends Tag {
     window.addEventListener('scroll', () => { this.hide(); });
   }
 
+  /**
+   * 显示右键菜单
+   * @param {number} x - x 坐标
+   * @param {number} y - y 坐标
+   * @returns {this}
+   */
   show(x, y) {
     if (this._boundElement) {
       this._boundElement.style.display = 'block';
@@ -5115,6 +7181,10 @@ class VContextMenu extends Tag {
     return this;
   }
 
+  /**
+   * 隐藏右键菜单
+   * @returns {this}
+   */
   hide() {
     if (this._boundElement) {
       this._boundElement.style.display = 'none';
@@ -5122,6 +7192,10 @@ class VContextMenu extends Tag {
     return this;
   }
 
+  /**
+   * 构建菜单内容
+   * @private
+   */
   _buildContent() {
     if (this._built) return;
 
@@ -5137,6 +7211,11 @@ class VContextMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VContextMenu 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VContextMenu}
+ */
 function vContextMenu(setup = null) {
   return new VContextMenu(setup);
 }
@@ -5145,36 +7224,67 @@ function vContextMenu(setup = null) {
 // Tag 原型扩展方法
 // ============================================
 
+/**
+ * Tag 原型扩展 - 添加 vMenu 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenu = function(setup = null) {
   const el = vMenu(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vMenuItem 子元素
+ * @param {string|Function} [content=''] - 内容或 setup 函数
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenuItem = function(content = '', setup = null) {
   const el = vMenuItem(content, setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vMenuDivider 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenuDivider = function(setup = null) {
   const el = vMenuDivider(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vDropdownMenu 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vDropdownMenu = function(setup = null) {
   const el = vDropdownMenu(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vMenuGroup 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMenuGroup = function(setup = null) {
   const el = vMenuGroup(setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vContextMenu 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vContextMenu = function(setup = null) {
   const el = vContextMenu(setup);
   this.child(el);
@@ -5193,9 +7303,20 @@ Tag.prototype.contextMenu = Tag.prototype.vContextMenu;
 // VSubMenu 子菜单
 // ============================================
 
+/**
+ * VSubMenu 子菜单
+ * 可展开/折叠的菜单项，包含子菜单项
+ * @class
+ * @extends Tag
+ */
 class VSubMenu extends Tag {
   static _stateAttrs = ['expanded'];
 
+  /**
+   * 创建 VSubMenu 实例
+   * @param {string} [title=''] - 子菜单标题
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(title = '', setup = null) {
     super('div', null);
 
@@ -5272,6 +7393,11 @@ class VSubMenu extends Tag {
     }
   }
 
+  /**
+   * 处理对象配置
+   * @param {Object} config - 配置对象
+   * @private
+   */
   _setupObject(config) {
     // 处理对象配置
     if (config.items && Array.isArray(config.items)) {
@@ -5281,6 +7407,12 @@ class VSubMenu extends Tag {
     }
   }
 
+  /**
+   * 添加子菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
+   */
   item(content = '', setup = null) {
     const el = vMenuItem(content, setup);
     el.styles({ paddingLeft: '24px' });
@@ -5289,6 +7421,10 @@ class VSubMenu extends Tag {
     return el;
   }
 
+  /**
+   * 添加分割线
+   * @returns {VMenuDivider}
+   */
   divider() {
     const el = vMenuDivider();
     el.styles({ marginLeft: '16px' });
@@ -5296,6 +7432,10 @@ class VSubMenu extends Tag {
     return el;
   }
 
+  /**
+   * 渲染 DOM 元素
+   * @returns {HTMLElement|null}
+   */
   renderDom() {
     if (this._deleted) return null;
 
@@ -5311,6 +7451,12 @@ class VSubMenu extends Tag {
   }
 }
 
+/**
+ * 创建 VSubMenu 实例
+ * @param {string} [title=''] - 子菜单标题
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VSubMenu}
+ */
 function vSubMenu(title = '', setup = null) {
   return new VSubMenu(title, setup);
 }
@@ -5319,9 +7465,19 @@ function vSubMenu(title = '', setup = null) {
 // VSidebar 侧边栏菜单
 // ============================================
 
+/**
+ * VSidebar 侧边栏菜单
+ * 支持折叠/展开，可设置宽度、头部、内容、底部等
+ * @class
+ * @extends Tag
+ */
 class VSidebar extends Tag {
   static _stateAttrs = ['collapsed', 'expanded'];
 
+  /**
+   * 创建 VSidebar 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
 
@@ -5361,6 +7517,10 @@ class VSidebar extends Tag {
     }
   }
 
+  /**
+   * 设置基础样式
+   * @private
+   */
   _setupBaseStyles() {
     this.styles({
       display: 'flex',
@@ -5496,6 +7656,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置侧边栏宽度
+   * @param {string} w - 宽度值
+   * @returns {this}
    */
   width(w) {
     this._width = w;
@@ -5508,6 +7670,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置折叠时宽度
+   * @param {string} w - 宽度值
+   * @returns {this}
    */
   collapsedWidth(w) {
     this._collapsedWidth = w;
@@ -5516,6 +7680,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置头部内容
+   * @param {Function|string} setup - 初始化函数或文本
+   * @returns {this}
    */
   header(setup) {
     if (!this._headerEl) {
@@ -5545,6 +7711,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置内容区域
+   * @param {Function} setup - 初始化函数
+   * @returns {this}
    */
   content(setup) {
     if (!this._contentEl) {
@@ -5594,6 +7762,8 @@ class VSidebar extends Tag {
 
   /**
    * 设置底部内容
+   * @param {Function|string} setup - 初始化函数或文本
+   * @returns {this}
    */
   footer(setup) {
     if (!this._footerEl) {
@@ -5622,6 +7792,9 @@ class VSidebar extends Tag {
 
   /**
    * 添加菜单项
+   * @param {string|Function} [content=''] - 内容或 setup 函数
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuItem}
    */
   item(content = '', setup = null) {
     if (!this._contentEl) {
@@ -5634,6 +7807,7 @@ class VSidebar extends Tag {
 
   /**
    * 添加分割线
+   * @returns {this}
    */
   divider() {
     if (!this._contentEl) {
@@ -5650,6 +7824,8 @@ class VSidebar extends Tag {
 
   /**
    * 添加菜单组
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {VMenuGroup}
    */
   group(setup = null) {
     if (!this._contentEl) {
@@ -5662,6 +7838,7 @@ class VSidebar extends Tag {
 
   /**
    * 切换折叠状态
+   * @returns {this}
    */
   toggle() {
     const collapsed = this.hasState('collapsed');
@@ -5672,6 +7849,7 @@ class VSidebar extends Tag {
 
   /**
    * 折叠侧边栏
+   * @returns {this}
    */
   collapse() {
     this.setState('collapsed', true);
@@ -5681,6 +7859,7 @@ class VSidebar extends Tag {
 
   /**
    * 展开侧边栏
+   * @returns {this}
    */
   expand() {
     this.setState('collapsed', false);
@@ -5689,7 +7868,8 @@ class VSidebar extends Tag {
   }
 
   /**
-   * 是否已折叠
+   * 检查是否已折叠
+   * @returns {boolean}
    */
   isCollapsed() {
     return this.hasState('collapsed');
@@ -5697,6 +7877,8 @@ class VSidebar extends Tag {
 
   /**
    * 添加切换按钮到头部
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
    */
   showToggleBtn(setup = null) {
     if (!this._headerEl) {
@@ -5754,7 +7936,8 @@ class VSidebar extends Tag {
   }
 
   /**
-   * 使用主题深色模式
+   * 使用深色模式样式
+   * @returns {this}
    */
   dark() {
     this.styles({
@@ -5777,7 +7960,8 @@ class VSidebar extends Tag {
   }
 
   /**
-   * 销毁组件
+   * 销毁组件（清理引用）
+   * @returns {this}
    */
   destroy() {
     this._headerEl = null;
@@ -5788,10 +7972,20 @@ class VSidebar extends Tag {
   }
 }
 
+/**
+ * 创建 VSidebar 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VSidebar}
+ */
 function vSidebar(setup = null) {
   return new VSidebar(setup);
 }
 
+/**
+ * Tag 原型扩展 - 添加 vSidebar 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vSidebar = function(setup = null) {
   const el = vSidebar(setup);
   this.child(el);
@@ -5801,6 +7995,25 @@ Tag.prototype.vSidebar = function(setup = null) {
 /**
  * Yoya.Basic - Message 消息提示组件
  * 用于显示全局消息提示（成功、错误、警告、信息）
+ * @module Yoya.Message
+ * @example
+ * // 基础用法
+ * import { toast } from '../yoya/index.js';
+ *
+ * toast.success('操作成功！');
+ * toast.error('操作失败，请重试！');
+ * toast.warning('请注意此操作的影响！');
+ * toast.info('这是一个普通信息提示！');
+ *
+ * // 自定义时长
+ * toast.info('消息内容', 5000);  // 5 秒后关闭
+ *
+ * // 使用消息容器
+ * import { vMessageContainer } from '../yoya/index.js';
+ *
+ * const container = vMessageContainer('top-right');
+ * container.success('成功！');
+ * container.error('失败！');
  */
 
 
@@ -5808,7 +8021,19 @@ Tag.prototype.vSidebar = function(setup = null) {
 // VMessage 消息提示
 // ============================================
 
+/**
+ * VMessage 消息提示组件
+ * 支持 success、error、warning、info 四种类型
+ * @class
+ * @extends Tag
+ */
 class VMessage extends Tag {
+  /**
+   * 创建 VMessage 实例
+   * @param {string} [content=''] - 消息内容
+   * @param {string} [type='info'] - 消息类型：success、error、warning、info
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(content = '', type = 'info', setup = null) {
     super('div', null);
 
@@ -5840,6 +8065,10 @@ class VMessage extends Tag {
     }
   }
 
+  /**
+   * 应用类型样式
+   * @private
+   */
   _applyTypeStyles() {
     const typeStyles = {
       success: {
@@ -5868,6 +8097,11 @@ class VMessage extends Tag {
     this.styles(styles);
   }
 
+  /**
+   * 获取类型图标
+   * @returns {string} 图标字符
+   * @private
+   */
   _getTypeIcon() {
     const icons = {
       success: '✓',
@@ -5878,6 +8112,10 @@ class VMessage extends Tag {
     return icons[this._type] || icons.info;
   }
 
+  /**
+   * 构建消息内容
+   * @private
+   */
   _buildContent() {
     this.child(span(icon => {
       icon.text(this._getTypeIcon());
@@ -5925,21 +8163,40 @@ class VMessage extends Tag {
     }
   }
 
+  /**
+   * 设置消息内容
+   * @param {string} text - 消息内容
+   * @returns {this}
+   */
   content(text) {
     this._content = text;
     return this;
   }
 
+  /**
+   * 设置是否可关闭
+   * @param {boolean} value - 是否可关闭
+   * @returns {this}
+   */
   closable(value) {
     this._closable = value;
     return this;
   }
 
+  /**
+   * 设置自动关闭时长
+   * @param {number} ms - 时长（毫秒）
+   * @returns {this}
+   */
   duration(ms) {
     this._duration = ms;
     return this;
   }
 
+  /**
+   * 关闭消息
+   * @returns {this}
+   */
   close() {
     if (this._closed) return;
 
@@ -5960,6 +8217,10 @@ class VMessage extends Tag {
     }
   }
 
+  /**
+   * 启动自动关闭计时器
+   * @private
+   */
   startTimer() {
     if (this._duration > 0 && !this._timer) {
       this._timer = setTimeout(() => {
@@ -5968,6 +8229,10 @@ class VMessage extends Tag {
     }
   }
 
+  /**
+   * 停止自动关闭计时器
+   * @private
+   */
   stopTimer() {
     if (this._timer) {
       clearTimeout(this._timer);
@@ -5975,6 +8240,10 @@ class VMessage extends Tag {
     }
   }
 
+  /**
+   * 渲染 DOM 元素
+   * @returns {HTMLElement|null}
+   */
   renderDom() {
     const element = super.renderDom();
     if (element && this._duration > 0) {
@@ -5984,6 +8253,13 @@ class VMessage extends Tag {
   }
 }
 
+/**
+ * 创建 VMessage 实例
+ * @param {string} [content=''] - 消息内容
+ * @param {string} [type='info'] - 消息类型
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMessage}
+ */
 function vMessage(content = '', type = 'info', setup = null) {
   return new VMessage(content, type, setup);
 }
@@ -5992,7 +8268,18 @@ function vMessage(content = '', type = 'info', setup = null) {
 // VMessageContainer 消息容器
 // ============================================
 
+/**
+ * VMessageContainer 消息容器
+ * 用于管理多个消息提示，支持多种位置
+ * @class
+ * @extends Tag
+ */
 class VMessageContainer extends Tag {
+  /**
+   * 创建 VMessageContainer 实例
+   * @param {string} [position='top-right'] - 位置
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(position = 'top-right', setup = null) {
     super('div', null);
 
@@ -6017,6 +8304,10 @@ class VMessageContainer extends Tag {
     }
   }
 
+  /**
+   * 应用位置样式
+   * @private
+   */
   _applyPosition() {
     const positions = {
       'top-left': { top: '0', left: '0' },
@@ -6031,6 +8322,13 @@ class VMessageContainer extends Tag {
     this.styles(pos);
   }
 
+  /**
+   * 添加消息
+   * @param {string} content - 消息内容
+   * @param {string} [type='info'] - 消息类型
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   add(content, type = 'info', duration = 3000) {
     const msg = vMessage(content, type);
     msg.closable(true);
@@ -6056,34 +8354,72 @@ class VMessageContainer extends Tag {
     return msg;
   }
 
+  /**
+   * 添加成功消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   success(content, duration = 3000) {
     return this.add(content, 'success', duration);
   }
 
+  /**
+   * 添加错误消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   error(content, duration = 3000) {
     return this.add(content, 'error', duration);
   }
 
+  /**
+   * 添加警告消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   warning(content, duration = 3000) {
     return this.add(content, 'warning', duration);
   }
 
+  /**
+   * 添加信息消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   info(content, duration = 3000) {
     return this.add(content, 'info', duration);
   }
 
+  /**
+   * 清空所有消息
+   */
   clear() {
     this._messages.forEach(msg => msg.close());
     this._messages = [];
     this._children = [];
   }
 
+  /**
+   * 设置最大可见消息数量
+   * @param {number} count - 数量
+   * @returns {this}
+   */
   maxVisible(count) {
     this._maxVisible = count;
     return this;
   }
 }
 
+/**
+ * 创建 VMessageContainer 实例
+ * @param {string} [position='top-right'] - 位置
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VMessageContainer}
+ */
 function vMessageContainer(position = 'top-right', setup = null) {
   return new VMessageContainer(position, setup);
 }
@@ -6092,7 +8428,15 @@ function vMessageContainer(position = 'top-right', setup = null) {
 // VMessageManager 消息管理器（单例）
 // ============================================
 
+/**
+ * VMessageManager 消息管理器（单例模式）
+ * 用于管理全局消息提示
+ * @class
+ */
 class VMessageManager {
+  /**
+   * 创建 VMessageManager 实例（单例）
+   */
   constructor() {
     if (VMessageManager._instance) {
       return VMessageManager._instance;
@@ -6103,6 +8447,11 @@ class VMessageManager {
     VMessageManager._instance = this;
   }
 
+  /**
+   * 获取消息容器（惰性创建）
+   * @returns {VMessageContainer}
+   * @private
+   */
   _getContainer() {
     if (!this._container) {
       this._container = vMessageContainer(this._position);
@@ -6112,6 +8461,12 @@ class VMessageManager {
     return this._container;
   }
 
+  /**
+   * 根据位置重新创建容器（如需要）
+   * @param {string} position - 位置
+   * @returns {VMessageContainer}
+   * @private
+   */
   _recreateContainerIfNeeded(position) {
     if (position && position !== this._position) {
       this._position = position;
@@ -6150,17 +8505,51 @@ class VMessageManager {
     return container.add(content, type, duration);
   };
 
+  /**
+   * 成功消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   success = (content, duration = 3000) => this._getContainer().success(content, duration);
+
+  /**
+   * 错误消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   error = (content, duration = 3000) => this._getContainer().error(content, duration);
+
+  /**
+   * 警告消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   warning = (content, duration = 3000) => this._getContainer().warning(content, duration);
+
+  /**
+   * 信息消息
+   * @param {string} content - 消息内容
+   * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+   * @returns {VMessage}
+   */
   info = (content, duration = 3000) => this._getContainer().info(content, duration);
 
+  /**
+   * 清空所有消息
+   */
   clear = () => {
     if (this._container) {
       this._container.clear();
     }
   };
 
+  /**
+   * 设置消息位置
+   * @param {string} position - 位置
+   */
   setPosition = (position) => {
     this._position = position;
     if (this._container) {
@@ -6169,6 +8558,11 @@ class VMessageManager {
     }
   };
 
+  /**
+   * 设置最大可见消息数量
+   * @param {number} count - 数量
+   * @returns {this}
+   */
   setMaxVisible = (count) => {
     this._maxVisible = count;
     return this;
@@ -6177,7 +8571,17 @@ class VMessageManager {
 
 const vMessageManager = new VMessageManager();
 
-// 便捷函数 - 支持两种调用方式
+/**
+ * 全局消息提示函数（toast）
+ * 支持多种调用方式：
+ * 1. toast.success('消息') / toast.error('消息') / toast.warning('消息') / toast.info('消息')
+ * 2. toast('消息', { type: 'success', duration: 3000, position: 'top-center' })
+ * 3. toast('消息', 'success', 3000)  // 兼容旧 API
+ * @param {string} content - 消息内容
+ * @param {string|Object} [typeOrOptions='info'] - 消息类型或配置对象
+ * @param {number} [duration=3000] - 自动关闭时长（毫秒）
+ * @returns {VMessage}
+ */
 function toast(content, typeOrOptions = 'info', duration = 3000) {
   return vMessageManager.call(content, typeOrOptions, duration);
 }
@@ -6194,12 +8598,25 @@ toast.setPosition = vMessageManager.setPosition;
 // Tag 原型扩展方法
 // ============================================
 
+/**
+ * Tag 原型扩展 - 添加 vMessage 子元素
+ * @param {string} [content=''] - 消息内容
+ * @param {string} [type='info'] - 消息类型
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMessage = function(content, type = 'info', setup = null) {
   const el = vMessage(content, type, setup);
   this.child(el);
   return this;
 };
 
+/**
+ * Tag 原型扩展 - 添加 vMessageContainer 子元素
+ * @param {string} [position='top-right'] - 位置
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
 Tag.prototype.vMessageContainer = function(position = 'top-right', setup = null) {
   const el = vMessageContainer(position, setup);
   this.child(el);
@@ -6624,7 +9041,23 @@ Tag.prototype.vButton = function(content = '', setup = null) {
 
 /**
  * Yoya.Components - Code
- * 代码展示组件，支持语法高亮
+ * 代码展示组件，支持语法高亮和一键复制功能
+ * @module Yoya.Code
+ * @example
+ * // 基础用法
+ * import { vCode, toast } from '../yoya/index.js';
+ *
+ * vCode(c => {
+ *   c.content(`const hello = (name) => {
+ *   console.log('Hello, ' + name);
+ * };`);
+ *   c.title('JavaScript 示例');
+ *   c.onCopy(() => toast.success('代码已复制'));
+ * });
+ *
+ * // 快速创建代码块
+ * import { codeBlock } from '../yoya/index.js';
+ * codeBlock('示例代码', 'const x = 1;');
  */
 
 
@@ -6632,9 +9065,19 @@ Tag.prototype.vButton = function(content = '', setup = null) {
 // VCode 代码展示组件
 // ============================================
 
+/**
+ * VCode 代码展示组件
+ * 支持语法高亮、行号显示、一键复制功能
+ * @class
+ * @extends Tag
+ */
 class VCode extends Tag {
   static _stateAttrs = ['copied'];
 
+  /**
+   * 创建 VCode 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
   constructor(setup = null) {
     super('div', null);
 
@@ -6671,6 +9114,10 @@ class VCode extends Tag {
     this._createInternalElements();
   }
 
+  /**
+   * 设置基础样式
+   * @private
+   */
   _setupBaseStyles() {
     this.styles({
       display: 'block',
@@ -6681,6 +9128,10 @@ class VCode extends Tag {
     });
   }
 
+  /**
+   * 注册状态处理器
+   * @private
+   */
   _registerStateHandlers() {
     this.registerStateHandler('copied', (copied, host) => {
       if (host._copyButton) {
@@ -6799,6 +9250,10 @@ class VCode extends Tag {
     this._updateCodeContent();
   }
 
+  /**
+   * 更新代码内容
+   * @private
+   */
   _updateCodeContent() {
     if (this._codeElement && this._codeContent) {
       const highlighted = this._highlightCode(this._codeContent);
@@ -6810,6 +9265,12 @@ class VCode extends Tag {
     }
   }
 
+  /**
+   * 语法高亮处理
+   * @param {string} content - 代码内容
+   * @returns {string} 高亮后的 HTML
+   * @private
+   */
   _highlightCode(content) {
     // 1. 先提取字符串，使用占位符保护
     const strings = [];
@@ -6881,6 +9342,10 @@ class VCode extends Tag {
     return code;
   }
 
+  /**
+   * 处理复制操作
+   * @private
+   */
   _handleCopy() {
     // 复制代码到剪贴板
     if (navigator.clipboard) {
@@ -6897,6 +9362,10 @@ class VCode extends Tag {
     }
   }
 
+  /**
+   * 备用复制方法（当 navigator.clipboard 不可用时）
+   * @private
+   */
   _fallbackCopy() {
     // 备用复制方法
     const textarea = document.createElement('textarea');
@@ -13623,6 +16092,34 @@ const size = {
 /**
  * Yoya.I18n - 国际化模块
  * 提供翻译、语言切换、占位符替换等功能
+ * @module Yoya.I18n
+ * @example
+ * // 注册语言包
+ * import { registerLanguage, setLanguage, t } from './yoya/i18n.js';
+ *
+ * registerLanguage('zh-CN', {
+ *   common: {
+ *     ok: '确定',
+ *     cancel: '取消'
+ *   },
+ *   greeting: '你好，{name}！'
+ * });
+ *
+ * registerLanguage('en-US', {
+ *   common: {
+ *     ok: 'OK',
+ *     cancel: 'Cancel'
+ *   },
+ *   greeting: 'Hello, {name}!'
+ * });
+ *
+ * // 使用翻译
+ * t('common.ok'); // '确定'
+ * t('greeting', { name: '世界' }); // '你好，世界！'
+ *
+ * // 切换语言
+ * setLanguage('en-US');
+ * t('common.ok'); // 'OK'
  */
 
 // 当前语言
@@ -13641,6 +16138,11 @@ const STORAGE_KEY_LANGUAGE = 'yoya-language';
  * 注册语言包
  * @param {string} lang - 语言代码 (如 'zh-CN', 'en-US')
  * @param {Object} messages - 翻译消息对象
+ * @example
+ * registerLanguage('zh-CN', {
+ *   common: { ok: '确定', cancel: '取消' },
+ *   greeting: '你好，{name}！'
+ * });
  */
 function registerLanguage(lang, messages) {
   if (!languagePacks.has(lang)) {
@@ -13654,7 +16156,10 @@ function registerLanguage(lang, messages) {
 /**
  * 设置当前语言
  * @param {string} lang - 语言代码
- * @param {boolean} save - 是否保存到 localStorage
+ * @param {boolean} [save=true] - 是否保存到 localStorage
+ * @example
+ * setLanguage('en-US');
+ * setLanguage('zh-CN', false); // 不保存
  */
 function setLanguage(lang, save = true) {
   currentLanguage = lang;
@@ -13669,7 +16174,7 @@ function setLanguage(lang, save = true) {
 
 /**
  * 获取当前语言
- * @returns {string}
+ * @returns {string} 当前语言代码
  */
 function getLanguage() {
   return currentLanguage;
@@ -13677,7 +16182,7 @@ function getLanguage() {
 
 /**
  * 从 localStorage 读取语言设置
- * @returns {string|null}
+ * @returns {string|null} 语言代码或 null
  */
 function loadLanguageFromStorage() {
   try {
@@ -13702,8 +16207,9 @@ function saveLanguageToStorage(lang) {
 /**
  * 替换字符串中的占位符
  * @param {string} str - 包含占位符的字符串
- * @param {Object} params - 参数对象
- * @returns {string}
+ * @param {Object} [params={}] - 参数对象
+ * @returns {string} 替换后的字符串
+ * @private
  */
 function replacePlaceholders(str, params = {}) {
   if (!params || typeof params !== 'object') {
@@ -13719,7 +16225,8 @@ function replacePlaceholders(str, params = {}) {
  * 获取嵌套的翻译键值
  * @param {Object} obj - 消息对象
  * @param {string} key - 嵌套键 (如 'common.ok')
- * @returns {string|undefined}
+ * @returns {string|undefined} 翻译值或 undefined
+ * @private
  */
 function getNestedValue(obj, key) {
   const keys = key.split('.');
@@ -13739,9 +16246,13 @@ function getNestedValue(obj, key) {
 /**
  * 翻译函数
  * @param {string} key - 翻译键
- * @param {string} defaultValue - 默认值（当翻译不存在时使用）
- * @param {Object} params - 占位符参数
- * @returns {string}
+ * @param {string} [defaultValue=''] - 默认值（当翻译不存在时使用）
+ * @param {Object} [params={}] - 占位符参数
+ * @returns {string} 翻译后的字符串
+ * @example
+ * t('common.ok'); // '确定'
+ * t('greeting', 'Hello', { name: '世界' }); // '你好，世界！'
+ * t('missing.key', '默认文本'); // 返回 '默认文本'
  */
 function t(key, defaultValue = '', params = {}) {
   // 获取当前语言的翻译
@@ -13768,8 +16279,8 @@ function t(key, defaultValue = '', params = {}) {
 /**
  * 带默认值和参数的翻译函数
  * @param {string} key - 翻译键
- * @param {Object} params - 占位符参数
- * @returns {string}
+ * @param {Object} [params={}] - 占位符参数
+ * @returns {string} 翻译后的字符串
  */
 function translate(key, params = {}) {
   return t(key, key, params);
@@ -13777,10 +16288,19 @@ function translate(key, params = {}) {
 
 /**
  * 初始化 i18n
- * @param {Object} options - 配置选项
- * @param {string} options.defaultLanguage - 默认语言
- * @param {Map} options.languages - 语言包 Map
- * @param {boolean} options.autoLoad - 是否自动从 localStorage 加载语言
+ * @param {Object} [options={}] - 配置选项
+ * @param {string} [options.defaultLanguage='zh-CN'] - 默认语言
+ * @param {Map} [options.languages=new Map()] - 语言包 Map
+ * @param {boolean} [options.autoLoad=true] - 是否自动从 localStorage 加载语言
+ * @example
+ * initI18n({
+ *   defaultLanguage: 'en-US',
+ *   languages: new Map([
+ *     ['zh-CN', { common: { ok: '确定' } }],
+ *     ['en-US', { common: { ok: 'OK' } }]
+ *   ]),
+ *   autoLoad: true
+ * });
  */
 function initI18n(options = {}) {
   const {
@@ -13812,6 +16332,7 @@ function initI18n(options = {}) {
 
 /**
  * 扩展 String 原型，添加 .t() 方法
+ * @private
  */
 function extendStringPrototype() {
   // 避免重复扩展
@@ -13824,8 +16345,9 @@ function extendStringPrototype() {
   /**
    * String 扩展方法：翻译
    * @param {string} key - 翻译键
-   * @param {Object} params - 占位符参数
-   * @returns {string}
+   * @param {Object} [params={}] - 占位符参数
+   * @returns {string} 翻译后的字符串
+   * @this {string} 字符串本身作为默认值
    */
   String.prototype.t = function (key, params = {}) {
     return t(key, this, params);
@@ -13833,8 +16355,9 @@ function extendStringPrototype() {
 
   /**
    * String 扩展方法：带参数的翻译
-   * @param {Object} params - 占位符参数
-   * @returns {string}
+   * @param {Object} [params={}] - 占位符参数
+   * @returns {string} 翻译后的字符串
+   * @this {string} 字符串本身作为键和默认值
    */
   String.prototype.tr = function (params = {}) {
     // 使用字符串本身作为键和默认值
@@ -13846,8 +16369,8 @@ function extendStringPrototype() {
  * 创建翻译文本节点
  * 用于在 DOM 中直接添加翻译文本
  * @param {string} key - 翻译键
- * @param {string} defaultValue - 默认值
- * @param {Object} params - 占位符参数
+ * @param {string} [defaultValue=''] - 默认值
+ * @param {Object} [params={}] - 占位符参数
  * @returns {string} 翻译后的文本
  */
 function createText(key, defaultValue = '', params = {}) {
@@ -13856,7 +16379,7 @@ function createText(key, defaultValue = '', params = {}) {
 
 /**
  * 获取所有支持的语言
- * @returns {string[]}
+ * @returns {string[]} 支持的语言代码列表
  */
 function getSupportedLanguages() {
   return Array.from(languagePacks.keys());
@@ -13865,7 +16388,7 @@ function getSupportedLanguages() {
 /**
  * 检查语言包是否存在
  * @param {string} lang - 语言代码
- * @returns {boolean}
+ * @returns {boolean} 语言包是否存在
  */
 function hasLanguage(lang) {
   return languagePacks.has(lang);
@@ -13874,6 +16397,7 @@ function hasLanguage(lang) {
 /**
  * Yoya.Basic - Helper Utilities
  * 工具函数：安全的动态加载组件
+ * @module Yoya.Helper
  */
 
 
@@ -13883,6 +16407,8 @@ function hasLanguage(lang) {
 
 /**
  * 加载状态枚举
+ * @enum {string}
+ * @readonly
  */
 const LoadStatus = {
   PENDING: 'pending',      // 等待加载
@@ -13907,6 +16433,8 @@ const _moduleCache = new Map();
  * 3. 错误处理，加载失败不影响页面正常运行
  * 4. 支持加载状态回调
  *
+ * @class
+ * @extends Tag
  * @example
  * // 基础用法
  * vDynamicLoader(() => import('./my-component.js'), {
@@ -13929,6 +16457,22 @@ const _moduleCache = new Map();
  * );
  */
 class VDynamicLoader extends Tag {
+  /**
+   * 创建 VDynamicLoader 实例
+   * @param {Function} moduleLoader - 模块加载函数 () => Promise<Module>
+   * @param {Object} [options={}] - 配置选项
+   * @param {Tag} [options.placeholder=null] - 占位内容
+   * @param {Tag} [options.loadingContent=div('加载中...')] - 加载中内容
+   * @param {Tag} [options.errorContent=div('加载失败')] - 错误内容
+   * @param {Function} [options.onLoad=null] - 加载成功回调 (api, component) => void
+   * @param {Function} [options.onError=null] - 加载失败回调 (error, component) => void
+   * @param {Function} [options.onStatusChange=null] - 状态变化回调 (status) => void
+   * @param {number} [options.retryCount=0] - 重试次数
+   * @param {number} [options.retryDelay=1000] - 重试延迟（毫秒）
+   * @param {string} [options.minHeight='auto'] - 最小高度
+   * @param {string} [options.minWidth='auto'] - 最小宽度
+   * @param {Function|Object|null} [setup=null] - 初始化配置
+   */
   constructor(moduleLoader, options = {}, setup = null) {
     // 处理参数重载
     if (typeof options === 'function') {
@@ -14186,7 +16730,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 获取加载状态
-   * @returns {string} 加载状态
+   * @returns {string} 加载状态（pending/loading/loaded/error）
    */
   getStatus() {
     return this._status;
@@ -14194,7 +16738,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 检查是否已加载
-   * @returns {boolean}
+   * @returns {boolean} 是否已加载完成
    */
   isLoaded() {
     return this._status === LoadStatus.LOADED;
@@ -14202,7 +16746,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 检查是否加载失败
-   * @returns {boolean}
+   * @returns {boolean} 是否加载失败
    */
   isError() {
     return this._status === LoadStatus.ERROR;
@@ -14210,7 +16754,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 检查是否正在加载
-   * @returns {boolean}
+   * @returns {boolean} 是否正在加载
    */
   isLoading() {
     return this._status === LoadStatus.LOADING;
@@ -14226,7 +16770,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 获取错误信息
-   * @returns {Error|null}
+   * @returns {Error|null} 错误对象或 null
    */
   getError() {
     return this._error;
@@ -14234,7 +16778,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 手动重试加载
-   * @returns {Promise<void>}
+   * @returns {Promise<this>} 返回当前实例支持链式调用
    */
   async retry() {
     this._retryCount = 0;  // 重置重试计数
@@ -14246,7 +16790,7 @@ class VDynamicLoader extends Tag {
   /**
    * 设置加载超时
    * @param {number} ms - 超时毫秒数
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   timeout(ms) {
     this._timeout = ms;
@@ -14256,8 +16800,8 @@ class VDynamicLoader extends Tag {
   /**
    * 设置重试配置
    * @param {number} count - 重试次数
-   * @param {number} delay - 重试间隔（毫秒）
-   * @returns {this}
+   * @param {number} [delay=1000] - 重试间隔（毫秒）
+   * @returns {this} 返回当前实例支持链式调用
    */
   retryConfig(count, delay = 1000) {
     this._retryCount = count;
@@ -14266,9 +16810,9 @@ class VDynamicLoader extends Tag {
   }
 
   /**
-   * 设置加载回调
+   * 设置加载成功回调
    * @param {Function} callback - (api, loader) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   onLoad(callback) {
     this._onLoad = callback;
@@ -14286,7 +16830,7 @@ class VDynamicLoader extends Tag {
   /**
    * 设置错误回调
    * @param {Function} callback - (error, loader) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   onError(callback) {
     this._onError = callback;
@@ -14304,7 +16848,7 @@ class VDynamicLoader extends Tag {
   /**
    * 设置状态变化回调
    * @param {Function} callback - (status, loader) => void
-   * @returns {this}
+   * @returns {this} 返回当前实例支持链式调用
    */
   onStatusChange(callback) {
     this._onStatusChange = callback;
@@ -14321,6 +16865,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 卸载组件，清理缓存
+   * @returns {this} 返回当前实例支持链式调用
    */
   unload() {
     const cacheKey = this._getCacheKey();
@@ -14334,6 +16879,7 @@ class VDynamicLoader extends Tag {
 
   /**
    * 销毁组件
+   * @returns {this} 返回当前实例支持链式调用
    */
   destroy() {
     this.unload();
@@ -14467,7 +17013,7 @@ async function preloadModules(loaders) {
 /**
  * 清除模块缓存
  *
- * @param {string|Function} loader - 模块加载函数或缓存键
+ * @param {string|Function} [loader] - 模块加载函数或缓存键，不传则清空所有缓存
  */
 function clearModuleCache(loader) {
   if (typeof loader === 'function') {
@@ -14484,7 +17030,7 @@ function clearModuleCache(loader) {
  * 获取模块缓存状态
  *
  * @param {Function} loader - 模块加载函数
- * @returns {{status: string, api?: any, error?: Error}|null}
+ * @returns {Object|null} 返回缓存状态对象 {status, api, error} 或 null
  */
 function getModuleCacheStatus(loader) {
   const key = loader.toString();

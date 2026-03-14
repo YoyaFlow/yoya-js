@@ -21,6 +21,9 @@ export const routes = {
   'VTimer': () => import('../pages/VTimer/index.js').then(m => m.createVTimerPage),
   'Echart': () => import('../pages/Echart/index.js').then(m => m.createEchartPage),
   'Router': () => import('../pages/Router/index.js').then(m => m.createRouterPage),
+  'Theme': () => import('../pages/Theme/index.js').then(m => m.createThemePage),
+  'Tabs': () => import('../pages/Tabs/index.js').then(m => m.createTabsPage),
+  'VPager': () => import('../pages/Pager/index.js').then(m => m.createVPagerPage),
 };
 
 /**
@@ -44,6 +47,9 @@ export async function getPageComponent(fileName) {
     'vtimer.html': 'VTimer',
     'echart.html': 'Echart',
     'router.html': 'Router',
+    'theme.html': 'Theme',
+    'tabs.html': 'Tabs',
+    'pager.html': 'VPager',
   };
 
   const pageName = pageMap[fileName];

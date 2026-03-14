@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic - 主题测试</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import {
+      vBody, vCard, vButton, vMenu, vDropdownMenu,
+      flex, grid, hstack,
+      toast,
+      initTheme, switchTheme, setThemeMode
+    } from '../yoya/index.js';
+
+    // 初始化主题
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'light'
+    });
+
+    // 等待主题加载完成
+    setTimeout(() => {
+      // 创建测试页面
+      vBody(b => {
+        b.padding('20px');
+
+        // 标题
+        b.child(hstack(title => {
+          title.style('marginBottom', '20px');
+          title.child(h1(h => {
+            h.style('color', 'var(--yoya-text)');
+            h.style('fontSize', '24px');
+            h.text('Yoya.Basic 主题测试');
+          }));
+        }));
+
+        // 主题切换按钮
+        b.child(hstack(btns => {
+          btns.gap('12px');
+          btns.marginBottom('20px');
+
+          btns.child(vButton('切换到浅色').onclick(() => {
+            switchTheme('islands');
+            setThemeMode('light');
+            toast.success('已切换到浅色主题');
+          }));
+
+          btns.child(vButton('切换到深色').onclick(() => {
+            switchTheme('islands');
+            setThemeMode('dark');
+            toast.success('已切换到深色主题');
+          }));
+        }));
+
+        // 测试卡片
+        b.child(vCard(card => {
+          card.cardHeader('测试卡片');
+          card.cardBody('如果你能看到这个卡片，说明主题系统正常工作。');
+          card.cardFooter(fb => {
+            fb.child(vButton('确定'));
+            fb.child(vButton('取消'));
+          });
+        }).style('width', '400px'));
+
+        // 测试菜单
+        b.child(vCard(menuCard => {
+          menuCard.cardHeader('测试菜单');
+          menuCard.cardBody(m => {
+            m.child(vMenu(menu => {
+              menu.item(it => {
+                it.text('📋 新建');
+              });
+              menu.item(it => {
+                it.text('📂 打开');
+              });
+              menu.divider();
+              menu.item(it => {
+                it.text('⚙️ 设置');
+              });
+            }));
+          });
+        }).style('width', '400px').style('marginTop', '20px'));
+
+        // CSS 变量展示
+        b.child(vCard(varCard => {
+          varCard.cardHeader('CSS 变量展示');
+          varCard.cardBody(vars => {
+            vars.child(grid(g => {
+              g.columns(4);
+              g.gap('12px');
+
+              const colors = [
+                { name: 'Primary', var: '--yoya-primary' },
+                { name: 'Background', var: '--yoya-bg' },
+                { name: 'Text', var: '--yoya-text' },
+                { name: 'Border', var: '--yoya-border' },
+              ];
+
+              colors.forEach(color => {
+                g.child(div(d => {
+                  d.style('padding', '16px');
+                  d.style('borderRadius', '8px');
+                  d.style('border', '1px solid var(--yoya-border)');
+                  d.style('text-align', 'center');
+                  d.style('background', `var(${color.var})`);
+                  d.style('color', color.var.includes('bg') || color.var.includes('Background')
+                    ? 'var(--yoya-text)' : 'white');
+                  d.text(color.name);
+                }));
+              });
+            }));
+          });
+        }).style('width', '400px').style('marginTop', '20px'));
+      }).bindTo('#app');
+
+      console.log('主题测试页面已加载');
+    }, 100);
+  </script>
+</body>
+</html>

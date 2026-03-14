@@ -32,6 +32,7 @@
  */
 
 import { Tag, span, div, button } from '../core/basic.js';
+import { vButton } from './button.js';
 
 // ============================================
 // VMenu 菜单
@@ -1184,29 +1185,6 @@ Tag.prototype.menuGroup = Tag.prototype.vMenuGroup;
 Tag.prototype.contextMenu = Tag.prototype.vContextMenu;
 
 // ============================================
-// 导出
-// ============================================
-
-export {
-  VMenu,
-  VMenuItem,
-  VMenuDivider,
-  VMenuGroup,
-  VSubMenu,
-  VDropdownMenu,
-  VContextMenu,
-  VSidebar,
-  vMenu,
-  vMenuItem,
-  vMenuDivider,
-  vMenuGroup,
-  vSubMenu,
-  vDropdownMenu,
-  vContextMenu,
-  vSidebar
-};
-
-// ============================================
 // VSubMenu 子菜单
 // ============================================
 
@@ -1437,6 +1415,7 @@ class VSidebar extends Tag {
       height: '100%',
       background: 'var(--yoya-sidebar-bg, var(--yoya-card-bg, white))',
       borderRight: 'var(--yoya-sidebar-border, 1px solid var(--yoya-border, #e0e0e0))',
+      color: 'var(--yoya-sidebar-content-color, var(--yoya-text, #333))',
       transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'hidden',
       boxSizing: 'border-box',
@@ -1600,6 +1579,7 @@ class VSidebar extends Tag {
           padding: 'var(--yoya-sidebar-header-padding, 16px)',
           borderBottom: 'var(--yoya-sidebar-header-border, 1px solid var(--yoya-border, #e0e0e0))',
           background: 'var(--yoya-sidebar-header-bg, var(--yoya-bg-secondary, #f7f8fa))',
+          color: 'var(--yoya-sidebar-header-color, var(--yoya-text, #333))',
         });
       });
       this.child(this._headerEl);
@@ -1681,6 +1661,7 @@ class VSidebar extends Tag {
           padding: 'var(--yoya-sidebar-footer-padding, 16px)',
           borderTop: 'var(--yoya-sidebar-footer-border, 1px solid var(--yoya-border, #e0e0e0))',
           background: 'var(--yoya-sidebar-footer-bg, var(--yoya-bg-secondary, #f7f8fa))',
+          color: 'var(--yoya-sidebar-footer-color, var(--yoya-text-secondary, #666))',
         });
       });
       this.child(this._footerEl);
@@ -1809,8 +1790,8 @@ class VSidebar extends Tag {
       btn.text('◀');
       btn.on('mouseenter', () => {
         btn.styles({
-          background: 'var(--yoya-hover-bg, rgba(102, 126, 234, 0.1))',
-          color: 'var(--yoya-primary, #667eea)',
+          background: 'var(--yoya-hover-bg, rgba(30, 64, 175, 0.1))',
+          color: 'var(--yoya-primary)',
         });
       });
       btn.on('mouseleave', () => {
@@ -1897,4 +1878,424 @@ Tag.prototype.vSidebar = function(setup = null) {
   const el = vSidebar(setup);
   this.child(el);
   return this;
+};
+
+// ============================================
+// VTopNavbar 顶部导航栏组件
+// ============================================
+
+/**
+ * VTopNavbar - 顶部导航栏组件
+ * 用于页面顶部的导航栏，支持 Logo、菜单项、右侧操作区等
+ * @example
+ * vTopNavbar(nav => {
+ *   nav.height('60px');
+ *   nav.logo('🏝️ Yoya.Basic', () => location.href = '/');
+ *   nav.item('首页', () => toast('首页'));
+ *   nav.item('文档', () => toast('文档'));
+ *   nav.right(r => {
+ *     r.button('登录', () => toast('登录'));
+ *   });
+ * });
+ */
+class VTopNavbar extends Tag {
+  static _stateAttrs = ['fixed', 'bordered', 'themeMode'];
+
+  /**
+   * 创建 VTopNavbar 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(setup = null) {
+    super('div', null);
+
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 内部元素引用
+    this._containerEl = null;
+    this._logoEl = null;
+    this._menuEl = null;
+    this._rightEl = null;
+
+    // 配置
+    this._height = 'var(--yoya-navbar-height, 60px)';
+
+    // 1. 初始化状态
+    this.initializeStates({
+      fixed: false,
+      bordered: true,
+      themeMode: 'light',
+    });
+
+    // 2. 设置基础样式
+    this._setupBaseStyles();
+
+    // 3. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 4. 监听主题变化事件
+    this._setupThemeListener();
+
+    // 5. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 设置基础样式
+   * @private
+   */
+  _setupBaseStyles() {
+    this.styles({
+      display: 'block',
+      width: '100%',
+      height: this._height,
+      background: 'var(--yoya-navbar-bg, white)',
+      borderBottom: 'var(--yoya-navbar-border, 1px solid var(--yoya-border, #e0e0e0))',
+      boxSizing: 'border-box',
+      zIndex: 'var(--yoya-navbar-z-index, 1000)',
+    });
+
+    // 创建内部容器
+    this._containerEl = div(container => {
+      container.styles({
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: '100%',
+        padding: '0 var(--yoya-navbar-padding, 16px)',
+        boxSizing: 'border-box',
+      });
+    });
+    this.child(this._containerEl);
+  }
+
+  _registerStateHandlers() {
+    // fixed 状态处理器
+    this.registerStateHandler('fixed', (fixed, host) => {
+      if (fixed) {
+        host.styles({
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+        });
+      } else {
+        host.styles({
+          position: 'static',
+        });
+      }
+    });
+
+    // bordered 状态处理器
+    this.registerStateHandler('bordered', (bordered, host) => {
+      if (bordered) {
+        host.style('borderBottom', 'var(--yoya-navbar-border, 1px solid var(--yoya-border, #e0e0e0))');
+      } else {
+        host.style('borderBottom', 'none');
+      }
+    });
+
+    // themeMode 状态处理器
+    this.registerStateHandler('themeMode', (mode, host) => {
+      if (mode === 'dark') {
+        host.styles({
+          background: 'var(--yoya-navbar-bg-dark, var(--yoya-bg-dark, #1a1a1a))',
+          borderBottom: 'var(--yoya-navbar-border-dark, 1px solid var(--yoya-border-dark, #333))',
+        });
+      } else {
+        host.styles({
+          background: 'var(--yoya-navbar-bg, white)',
+          borderBottom: 'var(--yoya-navbar-border, 1px solid var(--yoya-border, #e0e0e0))',
+        });
+      }
+    });
+  }
+
+  /**
+   * 设置主题变化监听器
+   * @private
+   */
+  _setupThemeListener() {
+    if (typeof window === 'undefined') return;
+
+    // 监听主题变化事件
+    window.addEventListener('theme-changed', (e) => {
+      const mode = e.detail?.mode || 'light';
+      this.setState('themeMode', mode);
+    });
+
+    // 初始化时获取当前主题模式
+    // 从全局 window._yoyaMode 获取（由 setThemeMode 设置）
+    const getInitialMode = () => {
+      if (typeof window._yoyaMode === 'string') {
+        if (window._yoyaMode === 'auto') {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        return window._yoyaMode;
+      }
+      // 默认值
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const initialMode = getInitialMode();
+    this.setState('themeMode', initialMode);
+  }
+
+  /**
+   * 设置导航栏高度
+   * @param {string} h - 高度值
+   * @returns {this}
+   */
+  height(h) {
+    this._height = h;
+    this.style('height', h);
+    return this;
+  }
+
+  /**
+   * 设置 Logo 区域
+   * @param {string|Function} content - Logo 内容（文本或 setup 函数）
+   * @param {Function} [onClick=null] - 点击回调
+   * @returns {this}
+   */
+  logo(content, onClick = null) {
+    if (!this._logoEl) {
+      this._logoEl = div(logo => {
+        logo.styles({
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: 'var(--yoya-navbar-logo-size, 18px)',
+          fontWeight: '600',
+          color: 'var(--yoya-navbar-logo-color, var(--yoya-text, #333))',
+          cursor: 'pointer',
+          userSelect: 'none',
+        });
+      });
+    } else {
+      this._logoEl.clear();
+    }
+
+    if (typeof content === 'function') {
+      content(this._logoEl);
+    } else {
+      this._logoEl.text(content);
+    }
+
+    if (onClick) {
+      this._logoEl.on('click', onClick);
+    }
+
+    // 将 Logo 添加到容器（如果尚未添加）
+    if (this._containerEl && !this._logoEl._parent) {
+      this._containerEl._children.unshift(this._logoEl);
+      this._logoEl._parent = this._containerEl;
+    }
+
+    return this;
+  }
+
+  /**
+   * 添加导航项
+   * @param {string} content - 菜单项文本
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
+  item(content, setup = null) {
+    if (!this._menuEl) {
+      this._menuEl = div(menu => {
+        menu.styles({
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+        });
+      });
+    }
+
+    const menuItem = div(item => {
+      item.styles({
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '8px 12px',
+        borderRadius: 'var(--yoya-navbar-item-radius, 4px)',
+        fontSize: 'var(--yoya-navbar-item-size, 14px)',
+        color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        userSelect: 'none',
+      });
+
+      item.text(content);
+
+      item.on('mouseenter', () => {
+        item.styles({
+          background: 'var(--yoya-navbar-item-hover-bg, rgba(0,0,0,0.04))',
+          color: 'var(--yoya-navbar-item-hover-color, var(--yoya-text, #333))',
+        });
+      });
+
+      item.on('mouseleave', () => {
+        if (!item._active) {
+          item.styles({
+            background: 'transparent',
+            color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
+          });
+        }
+      });
+
+      item.on('click', (e) => {
+        e.stopPropagation();
+        // 移除其他项的激活状态
+        if (this._menuEl) {
+          this._menuEl._children.forEach(child => {
+            if (child !== item) {
+              child._active = false;
+              child.styles({
+                background: 'transparent',
+                color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
+                fontWeight: '400',
+              });
+            }
+          });
+        }
+        // 设置当前项为激活状态
+        item._active = true;
+        item.styles({
+          background: 'var(--yoya-navbar-item-active-bg, var(--yoya-primary-alpha, rgba(37,99,235,0.08)))',
+          color: 'var(--yoya-navbar-item-active-color, var(--yoya-primary))',
+          fontWeight: '500',
+        });
+
+        if (setup && typeof setup === 'function') {
+          setup(item);
+        }
+      });
+    });
+
+    this._menuEl.child(menuItem);
+
+    // 将菜单区域添加到容器（在 Logo 之后，_rightEl 之前）
+    if (this._containerEl) {
+      if (!this._menuEl._parent) {
+        // 找到 _rightEl 的位置，在其之前插入
+        const rightIndex = this._containerEl._children.indexOf(this._rightEl);
+        if (rightIndex >= 0) {
+          this._containerEl._children.splice(rightIndex, 0, this._menuEl);
+        } else {
+          this._containerEl._children.push(this._menuEl);
+        }
+        this._menuEl._parent = this._containerEl;
+        this._containerEl.renderDom();
+      }
+    }
+    return this;
+  }
+
+  /**
+   * 设置右侧区域
+   * @param {Function} setup - 初始化函数
+   * @returns {this}
+   */
+  right(setup) {
+    if (!this._rightEl) {
+      this._rightEl = div(right => {
+        right.styles({
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        });
+      });
+    }
+
+    // 提供便捷的 button 方法
+    const rightWrapper = {
+      button: (content, onClick = null) => {
+        const btn = vButton(content);
+        rightWrapper._el.child(btn);
+        if (onClick) {
+          btn.on('click', onClick);
+        }
+        return btn;
+      },
+      item: (content, setup = null) => this.item(content, setup),
+      divider: () => {
+        const dividerEl = div(d => {
+          d.styles({
+            width: '1px',
+            height: '20px',
+            background: 'var(--yoya-border, #e0e0e0)',
+            margin: '0 8px',
+          });
+        });
+        rightWrapper._el.child(dividerEl);
+        return rightWrapper;
+      },
+      _el: this._rightEl,
+    };
+
+    if (typeof setup === 'function') {
+      setup(rightWrapper);
+    }
+
+    // 将右侧区域添加到容器末尾
+    if (this._containerEl) {
+      // 确保 _rightEl 在_children 数组的最后
+      const index = this._containerEl._children.indexOf(this._rightEl);
+      if (index >= 0) {
+        this._containerEl._children.splice(index, 1);
+      }
+      this._containerEl._children.push(this._rightEl);
+      this._rightEl._parent = this._containerEl;
+      this._containerEl.renderDom();
+    }
+    return this;
+  }
+
+  /**
+   * 设置为深色模式（兼容旧 API）
+   * @returns {this}
+   */
+  dark() {
+    this.setState('themeMode', 'dark');
+    return this;
+  }
+}
+
+/**
+ * 创建 VTopNavbar 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VTopNavbar}
+ */
+function vTopNavbar(setup = null) {
+  return new VTopNavbar(setup);
+}
+
+/**
+ * Tag 原型扩展 - 添加 vTopNavbar 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
+Tag.prototype.vTopNavbar = function(setup = null) {
+  const el = vTopNavbar(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// 导出
+// ============================================
+
+export {
+  // Menu 组件
+  VMenu, VMenuItem, VMenuDivider, VMenuGroup, VSubMenu, VDropdownMenu, VContextMenu,
+  vMenu, vMenuItem, vMenuDivider, vMenuGroup, vSubMenu, vDropdownMenu, vContextMenu,
+
+  // Sidebar 组件
+  VSidebar,
+  vSidebar,
+
+  // TopNavbar 组件
+  VTopNavbar,
+  vTopNavbar,
 };

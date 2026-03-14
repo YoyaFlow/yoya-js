@@ -34,53 +34,63 @@ export function createLightTheme() {
 
   // 定义颜色变量 - JetBrains Islands 浅色主题配色
   const colors = {
-    // 主色调 - JetBrains 蓝紫色
-    primary: '#5A67D6',        // 主要交互色
-    primaryLight: '#7B85EE',    // 悬停/高亮
-    primaryDark: '#4655B8',     // 按压/激活
-    primaryAlpha: 'rgba(90, 103, 214, 0.1)',  // 半透明背景
+    // 主色调 - 中性蓝色（减少紫色调）
+    primary: '#1E40AF',         // 主要交互色（中性蓝）
+    primaryLight: '#3B82F6',     // 悬停/高亮
+    primaryDark: '#1E3A8A',      // 按压/激活
+    primaryAlpha: 'rgba(30, 64, 175, 0.08)',  // 半透明背景
+    primaryHover: 'rgba(30, 64, 175, 0.12)',  // 悬停背景
 
-    // 背景色 - Islands 风格白色系
-    background: '#FFFFFF',
-    backgroundSecondary: '#F5F6F7',   // 次级背景（表头、分组）
-    backgroundTertiary: '#EBECED',    // 第三级背景（禁用、不可用）
+    // 背景色 - Islands 风格白色系（增强层次）
+    background: '#FFFFFF',        // 主背景
+    backgroundSecondary: '#F8F9FA',   // 次级背景（表头、分组、卡片头尾）
+    backgroundTertiary: '#F0F1F3',    // 第三级背景（禁用、不可用）
     backgroundHover: '#E8EAED',       // 悬停背景
+    backgroundElevated: '#FFFFFF',    //  elevated 背景（菜单、弹窗）
 
-    // 文字颜色 - JetBrains 灰度体系
-    textPrimary: '#2B2D30',     // 主要文字
-    textSecondary: '#6B6E75',   // 次要文字/描述
-    textTertiary: '#9A9DA3',    // 辅助文字
+    // 文字颜色 - JetBrains 灰度体系（增强对比度）
+    textPrimary: '#1A1C1F',     // 主要文字（提高对比度）
+    textSecondary: '#4A4D55',   // 次要文字/描述（增强对比度）
+    textTertiary: '#8B8D93',    // 辅助文字
     textDisabled: '#B8BAC0',    // 禁用文字
     textLink: '#3574F0',        // 链接色
+    textInverse: '#FFFFFF',     // 反色文字（用于深色背景上）
 
-    // 边框 - JetBrains 边框色
+    // 边框 - JetBrains 边框色（优化层次）
     border: '#D3D3D6',          // 主边框
     borderLight: '#E5E5E7',     // 次级边框
-    borderFocus: '#5A67D6',     // 聚焦边框
+    borderFocus: '#1E40AF',     // 聚焦边框（中性蓝）
     borderHover: '#A8A8AC',     // 悬停边框
+    borderStrong: '#C2C2C5',    // 强调边框（输入框等）
 
-    // 状态色 - JetBrains 语义色
-    success: '#49B85C',         // 成功（绿色）
-    successBg: 'rgba(73, 184, 92, 0.1)',
-    warning: '#F0A664',         // 警告（橙色）
-    warningBg: 'rgba(240, 166, 100, 0.1)',
-    error: '#E05252',           // 错误（红色）
-    errorBg: 'rgba(224, 82, 82, 0.1)',
-    info: '#4FB3E4',            // 信息（蓝色）
-    infoBg: 'rgba(79, 179, 228, 0.1)',
+    // 状态色 - JetBrains 语义色（优化对比度）
+    success: '#2E7D32',         // 成功（深绿色，提高对比度）
+    successBg: 'rgba(46, 125, 50, 0.08)',
+    successHover: 'rgba(46, 125, 50, 0.15)',
+    warning: '#C25E00',         // 警告（深橙色，提高对比度）
+    warningBg: 'rgba(194, 94, 0, 0.08)',
+    warningHover: 'rgba(194, 94, 0, 0.15)',
+    error: '#C62828',           // 错误（深红色，提高对比度）
+    errorBg: 'rgba(198, 40, 40, 0.08)',
+    errorHover: 'rgba(198, 40, 40, 0.15)',
+    info: '#1976D2',            // 信息（深蓝色，提高对比度）
+    infoBg: 'rgba(25, 118, 210, 0.08)',
+    infoHover: 'rgba(25, 118, 210, 0.15)',
 
-    //  selection - 选区背景
-    selection: 'rgba(90, 103, 214, 0.2)',
-    selectionInactive: 'rgba(90, 103, 214, 0.1)',
+    // selection - 选区背景
+    selection: 'rgba(30, 64, 175, 0.15)',
+    selectionInactive: 'rgba(30, 64, 175, 0.08)',
 
-    // 阴影 - JetBrains 柔和阴影
+    // 阴影 - JetBrains 柔和阴影（优化层次）
     shadow: 'rgba(30, 32, 35, 0.08)',
-    shadowHover: 'rgba(30, 32, 35, 0.12)',
-    shadowDropdown: 'rgba(30, 32, 35, 0.15)',
+    shadowHover: 'rgba(30, 32, 35, 0.15)',
+    shadowDropdown: 'rgba(30, 32, 35, 0.2)',
+    shadowElevated: 'rgba(30, 32, 35, 0.12)',
 
     // 特殊效果
     overlay: 'rgba(30, 32, 35, 0.5)',
     scrim: 'rgba(0, 0, 0, 0.32)',
+    backdrop: 'rgba(255, 255, 255, 0.8)',  // 毛玻璃背景
   };
 
   // 全局样式变量
@@ -93,6 +103,7 @@ export function createLightTheme() {
     '--yoya-bg-secondary': colors.backgroundSecondary,
     '--yoya-bg-tertiary': colors.backgroundTertiary,
     '--yoya-bg-hover': colors.backgroundHover,
+    '--yoya-body-color': colors.textPrimary,
     '--yoya-text': colors.textPrimary,
     '--yoya-text-secondary': colors.textSecondary,
     '--yoya-text-tertiary': colors.textTertiary,
@@ -104,10 +115,13 @@ export function createLightTheme() {
     '--yoya-border-hover': colors.borderHover,
     '--yoya-success': colors.success,
     '--yoya-success-bg': colors.successBg,
+    '--yoya-success-hover': colors.successHover,
     '--yoya-warning': colors.warning,
     '--yoya-warning-bg': colors.warningBg,
+    '--yoya-warning-hover': colors.warningHover,
     '--yoya-error': colors.error,
     '--yoya-error-bg': colors.errorBg,
+    '--yoya-error-hover': colors.errorHover,
     '--yoya-info': colors.info,
     '--yoya-info-bg': colors.infoBg,
     '--yoya-selection': colors.selection,
@@ -157,7 +171,7 @@ export function createLightTheme() {
     '--yoya-button-warning-hover': '#E0962E',
     '--yoya-button-danger-bg': colors.error,
     '--yoya-button-danger-hover': '#C84646',
-    '--yoya-button-default-bg': colors.background,
+    '--yoya-button-default-bg': colors.backgroundSecondary,
     '--yoya-button-default-hover': colors.backgroundHover,
     '--yoya-button-default-border': colors.border,
     // 输入框变量
@@ -224,6 +238,24 @@ export function createLightTheme() {
     '--yoya-field-radius': '4px',
     '--yoya-field-min-width': '80px',
     '--yoya-field-min-height': '24px',
+    // 侧边栏变量
+    '--yoya-sidebar-width': '240px',
+    '--yoya-sidebar-collapsed-width': '64px',
+    '--yoya-sidebar-bg': colors.background,
+    '--yoya-sidebar-border': colors.border,
+    '--yoya-sidebar-header-bg': colors.backgroundSecondary,
+    '--yoya-sidebar-header-border': colors.borderLight,
+    '--yoya-sidebar-header-padding': '16px',
+    '--yoya-sidebar-header-color': colors.textPrimary,
+    '--yoya-sidebar-content-padding': '8px 0',
+    '--yoya-sidebar-content-color': colors.textPrimary,
+    '--yoya-sidebar-footer-bg': colors.backgroundSecondary,
+    '--yoya-sidebar-footer-border': colors.borderLight,
+    '--yoya-sidebar-footer-padding': '16px',
+    '--yoya-sidebar-footer-color': colors.textSecondary,
+    '--yoya-sidebar-divider-margin': '8px',
+    '--yoya-sidebar-toggle-padding': '8px',
+    '--yoya-sidebar-toggle-radius': '6px',
     // 代码变量
     '--yoya-code-bg': '#1e1e1e',
     '--yoya-code-radius': '8px',
@@ -274,37 +306,54 @@ export function createLightTheme() {
     '--yoya-message-info-color': colors.info,
     '--yoya-message-info-border': `1px solid ${colors.info}`,
     // 菜单变量
-    '--yoya-menu-bg': 'white',
+    '--yoya-menu-bg': colors.backgroundElevated,
     '--yoya-menu-radius': '8px',
-    '--yoya-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-    '--yoya-menu-padding': '8px 0',
-    '--yoya-menu-min-width': '160px',
-    '--yoya-menu-item-padding': '10px',
-    '--yoya-menu-item-horizontal-padding': '16px',
-    '--yoya-menu-item-gap': '10px',
-    '--yoya-menu-item-radius': '4px',
-    '--yoya-menu-item-color': '#333',
-    '--yoya-menu-item-font-size': '13px',
-    '--yoya-menu-item-hover-bg': 'rgba(102, 126, 234, 0.05)',
-    '--yoya-menu-item-active-bg': 'rgba(102, 126, 234, 0.1)',
+    '--yoya-menu-shadow': colors.shadowDropdown,
+    '--yoya-menu-padding': '6px 0',
+    '--yoya-menu-min-width': '180px',
+    '--yoya-menu-item-padding': '8px 12px',
+    '--yoya-menu-item-horizontal-padding': '14px',
+    '--yoya-menu-item-gap': '8px',
+    '--yoya-menu-item-radius': '6px',
+    '--yoya-menu-item-color': colors.textPrimary,
+    '--yoya-menu-item-font-size': '14px',
+    '--yoya-menu-item-hover-bg': colors.backgroundHover,
+    '--yoya-menu-item-active-bg': colors.primaryAlpha,
     '--yoya-menu-item-active-font-weight': '500',
-    '--yoya-menu-item-active-color': '#667eea',
+    '--yoya-menu-item-active-color': colors.primary,
     '--yoya-menu-item-disabled-opacity': '0.5',
-    '--yoya-menu-item-danger-color': '#dc3545',
+    '--yoya-menu-item-danger-color': colors.error,
+    '--yoya-menu-item-danger-hover-bg': colors.errorBg,
     '--yoya-menu-divider-height': '1px',
-    '--yoya-menu-divider-bg': '#e0e0e0',
-    '--yoya-menu-group-label-padding': '8px 16px 4px',
+    '--yoya-menu-divider-bg': colors.borderLight,
+    '--yoya-menu-group-label-padding': '6px 12px 4px',
     '--yoya-menu-group-label-font-size': '12px',
-    '--yoya-menu-group-label-color': '#999',
-    '--yoya-dropdown-trigger-bg': '#667eea',
-    '--yoya-dropdown-trigger-color': 'white',
+    '--yoya-menu-group-label-color': colors.textTertiary,
+
+    // Tabs 标签页变量
+    '--yoya-tabs-bg': colors.background,
+    '--yoya-tabs-header-bg': colors.backgroundSecondary,
+    '--yoya-tabs-content-bg': colors.background,
+    '--yoya-tabs-border': colors.border,
+    '--yoya-tabs-color': colors.textSecondary,
+    '--yoya-tabs-active-color': colors.textPrimary,
+    '--yoya-tabs-active-bg': colors.background,
+    '--yoya-tabs-active-border': colors.primary,
+    '--yoya-tabs-hover-bg': colors.backgroundHover,
+
+    // Pager 分页变量
+    '--yoya-pager-bg': colors.background,
+    '--yoya-pager-border': colors.border,
+    '--yoya-pager-color': colors.textPrimary,
+
+    '--yoya-dropdown-trigger-color': colors.textInverse,
     '--yoya-dropdown-trigger-radius': '6px',
-    '--yoya-dropdown-menu-bg': 'white',
+    '--yoya-dropdown-menu-bg': colors.backgroundElevated,
     '--yoya-dropdown-menu-radius': '8px',
-    '--yoya-dropdown-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-    '--yoya-context-menu-bg': 'white',
+    '--yoya-dropdown-menu-shadow': colors.shadowDropdown,
+    '--yoya-context-menu-bg': colors.backgroundElevated,
     '--yoya-context-menu-radius': '8px',
-    '--yoya-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
+    '--yoya-context-menu-shadow': colors.shadowDropdown,
     // 表格变量
     '--yoya-table-bg': colors.background,
     '--yoya-table-text': colors.textPrimary,
@@ -344,11 +393,12 @@ export function createLightTheme() {
     Menu: {
       stateStyles: {},
       baseStyles: {
-        background: colors.background,
+        background: colors.backgroundElevated,
         borderRadius: size.radiusMd,
-        boxShadow: `0 2px 8px ${colors.shadow}`,
+        boxShadow: `0 4px 16px ${colors.shadowDropdown}`,
         padding: `${size.paddingSm} 0`,
-        minWidth: '140px',
+        minWidth: '180px',
+        border: `1px solid ${colors.borderLight}`,
       },
     },
 
@@ -361,8 +411,9 @@ export function createLightTheme() {
           pointerEvents: 'none',
         },
         active: {
-          background: 'rgba(102, 126, 234, 0.1)',
+          background: colors.primaryAlpha,
           fontWeight: '500',
+          color: colors.primary,
         },
         danger: {
           color: colors.error,
@@ -373,10 +424,14 @@ export function createLightTheme() {
         cursor: 'pointer',
         alignItems: 'center',
         gap: size.gapSm,
-        transition: 'background-color 0.2s',
+        transition: 'background-color 0.15s, color 0.15s',
         borderRadius: size.radiusSm,
         color: colors.textPrimary,
         fontSize: size.fontSizeSm,
+        margin: `0 ${size.marginXs}`,
+      },
+      hoverStyles: {
+        background: colors.backgroundHover,
       },
     },
 
@@ -388,6 +443,7 @@ export function createLightTheme() {
         borderRadius: size.radiusLg,
         boxShadow: `0 2px 8px ${colors.shadow}`,
         overflow: 'hidden',
+        border: `1px solid ${colors.borderLight}`,
       },
     },
 
@@ -399,6 +455,8 @@ export function createLightTheme() {
         borderBottom: `1px solid ${colors.borderLight}`,
         background: colors.backgroundSecondary,
         fontSize: size.fontSizeMd,
+        fontWeight: '600',
+        color: colors.textPrimary,
       },
     },
 
@@ -408,6 +466,7 @@ export function createLightTheme() {
       baseStyles: {
         padding: `${size.paddingMd} ${size.paddingLg}`,
         fontSize: size.fontSizeMd,
+        color: colors.textPrimary,
       },
     },
 
@@ -419,6 +478,7 @@ export function createLightTheme() {
         borderTop: `1px solid ${colors.borderLight}`,
         background: colors.backgroundSecondary,
         fontSize: size.fontSizeSm,
+        color: colors.textSecondary,
       },
     },
 
@@ -427,24 +487,24 @@ export function createLightTheme() {
       stateStyles: {},
       variants: {
         success: {
-          background: '#d4edda',
-          border: '1px solid #c3e6cb',
-          color: '#155724',
+          background: colors.successBg,
+          border: `1px solid ${colors.success}`,
+          color: colors.success,
         },
         error: {
-          background: '#f8d7da',
-          border: '1px solid #f5c6cb',
-          color: '#721c24',
+          background: colors.errorBg,
+          border: `1px solid ${colors.error}`,
+          color: colors.error,
         },
         warning: {
-          background: '#fff3cd',
-          border: '1px solid #ffeeba',
-          color: '#856404',
+          background: colors.warningBg,
+          border: `1px solid ${colors.warning}`,
+          color: colors.warning,
         },
         info: {
-          background: '#d1ecf1',
-          border: '1px solid #bee5eb',
-          color: '#0c5460',
+          background: colors.infoBg,
+          border: `1px solid ${colors.info}`,
+          color: colors.info,
         },
       },
       baseStyles: {
@@ -469,6 +529,8 @@ export function createLightTheme() {
         borderRadius: size.radiusSm,
         fontSize: size.fontSizeSm,
         transition: 'border-color 0.2s, box-shadow 0.2s',
+        background: colors.background,
+        color: colors.textPrimary,
       },
     },
 
@@ -477,7 +539,7 @@ export function createLightTheme() {
       stateStyles: {},
       baseStyles: {
         height: '1px',
-        background: colors.border,
+        background: colors.borderLight,
         margin: `${size.marginMd} 0`,
       },
     },
@@ -502,7 +564,7 @@ export function createLightTheme() {
         gap: size.gapSm,
         padding: '8px 16px',
         fontSize: '14px',
-        fontWeight: '400',
+        fontWeight: '500',
         borderRadius: size.radiusSm,
         border: '1px solid transparent',
         cursor: 'pointer',
@@ -523,7 +585,7 @@ export function createLightTheme() {
         },
         error: {
           borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)',
+          boxShadow: '0 0 0 2px rgba(198, 40, 40, 0.2)',
         },
       },
       baseStyles: {
@@ -553,7 +615,7 @@ export function createLightTheme() {
         },
         error: {
           borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)',
+          boxShadow: '0 0 0 2px rgba(198, 40, 40, 0.2)',
         },
       },
       baseStyles: {
@@ -584,7 +646,7 @@ export function createLightTheme() {
         },
         error: {
           borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)',
+          boxShadow: '0 0 0 2px rgba(198, 40, 40, 0.2)',
         },
       },
       baseStyles: {
@@ -689,6 +751,41 @@ export function createLightTheme() {
         position: 'relative',
         boxSizing: 'border-box',
         transition: 'all 0.2s',
+        cursor: 'pointer',
+      },
+      hoverStyles: {
+        background: colors.backgroundHover,
+        borderColor: colors.border,
+      },
+    },
+
+    // 侧边栏
+    VSidebar: {
+      stateStyles: {},
+      baseStyles: {
+        background: colors.background,
+        borderRight: `1px solid ${colors.border}`,
+        color: colors.textPrimary,
+      },
+    },
+
+    // 侧边栏头部
+    VSidebarHeader: {
+      stateStyles: {},
+      baseStyles: {
+        background: colors.backgroundSecondary,
+        borderBottom: `1px solid ${colors.borderLight}`,
+        color: colors.textPrimary,
+      },
+    },
+
+    // 侧边栏底部
+    VSidebarFooter: {
+      stateStyles: {},
+      baseStyles: {
+        background: colors.backgroundSecondary,
+        borderTop: `1px solid ${colors.borderLight}`,
+        color: colors.textSecondary,
       },
     },
 
@@ -698,10 +795,36 @@ export function createLightTheme() {
       baseStyles: {
         display: 'flex',
         flexDirection: 'column',
-        background: colors.background,
+        background: colors.backgroundSecondary,
+        color: colors.textPrimary,
         minHeight: '100vh',
         width: '100%',
         transition: 'background-color 0.3s ease',
+      },
+    },
+
+    // Tabs 标签页组件
+    VTabs: {
+      stateStyles: {},
+      baseStyles: {
+        background: colors.background,
+      },
+    },
+
+    // Pager 分页组件
+    VPager: {
+      stateStyles: {
+        disabled: {
+          opacity: '0.5',
+          cursor: 'not-allowed',
+        },
+      },
+      baseStyles: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: size.gapSm,
+        fontSize: size.fontSizeSm,
+        color: colors.textPrimary,
       },
     },
 
@@ -786,6 +909,27 @@ export function createLightTheme() {
       baseStyles: {
         background: 'var(--yoya-table-foot-bg)',
         borderTop: '2px solid var(--yoya-table-border)',
+      },
+    },
+
+    // 代码组件
+    VCode: {
+      stateStyles: {},
+      baseStyles: {
+        background: colors.backgroundSecondary,
+        borderRadius: size.radiusMd,
+        border: `1px solid ${colors.border}`,
+        overflow: 'hidden',
+      },
+    },
+
+    // 图表组件
+    VEchart: {
+      stateStyles: {},
+      baseStyles: {
+        background: colors.background,
+        borderRadius: size.radiusMd,
+        border: `1px solid ${colors.border}`,
       },
     },
   };

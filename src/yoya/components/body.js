@@ -35,6 +35,9 @@ export class VBody extends Tag {
       background: 'var(--yoya-body-bg, var(--yoya-bg, white))',
       backgroundColor: 'var(--yoya-body-bg-color, var(--yoya-body-bg, var(--yoya-bg, white)))',
 
+      // 字体颜色
+      color: 'var(--yoya-body-color, var(--yoya-text, #333))',
+
       // 最小高度
       minHeight: 'var(--yoya-body-min-height, 100vh)',
 
@@ -52,16 +55,33 @@ export class VBody extends Tag {
       boxSizing: 'border-box',
 
       // 过渡效果
-      transition: 'background-color 0.3s ease, min-height 0.3s ease',
+      transition: 'background-color 0.3s ease, min-height 0.3s ease, color 0.3s ease',
     });
 
     // 应用组件基础样式
     this._applyThemeBaseStyles();
 
+    // 监听主题变化
+    this._setupThemeListener();
+
     // 执行 setup
     if (setup) {
       this.setup(setup);
     }
+  }
+
+  /**
+   * 监听主题变化事件
+   */
+  _setupThemeListener() {
+    if (typeof window === 'undefined') return;
+
+    this._themeChangeListener = (e) => {
+      // 主题变化时重新应用样式
+      this._applyThemeBaseStyles();
+    };
+
+    window.addEventListener('theme-changed', this._themeChangeListener);
   }
 
   /**
@@ -180,6 +200,17 @@ export class VBody extends Tag {
         host.style('width', '');
       }
     });
+  }
+
+  /**
+   * 销毁组件，清理事件监听
+   */
+  destroy() {
+    // 移除主题变化监听器
+    if (this._themeChangeListener && typeof window !== 'undefined') {
+      window.removeEventListener('theme-changed', this._themeChangeListener);
+    }
+    super.destroy();
   }
 }
 

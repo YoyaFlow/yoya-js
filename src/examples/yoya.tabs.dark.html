@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VTabs - 暗色主题</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #1a1a1a;
+      padding: 20px;
+      color: #e0e0e0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #e0e0e0;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #a0a0a0;
+      margin-bottom: 24px;
+    }
+
+    .demo-card {
+      background: #2a2a2a;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      overflow: hidden;
+      margin-bottom: 24px;
+      border: 1px solid #404040;
+    }
+
+    .demo-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #404040;
+      background: #252526;
+    }
+
+    .demo-card-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .demo-card-body {
+      padding: 0;
+    }
+
+    .tabs-container {
+      height: 400px;
+    }
+
+    .theme-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VTabs - 暗色主题</h1>
+    <p class="subtitle">IDEA 暗色风格，激活标签与内容区域完美融合</p>
+
+    <div class="demo-card">
+      <div class="demo-card-header">
+        <h2>暗色主题演示</h2>
+      </div>
+      <div class="demo-card-body">
+        <div id="app" class="tabs-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { vTabs, toast, div } from '../yoya/index.js';
+
+    // 应用暗色主题变量
+    const darkTheme = {
+      '--yoya-tabs-bg': '#1a1a1a',
+      '--yoya-tabs-content-bg': '#1a1a1a',
+      '--yoya-tabs-border': '#404040',
+      '--yoya-tabs-header-bg': '#252526',
+      '--yoya-tabs-color': '#9d9d9d',
+      '--yoya-tabs-active-color': '#e0e0e0',
+      '--yoya-tabs-active-border': '#2563EB',
+      '--yoya-tabs-hover-bg': 'rgba(255,255,255,0.04)',
+    };
+
+    const root = document.documentElement;
+    for (const [key, value] of Object.entries(darkTheme)) {
+      root.style.setProperty(key, value);
+    }
+
+    // 创建 VTabs 实例
+    const tabs = vTabs(t => {
+      t.setState('closable', true);
+
+      // 添加标签页
+      t.addTab('welcome', '🏠 欢迎', c => {
+        c.div(d => {
+          d.styles({
+            padding: '24px',
+            lineHeight: '1.6',
+            color: '#e0e0e0',
+          });
+          d.h2(h => {
+            h.styles({ marginBottom: '16px', color: '#2563EB' });
+            h.text('Welcome to Yoya.Basic');
+          });
+          d.p(p => {
+            p.styles({ marginBottom: '12px', color: '#a0a0a0' });
+            p.text('暗色主题已启用，标签页组件完美适配深色界面。');
+          });
+        });
+      });
+
+      t.addTab('file1', '📄 main.ts', c => {
+        c.div(d => {
+          d.styles({ padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#d4d4d4' });
+          d.pre(p => {
+            p.styles({ background: '#1e1e1e', padding: '16px', borderRadius: '6px', overflow: 'auto', border: '1px solid #404040' });
+            p.text(`// main.ts - TypeScript 入口
+import { Application } from './app';
+
+const app = new Application({
+  theme: 'dark',
+  debug: true
+});
+
+app.start();`);
+          });
+        });
+      });
+
+      t.addTab('file2', '⚙️ config.json', c => {
+        c.div(d => {
+          d.styles({ padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#d4d4d4' });
+          d.pre(p => {
+            p.styles({ background: '#1e1e1e', padding: '16px', borderRadius: '6px', overflow: 'auto', border: '1px solid #404040' });
+            p.text(`{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "strict": true
+  }
+}`);
+          });
+        });
+      });
+
+      t.addTab('file3', '🧪 test.spec.ts', c => {
+        c.div(d => {
+          d.styles({ padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#d4d4d4' });
+          d.pre(p => {
+            p.styles({ background: '#1e1e1e', padding: '16px', borderRadius: '6px', overflow: 'auto', border: '1px solid #404040' });
+            p.text(`// test.spec.ts - 单元测试
+describe('Application', () => {
+  it('should start successfully', () => {
+    expect(app.isRunning).toBe(true);
+  });
+});`);
+          });
+        });
+      });
+
+      t.addTab('file4', '📊 output.log', c => {
+        c.div(d => {
+          d.styles({ padding: '16px', fontFamily: 'monospace', fontSize: '12px' });
+          d.div(l => {
+            l.styles({ color: '#4ade80', marginBottom: '4px' });
+            l.text('[INFO] Application started');
+          });
+          d.div(l => {
+            l.styles({ color: '#60a5fa', marginBottom: '4px' });
+            l.text('[DEBUG] Loading modules...');
+          });
+          d.div(l => {
+            l.styles({ color: '#fbbf24', marginBottom: '4px' });
+            l.text('[WARN] Cache miss for module "utils"');
+          });
+          d.div(l => {
+            l.styles({ color: '#4ade80' });
+            l.text('[INFO] All modules loaded successfully');
+          });
+        });
+      });
+
+      t.onChange((id, tabData) => {
+        console.log('标签切换:', id, tabData.title);
+      });
+    });
+
+    tabs.bindTo('#app');
+  </script>
+</body>
+</html>
