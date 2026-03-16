@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VButton Hover 测试</title>
+  <style>
+    body {
+      padding: 40px;
+      font-family: sans-serif;
+    }
+    .row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .label {
+      min-width: 80px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>VButton Hover 测试</h1>
+
+  <div class="row">
+    <span class="label">Default:</span>
+    <div id="btn-default"></div>
+  </div>
+
+  <div class="row">
+    <span class="label">Primary:</span>
+    <div id="btn-primary"></div>
+  </div>
+
+  <div class="row">
+    <span class="label">Success:</span>
+    <div id="btn-success"></div>
+  </div>
+
+  <div class="row">
+    <span class="label">Warning:</span>
+    <div id="btn-warning"></div>
+  </div>
+
+  <div class="row">
+    <span class="label">Danger:</span>
+    <div id="btn-danger"></div>
+  </div>
+
+  <div class="row">
+    <span class="label">Ghost:</span>
+    <div id="btn-ghost"></div>
+  </div>
+
+  <script type="module">
+    import { vButton, applyGlobalVariables, baseVariables } from '../yoya/index.js';
+
+    // 应用主题变量
+    applyGlobalVariables(baseVariables);
+
+    // 创建按钮
+    vButton(b => {
+      b.text('Default');
+      b.onClick(() => console.log('Default clicked'));
+    }).bindTo('#btn-default');
+
+    vButton(b => {
+      b.text('Primary');
+      b.type('primary');
+      b.onClick(() => console.log('Primary clicked'));
+    }).bindTo('#btn-primary');
+
+    vButton(b => {
+      b.text('Success');
+      b.type('success');
+      b.onClick(() => console.log('Success clicked'));
+    }).bindTo('#btn-success');
+
+    vButton(b => {
+      b.text('Warning');
+      b.type('warning');
+      b.onClick(() => console.log('Warning clicked'));
+    }).bindTo('#btn-warning');
+
+    vButton(b => {
+      b.text('Danger');
+      b.type('danger');
+      b.onClick(() => console.log('Danger clicked'));
+    }).bindTo('#btn-danger');
+
+    vButton(b => {
+      b.text('Ghost');
+      b.ghost(true);
+      b.type('primary');
+      b.onClick(() => console.log('Ghost clicked'));
+    }).bindTo('#btn-ghost');
+
+    console.log('Buttons created with theme variables applied');
+  </script>
+</body>
+</html>

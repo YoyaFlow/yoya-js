@@ -117,25 +117,88 @@ class VButton extends Tag {
     });
   }
 
+  // 从根元素获取计算后的 CSS 变量值
+  _getComputedVariable(varName) {
+    const root = document.documentElement;
+    return getComputedStyle(root).getPropertyValue(varName).trim();
+  }
+
+  // 应用类型样式
+  _applyTypeStyles() {
+    const type = this._type || 'default';
+    const isGhost = this.hasState('ghost');
+
+    // 使用计算后的颜色值，避免 CSS 变量计算导致的 alpha 泄漏
+    const getBgVar = (varName) => {
+      const value = this._getComputedVariable(varName);
+      return value || 'transparent';
+    };
+
+    const typeStyles = {
+      primary: {
+        background: isGhost ? 'transparent' : getBgVar('--yoya-primary'),
+        color: isGhost ? getBgVar('--yoya-primary') : 'white',
+        border: `1px solid ${getBgVar('--yoya-primary')}`,
+      },
+      success: {
+        background: isGhost ? getBgVar('--yoya-success-bg') : getBgVar('--yoya-success'),
+        color: isGhost ? getBgVar('--yoya-success') : 'white',
+        border: `1px solid ${getBgVar('--yoya-success')}`,
+      },
+      warning: {
+        background: isGhost ? getBgVar('--yoya-warning-bg') : getBgVar('--yoya-warning'),
+        color: isGhost ? getBgVar('--yoya-warning') : 'var(--yoya-text-primary)',
+        border: `1px solid ${getBgVar('--yoya-warning')}`,
+      },
+      danger: {
+        background: isGhost ? getBgVar('--yoya-error-bg') : getBgVar('--yoya-error'),
+        color: isGhost ? getBgVar('--yoya-error') : 'white',
+        border: `1px solid ${getBgVar('--yoya-error')}`,
+      },
+      default: {
+        background: isGhost ? 'transparent' : (getBgVar('--yoya-button-default-bg') || getBgVar('--yoya-bg')),
+        color: isGhost ? 'var(--yoya-text)' : 'var(--yoya-text)',
+        border: '1px solid var(--yoya-button-default-border)',
+      },
+    };
+
+    const styles = typeStyles[type] || typeStyles.default;
+
+    // 保存计算后的背景色，用于 hover 恢复时直接使用
+    this._savedBackground = styles.background;
+
+    this.styles(styles);
+
+    // 存储当前类型样式，用于 hover 时恢复
+    this._currentTypeStyles = styles;
+  }
+
   // 获取 hover 样式
   _getHoverStyles() {
     const type = this._type || 'default';
     const isGhost = this.hasState('ghost');
+
+    // 使用计算后的颜色值，避免 CSS 变量计算导致的 alpha 泄漏
+    const getBgVar = (varName) => {
+      const value = this._getComputedVariable(varName);
+      return value || 'transparent';
+    };
+
     const hoverStyles = {
       primary: {
-        background: isGhost ? 'var(--yoya-primary-alpha)' : 'var(--yoya-button-primary-hover)',
+        background: isGhost ? getBgVar('--yoya-primary-alpha') : getBgVar('--yoya-button-primary-hover'),
       },
       success: {
-        background: isGhost ? 'var(--yoya-success-hover)' : 'var(--yoya-button-success-hover)',
+        background: isGhost ? getBgVar('--yoya-success-hover') : getBgVar('--yoya-button-success-hover'),
       },
       warning: {
-        background: isGhost ? 'var(--yoya-warning-hover)' : 'var(--yoya-button-warning-hover)',
+        background: isGhost ? getBgVar('--yoya-warning-hover') : getBgVar('--yoya-button-warning-hover'),
       },
       danger: {
-        background: isGhost ? 'var(--yoya-error-hover)' : 'var(--yoya-button-danger-hover)',
+        background: isGhost ? getBgVar('--yoya-error-hover') : getBgVar('--yoya-button-danger-hover'),
       },
       default: {
-        background: isGhost ? 'var(--yoya-hover-bg)' : 'var(--yoya-button-default-hover)',
+        background: isGhost ? getBgVar('--yoya-hover-bg') : getBgVar('--yoya-button-default-hover'),
       },
     };
     return hoverStyles[type] || hoverStyles.default;
@@ -192,7 +255,19 @@ class VButton extends Tag {
       if (isHovered && !host.hasState('disabled') && !host.hasState('loading')) {
         host.styles(host._getHoverStyles());
       } else {
-        host._applyTypeStyles();
+        // 恢复时使用保存的背景色值，避免重新计算
+        if (host._savedBackground) {
+          // 临时禁用 transition，避免颜色过渡导致的 alpha 混合
+          const savedTransition = host._el.style.transition;
+          host._el.style.transition = 'none';
+          host._el.style.background = host._savedBackground;
+          // 强制重排，确保样式立即生效
+          void host._el.offsetHeight;
+          // 恢复 transition
+          host._el.style.transition = savedTransition || 'all 0.2s ease';
+        } else {
+          host._applyTypeStyles();
+        }
       }
     });
   }
@@ -202,35 +277,45 @@ class VButton extends Tag {
     const type = this._type || 'default';
     const isGhost = this.hasState('ghost');
 
+    // 使用计算后的颜色值，避免 CSS 变量计算导致的 alpha 泄漏
+    const getBgVar = (varName) => {
+      const value = this._getComputedVariable(varName);
+      return value || 'transparent';
+    };
+
     const typeStyles = {
       primary: {
-        background: isGhost ? 'transparent' : 'var(--yoya-primary)',
-        color: isGhost ? 'var(--yoya-primary)' : 'white',
-        border: '1px solid var(--yoya-primary)',
+        background: isGhost ? 'transparent' : getBgVar('--yoya-primary'),
+        color: isGhost ? getBgVar('--yoya-primary') : 'white',
+        border: `1px solid ${getBgVar('--yoya-primary')}`,
       },
       success: {
-        background: isGhost ? 'var(--yoya-success-bg)' : 'var(--yoya-success)',
-        color: isGhost ? 'var(--yoya-success)' : 'white',
-        border: '1px solid var(--yoya-success)',
+        background: isGhost ? getBgVar('--yoya-success-bg') : getBgVar('--yoya-success'),
+        color: isGhost ? getBgVar('--yoya-success') : 'white',
+        border: `1px solid ${getBgVar('--yoya-success')}`,
       },
       warning: {
-        background: isGhost ? 'var(--yoya-warning-bg)' : 'var(--yoya-warning)',
-        color: isGhost ? 'var(--yoya-warning)' : 'var(--yoya-text-primary)',
-        border: '1px solid var(--yoya-warning)',
+        background: isGhost ? getBgVar('--yoya-warning-bg') : getBgVar('--yoya-warning'),
+        color: isGhost ? getBgVar('--yoya-warning') : 'var(--yoya-text-primary)',
+        border: `1px solid ${getBgVar('--yoya-warning')}`,
       },
       danger: {
-        background: isGhost ? 'var(--yoya-error-bg)' : 'var(--yoya-error)',
-        color: isGhost ? 'var(--yoya-error)' : 'white',
-        border: '1px solid var(--yoya-error)',
+        background: isGhost ? getBgVar('--yoya-error-bg') : getBgVar('--yoya-error'),
+        color: isGhost ? getBgVar('--yoya-error') : 'white',
+        border: `1px solid ${getBgVar('--yoya-error')}`,
       },
       default: {
-        background: isGhost ? 'transparent' : 'var(--yoya-button-default-bg, var(--yoya-bg))',
+        background: isGhost ? 'transparent' : getBgVar('--yoya-button-default-bg') || getBgVar('--yoya-bg'),
         color: isGhost ? 'var(--yoya-text)' : 'var(--yoya-text)',
         border: '1px solid var(--yoya-button-default-border)',
       },
     };
 
     const styles = typeStyles[type] || typeStyles.default;
+
+    // 保存计算后的背景色，用于 hover 恢复时直接使用
+    this._savedBackground = styles.background;
+
     this.styles(styles);
 
     // 存储当前类型样式，用于 hover 时恢复
