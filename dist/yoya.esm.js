@@ -292,6 +292,46 @@ class Tag {
   }
 
   /**
+   * 添加 CSS 类名
+   * @param {string} className - 类名
+   * @returns {this}
+   * @example
+   * el.addClass('active');
+   * el.addClass('yoya-button');
+   */
+  addClass(className) {
+    if (className && typeof className === 'string') {
+      if (!this._classes.has(className)) {
+        this._classes.add(className);
+        if (this._el) {
+          this._el.classList.add(className);
+        }
+      }
+    }
+    return this;
+  }
+
+  /**
+   * 移除 CSS 类名
+   * @param {string} className - 类名
+   * @returns {this}
+   * @example
+   * el.removeClass('active');
+   * el.removeClass('yoya-button--primary');
+   */
+  removeClass(className) {
+    if (className && typeof className === 'string') {
+      if (this._classes.has(className)) {
+        this._classes.delete(className);
+        if (this._el) {
+          this._el.classList.remove(className);
+        }
+      }
+    }
+    return this;
+  }
+
+  /**
    * 样式操作：存储并同步到 DOM 元素
    * @param {string|Object} name - 样式名或样式对象
    * @param {string|number} [value] - 样式值（不传则返回当前值）
@@ -703,8 +743,8 @@ class Tag {
       this._el.addEventListener(event, (nativeEvent) => {
         // 为原生事件对象附加_vnode 属性，指向虚拟元素
         nativeEvent._vnode = this;
-        // 分发所有处理器
-        handlers.forEach(handler => handler(nativeEvent));
+        // 分发所有处理器，绑定 this 到 DOM 元素
+        handlers.forEach(handler => handler.call(this._el, nativeEvent));
       });
     }
   }
@@ -873,7 +913,26 @@ class Tag {
 function createSimpleClass(tagName, className) {
   return class extends Tag {
     constructor(setup = null) {
-      super(tagName, setup);
+      super(tagName, null);
+      // 支持传入 '.class1.class2' 或 '#id' 作为简写
+      if (typeof setup === 'string') {
+        if (setup.startsWith('.')) {
+          // .class1.class2 形式
+          const classes = setup.slice(1).split('.').filter(Boolean);
+          classes.forEach(c => this.className(c));
+        } else if (setup.startsWith('#')) {
+          // #id 形式
+          this.id(setup.slice(1));
+        } else {
+          // 普通字符串，作为文本内容
+          this.text(setup);
+        }
+        setup = null; // 已处理
+      }
+      // 执行 setup（函数或对象）
+      if (setup !== null) {
+        this.setup(setup);
+      }
     }
     static get name() { return className; }
   };
@@ -890,8 +949,26 @@ function createSimpleElements(definitions) {
     result[className] = createSimpleClass(tagName, className);
     // 创建工厂函数（小写类名）
     const factoryName = className.charAt(0).toLowerCase() + className.slice(1);
-    result[factoryName] = function(setup = null) {
-      return new result[className](setup);
+    // 支持 factory('.class', fn) 或 factory(fn) 或 factory('text')
+    result[factoryName] = function(selectorOrSetup = null, setup = null) {
+      // 处理 factory('.class', fn) 情况
+      if (typeof selectorOrSetup === 'string' && typeof setup === 'function') {
+        return new result[className]((el) => {
+          // 先应用选择器
+          if (selectorOrSetup.startsWith('.')) {
+            const classes = selectorOrSetup.slice(1).split('.').filter(Boolean);
+            classes.forEach(c => el.className(c));
+          } else if (selectorOrSetup.startsWith('#')) {
+            el.id(selectorOrSetup.slice(1));
+          } else {
+            el.text(selectorOrSetup);
+          }
+          // 再应用 setup 函数
+          setup(el);
+        });
+      }
+      // 其他情况直接传入
+      return new result[className](selectorOrSetup);
     };
   }
   return result;
@@ -933,115 +1010,68 @@ const { div, span, p, section, article, header, footer, nav, aside, main,
 // ============================================
 
 /**
- * 添加 div 子元素
- * @param {Function} [setup=null] - 初始化函数
- * @returns {this} 返回当前实例支持链式调用
+ * 创建支持两个参数的 Tag 原型方法
+ * @param {string} methodName - 方法名（如 'div', 'h1'）
+ * @param {Function} factoryFn - 工厂函数（如 div, h1）
  */
-Tag.prototype.div = function(setup = null) {
-  const el = div(setup);
-  this.child(el);
-  return this;
-};
+function createTagProtoMethod(methodName, factoryFn) {
+  return function(selectorOrSetup = null, setup = null) {
+    let finalSetup = selectorOrSetup;
+    if (typeof selectorOrSetup === 'string' && setup !== null) {
+      finalSetup = (el) => {
+        if (selectorOrSetup.startsWith('.')) {
+          const classes = selectorOrSetup.slice(1).split('.').filter(Boolean);
+          classes.forEach(c => el.className(c));
+        } else if (selectorOrSetup.startsWith('#')) {
+          el.id(selectorOrSetup.slice(1));
+        } else {
+          el.text(selectorOrSetup);
+        }
+        if (typeof setup === 'function') {
+          setup(el);
+        }
+      };
+    } else if (typeof selectorOrSetup === 'string') {
+      finalSetup = (el) => {
+        if (selectorOrSetup.startsWith('.')) {
+          const classes = selectorOrSetup.slice(1).split('.').filter(Boolean);
+          classes.forEach(c => el.className(c));
+        } else if (selectorOrSetup.startsWith('#')) {
+          el.id(selectorOrSetup.slice(1));
+        } else {
+          el.text(selectorOrSetup);
+        }
+      };
+    }
+    const el = factoryFn(finalSetup);
+    this.child(el);
+    return this;
+  };
+}
 
-/**
- * 添加 span 子元素
- * @param {Function} [setup=null] - 初始化函数
- * @returns {this} 返回当前实例支持链式调用
- */
-Tag.prototype.span = function(setup = null) {
-  const el = span(setup);
-  this.child(el);
-  return this;
-};
+// 批量创建 Tag 原型方法
+Tag.prototype.div = createTagProtoMethod('div', div);
+Tag.prototype.span = createTagProtoMethod('span', span);
+Tag.prototype.p = createTagProtoMethod('p', p);
+Tag.prototype.section = createTagProtoMethod('section', section);
+Tag.prototype.article = createTagProtoMethod('article', article);
+Tag.prototype.header = createTagProtoMethod('header', header);
+Tag.prototype.footer = createTagProtoMethod('footer', footer);
+Tag.prototype.nav = createTagProtoMethod('nav', nav);
+Tag.prototype.aside = createTagProtoMethod('aside', aside);
+Tag.prototype.main = createTagProtoMethod('main', main);
+Tag.prototype.h1 = createTagProtoMethod('h1', h1);
+Tag.prototype.h2 = createTagProtoMethod('h2', h2);
+Tag.prototype.h3 = createTagProtoMethod('h3', h3);
+Tag.prototype.h4 = createTagProtoMethod('h4', h4);
+Tag.prototype.h5 = createTagProtoMethod('h5', h5);
+Tag.prototype.h6 = createTagProtoMethod('h6', h6);
 
-/**
- * 添加 p 子元素
- * @param {Function} [setup=null] - 初始化函数
- * @returns {this} 返回当前实例支持链式调用
- */
-Tag.prototype.p = function(setup = null) {
-  const el = p(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.section = function(setup = null) {
-  const el = section(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.article = function(setup = null) {
-  const el = article(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.header = function(setup = null) {
-  const el = header(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.footer = function(setup = null) {
-  const el = footer(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.nav = function(setup = null) {
-  const el = nav(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.aside = function(setup = null) {
-  const el = aside(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.main = function(setup = null) {
-  const el = main(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h1 = function(setup = null) {
-  const el = h1(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h2 = function(setup = null) {
-  const el = h2(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h3 = function(setup = null) {
-  const el = h3(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h4 = function(setup = null) {
-  const el = h4(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h5 = function(setup = null) {
-  const el = h5(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.h6 = function(setup = null) {
-  const el = h6(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.h2 = createTagProtoMethod('h2', h2);
+Tag.prototype.h3 = createTagProtoMethod('h3', h3);
+Tag.prototype.h4 = createTagProtoMethod('h4', h4);
+Tag.prototype.h5 = createTagProtoMethod('h5', h5);
+Tag.prototype.h6 = createTagProtoMethod('h6', h6);
 
 // ============================================
 // 文本格式化元素
@@ -1081,41 +1111,12 @@ function a(setup = null) { return new A(setup); }
 // Tag 原型扩展方法 - 文本格式化
 // ============================================
 
-Tag.prototype.a = function(setup = null) {
-  const el = a(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.strong = function(setup = null) {
-  const el = strong(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.em = function(setup = null) {
-  const el = em(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.code = function(setup = null) {
-  const el = code(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.pre = function(setup = null) {
-  const el = pre(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.blockquote = function(setup = null) {
-  const el = blockquote(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.a = createTagProtoMethod('a', a);
+Tag.prototype.strong = createTagProtoMethod('strong', strong);
+Tag.prototype.em = createTagProtoMethod('em', em);
+Tag.prototype.code = createTagProtoMethod('code', code);
+Tag.prototype.pre = createTagProtoMethod('pre', pre);
+Tag.prototype.blockquote = createTagProtoMethod('blockquote', blockquote);
 
 // ============================================
 // 表单元素
@@ -1322,35 +1323,11 @@ class Form extends Tag {
 }
 
 // 表单扩展方法
-Select.prototype.option = function(setup = null) {
-  const optionEl = option(setup);
-  this.child(optionEl);
-  return this;
-};
-
-Form.prototype.input = function(setup = null) {
-  const inputEl = input(setup);
-  this.child(inputEl);
-  return this;
-};
-
-Form.prototype.button = function(setup = null) {
-  const btnEl = button(setup);
-  this.child(btnEl);
-  return this;
-};
-
-Form.prototype.textarea = function(setup = null) {
-  const textareaEl = textarea(setup);
-  this.child(textareaEl);
-  return this;
-};
-
-Form.prototype.select = function(setup = null) {
-  const selectEl = select(setup);
-  this.child(selectEl);
-  return this;
-};
+Select.prototype.option = createTagProtoMethod('option', option);
+Form.prototype.input = createTagProtoMethod('input', input);
+Form.prototype.button = createTagProtoMethod('button', button);
+Form.prototype.textarea = createTagProtoMethod('textarea', textarea);
+Form.prototype.select = createTagProtoMethod('select', select);
 
 function button(setup = null) { return new Button(setup); }
 function input(setup = null) { return new Input(setup); }
@@ -1365,47 +1342,13 @@ function form(setup = null) { return new Form(setup); }
 // Tag 原型扩展方法 - 表单
 // ============================================
 
-Tag.prototype.button = function(setup = null) {
-  const el = button(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.input = function(setup = null) {
-  const el = input(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.textarea = function(setup = null) {
-  const el = textarea(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.select = function(setup = null) {
-  const el = select(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.option = function(setup = null) {
-  const el = option(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.label = function(setup = null) {
-  const el = label(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.form = function(setup = null) {
-  const el = form(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.button = createTagProtoMethod('button', button);
+Tag.prototype.input = createTagProtoMethod('input', input);
+Tag.prototype.textarea = createTagProtoMethod('textarea', textarea);
+Tag.prototype.select = createTagProtoMethod('select', select);
+Tag.prototype.option = createTagProtoMethod('option', option);
+Tag.prototype.label = createTagProtoMethod('label', label);
+Tag.prototype.form = createTagProtoMethod('form', form);
 
 // ============================================
 // 列表元素
@@ -1424,69 +1367,22 @@ const { Ul, Ol, Li, Dl, Dt, Dd } = listElements;
 const { ul, ol, li, dl, dt, dd } = listElements;
 
 // 列表扩展方法
-Ul.prototype.li = function(setup = null) {
-  const liEl = li(setup);
-  this.child(liEl);
-  return this;
-};
+Ul.prototype.li = createTagProtoMethod('li', li);
 
-Ol.prototype.li = function(setup = null) {
-  const liEl = li(setup);
-  this.child(liEl);
-  return this;
-};
-
-Dl.prototype.dt = function(setup = null) {
-  const dtEl = dt(setup);
-  this.child(dtEl);
-  return this;
-};
-
-Dl.prototype.dd = function(setup = null) {
-  const ddEl = dd(setup);
-  this.child(ddEl);
-  return this;
-};
+Ol.prototype.li = createTagProtoMethod('li', li);
+Dl.prototype.dt = createTagProtoMethod('dt', dt);
+Dl.prototype.dd = createTagProtoMethod('dd', dd);
 
 // ============================================
 // Tag 原型扩展方法 - 列表
 // ============================================
 
-Tag.prototype.ul = function(setup = null) {
-  const el = ul(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.ol = function(setup = null) {
-  const el = ol(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.li = function(setup = null) {
-  const el = li(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.dl = function(setup = null) {
-  const el = dl(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.dt = function(setup = null) {
-  const el = dt(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.dd = function(setup = null) {
-  const el = dd(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.ul = createTagProtoMethod('ul', ul);
+Tag.prototype.ol = createTagProtoMethod('ol', ol);
+Tag.prototype.li = createTagProtoMethod('li', li);
+Tag.prototype.dl = createTagProtoMethod('dl', dl);
+Tag.prototype.dt = createTagProtoMethod('dt', dt);
+Tag.prototype.dd = createTagProtoMethod('dd', dd);
 
 // ============================================
 // 表格元素
@@ -1556,87 +1452,24 @@ function td(setup = null) { return new Td(setup); }
 function th(setup = null) { return new Th(setup); }
 
 // 表格扩展方法
-Table.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
-
-Tr.prototype.td = function(setup = null) {
-  const tdEl = td(setup);
-  this.child(tdEl);
-  return this;
-};
-
-Tr.prototype.th = function(setup = null) {
-  const thEl = th(setup);
-  this.child(thEl);
-  return this;
-};
-
-Thead.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
-
-Tbody.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
-
-Tfoot.prototype.tr = function(setup = null) {
-  const trEl = tr(setup);
-  this.child(trEl);
-  return this;
-};
+Table.prototype.tr = createTagProtoMethod('tr', tr);
+Tr.prototype.td = createTagProtoMethod('td', td);
+Tr.prototype.th = createTagProtoMethod('th', th);
+Thead.prototype.tr = createTagProtoMethod('tr', tr);
+Tbody.prototype.tr = createTagProtoMethod('tr', tr);
+Tfoot.prototype.tr = createTagProtoMethod('tr', tr);
 
 // ============================================
 // Tag 原型扩展方法 - 表格
 // ============================================
 
-Tag.prototype.table = function(setup = null) {
-  const el = table(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.tr = function(setup = null) {
-  const el = tr(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.td = function(setup = null) {
-  const el = td(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.th = function(setup = null) {
-  const el = th(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.thead = function(setup = null) {
-  const el = thead(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.tbody = function(setup = null) {
-  const el = tbody(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.tfoot = function(setup = null) {
-  const el = tfoot(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.table = createTagProtoMethod('table', table);
+Tag.prototype.tr = createTagProtoMethod('tr', tr);
+Tag.prototype.td = createTagProtoMethod('td', td);
+Tag.prototype.th = createTagProtoMethod('th', th);
+Tag.prototype.thead = createTagProtoMethod('thead', thead);
+Tag.prototype.tbody = createTagProtoMethod('tbody', tbody);
+Tag.prototype.tfoot = createTagProtoMethod('tfoot', tfoot);
 
 // ============================================
 // 媒体元素
@@ -1755,29 +1588,10 @@ function source(setup = null) { return new Source(setup); }
 // Tag 原型扩展方法 - 媒体
 // ============================================
 
-Tag.prototype.img = function(setup = null) {
-  const el = img(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.video = function(setup = null) {
-  const el = video(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.audio = function(setup = null) {
-  const el = audio(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.source = function(setup = null) {
-  const el = source(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.img = createTagProtoMethod('img', img);
+Tag.prototype.video = createTagProtoMethod('video', video);
+Tag.prototype.audio = createTagProtoMethod('audio', audio);
+Tag.prototype.source = createTagProtoMethod('source', source);
 
 // ============================================
 // 其他元素
@@ -1795,17 +1609,12 @@ const { br, hr } = otherElements;
 // Tag 原型扩展方法 - 其他
 // ============================================
 
-Tag.prototype.br = function(setup = null) {
-  const el = br(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.br = createTagProtoMethod('br', br);
+Tag.prototype.hr = createTagProtoMethod('hr', hr);
 
-Tag.prototype.hr = function(setup = null) {
-  const el = hr(setup);
-  this.child(el);
-  return this;
-};
+// ============================================
+// IFrame, Canvas 元素
+// ============================================
 
 class IFrame extends Tag {
   constructor(setup = null) {
@@ -1856,17 +1665,8 @@ function canvas(setup = null) { return new Canvas(setup); }
 // Tag 原型扩展方法 - IFrame, Canvas
 // ============================================
 
-Tag.prototype.iframe = function(setup = null) {
-  const el = iframe(setup);
-  this.child(el);
-  return this;
-};
-
-Tag.prototype.canvas = function(setup = null) {
-  const el = canvas(setup);
-  this.child(el);
-  return this;
-};
+Tag.prototype.iframe = createTagProtoMethod('iframe', iframe);
+Tag.prototype.canvas = createTagProtoMethod('canvas', canvas);
 
 // ============================================
 // 通用 tag 工厂函数
@@ -1950,7 +1750,7 @@ function text(content) {
  * 存储每个组件类型的状态处理器
  * @type {Map<string, Theme>}
  */
-const themeRegistry$1 = new Map();
+const themeRegistry = new Map();
 
 /**
  * 全局主题配置
@@ -2407,7 +2207,7 @@ class Theme {
    * @returns {this} 返回当前实例支持链式调用
    */
   register() {
-    themeRegistry$1.set(this.name, this);
+    themeRegistry.set(this.name, this);
     return this;
   }
 
@@ -5699,6 +5499,318 @@ Tag.prototype.svg = function(setup = null) {
 };
 
 /**
+ * Yoya.Basic - Box 通用容器组件
+ * 提供圆角、背景色、透明度、阴影等样式的通用容器
+ * @module Yoya.Box
+ * @example
+ * // 基础用法 - 完全透明，继承父元素样式
+ * import { vBox } from '../yoya/index.js';
+ *
+ * vBox(b => {
+ *   b.text('这是一个透明容器');
+ * });
+ *
+ * // 带背景色和圆角
+ * vBox(b => {
+ *   b.background('var(--yoya-primary)');
+ *   b.radius('md');
+ *   b.text('带样式的容器');
+ * });
+ *
+ * // 带阴影
+ * vBox(b => {
+ *   b.shadow();
+ *   b.padding('lg');
+ *   b.text('带阴影的容器');
+ * });
+ *
+ * // 半透明背景
+ * vBox(b => {
+ *   b.background('var(--yoya-primary)');
+ *   b.opacity(0.1);
+ *   b.radius('lg');
+ * });
+ */
+
+
+// ============================================
+// VBox 通用容器
+// ============================================
+
+/**
+ * VBox 通用容器
+ * 支持背景色、圆角、阴影、透明度等样式
+ * @class
+ * @extends Tag
+ */
+class VBox extends Tag {
+  static _stateAttrs = ['shadowed', 'bordered'];
+
+  /**
+   * 创建 VBox 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(setup = null) {
+    super('div', null);
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      shadowed: false,
+      bordered: false,
+    });
+
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-box');
+
+    // 4. 设置默认样式（宽高 100%，透明背景，继承字体颜色）
+    this.styles({
+      display: 'block',
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'transparent',
+      color: 'inherit',
+      boxSizing: 'border-box',
+    });
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 注册状态处理器
+   * @private
+   */
+  _registerStateHandlers() {
+    // shadowed 状态
+    this.registerStateHandler('shadowed', (enabled, host) => {
+      if (enabled) {
+        host.addClass('yoya-box--shadowed');
+      } else {
+        host.removeClass('yoya-box--shadowed');
+      }
+    });
+
+    // bordered 状态
+    this.registerStateHandler('bordered', (enabled, host) => {
+      if (enabled) {
+        host.addClass('yoya-box--bordered');
+      } else {
+        host.removeClass('yoya-box--bordered');
+      }
+    });
+  }
+
+  /**
+   * 设置背景颜色
+   * @param {string} color - 颜色值（支持 CSS 变量、hex、rgb/rgba 等）
+   * @returns {this}
+   */
+  background(color) {
+    if (color === undefined) return this.style('background-color');
+    this.style('background-color', color);
+    return this;
+  }
+
+  /**
+   * 设置背景透明度
+   * @param {number} value - 透明度值 (0-1)
+   * @returns {this}
+   */
+  opacity(value) {
+    if (value === undefined) return this.style('opacity');
+    this.style('opacity', value);
+    return this;
+  }
+
+  /**
+   * 设置圆角
+   * @param {string|number} value - 圆角值（支持 'sm' | 'md' | 'lg' | 'xl' 或具体像素值）
+   * @returns {this}
+   */
+  radius(value) {
+    if (value === undefined) return this.style('border-radius');
+
+    // 支持预设值
+    const radiusMap = {
+      'sm': 'var(--yoya-radius-sm, 4px)',
+      'md': 'var(--yoya-radius-md, 6px)',
+      'lg': 'var(--yoya-radius-lg, 8px)',
+      'xl': 'var(--yoya-radius-xl, 12px)',
+    };
+
+    const radiusValue = radiusMap[value] || value;
+    this.style('border-radius', radiusValue);
+    return this;
+  }
+
+  /**
+   * 设置阴影
+   * @param {string|boolean} value - 阴影值（支持 true/false 或具体阴影值）
+   * @returns {this}
+   */
+  shadow(value) {
+    if (value === undefined) return this.setState('shadowed', true);
+
+    if (typeof value === 'boolean') {
+      return this.setState('shadowed', value);
+    }
+
+    // 支持预设值
+    const shadowMap = {
+      'sm': 'var(--yoya-shadow, 0 2px 8px rgba(0,0,0,0.08))',
+      'md': 'var(--yoya-shadow, 0 4px 12px rgba(0,0,0,0.08))',
+      'lg': 'var(--yoya-shadow-hover, 0 6px 16px rgba(0,0,0,0.15))',
+      'xl': 'var(--yoya-shadow-elevated, 0 8px 24px rgba(0,0,0,0.12))',
+    };
+
+    const shadowValue = shadowMap[value] || value;
+    this.style('box-shadow', shadowValue);
+    this.setState('shadowed', true);
+    return this;
+  }
+
+  /**
+   * 设置边框
+   * @param {string|boolean} value - 边框值（支持 true/false 或具体边框值）
+   * @returns {this}
+   */
+  border(value) {
+    if (value === undefined) return this.setState('bordered', true);
+
+    if (typeof value === 'boolean') {
+      return this.setState('bordered', value);
+    }
+
+    this.style('border', value);
+    this.setState('bordered', true);
+    return this;
+  }
+
+  /**
+   * 设置内边距
+   * @param {string} value - 内边距值（支持 'xs' | 'sm' | 'md' | 'lg' | 'xl' 或具体像素值）
+   * @returns {this}
+   */
+  padding(value) {
+    if (value === undefined) return this.style('padding');
+
+    const paddingMap = {
+      'xs': 'var(--yoya-padding-xs, 4px)',
+      'sm': 'var(--yoya-padding-sm, 6px)',
+      'md': 'var(--yoya-padding-md, 8px)',
+      'lg': 'var(--yoya-padding-lg, 10px)',
+      'xl': 'var(--yoya-padding-xl, 16px)',
+    };
+
+    const paddingValue = paddingMap[value] || value;
+    this.style('padding', paddingValue);
+    return this;
+  }
+
+  /**
+   * 设置外边距
+   * @param {string} value - 外边距值（支持 'xs' | 'sm' | 'md' | 'lg' | 'xl' 或具体像素值）
+   * @returns {this}
+   */
+  margin(value) {
+    if (value === undefined) return this.style('margin');
+
+    const marginMap = {
+      'xs': 'var(--yoya-margin-xs, 4px)',
+      'sm': 'var(--yoya-margin-sm, 6px)',
+      'md': 'var(--yoya-margin-md, 8px)',
+      'lg': 'var(--yoya-margin-lg, 10px)',
+      'xl': 'var(--yoya-margin-xl, 16px)',
+    };
+
+    const marginValue = marginMap[value] || value;
+    this.style('margin', marginValue);
+    return this;
+  }
+
+  /**
+   * 设置宽度
+   * @param {string} value - 宽度值
+   * @returns {this}
+   */
+  width(value) {
+    if (value === undefined) return this.style('width');
+    this.style('width', value);
+    return this;
+  }
+
+  /**
+   * 设置高度
+   * @param {string} value - 高度值
+   * @returns {this}
+   */
+  height(value) {
+    if (value === undefined) return this.style('height');
+    this.style('height', value);
+    return this;
+  }
+
+  /**
+   * 设置字体颜色
+   * @param {string} color - 颜色值
+   * @returns {this}
+   */
+  color(color) {
+    if (color === undefined) return this.style('color');
+    this.style('color', color);
+    return this;
+  }
+
+  /**
+   * 启用阴影
+   * @returns {this}
+   */
+  withShadow() {
+    return this.setState('shadowed', true);
+  }
+
+  /**
+   * 启用边框
+   * @returns {this}
+   */
+  withBorder() {
+    return this.setState('bordered', true);
+  }
+}
+
+/**
+ * 创建 VBox 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VBox}
+ */
+function vBox(setup = null) {
+  return new VBox(setup);
+}
+
+// ============================================
+// Tag 原型扩展方法
+// ============================================
+
+/**
+ * Tag 原型扩展 - 添加 vBox 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
+Tag.prototype.vBox = function(setup = null) {
+  const el = vBox(setup);
+  this.child(el);
+  return this;
+};
+
+/**
  * Yoya.Basic - Card Component
  * 卡片组件：提供卡片布局容器，支持头部、内容、底部结构
  * @module Yoya.Card
@@ -5752,14 +5864,8 @@ class VCard extends Tag {
       noShadow: false,
     });
 
-    // 3. 设置基础样式（使用主题变量）
-    this.styles({
-      background: 'var(--islands-card-bg, var(--islands-bg))',
-      borderRadius: 'var(--islands-card-radius, 8px)',
-      boxShadow: 'var(--islands-card-shadow, var(--islands-shadow))',
-      overflow: 'hidden',
-      border: 'var(--islands-card-border, 1px solid transparent)',
-    });
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-card');
 
     // 4. 保存基础样式快照
     this.saveBaseStylesSnapshot();
@@ -5829,43 +5935,28 @@ class VCard extends Tag {
     // hoverable 状态
     this.registerStateHandler('hoverable', (enabled, host) => {
       if (enabled) {
-        host.styles({
-          transition: 'box-shadow 0.3s, transform 0.2s',
-          cursor: 'pointer',
-        });
-        host.on('mouseenter', () => {
-          host.styles({
-            boxShadow: 'var(--islands-card-hover-shadow, var(--islands-shadow-hover))',
-            transform: 'translateY(-2px)',
-          });
-        });
-        host.on('mouseleave', () => {
-          host.styles({
-            boxShadow: 'var(--islands-card-shadow, var(--islands-shadow))',
-            transform: 'translateY(0)',
-          });
-        });
+        host.addClass('yoya-card--hoverable');
+      } else {
+        host.removeClass('yoya-card--hoverable');
       }
     });
 
     // bordered 状态
     this.registerStateHandler('bordered', (enabled, host) => {
       if (enabled) {
-        host.styles({
-          border: 'var(--islands-card-border-color, 1px solid var(--islands-border))',
-          boxShadow: 'none',
-        });
+        host.addClass('yoya-card--outlined');
       } else {
-        host.styles({
-          border: 'var(--islands-card-border, 1px solid transparent)',
-          boxShadow: 'var(--islands-card-shadow, var(--islands-shadow))',
-        });
+        host.removeClass('yoya-card--outlined');
       }
     });
 
     // noShadow 状态
     this.registerStateHandler('noShadow', (enabled, host) => {
-      host.style('boxShadow', enabled ? 'none' : 'var(--islands-card-shadow, var(--islands-shadow))');
+      if (enabled) {
+        host.addClass('yoya-card--no-shadow');
+      } else {
+        host.removeClass('yoya-card--no-shadow');
+      }
     });
   }
 
@@ -5970,14 +6061,7 @@ class VCardHeader extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      padding: 'var(--islands-card-header-padding, 16px)',
-      borderBottom: 'var(--islands-card-header-border, 1px solid var(--islands-border-light))',
-      fontWeight: 'var(--islands-card-header-font-weight, 600)',
-      fontSize: 'var(--islands-card-header-font-size, 16px)',
-      color: 'var(--islands-card-header-color, var(--islands-text))',
-      background: 'var(--islands-card-header-bg, var(--islands-bg-secondary))',
-    });
+    this.addClass('yoya-card__header');
   }
 }
 
@@ -6006,12 +6090,7 @@ class VCardBody extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      padding: 'var(--islands-card-body-padding, 16px)',
-      fontSize: 'var(--islands-card-body-font-size, 14px)',
-      color: 'var(--islands-card-body-color, var(--islands-text))',
-      background: 'var(--islands-card-body-bg, transparent)',
-    });
+    this.addClass('yoya-card__body');
   }
 }
 
@@ -6040,15 +6119,7 @@ class VCardFooter extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      padding: 'var(--islands-card-footer-padding, 16px)',
-      borderTop: 'var(--islands-card-footer-border, 1px solid var(--islands-border-light))',
-      display: 'flex',
-      gap: 'var(--islands-card-footer-gap, 8px)',
-      fontSize: 'var(--islands-card-footer-font-size, 14px)',
-      color: 'var(--islands-card-footer-color, var(--islands-text-secondary))',
-      background: 'var(--islands-card-footer-bg, transparent)',
-    });
+    this.addClass('yoya-card__footer');
   }
 }
 
@@ -6116,6 +6187,498 @@ Tag.prototype.cardBody = Tag.prototype.vCardBody;
 Tag.prototype.cardFooter = Tag.prototype.vCardFooter;
 
 /**
+ * Yoya.Components - Button
+ * 带主题样式的按钮组件
+ */
+
+
+// ============================================
+// VButton 按钮组件
+// ============================================
+
+class VButton extends Tag {
+  // 状态属性
+  static _stateAttrs = ['disabled', 'loading', 'block', 'ghost', 'hovered'];
+
+  constructor(content = '', setup = null) {
+    // 如果 content 是函数，则它是 setup
+    if (typeof content === 'function') {
+      setup = content;
+      content = '';
+    }
+    // 如果 content 是对象且 setup 未定义，说明是 vButton({ onClick: ... }) 单参数用法
+    else if (typeof content === 'object' && content !== null && setup === undefined) {
+      setup = content;
+      content = '';
+    }
+    // 正确用法：vButton("文本", { setupObject }) - content 是字符串，setup 是对象，无需处理
+
+    super('button', null);
+    // this._el 已在 super() 中创建
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      disabled: false,
+      loading: false,
+      block: false,
+      ghost: false,
+      hovered: false,
+      type: 'default'
+    });
+
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-button');
+
+    // 4. 应用默认类型 CSS 类
+    this._applyTypeClass();
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+
+    // 7. 更新内容（setup 可能已经设置了内容，所以只在没有内容时才使用 content 参数）
+    if (content && !this._content) {
+      this._content = content;
+      this._updateContent();
+    }
+  }
+
+  // 应用类型 CSS 类
+  _applyTypeClass() {
+    const type = this._type || 'default';
+
+    // 移除旧类型类
+    this.removeClass('yoya-button--primary')
+        .removeClass('yoya-button--success')
+        .removeClass('yoya-button--warning')
+        .removeClass('yoya-button--danger')
+        .removeClass('yoya-button--info')
+        .removeClass('yoya-button--default');
+
+    // 添加新类型类
+    this.addClass(`yoya-button--${type}`);
+
+    // 处理 ghost 状态
+    if (this.hasState('ghost')) {
+      this.addClass('yoya-button--ghost');
+    } else {
+      this.removeClass('yoya-button--ghost');
+    }
+  }
+
+  // 注册状态处理器
+  _registerStateHandlers() {
+    // disabled 状态
+    this.registerStateHandler('disabled', (enabled, host) => {
+      if (enabled) {
+        host.addClass('yoya-button--disabled');
+        host.attr('disabled', 'true');
+      } else {
+        host.removeClass('yoya-button--disabled');
+        host.attr('disabled', 'false');
+      }
+    });
+
+    // loading 状态
+    this.registerStateHandler('loading', (loading, host) => {
+      if (loading) {
+        host.addClass('yoya-button--loading');
+      } else {
+        host.removeClass('yoya-button--loading');
+      }
+      host._updateContent();
+    });
+
+    // block 状态（占满容器）
+    this.registerStateHandler('block', (isBlock, host) => {
+      if (isBlock) {
+        host.addClass('yoya-button--block');
+      } else {
+        host.removeClass('yoya-button--block');
+      }
+    });
+
+    // ghost 状态
+    this.registerStateHandler('ghost', (isGhost, host) => {
+      if (isGhost) {
+        host.addClass('yoya-button--ghost');
+      } else {
+        host.removeClass('yoya-button--ghost');
+      }
+      host._applyTypeClass();
+    });
+
+    // hovered 状态 - CSS :hover 已处理，无需额外逻辑
+  }
+
+  // 更新内容（支持 loading 状态）- 复用元素，不重新创建
+  _updateContent() {
+    // 复用或创建 loading 图标
+    if (this.hasState('loading')) {
+      if (!this._loadingSpinner) {
+        this._loadingSpinner = span(s => {
+          s.styles({
+            display: 'inline-block',
+            width: '1em',
+            height: '1em',
+            border: '2px solid currentColor',
+            borderBottomColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'buttonLoadingSpin 0.8s linear infinite',
+          });
+        });
+        // 在内容元素之前插入
+        const contentIndex = this._children.indexOf(this._contentEl);
+        if (contentIndex >= 0) {
+          this._children.splice(contentIndex, 0, this._loadingSpinner);
+        } else {
+          this.child(this._loadingSpinner);
+        }
+      }
+      this._loadingSpinner.style('display', 'inline-block');
+    } else {
+      if (this._loadingSpinner) {
+        this._loadingSpinner.style('display', 'none');
+      }
+    }
+
+    // 复用或创建内容元素
+    if (!this._contentEl) {
+      this._contentEl = span(c => {
+        c.styles({ display: 'inline-block' });
+      });
+      this.child(this._contentEl);
+    }
+
+    if (this._content) {
+      this._contentEl.html(this._content);
+    }
+  }
+
+  _ensureContentEl() {
+    if (!this._contentEl) {
+      this._contentEl = span(c => {
+        c.styles({ display: "inline-block" });
+      });
+      this.child(this._contentEl);
+    }
+  }
+
+  // ============================================
+  // 链式方法
+  // ============================================
+
+  text(content) {
+    this._content = content;
+    this._ensureContentEl();
+    if (this._contentEl) {
+      this._contentEl.html(this._content);
+    }
+    return this;
+  }
+
+  type(value) {
+    if (value === undefined) return this._type;
+    this._type = value;
+    this._applyTypeClass();
+    return this;
+  }
+
+  size(value) {
+    if (value === undefined) return this._size;
+
+    // 移除旧尺寸类
+    this.removeClass('yoya-button--small')
+        .removeClass('yoya-button--medium')
+        .removeClass('yoya-button--large');
+
+    this._size = value;
+
+    // 添加新尺寸类
+    if (value === 'small' || value === 'medium' || value === 'large') {
+      this.addClass(`yoya-button--${value}`);
+    } else {
+      this.addClass('yoya-button--medium'); // 默认尺寸
+    }
+
+    return this;
+  }
+
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  loading(value = true) {
+    return this.setState('loading', value);
+  }
+
+  block(value = true) {
+    return this.setState('block', value);
+  }
+
+  ghost(value = true) {
+    return this.setState('ghost', value);
+  }
+
+  // 事件方法 - 基于 Tag._wrapHandler 包装器
+  // onClick 直接使用 Tag 基类的 onClick() 方法
+}
+
+function vButton(content = '', setup = null) {
+  return new VButton(content, setup);
+}
+
+// ============================================
+// VButtons - 按钮组组件（紧凑模式）
+// ============================================
+
+class VButtons extends Tag {
+  // 状态属性
+  static _stateAttrs = ['vertical', 'compact', 'size'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      vertical: false,
+      compact: false,
+      size: null
+    });
+
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-buttons');
+
+    // 4. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 5. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  // 注册状态处理器
+  _registerStateHandlers() {
+    // vertical 状态 - 控制布局方向
+    this.registerStateHandler('vertical', (isVertical, host) => {
+      if (isVertical) {
+        host.addClass('yoya-buttons--vertical');
+        host.removeClass('yoya-buttons--horizontal');
+      } else {
+        host.addClass('yoya-buttons--horizontal');
+        host.removeClass('yoya-buttons--vertical');
+      }
+    });
+
+    // compact 状态 - 控制是否紧凑模式
+    this.registerStateHandler('compact', (isCompact, host) => {
+      if (isCompact) {
+        host.addClass('yoya-buttons--compact');
+      } else {
+        host.removeClass('yoya-buttons--compact');
+      }
+    });
+
+    // size 状态 - 控制按钮尺寸（传递给子按钮）
+    this.registerStateHandler('size', (size, host) => {
+      // VButtons 本身不直接应用尺寸类，而是在添加按钮时传递给子按钮
+      if (host._itemsInitialized) {
+        host._applySizeToChildren(size);
+      }
+    });
+  }
+
+  // 应用尺寸到所有子按钮
+  _applySizeToChildren(size) {
+    this._children.forEach(child => {
+      if (child instanceof VButton) {
+        child.size(size);
+      }
+    });
+  }
+
+  // ============================================
+  // 链式方法
+  // ============================================
+
+  // 添加单个按钮
+  button(content = '', setup = null) {
+    const btn = vButton(content, setup);
+    this.child(btn);
+    return this;
+  }
+
+  // 批量添加按钮（旧 API，保留兼容）
+  buttons(buttonConfigs) {
+    if (Array.isArray(buttonConfigs)) {
+      buttonConfigs.forEach(config => {
+        if (typeof config === 'string') {
+          this.button(config);
+        } else if (typeof config === 'object' && config !== null) {
+          this.button(config.content || '', config);
+        }
+      });
+    }
+    return this;
+  }
+
+  // 配置化添加按钮组（推荐）
+  // 支持 vButtons({ items: [...], onClick: (item) => {...} })
+  items(items, baseConfig = {}) {
+    if (!Array.isArray(items)) {
+      return this;
+    }
+
+    const {
+      onClick,
+      type = 'default',
+      size,
+      disabled = false,
+      ghost = false,
+      ...restBaseConfig
+    } = baseConfig;
+
+    this._itemsInitialized = true;
+
+    items.forEach((item, index) => {
+      // 支持字符串简写
+      if (typeof item === 'string') {
+        item = { name: item, label: item };
+      }
+
+      const {
+        name,
+        label,
+        content = label || name || `Button ${index}`,
+        type: itemType,
+        size: itemSize,
+        disabled: itemDisabled,
+        ghost: itemGhost,
+        onClick: itemOnClick,
+        ...itemRest
+      } = item;
+
+      // 创建按钮
+      this.button(content, btn => {
+        // 应用基础配置
+        if (type && !itemType) btn.type(type);
+        if (itemType) btn.type(itemType);
+        if (size && !itemSize) btn.size(size);
+        if (itemSize) btn.size(itemSize);
+        if (disabled && !itemDisabled) btn.disabled(disabled);
+        if (itemDisabled) btn.disabled(itemDisabled);
+        if (ghost && !itemGhost) btn.ghost(ghost);
+        if (itemGhost) btn.ghost(itemGhost);
+
+        // 应用其他配置
+        Object.keys(itemRest).forEach(key => {
+          if (typeof btn[key] === 'function') {
+            btn[key](itemRest[key]);
+          }
+        });
+
+        // 统一 onClick 处理：先调用 item.onClick，再调用统一的 onClick
+        btn.on('click', (e) => {
+          if (itemOnClick) itemOnClick(e, item, index);
+          if (onClick) onClick(e, { ...item, index }, index);
+        });
+      });
+    });
+
+    return this;
+  }
+
+  // 设置布局方向
+  vertical(value = true) {
+    if (value === undefined) return this.hasState('vertical');
+    return this.setState('vertical', value);
+  }
+
+  // 快捷方法：横向布局
+  horizontal() {
+    return this.setState('vertical', false);
+  }
+
+  // 设置紧凑模式
+  compact(value = true) {
+    if (value === undefined) return this.hasState('compact');
+    return this.setState('compact', value);
+  }
+
+  // 设置间距
+  gap(value) {
+    if (value === undefined) return this.style('gap');
+    this.style('gap', value);
+    return this;
+  }
+
+  // 设置按钮尺寸
+  size(value) {
+    if (value === undefined) return this._size;
+    this.setState('size', value);
+    return this;
+  }
+}
+
+function vButtons(setup = null) {
+  // 支持 vButtons({ items: [...], onClick: ... }) 对象配置方式
+  if (setup !== null && typeof setup === 'object' && !Array.isArray(setup)) {
+    const { items, onClick, vertical, horizontal, compact, gap, size, ...restSetup } = setup;
+
+    return new VButtons(box => {
+      // 设置布局
+      if (vertical) box.vertical(true);
+      if (horizontal) box.horizontal();
+      if (compact) box.compact(true);
+      if (gap) box.gap(gap);
+      if (size) box.size(size);
+
+      // 应用其他配置
+      Object.keys(restSetup).forEach(key => {
+        if (typeof box[key] === 'function') {
+          box[key](restSetup[key]);
+        }
+      });
+
+      // 添加按钮项
+      if (items && Array.isArray(items)) {
+        box.items(items, { onClick, size });
+      }
+    });
+  }
+
+  return new VButtons(setup);
+}
+
+// Tag 原型扩展
+Tag.prototype.vButtons = function(setup = null) {
+  const buttons = vButtons(setup);
+  this.child(buttons);
+  return this;
+};
+
+// ============================================
+// Tag 原型扩展
+// ============================================
+
+Tag.prototype.vButton = function(content = '', setup = null) {
+  const btn = vButton(content, setup);
+  this.child(btn);
+  return this;
+};
+
+/**
  * Yoya.Basic - Menu Components
  * 菜单组件库：提供菜单、下拉菜单、右键菜单、侧边栏等组件
  * @module Yoya.Menu
@@ -6166,16 +6729,9 @@ class VMenu extends Tag {
    */
   constructor(setup = null) {
     super('div', null);
-    this.styles({
-      display: 'inline-block',
-      background: 'var(--islands-menu-bg, var(--islands-bg))',
-      borderRadius: 'var(--islands-menu-radius, var(--islands-radius-md))',
-      boxShadow: 'var(--islands-menu-shadow, var(--islands-shadow-dropdown))',
-      padding: 'var(--islands-menu-padding, 8px) 0',
-      minWidth: 'var(--islands-menu-min-width, 160px)',
-      border: 'var(--islands-menu-border, 1px solid var(--islands-border))',
-      pointerEvents: 'auto',
-    });
+
+    // 设置基础 CSS 类
+    this.addClass('yoya-menu');
 
     if (setup !== null) {
       this.setup(setup);
@@ -6187,7 +6743,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   vertical() {
-    return this.style('flexDirection', 'column');
+    this.removeClass('yoya-menu--horizontal');
+    return this;
   }
 
   /**
@@ -6195,11 +6752,7 @@ class VMenu extends Tag {
    * @returns {this}
    */
   horizontal() {
-    this.style('display', 'flex');
-    this.style('flexDirection', 'row');
-    this.style('flexWrap', 'nowrap');
-    this.style('gap', '4px');
-    this.style('padding', '8px');
+    this.addClass('yoya-menu--horizontal');
     return this;
   }
 
@@ -6208,7 +6761,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   compact() {
-    return this.style('padding', '4px 0');
+    this.addClass('yoya-menu--compact');
+    return this;
   }
 
   /**
@@ -6216,7 +6770,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   noShadow() {
-    return this.style('boxShadow', 'none');
+    this.addClass('yoya-menu--no-shadow');
+    return this;
   }
 
   /**
@@ -6224,7 +6779,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   bordered() {
-    return this.style('border', '1px solid #e0e0e0');
+    this.addClass('yoya-menu--bordered');
+    return this;
   }
 
   /**
@@ -6312,18 +6868,8 @@ class VMenuItem extends Tag {
     this.registerStateAttrs(...this.constructor._stateAttrs);
     this._registerStateHandlers();
 
-    this.styles({
-      padding: 'var(--islands-menu-item-padding, 10px) var(--islands-menu-item-horizontal-padding, 16px)',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'var(--islands-menu-item-gap, 10px)',
-      transition: 'background-color 0.2s',
-      borderRadius: 'var(--islands-menu-item-radius, 4px)',
-      color: 'var(--islands-menu-item-color, var(--islands-text))',
-      fontSize: 'var(--islands-menu-item-font-size, 13px)',
-      background: 'transparent',
-    });
+    // 设置基础 CSS 类
+    this.addClass('yoya-menu-item');
 
     this.saveStateSnapshot('base');
     this._registerHoverInterceptor();
@@ -6348,70 +6894,26 @@ class VMenuItem extends Tag {
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      const el = host._boundElement;
       if (enabled) {
-        host.styles({
-          opacity: 'var(--islands-menu-item-disabled-opacity, 0.5)',
-          cursor: 'var(--islands-menu-item-disabled-cursor, not-allowed)',
-          pointerEvents: 'none',
-          color: 'var(--islands-menu-item-disabled-color, var(--islands-text-secondary))',
-        });
-        if (el) {
-          el.style.opacity = 'var(--islands-menu-item-disabled-opacity, 0.5)';
-          el.style.cursor = 'var(--islands-menu-item-disabled-cursor, not-allowed)';
-          el.style.pointerEvents = 'none';
-        }
+        host.addClass('yoya-menu-item--disabled');
       } else {
-        host.style('opacity', '');
-        host.style('cursor', 'pointer');
-        host.style('pointerEvents', '');
-        host.style('color', '');
-        if (el) {
-          el.style.opacity = '';
-          el.style.cursor = 'pointer';
-          el.style.pointerEvents = '';
-          el.style.color = '';
-        }
+        host.removeClass('yoya-menu-item--disabled');
       }
     });
 
     this.registerStateHandler('active', (enabled, host) => {
-      const el = host._boundElement;
       if (enabled) {
-        host.styles({
-          background: 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha))',
-          fontWeight: 'var(--islands-menu-item-active-font-weight, 500)',
-          color: 'var(--islands-menu-item-active-color, var(--islands-primary))',
-        });
-        if (el) {
-          el.style.background = 'var(--islands-menu-item-active-bg, var(--islands-primary-alpha))';
-          el.style.fontWeight = 'var(--islands-menu-item-active-font-weight, 500)';
-          el.style.color = 'var(--islands-menu-item-active-color, var(--islands-primary))';
-        }
+        host.addClass('yoya-menu-item--active');
       } else {
-        host.style('background', '');
-        host.style('fontWeight', '');
-        host.style('color', '');
-        if (el) {
-          el.style.background = '';
-          el.style.fontWeight = '';
-          el.style.color = '';
-        }
+        host.removeClass('yoya-menu-item--active');
       }
     });
 
     this.registerStateHandler('danger', (enabled, host) => {
-      const el = host._boundElement;
       if (enabled) {
-        host.style('color', 'var(--islands-menu-item-danger-color, var(--islands-error))');
-        if (el) {
-          el.style.color = 'var(--islands-menu-item-danger-color, var(--islands-error))';
-        }
+        host.addClass('yoya-menu-item--danger');
       } else {
-        host.style('color', '');
-        if (el) {
-          el.style.color = '';
-        }
+        host.removeClass('yoya-menu-item--danger');
       }
     });
 
@@ -6430,13 +6932,13 @@ class VMenuItem extends Tag {
           submenuContainer._boundElement.style.display = 'flex';
           arrowEl._boundElement.style.transform = 'rotate(90deg)';
           // 展开时高亮父菜单项
-          host.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))');
+          host.addClass('yoya-menu-item--expanded');
         } else {
           submenuContainer._boundElement.style.display = 'none';
           arrowEl._boundElement.style.transform = 'rotate(0deg)';
           // 折叠时恢复背景（如果没有 active）
           if (!host.hasState('active')) {
-            host.style('background', 'transparent');
+            host.removeClass('yoya-menu-item--expanded');
           }
         }
       }
@@ -6465,17 +6967,11 @@ class VMenuItem extends Tag {
 
     this.on('mouseenter', () => {
       if (!self.hasState('disabled')) {
-        self.style('background', 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))');
-        if (self._boundElement) {
-          self._boundElement.style.background = 'var(--islands-menu-item-hover-bg, var(--islands-hover-bg))';
-        }
+        self.addClass('yoya-menu-item--hovering');
       }
     }).on('mouseleave', () => {
       if (!self.hasState('disabled') && !self.hasState('active')) {
-        self.style('background', 'transparent');
-        if (self._boundElement) {
-          self._boundElement.style.background = '';
-        }
+        self.removeClass('yoya-menu-item--hovering');
       }
     });
 
@@ -6708,8 +7204,8 @@ class VMenuItem extends Tag {
     this._shortcutBox = span(shortcutEl => {
       shortcutEl.styles({
         fontSize: '12px',
-        color: '#999',
-        background: '#f5f5f5',
+        color: 'var(--yoya-text-tertiary, #999)',
+        background: 'var(--yoya-bg-secondary, #f5f5f5)',
         padding: '2px 6px',
         borderRadius: '4px',
         pointerEvents: 'none'
@@ -6789,12 +7285,7 @@ class VMenuDivider extends Tag {
    */
   constructor(setup = null) {
     super('hr', setup);
-    this.styles({
-      border: 'none',
-      height: 'var(--islands-menu-divider-height, 1px)',
-      background: 'var(--islands-menu-divider-bg, var(--islands-border))',
-      margin: 'var(--islands-menu-divider-margin, 8px) 0',
-    });
+    this.addClass('yoya-menu-divider');
   }
 }
 
@@ -6823,10 +7314,7 @@ class VMenuGroup extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-    });
+    this.addClass('yoya-menu-group');
   }
 
   /**
@@ -6876,15 +7364,7 @@ class VMenuGroup extends Tag {
     if (this._label) {
       const newLabelEl = span(label => {
         label.text(this._label);
-        label.styles({
-          display: 'block',
-          padding: 'var(--islands-menu-group-label-padding, 8px 16px 4px)',
-          fontSize: 'var(--islands-menu-group-label-font-size, 12px)',
-          color: 'var(--islands-menu-group-label-color, var(--islands-text-tertiary))',
-          fontWeight: 'var(--islands-menu-group-label-font-weight, 500)',
-          textTransform: 'uppercase',
-          letterSpacing: 'var(--islands-menu-group-label-letter-spacing, 0.5px)',
-        });
+        label.addClass('yoya-menu-group__label');
         label._isLabel = true;
       });
 
@@ -6994,21 +7474,21 @@ class VDropdownMenu extends Tag {
     this._triggerWrap = div(wrap => {
       wrap.styles({
         cursor: 'pointer',
-        padding: 'var(--islands-dropdown-trigger-padding, 8px 16px)',
-        background: 'var(--islands-dropdown-trigger-bg, var(--islands-primary))',
-        color: 'var(--islands-dropdown-trigger-color, white)',
-        borderRadius: 'var(--islands-dropdown-trigger-radius, 6px)',
+        padding: 'var(--yoya-dropdown-trigger-padding, 8px 16px)',
+        background: 'var(--yoya-dropdown-trigger-bg, var(--yoya-primary))',
+        color: 'var(--yoya-dropdown-trigger-color, white)',
+        borderRadius: 'var(--yoya-dropdown-trigger-radius, 6px)',
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 'var(--islands-dropdown-trigger-gap, 6px)',
+        gap: 'var(--yoya-dropdown-trigger-gap, 6px)',
         userSelect: 'none',
         transition: 'all 0.2s',
       });
       wrap.on('mouseenter', () => {
-        wrap.style('background', 'var(--islands-dropdown-trigger-hover-bg, var(--islands-primary-dark))');
+        wrap.style('background', 'var(--yoya-dropdown-trigger-hover-bg, var(--yoya-primary-dark))');
       });
       wrap.on('mouseleave', () => {
-        wrap.style('background', 'var(--islands-dropdown-trigger-bg, var(--islands-primary))');
+        wrap.style('background', 'var(--yoya-dropdown-trigger-bg, var(--yoya-primary))');
       });
 
       if (typeof this._triggerContent === 'string') {
@@ -7019,7 +7499,7 @@ class VDropdownMenu extends Tag {
 
       wrap.span(arrow => {
         arrow.text('▼');
-        arrow.styles({ fontSize: 'var(--islands-dropdown-arrow-size, 10px)', transition: 'transform 0.2s' });
+        arrow.styles({ fontSize: 'var(--yoya-dropdown-arrow-size, 10px)', transition: 'transform 0.2s' });
         this._arrow = arrow;
       });
 
@@ -7035,14 +7515,14 @@ class VDropdownMenu extends Tag {
       this._menuContainer = div(menuWrap => {
         menuWrap.styles({
           position: 'absolute',
-          top: 'calc(100% + var(--islands-dropdown-menu-offset, 4px))',
+          top: 'calc(100% + var(--yoya-dropdown-menu-offset, 4px))',
           left: '0',
-          minWidth: 'var(--islands-dropdown-menu-min-width, 160px)',
-          background: 'var(--islands-dropdown-menu-bg, var(--islands-bg))',
-          borderRadius: 'var(--islands-dropdown-menu-radius, var(--islands-radius-md))',
-          boxShadow: 'var(--islands-dropdown-menu-shadow, var(--islands-shadow-dropdown))',
-          padding: 'var(--islands-dropdown-menu-padding, 8px) 0',
-          zIndex: 'var(--islands-dropdown-z-index, 1000)',
+          minWidth: 'var(--yoya-dropdown-menu-min-width, 160px)',
+          background: 'var(--yoya-dropdown-menu-bg, var(--yoya-bg))',
+          borderRadius: 'var(--yoya-dropdown-menu-radius, var(--yoya-radius-md))',
+          boxShadow: 'var(--yoya-dropdown-menu-shadow, var(--yoya-shadow-dropdown))',
+          padding: 'var(--yoya-dropdown-menu-padding, 8px) 0',
+          zIndex: 'var(--yoya-dropdown-z-index, 1000)',
           display: 'none',
         });
 
@@ -7101,14 +7581,14 @@ class VContextMenu extends Tag {
     super('div', null);
     this.styles({
       position: 'fixed',
-      zIndex: 'var(--islands-context-menu-z-index, 9999)',
+      zIndex: 'var(--yoya-context-menu-z-index, 9999)',
       display: 'none',
-      background: 'var(--islands-context-menu-bg, var(--islands-bg))',
-      borderRadius: 'var(--islands-context-menu-radius, var(--islands-radius-md))',
-      boxShadow: 'var(--islands-context-menu-shadow, var(--islands-shadow-dropdown))',
-      padding: 'var(--islands-context-menu-padding, 8px) 0',
-      minWidth: 'var(--islands-context-menu-min-width, 160px)',
-      border: 'var(--islands-context-menu-border, 1px solid var(--islands-border))',
+      background: 'var(--yoya-context-menu-bg, var(--yoya-bg))',
+      borderRadius: 'var(--yoya-context-menu-radius, var(--yoya-radius-md))',
+      boxShadow: 'var(--yoya-context-menu-shadow, var(--yoya-shadow-dropdown))',
+      padding: 'var(--yoya-context-menu-padding, 8px) 0',
+      minWidth: 'var(--yoya-context-menu-min-width, 160px)',
+      border: 'var(--yoya-context-menu-border, 1px solid var(--yoya-border))',
     });
     this._target = null;
     this._menu = null;
@@ -7365,7 +7845,7 @@ class VSubMenu extends Tag {
         flexDirection: 'column',
         marginLeft: '16px',
         paddingLeft: '8px',
-        borderLeft: '1px solid var(--islands-border, #e0e0e0)',
+        borderLeft: '1px solid var(--yoya-border, #e0e0e0)',
         marginTop: '4px',
       });
     });
@@ -7484,8 +7964,8 @@ class VSidebar extends Tag {
     this.registerStateAttrs(...this.constructor._stateAttrs);
 
     // 配置
-    this._width = 'var(--islands-sidebar-width, 240px)';
-    this._collapsedWidth = 'var(--islands-sidebar-collapsed-width, 64px)';
+    this._width = 'var(--yoya-sidebar-width, 240px)';
+    this._collapsedWidth = 'var(--yoya-sidebar-collapsed-width, 64px)';
 
     // 内部元素引用
     this._headerEl = null;
@@ -7522,18 +8002,7 @@ class VSidebar extends Tag {
    * @private
    */
   _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-      width: this._width,
-      minWidth: this._width,
-      height: '100%',
-      background: 'var(--islands-sidebar-bg, var(--islands-card-bg, white))',
-      borderRight: 'var(--islands-sidebar-border, 1px solid var(--islands-border, #e0e0e0))',
-      transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      overflow: 'hidden',
-      boxSizing: 'border-box',
-    });
+    this.addClass('yoya-sidebar');
   }
 
   _registerStateHandlers() {
@@ -7542,10 +8011,7 @@ class VSidebar extends Tag {
 
       if (collapsed) {
         // 折叠状态
-        host.styles({
-          width: host._collapsedWidth,
-          minWidth: host._collapsedWidth,
-        });
+        host.addClass('yoya-sidebar--collapsed');
 
         // 隐藏头部和尾部 - 带淡出效果
         if (host._headerEl) {
@@ -7596,10 +8062,7 @@ class VSidebar extends Tag {
         }
       } else {
         // 展开状态
-        host.styles({
-          width: host._width,
-          minWidth: host._width,
-        });
+        host.removeClass('yoya-sidebar--collapsed');
 
         // 显示头部和尾部 - 带淡入效果
         if (host._headerEl) {
@@ -7686,13 +8149,15 @@ class VSidebar extends Tag {
   header(setup) {
     if (!this._headerEl) {
       this._headerEl = div(header => {
+        header.addClass('yoya-sidebar__header');
         header.styles({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: 'var(--islands-sidebar-header-padding, 16px)',
-          borderBottom: 'var(--islands-sidebar-header-border, 1px solid var(--islands-border, #e0e0e0))',
-          background: 'var(--islands-sidebar-header-bg, var(--islands-bg-secondary, #f7f8fa))',
+          padding: 'var(--yoya-sidebar-header-padding, 16px)',
+          borderBottom: 'var(--yoya-sidebar-header-border, 1px solid var(--yoya-border, #e0e0e0))',
+          background: 'var(--yoya-sidebar-header-bg, var(--yoya-bg-secondary, #f7f8fa))',
+          color: 'var(--yoya-sidebar-header-color, var(--yoya-text, #333))',
         });
       });
       this.child(this._headerEl);
@@ -7717,11 +8182,12 @@ class VSidebar extends Tag {
   content(setup) {
     if (!this._contentEl) {
       this._contentEl = div(content => {
+        content.addClass('yoya-sidebar__content');
         content.styles({
           flex: 1,
           overflowY: 'auto',
           overflowX: 'hidden',
-          padding: 'var(--islands-sidebar-content-padding, 8px 0)',
+          padding: 'var(--yoya-sidebar-content-padding, 8px 0)',
         });
       });
       this.child(this._contentEl);
@@ -7768,12 +8234,14 @@ class VSidebar extends Tag {
   footer(setup) {
     if (!this._footerEl) {
       this._footerEl = div(footer => {
+        footer.addClass('yoya-sidebar__footer');
         footer.styles({
           display: 'flex',
           alignItems: 'center',
-          padding: 'var(--islands-sidebar-footer-padding, 16px)',
-          borderTop: 'var(--islands-sidebar-footer-border, 1px solid var(--islands-border, #e0e0e0))',
-          background: 'var(--islands-sidebar-footer-bg, var(--islands-bg-secondary, #f7f8fa))',
+          padding: 'var(--yoya-sidebar-footer-padding, 16px)',
+          borderTop: 'var(--yoya-sidebar-footer-border, 1px solid var(--yoya-border, #e0e0e0))',
+          background: 'var(--yoya-sidebar-footer-bg, var(--yoya-bg-secondary, #f7f8fa))',
+          color: 'var(--yoya-sidebar-footer-color, var(--yoya-text-secondary, #666))',
         });
       });
       this.child(this._footerEl);
@@ -7815,8 +8283,8 @@ class VSidebar extends Tag {
     }
     const el = vMenuDivider();
     el.styles({
-      marginLeft: 'var(--islands-sidebar-divider-margin, 8px)',
-      marginRight: 'var(--islands-sidebar-divider-margin, 8px)',
+      marginLeft: 'var(--yoya-sidebar-divider-margin, 8px)',
+      marginRight: 'var(--yoya-sidebar-divider-margin, 8px)',
     });
     this._contentEl.child(el);
     return this;
@@ -7890,26 +8358,26 @@ class VSidebar extends Tag {
         background: 'transparent',
         border: 'none',
         cursor: 'pointer',
-        padding: 'var(--islands-sidebar-toggle-padding, 8px)',
-        borderRadius: 'var(--islands-sidebar-toggle-radius, 6px)',
+        padding: 'var(--yoya-sidebar-toggle-padding, 8px)',
+        borderRadius: 'var(--yoya-sidebar-toggle-radius, 6px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         transition: 'all 0.2s ease',
-        color: 'var(--islands-text-secondary, #666)',
+        color: 'var(--yoya-text-secondary, #666)',
         fontSize: '16px',
       });
       btn.text('◀');
       btn.on('mouseenter', () => {
         btn.styles({
-          background: 'var(--islands-hover-bg, rgba(102, 126, 234, 0.1))',
-          color: 'var(--islands-primary, #667eea)',
+          background: 'var(--yoya-hover-bg, rgba(30, 64, 175, 0.1))',
+          color: 'var(--yoya-primary)',
         });
       });
       btn.on('mouseleave', () => {
         btn.styles({
           background: 'transparent',
-          color: 'var(--islands-text-secondary, #666)',
+          color: 'var(--yoya-text-secondary, #666)',
         });
       });
       btn.on('click', () => {
@@ -7921,7 +8389,7 @@ class VSidebar extends Tag {
     this.registerStateInterceptor((stateName, value) => {
       if (stateName === 'collapsed' && this._toggleBtnEl && this._toggleBtnEl._boundElement) {
         setTimeout(() => {
-          this._toggleBtnEl.text(value ? '▶' : '◀');
+          this._toggleBtnEl.textContent(value ? '▶' : '◀');
           this._toggleBtnEl.styles({
             transform: value ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.3s ease',
@@ -7941,19 +8409,19 @@ class VSidebar extends Tag {
    */
   dark() {
     this.styles({
-      background: 'var(--islands-sidebar-bg-dark, var(--islands-bg-dark, #1a1a1a))',
-      borderRight: 'var(--islands-sidebar-border-dark, 1px solid var(--islands-border-dark, #333))',
+      background: 'var(--yoya-sidebar-bg-dark, var(--yoya-bg-dark, #1a1a1a))',
+      borderRight: 'var(--yoya-sidebar-border-dark, 1px solid var(--yoya-border-dark, #333))',
     });
     if (this._headerEl) {
       this._headerEl.styles({
-        background: 'var(--islands-sidebar-header-bg-dark, var(--islands-bg-dark-secondary, #2a2a2a))',
-        borderBottom: 'var(--islands-sidebar-header-border-dark, 1px solid var(--islands-border-dark, #333))',
+        background: 'var(--yoya-sidebar-header-bg-dark, var(--yoya-bg-dark-secondary, #2a2a2a))',
+        borderBottom: 'var(--yoya-sidebar-header-border-dark, 1px solid var(--yoya-border-dark, #333))',
       });
     }
     if (this._footerEl) {
       this._footerEl.styles({
-        background: 'var(--islands-sidebar-footer-bg-dark, var(--islands-bg-dark-secondary, #2a2a2a))',
-        borderTop: 'var(--islands-sidebar-footer-border-dark, 1px solid var(--islands-border-dark, #333))',
+        background: 'var(--yoya-sidebar-footer-bg-dark, var(--yoya-bg-dark-secondary, #2a2a2a))',
+        borderTop: 'var(--yoya-sidebar-footer-border-dark, 1px solid var(--yoya-border-dark, #333))',
       });
     }
     return this;
@@ -7988,6 +8456,373 @@ function vSidebar(setup = null) {
  */
 Tag.prototype.vSidebar = function(setup = null) {
   const el = vSidebar(setup);
+  this.child(el);
+  return this;
+};
+
+// ============================================
+// VTopNavbar 顶部导航栏组件
+// ============================================
+
+/**
+ * VTopNavbar - 顶部导航栏组件
+ * 用于页面顶部的导航栏，支持 Logo、菜单项、右侧操作区等
+ * @example
+ * vTopNavbar(nav => {
+ *   nav.height('60px');
+ *   nav.logo('🏝️ Yoya.Basic', () => location.href = '/');
+ *   nav.item('首页', () => toast('首页'));
+ *   nav.item('文档', () => toast('文档'));
+ *   nav.right(r => {
+ *     r.button('登录', () => toast('登录'));
+ *   });
+ * });
+ */
+class VTopNavbar extends Tag {
+  static _stateAttrs = ['fixed', 'bordered', 'themeMode'];
+
+  /**
+   * 创建 VTopNavbar 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(setup = null) {
+    super('div', null);
+
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 内部元素引用
+    this._containerEl = null;
+    this._logoEl = null;
+    this._menuEl = null;
+    this._rightEl = null;
+
+    // 配置
+    this._height = 'var(--yoya-navbar-height, 60px)';
+
+    // 1. 初始化状态
+    this.initializeStates({
+      fixed: false,
+      bordered: true,
+      themeMode: 'light',
+    });
+
+    // 2. 设置基础样式
+    this._setupBaseStyles();
+
+    // 3. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 4. 执行 setup（先创建子元素）
+    if (setup !== null) {
+      this.setup(setup);
+    }
+
+    // 5. 监听主题变化事件（子元素创建后再应用主题）
+    this._setupThemeListener();
+  }
+
+  /**
+   * 设置基础样式
+   * @private
+   */
+  _setupBaseStyles() {
+    // 应用 CSS 类
+    this.addClass('yoya-navbar');
+
+    // 创建内部容器
+    this._containerEl = div(container => {
+      container.addClass('yoya-navbar__container');
+    });
+    this.child(this._containerEl);
+  }
+
+  _registerStateHandlers() {
+    // fixed 状态处理器
+    this.registerStateHandler('fixed', (fixed, host) => {
+      if (fixed) {
+        host.addClass('yoya-navbar--fixed');
+      } else {
+        host.removeClass('yoya-navbar--fixed');
+      }
+    });
+
+    // bordered 状态处理器
+    this.registerStateHandler('bordered', (bordered, host) => {
+      if (bordered) {
+        host.addClass('yoya-navbar--bordered');
+        host.removeClass('yoya-navbar--no-border');
+      } else {
+        host.removeClass('yoya-navbar--bordered');
+        host.addClass('yoya-navbar--no-border');
+      }
+    });
+
+    // themeMode 状态处理器
+    this.registerStateHandler('themeMode', (mode, host) => {
+      // Islands 主题系统会自动更新 CSS 变量的值，所以只需要设置一次变量引用
+      // 不需要区分 dark/light 模式的变量名
+      // CSS 变量已在 .yoya-navbar 类中定义，主题变化时会自动更新
+
+      // 更新 Logo 颜色（CSS 变量会自动处理）
+      if (host._logoEl) {
+        host._logoEl.style('color', 'var(--yoya-navbar-logo-color, var(--yoya-text, #333))');
+      }
+      // 更新菜单项颜色
+      if (host._menuEl) {
+        host._menuEl._children.forEach(item => {
+          if (item._active) {
+            item.styles({
+              background: 'var(--yoya-navbar-item-active-bg, rgba(37,99,235,0.08))',
+              color: 'var(--yoya-navbar-item-active-color, var(--yoya-primary))',
+            });
+          } else {
+            item.styles({
+              background: 'transparent',
+              color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
+            });
+          }
+        });
+      }
+      // 更新右侧区域按钮颜色
+      if (host._rightEl) {
+        host._rightEl._children.forEach(child => {
+          if (child instanceof VButton) {
+            // VButton 组件，通过 ghost 模式适应暗色主题
+            if (!child.hasState('ghost')) {
+              child.styles({
+                background: 'var(--yoya-button-bg, white)',
+                color: 'var(--yoya-button-text, #333)',
+                borderColor: 'var(--yoya-button-border, #e0e0e0)',
+              });
+            }
+          } else if (child._el && child._el._children) {
+            // 普通 div 元素
+            child.style('color', 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))');
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * 设置主题变化监听器
+   * @private
+   */
+  _setupThemeListener() {
+    if (typeof window === 'undefined') return;
+
+    // 监听主题变化事件
+    window.addEventListener('theme-changed', (e) => {
+      const mode = e.detail?.mode || 'light';
+      this.setState('themeMode', mode);
+    });
+
+    // 初始化时获取当前主题模式
+    // 从全局 window._yoyaMode 获取（由 setThemeMode 设置）
+    const getInitialMode = () => {
+      if (typeof window._yoyaMode === 'string') {
+        if (window._yoyaMode === 'auto') {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        return window._yoyaMode;
+      }
+      // 默认值
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const initialMode = getInitialMode();
+    this.setState('themeMode', initialMode);
+  }
+
+  /**
+   * 设置导航栏高度
+   * @param {string} h - 高度值
+   * @returns {this}
+   */
+  height(h) {
+    this._height = h;
+    this.style('height', h);
+    return this;
+  }
+
+  /**
+   * 设置 Logo 区域
+   * @param {string|Function} content - Logo 内容（文本或 setup 函数）
+   * @param {Function} [onClick=null] - 点击回调
+   * @returns {this}
+   */
+  logo(content, onClick = null) {
+    if (!this._logoEl) {
+      this._logoEl = div(logo => {
+        logo.addClass('yoya-navbar__logo');
+      });
+    } else {
+      this._logoEl.clear();
+    }
+
+    if (typeof content === 'function') {
+      content(this._logoEl);
+    } else {
+      this._logoEl.text(content);
+    }
+
+    if (onClick) {
+      this._logoEl.on('click', onClick);
+    }
+
+    // 将 Logo 添加到容器（如果尚未添加）
+    if (this._containerEl && !this._logoEl._parent) {
+      this._containerEl._children.unshift(this._logoEl);
+      this._logoEl._parent = this._containerEl;
+    }
+
+    return this;
+  }
+
+  /**
+   * 添加导航项
+   * @param {string} content - 菜单项文本
+   * @param {Function} [setup=null] - 初始化函数
+   * @returns {this}
+   */
+  item(content, setup = null) {
+    if (!this._menuEl) {
+      this._menuEl = div(menu => {
+        menu.addClass('yoya-navbar__menu');
+      });
+    }
+
+    const menuItem = div(item => {
+      item.addClass('yoya-navbar__item');
+      item.text(content);
+
+      item.on('mouseenter', () => {
+        item.addClass('yoya-navbar__item--hover');
+      });
+
+      item.on('mouseleave', () => {
+        if (!item._active) {
+          item.removeClass('yoya-navbar__item--hover');
+        }
+      });
+
+      item.on('click', (e) => {
+        e.stopPropagation();
+        // 移除其他项的激活状态
+        if (this._menuEl) {
+          this._menuEl._children.forEach(child => {
+            if (child !== item) {
+              child._active = false;
+              child.removeClass('yoya-navbar__item--active');
+            }
+          });
+        }
+        // 设置当前项为激活状态
+        item._active = true;
+        item.addClass('yoya-navbar__item--active');
+
+        if (setup && typeof setup === 'function') {
+          setup(item);
+        }
+      });
+    });
+
+    this._menuEl.child(menuItem);
+
+    // 将菜单区域添加到容器（在 Logo 之后，_rightEl 之前）
+    if (this._containerEl) {
+      if (!this._menuEl._parent) {
+        // 找到 _rightEl 的位置，在其之前插入
+        const rightIndex = this._containerEl._children.indexOf(this._rightEl);
+        if (rightIndex >= 0) {
+          this._containerEl._children.splice(rightIndex, 0, this._menuEl);
+        } else {
+          this._containerEl._children.push(this._menuEl);
+        }
+        this._menuEl._parent = this._containerEl;
+        this._containerEl.renderDom();
+      }
+    }
+    return this;
+  }
+
+  /**
+   * 设置右侧区域
+   * @param {Function} setup - 初始化函数
+   * @returns {this}
+   */
+  right(setup) {
+    if (!this._rightEl) {
+      this._rightEl = div(right => {
+        right.addClass('yoya-navbar__right');
+      });
+    }
+
+    // 提供便捷的 button 方法
+    const rightWrapper = {
+      button: (content, onClick = null) => {
+        const btn = vButton(content);
+        rightWrapper._el.child(btn);
+        if (onClick) {
+          btn.on('click', onClick);
+        }
+        return btn;
+      },
+      item: (content, setup = null) => this.item(content, setup),
+      divider: () => {
+        const dividerEl = div(d => {
+          d.addClass('yoya-navbar__divider');
+        });
+        rightWrapper._el.child(dividerEl);
+        return rightWrapper;
+      },
+      _el: this._rightEl,
+    };
+
+    if (typeof setup === 'function') {
+      setup(rightWrapper);
+    }
+
+    // 将右侧区域添加到容器末尾
+    if (this._containerEl) {
+      // 确保 _rightEl 在_children 数组的最后
+      const index = this._containerEl._children.indexOf(this._rightEl);
+      if (index >= 0) {
+        this._containerEl._children.splice(index, 1);
+      }
+      this._containerEl._children.push(this._rightEl);
+      this._rightEl._parent = this._containerEl;
+      this._containerEl.renderDom();
+    }
+    return this;
+  }
+
+  /**
+   * 设置为深色模式（兼容旧 API）
+   * @returns {this}
+   */
+  dark() {
+    this.setState('themeMode', 'dark');
+    return this;
+  }
+}
+
+/**
+ * 创建 VTopNavbar 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VTopNavbar}
+ */
+function vTopNavbar(setup = null) {
+  return new VTopNavbar(setup);
+}
+
+/**
+ * Tag 原型扩展 - 添加 vTopNavbar 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
+Tag.prototype.vTopNavbar = function(setup = null) {
+  const el = vTopNavbar(setup);
   this.child(el);
   return this;
 };
@@ -8028,6 +8863,8 @@ Tag.prototype.vSidebar = function(setup = null) {
  * @extends Tag
  */
 class VMessage extends Tag {
+  static _stateAttrs = ['type'];
+
   /**
    * 创建 VMessage 实例
    * @param {string} [content=''] - 消息内容
@@ -8037,6 +8874,8 @@ class VMessage extends Tag {
   constructor(content = '', type = 'info', setup = null) {
     super('div', null);
 
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
     this._content = content;
     this._type = type;
     this._closable = true;
@@ -8044,19 +8883,7 @@ class VMessage extends Tag {
     this._timer = null;
     this._closed = false;
 
-    this.styles({
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      boxShadow: 'var(--islands-message-box-shadow, 0 4px 12px rgba(0,0,0,0.15))',
-      minWidth: '280px',
-      maxWidth: '400px',
-      animation: 'slideIn 0.3s ease',
-      position: 'relative'
-    });
-
+    this.addClass('yoya-message');
     this._applyTypeStyles();
     this._buildContent();
 
@@ -8070,31 +8897,8 @@ class VMessage extends Tag {
    * @private
    */
   _applyTypeStyles() {
-    const typeStyles = {
-      success: {
-        background: 'var(--islands-message-success-bg)',
-        color: 'var(--islands-message-success-color)',
-        border: 'var(--islands-message-success-border)',
-      },
-      error: {
-        background: 'var(--islands-message-error-bg)',
-        color: 'var(--islands-message-error-color)',
-        border: 'var(--islands-message-error-border)',
-      },
-      warning: {
-        background: 'var(--islands-message-warning-bg)',
-        color: 'var(--islands-message-warning-color)',
-        border: 'var(--islands-message-warning-border)',
-      },
-      info: {
-        background: 'var(--islands-message-info-bg)',
-        color: 'var(--islands-message-info-color)',
-        border: 'var(--islands-message-info-border)',
-      }
-    };
-
-    const styles = typeStyles[this._type] || typeStyles.info;
-    this.styles(styles);
+    this.removeClass('yoya-message--success', 'yoya-message--error', 'yoya-message--warning', 'yoya-message--info');
+    this.addClass(`yoya-message--${this._type}`);
   }
 
   /**
@@ -8119,42 +8923,18 @@ class VMessage extends Tag {
   _buildContent() {
     this.child(span(icon => {
       icon.text(this._getTypeIcon());
-      icon.styles({
-        fontSize: 'var(--islands-message-icon-size, 18px)',
-        fontWeight: 'bold',
-        flexShrink: '0',
-        marginRight: 'var(--islands-message-icon-margin, 10px)',
-      });
+      icon.addClass('yoya-message__icon');
     }));
 
     this.child(span(text => {
       text.text(this._content);
-      text.styles({
-        flex: 1,
-        fontSize: 'var(--islands-message-font-size, 14px)',
-        lineHeight: 'var(--islands-message-line-height, 1.5)',
-        color: 'var(--islands-message-text-color, inherit)',
-      });
+      text.addClass('yoya-message__text');
     }));
 
     if (this._closable) {
       this.child(span(closeBtn => {
         closeBtn.text('×');
-        closeBtn.styles({
-          fontSize: 'var(--islands-message-close-size, 20px)',
-          cursor: 'pointer',
-          padding: 'var(--islands-message-close-padding, 0 4px)',
-          opacity: 'var(--islands-message-close-opacity, 0.7)',
-          transition: 'opacity 0.2s',
-          flexShrink: '0',
-          color: 'var(--islands-message-close-color, inherit)',
-        });
-        closeBtn.on('mouseenter', () => {
-          closeBtn.style('opacity', 'var(--islands-message-close-hover-opacity, 1)');
-        });
-        closeBtn.on('mouseleave', () => {
-          closeBtn.style('opacity', 'var(--islands-message-close-opacity, 0.7)');
-        });
+        closeBtn.addClass('yoya-message__close');
         closeBtn.on('click', (e) => {
           e.stopPropagation();
           this.close();
@@ -8287,16 +9067,7 @@ class VMessageContainer extends Tag {
     this._messages = [];
     this._maxVisible = 5;
 
-    this.styles({
-      position: 'fixed',
-      zIndex: 'var(--islands-message-z-index, 9999)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--islands-message-gap, 10px)',
-      padding: 'var(--islands-message-container-padding, 16px)',
-      maxWidth: 'var(--islands-message-max-width, 420px)',
-    });
-
+    this.addClass('yoya-message-container');
     this._applyPosition();
 
     if (setup !== null) {
@@ -8309,17 +9080,15 @@ class VMessageContainer extends Tag {
    * @private
    */
   _applyPosition() {
-    const positions = {
-      'top-left': { top: '0', left: '0' },
-      'top-right': { top: '0', right: '0' },
-      'top-center': { top: '0', left: '50%', transform: 'translateX(-50%)' },
-      'bottom-left': { bottom: '0', left: '0' },
-      'bottom-right': { bottom: '0', right: '0' },
-      'bottom-center': { bottom: '0', left: '50%', transform: 'translateX(-50%)' }
-    };
-
-    const pos = positions[this._position] || positions['top-right'];
-    this.styles(pos);
+    this.removeClass(
+      'yoya-message-container--top-left',
+      'yoya-message-container--top-right',
+      'yoya-message-container--top-center',
+      'yoya-message-container--bottom-left',
+      'yoya-message-container--bottom-right',
+      'yoya-message-container--bottom-center'
+    );
+    this.addClass(`yoya-message-container--${this._position}`);
   }
 
   /**
@@ -8664,382 +9433,6 @@ if (typeof document !== 'undefined') {
 }
 
 /**
- * Yoya.Components - Button
- * 带主题样式的按钮组件
- */
-
-
-// ============================================
-// VButton 按钮组件
-// ============================================
-
-class VButton extends Tag {
-  // 状态属性
-  static _stateAttrs = ['disabled', 'loading', 'block', 'ghost', 'hovered'];
-
-  constructor(content = '', setup = null) {
-    // 如果 content 是函数，则它是 setup
-    if (typeof content === 'function') {
-      setup = content;
-      content = '';
-    }
-    // 如果 content 是对象且 setup 未定义，说明是 vButton({ onClick: ... }) 单参数用法
-    else if (typeof content === 'object' && content !== null && setup === undefined) {
-      setup = content;
-      content = '';
-    }
-    // 正确用法：vButton("文本", { setupObject }) - content 是字符串，setup 是对象，无需处理
-
-    super('button', null);
-    // this._el 已在 super() 中创建
-
-    // 1. 注册状态属性
-    this.registerStateAttrs(...this.constructor._stateAttrs);
-
-    // 2. 初始化状态
-    this.initializeStates({
-      disabled: false,
-      loading: false,
-      block: false,
-      ghost: false,
-      hovered: false,
-      type: 'default'
-    });
-
-    // 3. 设置基础样式（直接设置到 this._el）
-    this._setupBaseStyles();
-
-    // 4. 保存基础样式快照（用于状态变更时恢复）
-    this.saveBaseStylesSnapshot();
-
-    // 4.5. 应用默认类型样式
-    this._applyTypeStyles();
-
-    // 5. 注册状态处理器
-    this._registerStateHandlers();
-
-    // 6. 执行 setup
-    if (setup !== null) {
-      this.setup(setup);
-    }
-
-    // 7. 更新内容（setup 可能已经设置了内容，所以只在没有内容时才使用 content 参数）
-    if (content && !this._content) {
-      this._content = content;
-      this._updateContent();
-    }
-  }
-
-  // 设置基础样式
-  _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 'var(--islands-gap-sm, 6px)',
-      padding: 'var(--islands-button-padding, 8px 16px)',
-      fontSize: 'var(--islands-button-font-size, 14px)',
-      fontWeight: '400',
-      borderRadius: 'var(--islands-button-radius, 6px)',
-      border: '1px solid transparent',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      outline: 'none',
-      minWidth: 'var(--islands-button-min-width, 64px)',
-      height: 'var(--islands-button-height, 32px)',
-      transform: 'scale(1)',
-      transformOrigin: 'center center',
-    });
-
-    // 使用状态机管理 hover
-    this.on('mouseenter', () => {
-      this.setState('hovered', true);
-    });
-
-    this.on('mouseleave', () => {
-      this.setState('hovered', false);
-    });
-
-    // 点击按压效果
-    this.on('mousedown', (e) => {
-      e.preventDefault();
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        this.style('transform', 'scale(0.98)');
-      }
-    });
-
-    this.on('mouseup', () => {
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        this.style('transform', 'scale(1)');
-      }
-    });
-
-    this.on('mouseout', () => {
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        this.style('transform', 'scale(1)');
-      }
-    });
-  }
-
-  // 获取 hover 样式
-  _getHoverStyles() {
-    const type = this._type || 'default';
-    const isGhost = this.hasState('ghost');
-    const hoverStyles = {
-      primary: {
-        background: isGhost ? 'var(--islands-primary-alpha)' : 'var(--islands-button-primary-hover)',
-      },
-      success: {
-        background: isGhost ? 'var(--islands-success-bg)' : 'var(--islands-button-success-hover)',
-      },
-      warning: {
-        background: isGhost ? 'var(--islands-warning-bg)' : 'var(--islands-button-warning-hover)',
-      },
-      danger: {
-        background: isGhost ? 'var(--islands-error-bg)' : 'var(--islands-button-danger-hover)',
-      },
-      default: {
-        background: isGhost ? 'var(--islands-hover-bg)' : 'var(--islands-button-default-hover)',
-      },
-    };
-    return hoverStyles[type] || hoverStyles.default;
-  }
-
-  // 注册状态处理器
-  _registerStateHandlers() {
-    // disabled 状态
-    this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
-      if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        });
-      } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-          pointerEvents: 'auto',
-        });
-      }
-    });
-
-    // loading 状态
-    this.registerStateHandler('loading', (loading, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
-      if (loading) {
-        host.styles({
-          cursor: 'wait',
-          pointerEvents: 'none',
-        });
-      } else {
-        host.styles({
-          cursor: 'pointer',
-          pointerEvents: 'auto',
-        });
-      }
-      host._updateContent();
-    });
-
-    // block 状态（占满容器）
-    this.registerStateHandler('block', (isBlock, host) => {
-      host.style('display', isBlock ? 'flex' : 'inline-flex');
-      host.style('width', isBlock ? '100%' : '');
-    });
-
-    // ghost 状态
-    this.registerStateHandler('ghost', (isGhost, host) => {
-      host._applyTypeStyles();
-    });
-
-    // hovered 状态 - 使用状态机管理 hover
-    this.registerStateHandler('hovered', (isHovered, host) => {
-      if (isHovered && !host.hasState('disabled') && !host.hasState('loading')) {
-        host.styles(host._getHoverStyles());
-      } else {
-        host._applyTypeStyles();
-      }
-    });
-  }
-
-  // 应用类型样式
-  _applyTypeStyles() {
-    const type = this._type || 'default';
-    const isGhost = this.hasState('ghost');
-
-    const typeStyles = {
-      primary: {
-        background: isGhost ? 'transparent' : 'var(--islands-primary)',
-        color: isGhost ? 'var(--islands-primary)' : 'white',
-        border: '1px solid var(--islands-primary)',
-      },
-      success: {
-        background: isGhost ? 'transparent' : 'var(--islands-success)',
-        color: isGhost ? 'var(--islands-success)' : 'white',
-        border: '1px solid var(--islands-success)',
-      },
-      warning: {
-        background: isGhost ? 'transparent' : 'var(--islands-warning)',
-        color: isGhost ? 'var(--islands-warning)' : 'var(--islands-text-primary)',
-        border: '1px solid var(--islands-warning)',
-      },
-      danger: {
-        background: isGhost ? 'transparent' : 'var(--islands-error)',
-        color: isGhost ? 'var(--islands-error)' : 'white',
-        border: '1px solid var(--islands-error)',
-      },
-      default: {
-        background: isGhost ? 'transparent' : 'var(--islands-bg)',
-        color: isGhost ? 'var(--islands-text)' : 'var(--islands-text)',
-        border: '1px solid var(--islands-button-default-border)',
-      },
-    };
-
-    const styles = typeStyles[type] || typeStyles.default;
-    this.styles(styles);
-
-    // 存储当前类型样式，用于 hover 时恢复
-    this._currentTypeStyles = styles;
-  }
-
-  // 更新内容（支持 loading 状态）- 复用元素，不重新创建
-  _updateContent() {
-    // 复用或创建 loading 图标
-    if (this.hasState('loading')) {
-      if (!this._loadingSpinner) {
-        this._loadingSpinner = span(s => {
-          s.styles({
-            display: 'inline-block',
-            width: '1em',
-            height: '1em',
-            border: '2px solid currentColor',
-            borderBottomColor: 'transparent',
-            borderRadius: '50%',
-            animation: 'buttonLoadingSpin 0.8s linear infinite',
-          });
-        });
-        // 在内容元素之前插入
-        const contentIndex = this._children.indexOf(this._contentEl);
-        if (contentIndex >= 0) {
-          this._children.splice(contentIndex, 0, this._loadingSpinner);
-        } else {
-          this.child(this._loadingSpinner);
-        }
-      }
-      this._loadingSpinner.style('display', 'inline-block');
-    } else {
-      if (this._loadingSpinner) {
-        this._loadingSpinner.style('display', 'none');
-      }
-    }
-
-    // 复用或创建内容元素
-    if (!this._contentEl) {
-      this._contentEl = span(c => {
-        c.styles({ display: 'inline-block' });
-      });
-      this.child(this._contentEl);
-    }
-
-    if (this._content) {
-      this._contentEl.html(this._content);
-    }
-  }
-
-  _ensureContentEl() {
-    if (!this._contentEl) {
-      this._contentEl = span(c => {
-        c.styles({ display: "inline-block" });
-      });
-      this.child(this._contentEl);
-    }
-  }
-
-  // ============================================
-  // 链式方法
-  // ============================================
-
-  text(content) {
-    this._content = content;
-    this._ensureContentEl();
-    if (this._contentEl) {
-      this._contentEl.html(this._content);
-    }
-    return this;
-  }
-
-  type(value) {
-    if (value === undefined) return this._type;
-    this._type = value;
-    this._applyTypeStyles();
-    return this;
-  }
-
-  size(value) {
-    if (value === undefined) return this._size;
-
-    const sizeStyles = {
-      large: {
-        padding: 'var(--islands-button-padding-lg, 10px 20px)',
-        fontSize: 'var(--islands-button-font-size-lg, 16px)',
-        height: 'var(--islands-button-height-lg, 40px)',
-      },
-      default: {
-        padding: 'var(--islands-button-padding, 8px 16px)',
-        fontSize: 'var(--islands-button-font-size, 14px)',
-        height: 'var(--islands-button-height, 32px)',
-      },
-      small: {
-        padding: 'var(--islands-button-padding-sm, 4px 10px)',
-        fontSize: 'var(--islands-button-font-size-sm, 12px)',
-        height: 'var(--islands-button-height-sm, 24px)',
-      },
-    };
-
-    this._size = value;
-    const styles = sizeStyles[value] || sizeStyles.default;
-    this.styles(styles);
-    return this;
-  }
-
-  disabled(value = true) {
-    return this.setState('disabled', value);
-  }
-
-  loading(value = true) {
-    return this.setState('loading', value);
-  }
-
-  block(value = true) {
-    return this.setState('block', value);
-  }
-
-  ghost(value = true) {
-    return this.setState('ghost', value);
-  }
-
-  // 事件方法 - 基于 Tag._wrapHandler 包装器
-  // onClick 直接使用 Tag 基类的 onClick() 方法
-}
-
-function vButton(content = '', setup = null) {
-  return new VButton(content, setup);
-}
-
-// ============================================
-// Tag 原型扩展
-// ============================================
-
-Tag.prototype.vButton = function(content = '', setup = null) {
-  const btn = vButton(content, setup);
-  this.child(btn);
-  return this;
-};
-
-/**
  * Yoya.Components - Code
  * 代码展示组件，支持语法高亮和一键复制功能
  * @module Yoya.Code
@@ -9121,10 +9514,10 @@ class VCode extends Tag {
   _setupBaseStyles() {
     this.styles({
       display: 'block',
-      borderRadius: 'var(--islands-code-radius, 8px)',
+      borderRadius: 'var(--yoya-code-radius, 8px)',
       overflow: 'hidden',
-      background: 'var(--islands-code-bg, #1e1e1e)',
-      border: 'var(--islands-code-border, 1px solid rgba(255,255,255,0.1))',
+      background: 'var(--yoya-code-bg, #1e1e1e)',
+      border: 'var(--yoya-code-border, 1px solid rgba(255,255,255,0.1))',
     });
   }
 
@@ -9138,8 +9531,8 @@ class VCode extends Tag {
         if (copied) {
           host._copyButton.textContent('✓ 已复制');
           host._copyButton.styles({
-            background: 'var(--islands-code-copy-success-bg, #28a745)',
-            color: 'var(--islands-code-copy-success-color, white)',
+            background: 'var(--yoya-code-copy-success-bg, #28a745)',
+            color: 'var(--yoya-code-copy-success-color, white)',
           });
           // 2 秒后恢复
           setTimeout(() => {
@@ -9148,8 +9541,8 @@ class VCode extends Tag {
         } else {
           host._copyButton.textContent('📋 复制');
           host._copyButton.styles({
-            background: 'var(--islands-code-copy-bg, #444)',
-            color: 'var(--islands-code-copy-color, #ccc)',
+            background: 'var(--yoya-code-copy-bg, #444)',
+            color: 'var(--yoya-code-copy-color, #ccc)',
           });
         }
       }
@@ -9164,18 +9557,18 @@ class VCode extends Tag {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: 'var(--islands-code-header-padding, 10px 16px)',
-          background: 'var(--islands-code-header-bg, rgba(255,255,255,0.05))',
-          borderBottom: 'var(--islands-code-header-border, 1px solid rgba(255,255,255,0.1))',
+          padding: 'var(--yoya-code-header-padding, 10px 16px)',
+          background: 'var(--yoya-code-header-bg, rgba(255,255,255,0.05))',
+          borderBottom: 'var(--yoya-code-header-border, 1px solid rgba(255,255,255,0.1))',
         });
 
         // 标题
         if (this._title) {
           h.child(span(t => {
             t.styles({
-              color: 'var(--islands-code-title-color, #007acc)',
-              fontSize: 'var(--islands-code-title-font-size, 13px)',
-              fontWeight: 'var(--islands-code-title-font-weight, 600)',
+              color: 'var(--yoya-code-title-color, #007acc)',
+              fontSize: 'var(--yoya-code-title-font-size, 13px)',
+              fontWeight: 'var(--yoya-code-title-font-weight, 600)',
             });
             t.text(this._title);
           }));
@@ -9187,12 +9580,12 @@ class VCode extends Tag {
         if (this._showCopyButton) {
           h.child(this._copyButton = span(b => {
             b.styles({
-              padding: 'var(--islands-code-copy-padding, 4px 10px)',
-              borderRadius: 'var(--islands-code-copy-radius, 4px)',
-              fontSize: 'var(--islands-code-copy-font-size, 12px)',
+              padding: 'var(--yoya-code-copy-padding, 4px 10px)',
+              borderRadius: 'var(--yoya-code-copy-radius, 4px)',
+              fontSize: 'var(--yoya-code-copy-font-size, 12px)',
               cursor: 'pointer',
-              background: 'var(--islands-code-copy-bg, #444)',
-              color: 'var(--islands-code-copy-color, #ccc)',
+              background: 'var(--yoya-code-copy-bg, #444)',
+              color: 'var(--yoya-code-copy-color, #ccc)',
               transition: 'all 0.2s',
               userSelect: 'none',
             });
@@ -9201,16 +9594,16 @@ class VCode extends Tag {
             b.on('mouseenter', () => {
               if (!this.hasState('copied')) {
                 b.styles({
-                  background: 'var(--islands-code-copy-hover-bg, #555)',
-                  color: 'var(--islands-code-copy-hover-color, white)',
+                  background: 'var(--yoya-code-copy-hover-bg, #555)',
+                  color: 'var(--yoya-code-copy-hover-color, white)',
                 });
               }
             });
             b.on('mouseleave', () => {
               if (!this.hasState('copied')) {
                 b.styles({
-                  background: 'var(--islands-code-copy-bg, #444)',
-                  color: 'var(--islands-code-copy-color, #ccc)',
+                  background: 'var(--yoya-code-copy-bg, #444)',
+                  color: 'var(--yoya-code-copy-color, #ccc)',
                 });
               }
             });
@@ -9225,18 +9618,21 @@ class VCode extends Tag {
     this._codeContainer = pre(c => {
       c.styles({
         margin: 0,
-        padding: 'var(--islands-code-padding, 16px)',
+        padding: 'var(--yoya-code-padding, 16px)',
         overflow: 'auto',
-        fontSize: 'var(--islands-code-font-size, 13px)',
-        lineHeight: 'var(--islands-code-line-height, 1.6)',
-        color: 'var(--islands-code-text-color, #d4d4d4)',
-        fontFamily: 'var(--islands-code-font-family, "Fira Code", "Consolas", "Monaco", monospace)',
+        fontSize: 'var(--yoya-code-font-size, 13px)',
+        lineHeight: 'var(--yoya-code-line-height, 1.6)',
+        color: 'var(--yoya-code-text-color, #d4d4d4)',
+        fontFamily: 'var(--yoya-code-font-family, "Fira Code", "Consolas", "Monaco", monospace)',
       });
 
       c.child(this._codeElement = code(inner => {
         inner.styles({
-          color: 'var(--islands-code-text-color, #d4d4d4)',
+          color: 'var(--yoya-code-text-color, #d4d4d4)',
           fontFamily: 'inherit',
+          background: 'transparent',
+          border: 'none',
+          padding: 0,
         });
         if (this._showLineNumbers) {
           inner.styles({ counterReset: 'line' });
@@ -9538,22 +9934,7 @@ class VInput extends Tag {
     this.placeholder(setup);
   }
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      width: '100%',
-      maxWidth: '100%',
-      fontSize: 'var(--islands-input-font-size, 14px)',
-      borderRadius: 'var(--islands-input-radius, 6px)',
-      border: '1px solid var(--islands-input-border, var(--islands-border))',
-      background: 'var(--islands-input-bg, var(--islands-bg))',
-      color: 'var(--islands-input-text, var(--islands-text))',
-      transition: 'all 0.2s',
-      outline: 'none',
-      height: 'var(--islands-input-height, 32px)',
-      boxSizing: 'border-box',
-      cursor: 'text',
-    });
+    this.addClass('yoya-input');
   }
 
   _createInternalElements() {
@@ -9561,18 +9942,7 @@ class VInput extends Tag {
     if (this._inputEl) return;
 
     this._inputEl = input(i => {
-      i.styles({
-        flex: 1,
-        border: 'none',
-        outline: 'none',
-        background: 'transparent',
-        fontSize: 'inherit',
-        color: 'inherit',
-        minWidth: 0,
-        width: '100%',
-        height: '100%',
-        padding: 'var(--islands-input-padding, 8px 12px)',
-      });
+      i.addClass('yoya-input__inner');
     });
 
     // 同步属性到内部 input
@@ -9598,8 +9968,8 @@ class VInput extends Tag {
 
     // 点击外层容器时聚焦到 input
     this.on('click', () => {
-      if (this._inputEl) {
-        this._inputEl.focus();
+      if (this._inputEl && this._inputEl._el) {
+        this._inputEl._el.focus();
       }
     });
   }
@@ -9607,16 +9977,7 @@ class VInput extends Tag {
   _showLoadingSpinner() {
     if (!this._loadingSpinner) {
       this._loadingSpinner = span(s => {
-        s.styles({
-          display: 'inline-block',
-          width: '14px',
-          height: '14px',
-          border: '2px solid currentColor',
-          borderBottomColor: 'transparent',
-          borderRadius: '50%',
-          animation: 'buttonLoadingSpin 0.8s linear infinite',
-          marginLeft: '12px',
-        });
+        s.addClass('yoya-input__loading');
       });
       this.child(this._loadingSpinner);
     }
@@ -9632,23 +9993,13 @@ class VInput extends Tag {
   _registerStateHandlers() {
     // disabled 状态
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: 'var(--islands-input-disabled-bg, var(--islands-bg-tertiary))',
-        });
+        host.addClass('yoya-input--disabled');
         if (host._inputEl) {
           host._inputEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'text',
-          background: 'var(--islands-input-bg, var(--islands-bg))',
-        });
+        host.removeClass('yoya-input--disabled');
         if (host._inputEl) {
           host._inputEl.attr('disabled', null);
         }
@@ -9664,14 +10015,10 @@ class VInput extends Tag {
 
     // error 状态
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, var(--islands-border-error))');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-bg, rgba(224, 82, 82, 0.2))');
+        host.addClass('yoya-input--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-input--error');
       }
     });
 
@@ -9733,25 +10080,12 @@ class VInput extends Tag {
   size(s) {
     if (s === undefined) return this._size;
     this._size = s;
-    const sizeStyles = {
-      large: {
-        padding: 'var(--islands-input-padding-lg, 10px 16px)',
-        fontSize: 'var(--islands-input-font-size-lg, 16px)',
-        height: 'var(--islands-input-height-lg, 40px)',
-      },
-      default: {
-        padding: 'var(--islands-input-padding, 8px 12px)',
-        fontSize: 'var(--islands-input-font-size, 14px)',
-        height: 'var(--islands-input-height, 32px)',
-      },
-      small: {
-        padding: 'var(--islands-input-padding-sm, 4px 8px)',
-        fontSize: 'var(--islands-input-font-size-sm, 12px)',
-        height: 'var(--islands-input-height-sm, 24px)',
-      },
-    };
-    const styles = sizeStyles[s] || sizeStyles.default;
-    this.styles(styles);
+    this.removeClass('yoya-input--large', 'yoya-input--small');
+    if (s === 'large') {
+      this.addClass('yoya-input--large');
+    } else if (s === 'small') {
+      this.addClass('yoya-input--small');
+    }
     return this;
   }
 
@@ -9794,6 +10128,22 @@ class VInput extends Tag {
       this._inputEl.blur();
     }
     return this;
+  }
+
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  readonly(value = true) {
+    return this.setState('readonly', value);
+  }
+
+  error(value = true) {
+    return this.setState('error', value);
+  }
+
+  loading(value = true) {
+    return this.setState('loading', value);
   }
 }
 
@@ -9847,7 +10197,28 @@ class VSelect extends Tag {
   // 重写 setup 方法，字符串作为 placeholder 处理
   setup(setup) {
     if (typeof setup === 'function') {
-      setup(this);
+      // 使用 Proxy 拦截属性赋值
+      const handler = {
+        set: (target, prop, value) => {
+          if (prop === 'options') {
+            target.options(value);
+          } else if (prop === 'value') {
+            target.value(value);
+          } else if (prop === 'placeholder') {
+            target.placeholder(value);
+          } else if (prop.startsWith('on') && typeof value === 'function') {
+            const eventName = prop.slice(2).toLowerCase();
+            if (eventName === 'change') {
+              target.onChange(value);
+            }
+          } else {
+            target[prop] = value;
+          }
+          return true;
+        }
+      };
+      const proxy = new Proxy(this, handler);
+      setup(proxy);
     } else if (typeof setup === 'string') {
       // 字符串作为 placeholder
       this._placeholder = setup;
@@ -9857,40 +10228,48 @@ class VSelect extends Tag {
     return this;
   }
 
+  // 重写 _setupObject 处理 options 等属性
+  _setupObject(config) {
+    // 处理 options
+    if (config.options) {
+      this.options(config.options);
+    }
+    // 处理 value
+    if (config.value !== undefined) {
+      this.value(config.value);
+    }
+    // 处理 placeholder
+    if (config.placeholder) {
+      this.placeholder(config.placeholder);
+    }
+    // 处理事件
+    for (const [key, value] of Object.entries(config)) {
+      if (key.startsWith('on') && typeof value === 'function') {
+        const eventName = key.slice(2).toLowerCase();
+        if (eventName === 'change') {
+          this.onChange(value);
+        }
+      }
+    }
+    // 调用父类的 _setupObject 处理 class/className/style 等
+    if (config.class || config.className || config.style) {
+      const parentSetup = {};
+      if (config.class) parentSetup.class = config.class;
+      if (config.className) parentSetup.className = config.className;
+      if (config.style) parentSetup.style = config.style;
+      Tag.prototype._setupObject.call(this, parentSetup);
+    }
+  }
+
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      width: '100%',
-      fontSize: 'var(--islands-select-font-size, 14px)',
-      borderRadius: 'var(--islands-select-radius, 6px)',
-      border: '1px solid var(--islands-select-border, var(--islands-border, #e0e0e0))',
-      background: 'var(--islands-select-bg, var(--islands-bg, white))',
-      color: 'var(--islands-select-text, var(--islands-text, #333))',
-      transition: 'all 0.2s',
-      outline: 'none',
-      height: 'var(--islands-select-height, 32px)',
-      boxSizing: 'border-box',
-      cursor: 'pointer',
-      position: 'relative',
-    });
+    this.addClass('yoya-select');
   }
 
   _createInternalElements() {
     // 首次创建 select 元素
     if (!this._selectEl) {
       this._selectEl = select(s => {
-        s.styles({
-          flex: 1,
-          border: 'none',
-          outline: 'none',
-          background: 'transparent',
-          fontSize: 'inherit',
-          color: 'inherit',
-          cursor: 'inherit',
-          width: '100%',
-          height: '100%',
-        });
+        s.addClass('yoya-select__inner');
       });
 
       this.child(this._selectEl);
@@ -9914,22 +10293,13 @@ class VSelect extends Tag {
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: 'var(--islands-select-disabled-bg, var(--islands-bg-tertiary, #f5f5f5))',
-        });
+        host.addClass('yoya-select--disabled');
         if (host._selectEl) {
           host._selectEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-        });
+        host.removeClass('yoya-select--disabled');
         if (host._selectEl) {
           host._selectEl.attr('disabled', null);
         }
@@ -9937,14 +10307,10 @@ class VSelect extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.addClass('yoya-select--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-select--error');
       }
     });
   }
@@ -10026,28 +10392,33 @@ class VSelect extends Tag {
 
   size(s) {
     if (s === undefined) return this._size;
-    const sizeStyles = {
-      large: {
-        padding: 'var(--islands-select-padding-lg, 10px 16px)',
-        fontSize: 'var(--islands-select-font-size-lg, 16px)',
-        height: 'var(--islands-select-height-lg, 40px)',
-      },
-      default: {
-        padding: 'var(--islands-select-padding, 8px 12px)',
-        fontSize: 'var(--islands-select-font-size, 14px)',
-        height: 'var(--islands-select-height, 32px)',
-      },
-      small: {
-        padding: 'var(--islands-select-padding-sm, 4px 8px)',
-        fontSize: 'var(--islands-select-font-size-sm, 12px)',
-        height: 'var(--islands-select-height-sm, 24px)',
-      },
-    };
-
     this._size = s;
-    const styles = sizeStyles[s] || sizeStyles.default;
-    this.styles(styles);
+    this.removeClass('yoya-select--large', 'yoya-select--small');
+    if (s === 'large') {
+      this.addClass('yoya-select--large');
+    } else if (s === 'small') {
+      this.addClass('yoya-select--small');
+    }
     return this;
+  }
+
+  onChange(handler) {
+    if (this._selectEl) {
+      const oldValue = this._value;
+      this._selectEl.on('change', (e) => {
+        const newValue = this._selectEl._el?.value || this._value;
+        handler({ event: e, value: newValue, oldValue, target: this });
+      });
+    }
+    return this;
+  }
+
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  error(value = true) {
+    return this.setState('error', value);
   }
 }
 
@@ -10111,40 +10482,18 @@ class VTextarea extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      width: '100%',
-      fontSize: 'var(--islands-textarea-font-size, 14px)',
-      borderRadius: 'var(--islands-textarea-radius, 6px)',
-      border: '1px solid var(--islands-textarea-border, var(--islands-border, #e0e0e0))',
-      background: 'var(--islands-textarea-bg, var(--islands-bg, white))',
-      color: 'var(--islands-textarea-text, var(--islands-text, #333))',
-      transition: 'all 0.2s',
-      outline: 'none',
-      boxSizing: 'border-box',
-      minHeight: 'var(--islands-textarea-min-height, 80px)',
-      cursor: 'text',
-    });
+    this.addClass('yoya-textarea');
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: 'var(--islands-textarea-disabled-bg, var(--islands-bg-tertiary, #f5f5f5))',
-        });
+        host.addClass('yoya-textarea--disabled');
         if (host._textareaEl) {
           host._textareaEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'text',
-        });
+        host.removeClass('yoya-textarea--disabled');
         if (host._textareaEl) {
           host._textareaEl.attr('disabled', null);
         }
@@ -10158,14 +10507,10 @@ class VTextarea extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.addClass('yoya-textarea--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-textarea--error');
       }
     });
   }
@@ -10175,20 +10520,7 @@ class VTextarea extends Tag {
     if (this._textareaEl) return;
 
     this._textareaEl = textarea(t => {
-      t.styles({
-        flex: 1,
-        border: 'none',
-        outline: 'none',
-        background: 'transparent',
-        fontSize: 'inherit',
-        color: 'inherit',
-        resize: 'vertical',
-        fontFamily: 'inherit',
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        padding: 'var(--islands-textarea-padding, 8px 12px)',
-      });
+      t.addClass('yoya-textarea__inner');
       t.attr('rows', this._rows);
 
       // 设置初始值（textarea 使用 text 内容）
@@ -10205,8 +10537,8 @@ class VTextarea extends Tag {
 
     // 点击外层容器时聚焦到 textarea
     this.on('click', () => {
-      if (this._textareaEl) {
-        this._textareaEl.focus();
+      if (this._textareaEl && this._textareaEl._el) {
+        this._textareaEl._el.focus();
       }
     });
   }
@@ -10284,6 +10616,18 @@ class VTextarea extends Tag {
     }
     return this;
   }
+
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  readonly(value = true) {
+    return this.setState('readonly', value);
+  }
+
+  error(value = true) {
+    return this.setState('error', value);
+  }
 }
 
 function vTextarea(setup = null) {
@@ -10339,34 +10683,18 @@ class VCheckbox extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 'var(--islands-gap-sm, 6px)',
-      cursor: 'pointer',
-      fontSize: 'var(--islands-checkbox-font-size, 14px)',
-      color: 'var(--islands-checkbox-text, var(--islands-text, #333))',
-      userSelect: 'none',
-    });
+    this.addClass('yoya-checkbox');
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        });
+        host.addClass('yoya-checkbox--disabled');
         if (host._checkboxEl) {
           host._checkboxEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-        });
+        host.removeClass('yoya-checkbox--disabled');
         if (host._checkboxEl) {
           host._checkboxEl.attr('disabled', null);
         }
@@ -10388,10 +10716,8 @@ class VCheckbox extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('color', 'var(--islands-error, #dc3545)');
+        host.addClass('yoya-checkbox--error');
       }
     });
   }
@@ -10401,13 +10727,8 @@ class VCheckbox extends Tag {
     if (this._checkboxEl) return;
 
     this._checkboxEl = input(i => {
+      i.addClass('yoya-checkbox__input');
       i.attr('type', 'checkbox');
-      i.styles({
-        width: '16px',
-        height: '16px',
-        margin: 0,
-        cursor: 'inherit',
-      });
     });
 
     // 设置 checked 状态
@@ -10539,53 +10860,29 @@ class VSwitch extends Tag {
     // 创建滑块
     const knob = span(k => {
       k._isKnob = true;
-      k.styles({
-        display: 'inline-block',
-        width: '18px',
-        height: '18px',
-        borderRadius: '50%',
-        background: 'white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-        transition: 'transform 0.2s',
-        transform: this._checked ? 'translateX(22px)' : 'translateX(0)',
-      });
+      k.addClass('yoya-switch__knob');
+      if (this._checked) {
+        k.addClass('yoya-switch__knob--checked');
+      }
     });
 
     // 创建 switch 按钮容器
     this._switchEl = div(s => {
-      s.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: 'var(--islands-switch-width, 44px)',
-        height: 'var(--islands-switch-height, 22px)',
-        borderRadius: 'var(--islands-switch-radius, 11px)',
-        background: this._checked ? 'var(--islands-primary, #667eea)' : 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))',
-        padding: '2px',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        position: 'relative',
-        boxSizing: 'border-box',
-      });
+      s.addClass('yoya-switch');
+      if (this._checked) {
+        s.addClass('yoya-switch--checked');
+      }
       s.child(knob);
     });
 
     // 如果有 label，创建 wrapper
     if (this._label) {
       this._wrapper = div(w => {
-        w.styles({
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          cursor: this.hasState('disabled') ? 'not-allowed' : 'pointer',
-        });
+        w.addClass('yoya-switch__wrapper');
         w.child(this._switchEl);
         w.child(this._labelEl = span(s => {
           s.text(this._label);
-          s.styles({
-            fontSize: '14px',
-            color: 'inherit',
-            userSelect: 'none',
-          });
+          s.addClass('yoya-switch__label');
         }));
       });
       this.child(this._wrapper);
@@ -10609,27 +10906,30 @@ class VSwitch extends Tag {
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      if (host._switchEl) {
-        host._switchEl.style('cursor', enabled ? 'not-allowed' : 'pointer');
-      }
-      if (host._wrapper) {
-        host._wrapper.style('cursor', enabled ? 'not-allowed' : 'pointer');
-      }
-      if (host._labelEl) {
-        host._labelEl.style('opacity', enabled ? '0.5' : '1');
+      if (enabled) {
+        host.addClass('yoya-switch--disabled');
+      } else {
+        host.removeClass('yoya-switch--disabled');
       }
     });
 
     this.registerStateHandler('checked', (checked, host) => {
       host._checked = checked;
       if (host._switchEl) {
-        host._switchEl.style('background',
-          checked ? 'var(--islands-primary, #667eea)' : 'var(--islands-switch-bg, var(--islands-border, #e0e0e0))');
+        if (checked) {
+          host._switchEl.addClass('yoya-switch--checked');
+        } else {
+          host._switchEl.removeClass('yoya-switch--checked');
+        }
       }
       // 更新滑块位置
       const knob = host._switchEl?._children?.find(c => c._isKnob);
       if (knob) {
-        knob.style('transform', checked ? 'translateX(22px)' : 'translateX(0)');
+        if (checked) {
+          knob.addClass('yoya-switch__knob--checked');
+        } else {
+          knob.removeClass('yoya-switch__knob--checked');
+        }
       }
     });
   }
@@ -10659,17 +10959,14 @@ class VSwitch extends Tag {
   }
 
   size(value) {
-    const sizes = {
-      large: { width: '56px', height: '28px' },
-      default: { width: '44px', height: '22px' },
-      small: { width: '32px', height: '16px' },
-    };
-
-    const size = sizes[value] || sizes.default;
-    this.styles({
-      width: `var(--islands-switch-width, ${size.width})`,
-      height: `var(--islands-switch-height, ${size.height})`,
-    });
+    if (value === undefined) return this._size;
+    this._size = value;
+    this.removeClass('yoya-switch--large', 'yoya-switch--small');
+    if (value === 'large') {
+      this.addClass('yoya-switch--large');
+    } else if (value === 'small') {
+      this.addClass('yoya-switch--small');
+    }
     return this;
   }
 
@@ -10699,12 +10996,7 @@ class VForm extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--islands-form-gap, 16px)',
-      width: '100%',
-    });
+    this.addClass('yoya-form');
   }
 
   // ============================================
@@ -10827,28 +11119,87 @@ class VCheckboxes extends Tag {
       this.setup(setup);
     }
 
-    // 7. 创建内部元素
+    // 7. 创建内部元素（在 setup 之后，确保 options 已设置）
     this._updateContent();
   }
 
+  // 重写 setup 方法，支持属性赋值
+  setup(setup) {
+    if (typeof setup === 'function') {
+      // 使用 Proxy 拦截属性赋值
+      const handler = {
+        set: (target, prop, value) => {
+          if (prop === 'options') {
+            target.options(value);
+          } else if (prop === 'value') {
+            target.value(value);
+          } else if (prop === 'multiple') {
+            target.multiple(value);
+          } else if (prop === 'layout') {
+            target.layout(value);
+          } else if (prop === 'columns') {
+            target.columns(value);
+          } else if (prop === 'disabled') {
+            target.disabled(value);
+          } else if (prop === 'error') {
+            target.error(value);
+          } else if (prop.startsWith('on') && typeof value === 'function') {
+            const eventName = prop.slice(2).toLowerCase();
+            if (eventName === 'change') {
+              target.onChange(value);
+            }
+          } else {
+            target[prop] = value;
+          }
+          return true;
+        }
+      };
+      const proxy = new Proxy(this, handler);
+      setup(proxy);
+    } else if (typeof setup === 'object' && setup !== null) {
+      this._setupObject(setup);
+    }
+    return this;
+  }
+
+  // 处理对象配置
+  _setupObject(config) {
+    if (config.options) {
+      this.options(config.options);
+    }
+    if (config.value !== undefined) {
+      this.value(config.value);
+    }
+    if (config.multiple !== undefined) {
+      this.multiple(config.multiple);
+    }
+    if (config.layout !== undefined) {
+      this.layout(config.layout);
+    }
+    if (config.columns !== undefined) {
+      this.columns(config.columns);
+    }
+    if (config.onChange && typeof config.onChange === 'function') {
+      this.onChange(config.onChange);
+    }
+    // 调用父类处理 class/className/style
+    if (config.class || config.className || config.style) {
+      const parentSetup = {};
+      if (config.class) parentSetup.class = config.class;
+      if (config.className) parentSetup.className = config.className;
+      if (config.style) parentSetup.style = config.style;
+      Tag.prototype._setupObject.call(this, parentSetup);
+    }
+  }
+
   _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      gap: 'var(--islands-gap, 12px)',
-      fontSize: 'var(--islands-checkbox-font-size, 14px)',
-      color: 'var(--islands-checkbox-text, var(--islands-text, #333))',
-    });
+    this.addClass('yoya-checkboxes');
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        });
+        host.addClass('yoya-checkboxes--disabled');
         // 禁用所有复选框
         host._checkboxes.forEach(cb => {
           if (cb._checkboxEl) {
@@ -10856,10 +11207,7 @@ class VCheckboxes extends Tag {
           }
         });
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-        });
+        host.removeClass('yoya-checkboxes--disabled');
         // 启用所有复选框
         host._checkboxes.forEach(cb => {
           if (cb._checkboxEl) {
@@ -10870,14 +11218,10 @@ class VCheckboxes extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();
-
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.addClass('yoya-checkboxes--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-checkboxes--error');
       }
     });
   }
@@ -10947,24 +11291,16 @@ class VCheckboxes extends Tag {
   }
 
   _applyLayoutStyles() {
-    const layoutStyles = {
-      column: {
-        flexDirection: 'column',
-        gap: 'var(--islands-gap, 12px)',
-      },
-      row: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 'var(--islands-gap, 12px)',
-      },
-      grid: {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${this._columns}, 1fr)`,
-        gap: 'var(--islands-gap, 12px)',
-      },
-    };
+    this.removeClass('yoya-checkboxes--column', 'yoya-checkboxes--row', 'yoya-checkboxes--grid');
 
-    this.styles(layoutStyles[this._layout] || layoutStyles.column);
+    if (this._layout === 'row') {
+      this.addClass('yoya-checkboxes--row');
+    } else if (this._layout === 'grid') {
+      this.addClass('yoya-checkboxes--grid');
+      this.style('gridTemplateColumns', `repeat(${this._columns}, 1fr)`);
+    } else {
+      this.addClass('yoya-checkboxes--column');
+    }
   }
 
   // ============================================
@@ -11116,8 +11452,8 @@ class VTimer extends Tag {
     this.registerStateHandler('error', (hasError, host) => {
       host.clearStateStyles();
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -11139,12 +11475,12 @@ class VTimer extends Tag {
     this._inputEl = input(i => {
       i.attr('type', this._type);
       i.styles({
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid var(--islands-border, #d1d5db)',
-        background: 'white',
-        fontSize: '14px',
-        color: 'var(--islands-text, #333)',
+        padding: 'var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px)',
+        borderRadius: 'var(--yoya-radius-md, 6px)',
+        border: '1px solid var(--yoya-border)',
+        background: 'var(--yoya-bg)',
+        fontSize: 'var(--yoya-font-size-md, 14px)',
+        color: 'var(--yoya-text-primary)',
         outline: 'none',
         cursor: 'pointer',
       });
@@ -11314,8 +11650,8 @@ class VTimer2 extends Tag {
     this.registerStateHandler('error', (hasError, host) => {
       host.clearStateStyles();
       if (hasError) {
-        host.style('borderColor', 'var(--islands-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--islands-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.style('borderColor', 'var(--yoya-error, #dc3545)');
+        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
       } else {
         host.style('borderColor', '');
         host.style('boxShadow', '');
@@ -11338,12 +11674,12 @@ class VTimer2 extends Tag {
       i.attr('type', this._type);
       i.attr('placeholder', '开始日期');
       i.styles({
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid var(--islands-border, #d1d5db)',
-        background: 'white',
-        fontSize: '14px',
-        color: 'var(--islands-text, #333)',
+        padding: 'var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px)',
+        borderRadius: 'var(--yoya-radius-md, 6px)',
+        border: '1px solid var(--yoya-border)',
+        background: 'var(--yoya-bg)',
+        fontSize: 'var(--yoya-font-size-md, 14px)',
+        color: 'var(--yoya-text-primary)',
         outline: 'none',
         cursor: 'pointer',
       });
@@ -11355,7 +11691,7 @@ class VTimer2 extends Tag {
     // 分隔符
     const separator = span(s => {
       s.text('至');
-      s.styles({ color: '#999', fontSize: '14px' });
+      s.styles({ color: 'var(--yoya-text-secondary)', fontSize: 'var(--yoya-font-size-md, 14px)' });
     });
 
     // 结束时间输入
@@ -11363,12 +11699,12 @@ class VTimer2 extends Tag {
       i.attr('type', this._type);
       i.attr('placeholder', '结束日期');
       i.styles({
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid var(--islands-border, #d1d5db)',
-        background: 'white',
-        fontSize: '14px',
-        color: 'var(--islands-text, #333)',
+        padding: 'var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px)',
+        borderRadius: 'var(--yoya-radius-md, 6px)',
+        border: '1px solid var(--yoya-border)',
+        background: 'var(--yoya-bg)',
+        fontSize: 'var(--yoya-font-size-md, 14px)',
+        color: 'var(--yoya-text-primary)',
         outline: 'none',
         cursor: 'pointer',
       });
@@ -11556,36 +11892,46 @@ Tag.prototype.vTimer2 = function(setup = null) {
 // ============================================
 
 class VDetail extends Tag {
+  static _stateAttrs = ['bordered', 'layout', 'column'];
+
   constructor(setup = null) {
     super('div', null);
+
+    this.registerStateAttrs(...this.constructor._stateAttrs);
 
     this._items = [];
     this._column = 3;
     this._title = null;
     this._bordered = false;
-    this._layout = 'horizontal'; // 'horizontal' | 'vertical'
+    this._layout = 'horizontal';
     this._initialized = false;
 
-    // 1. 设置基础样式
-    this._setupBaseStyles();
+    this.addClass('yoya-detail');
+    this._registerStateHandlers();
 
-    // 2. 保存基础样式快照
-    this.saveBaseStylesSnapshot();
-
-    // 3. 执行 setup
     if (setup !== null) {
       this.setup(setup);
     }
   }
 
-  _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      fontSize: 'var(--islands-descriptions-font-size, 14px)',
-      color: 'var(--islands-descriptions-text, var(--islands-text, #333))',
-      background: 'var(--islands-descriptions-bg, transparent)',
+  _registerStateHandlers() {
+    this.registerStateHandler('bordered', (bordered, host) => {
+      if (bordered) {
+        host.addClass('yoya-detail--bordered');
+      } else {
+        host.removeClass('yoya-detail--bordered');
+      }
+    });
+
+    this.registerStateHandler('layout', (layout, host) => {
+      host._layout = layout;
+    });
+
+    this.registerStateHandler('column', (column, host) => {
+      host._column = column;
+      if (host._layout === 'vertical' && host._gridContainer) {
+        host._gridContainer.style('gridTemplateColumns', `repeat(${column}, 1fr)`);
+      }
     });
   }
 
@@ -11596,13 +11942,7 @@ class VDetail extends Tag {
     // 标题
     if (this._title) {
       const titleEl = div(t => {
-        t.styles({
-          padding: 'var(--islands-descriptions-title-padding, 12px 0)',
-          fontSize: 'var(--islands-descriptions-title-size, 16px)',
-          fontWeight: 'var(--islands-descriptions-title-font-weight, 600)',
-          color: 'var(--islands-descriptions-title-color, var(--islands-text, #333))',
-          marginBottom: 'var(--islands-descriptions-title-margin, 12px)',
-        });
+        t.addClass('yoya-detail__title');
         t.text(this._title);
       });
       this.child(titleEl);
@@ -11610,10 +11950,7 @@ class VDetail extends Tag {
 
     // 表格容器
     const tableContainer = div(tc => {
-      tc.styles({
-        width: '100%',
-        overflowX: 'auto',
-      });
+      tc.addClass('yoya-detail__table-container');
 
       if (this._layout === 'vertical') {
         // 纵向布局：使用 flex 布局
@@ -11621,14 +11958,9 @@ class VDetail extends Tag {
       } else {
         // 横向布局：使用表格布局
         const tbl = table(t => {
-          t.styles({
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: 'inherit',
-          });
-
+          t.addClass('yoya-detail__table');
           if (this._bordered) {
-            t.style('border', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+            t.addClass('yoya-detail__table--bordered');
           }
         });
 
@@ -11638,29 +11970,17 @@ class VDetail extends Tag {
         rows.forEach(rowItems => {
           const trEl = tr(r => {
             if (this._bordered) {
-              r.style('borderBottom', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+              r.addClass('yoya-detail__row--bordered');
             }
           });
 
           rowItems.forEach(item => {
             // 标签单元格
             const labelTd = td(l => {
-              l.styles({
-                padding: 'var(--islands-descriptions-padding, 12px 16px)',
-                background: this._bordered
-                  ? 'var(--islands-descriptions-label-bg, var(--islands-bg-secondary, #f7f8fa))'
-                  : 'transparent',
-                color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
-                fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
-                textAlign: 'left',
-                width: 'var(--islands-descriptions-label-width, 120px)',
-                boxSizing: 'border-box',
-              });
-
+              l.addClass('yoya-detail__label');
               if (this._bordered) {
-                l.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+                l.addClass('yoya-detail__label--bordered');
               }
-
               if (item.label) {
                 l.text(item.label);
               }
@@ -11668,16 +11988,10 @@ class VDetail extends Tag {
 
             // 内容单元格
             const contentTd = td(c => {
-              c.styles({
-                padding: 'var(--islands-descriptions-padding, 12px 16px)',
-                color: 'var(--islands-descriptions-content-color, var(--islands-text, #333))',
-                boxSizing: 'border-box',
-              });
-
+              c.addClass('yoya-detail__content');
               if (this._bordered) {
-                c.style('borderRight', '1px solid var(--islands-descriptions-border, var(--islands-border, #e0e0e0))');
+                c.addClass('yoya-detail__content--bordered');
               }
-
               if (item.content) {
                 if (typeof item.content === 'string') {
                   c.text(item.content);
@@ -11703,37 +12017,23 @@ class VDetail extends Tag {
   // 纵向布局实现
   _buildVerticalLayout(container) {
     const grid = div(g => {
-      g.styles({
-        display: 'grid',
-        gridTemplateColumns: `repeat(${this._column}, 1fr)`,
-        gap: 'var(--islands-descriptions-vertical-gap, 16px)',
-      });
+      g.addClass('yoya-detail__grid');
+      g.style('gridTemplateColumns', `repeat(${this._column}, 1fr)`);
+      this._gridContainer = g;
 
       this._items.forEach(item => {
         const itemEl = div(i => {
-          i.styles({
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--islands-descriptions-vertical-item-gap, 6px)',
-          });
+          i.addClass('yoya-detail__grid-item');
 
           // 标签
           const labelEl = span(l => {
-            l.styles({
-              fontSize: 'var(--islands-descriptions-label-font-size, 12px)',
-              color: 'var(--islands-descriptions-label-color, var(--islands-text-secondary, #666))',
-              fontWeight: 'var(--islands-descriptions-label-font-weight, 500)',
-            });
+            l.addClass('yoya-detail__grid-label');
             if (item.label) l.text(item.label);
           });
 
           // 内容
           const contentEl = div(c => {
-            c.styles({
-              fontSize: 'var(--islands-descriptions-content-font-size, 14px)',
-              color: 'var(--islands-descriptions-content-color, var(--islands-text, #333))',
-              padding: 'var(--islands-descriptions-vertical-content-padding, 8px 0)',
-            });
+            c.addClass('yoya-detail__grid-content');
 
             if (item.content) {
               if (typeof item.content === 'string') {
@@ -11945,18 +12245,19 @@ class VField extends Tag {
   }
 
   _setupBaseStyles() {
+    this.className('yoya-field');
     this.styles({
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 'var(--islands-field-gap, 6px)',
+      gap: 'var(--yoya-field-gap, 6px)',
       padding: '0',
-      minWidth: 'var(--islands-field-min-width, 80px)',
-      minHeight: 'var(--islands-field-min-height, 32px)',
+      minWidth: 'var(--yoya-field-min-width, 80px)',
+      minHeight: 'var(--yoya-field-min-height, 32px)',
       position: 'relative',
       boxSizing: 'border-box',
       cursor: 'pointer',
-      fontSize: 'var(--islands-field-font-size, 14px)',
-      color: 'var(--islands-field-text-color, var(--islands-text, #333))',
+      fontSize: 'var(--yoya-field-font-size, 14px)',
+      color: 'var(--yoya-field-text-color, var(--yoya-text, #333))',
     });
   }
 
@@ -11986,8 +12287,8 @@ class VField extends Tag {
       host.clearStateStyles();
       if (disabled) {
         host.styles({
-          opacity: 'var(--islands-field-disabled-opacity, 0.5)',
-          cursor: 'var(--islands-field-disabled-cursor, not-allowed)',
+          opacity: 'var(--yoya-field-disabled-opacity, 0.5)',
+          cursor: 'var(--yoya-field-disabled-cursor, not-allowed)',
           pointerEvents: 'none',
         });
       } else {
@@ -12002,7 +12303,7 @@ class VField extends Tag {
     this.registerStateHandler('loading', (loading, host) => {
       host.clearStateStyles();
       host.style('pointerEvents', loading ? 'none' : 'auto');
-      host.style('opacity', loading ? 'var(--islands-field-loading-opacity, 0.7)' : '1');
+      host.style('opacity', loading ? 'var(--yoya-field-loading-opacity, 0.7)' : '1');
     });
   }
 
@@ -12012,6 +12313,7 @@ class VField extends Tag {
   _buildShowEl(){
     // 内容
     this._showEl = div(c => {
+      c.className('yoya-field__show-el');
       c.styles({
         flex: 1,
         minWidth: 0,
@@ -12025,12 +12327,13 @@ class VField extends Tag {
   _buildEditIcon(){
     // 编辑图标
     this._editIcon = span(e => {
+      e.className('yoya-field__edit-icon');
       e.styles({
-        fontSize: 'var(--islands-field-edit-icon-size, 14px)',
-        color: 'var(--islands-field-edit-icon-color, #999)',
+        fontSize: 'var(--yoya-field-edit-icon-size, 14px)',
+        color: 'var(--yoya-field-edit-icon-color, #999)',
         opacity: '0',
         transition: 'opacity 0.2s',
-        marginLeft: 'var(--islands-field-edit-icon-margin, 4px)',
+        marginLeft: 'var(--yoya-field-edit-icon-margin, 4px)',
         cursor: 'pointer',
       });
       e.html('📝');
@@ -12044,15 +12347,17 @@ class VField extends Tag {
     this._buildShowEl();
     this._buildEditIcon();
     this._showContainer = div(s => {
+      s.className('yoya-field__show-container');
       s.styles({
         display: 'flex',
         alignItems: 'center',
-        gap: 'var(--islands-field-show-gap, 4px)',
-        height: 'var(--islands-field-show-height, 32px)',
-        padding: 'var(--islands-field-show-padding, 8px 12px)',
-        borderRadius: 'var(--islands-field-radius, 6px)',
-        border: 'var(--islands-field-show-border, 1px solid transparent)',
-        background: 'var(--islands-field-show-bg, transparent)',
+        gap: 'var(--yoya-field-show-gap, 4px)',
+        height: 'var(--yoya-field-show-height, 32px)',
+        padding: 'var(--yoya-field-show-padding, 8px 12px)',
+        borderRadius: 'var(--yoya-field-radius, 6px)',
+        border: 'var(--yoya-field-show-border, 1px solid transparent)',
+        background: 'var(--yoya-field-show-bg, transparent)',
+        color: 'var(--yoya-field-text-color, var(--yoya-text, #333))',
         boxSizing: 'border-box',
         transition: 'background-color 0.2s, border-color 0.2s',
       });
@@ -12093,6 +12398,7 @@ class VField extends Tag {
   _buildEditEl(){
     // 编辑内容
     this._editEl = div(c => {
+      c.className('yoya-field__edit-el');
       c.styles({
         flex: 1,
         minWidth: 0,
@@ -12106,48 +12412,51 @@ class VField extends Tag {
   _buildBtnContainer(){
     let that = this;
     this._btnContainer = div(a => {
+      a.className('yoya-field__btn-container');
       a.styles({
         display: 'flex',
-        gap: 'var(--islands-field-btn-gap, 4px)',
+        gap: 'var(--yoya-field-btn-gap, 4px)',
       });
       a.child(button(save => {
+        save.className('yoya-field__btn-save');
         save.styles({
-          minWidth: 'var(--islands-field-btn-size, 24px)',
-          height: 'var(--islands-field-btn-size, 24px)',
-          padding: 'var(--islands-field-btn-padding, 0 6px)',
-          border: 'var(--islands-field-save-border, 1px solid #28a745)',
-          borderRadius: 'var(--islands-field-btn-radius, 4px)',
-          background: 'var(--islands-field-save-bg, #28a745)',
-          color: 'var(--islands-field-save-color, white)',
-          fontSize: 'var(--islands-field-btn-font-size, 11px)',
+          minWidth: 'var(--yoya-field-btn-size, 24px)',
+          height: 'var(--yoya-field-btn-size, 24px)',
+          padding: 'var(--yoya-field-btn-padding, 0 6px)',
+          border: 'var(--yoya-field-save-border, 1px solid #28a745)',
+          borderRadius: 'var(--yoya-field-btn-radius, 4px)',
+          background: 'var(--yoya-field-save-bg, #28a745)',
+          color: 'var(--yoya-field-save-color, white)',
+          fontSize: 'var(--yoya-field-btn-font-size, 11px)',
           cursor: 'pointer',
           transition: 'all 0.2s',
         });
         save.text('✓');
         save.on('mouseenter', () => {
           save.styles({
-            background: 'var(--islands-field-save-hover-bg, #218838)',
+            background: 'var(--yoya-field-save-hover-bg, #218838)',
           });
         });
         save.on('click', (ev) => { ev.stopPropagation(); that._handleSave(); });
       }));
       a.child(button(cancel => {
+        cancel.className('yoya-field__btn-cancel');
         cancel.styles({
-          minWidth: 'var(--islands-field-btn-size, 24px)',
-          height: 'var(--islands-field-btn-size, 24px)',
-          padding: 'var(--islands-field-btn-padding, 0 6px)',
-          border: 'var(--islands-field-cancel-border, 1px solid #e0e0e0)',
-          borderRadius: 'var(--islands-field-btn-radius, 4px)',
-          background: 'var(--islands-field-cancel-bg, white)',
-          color: 'var(--islands-field-cancel-color, #666)',
-          fontSize: 'var(--islands-field-btn-font-size, 11px)',
+          minWidth: 'var(--yoya-field-btn-size, 24px)',
+          height: 'var(--yoya-field-btn-size, 24px)',
+          padding: 'var(--yoya-field-btn-padding, 0 6px)',
+          border: 'var(--yoya-field-cancel-border, 1px solid var(--yoya-border, #e0e0e0))',
+          borderRadius: 'var(--yoya-field-btn-radius, 4px)',
+          background: 'var(--yoya-field-cancel-bg, var(--yoya-bg-secondary, #f7f8fa))',
+          color: 'var(--yoya-field-cancel-color, var(--yoya-text-secondary, #666))',
+          fontSize: 'var(--yoya-field-btn-font-size, 11px)',
           cursor: 'pointer',
           transition: 'all 0.2s',
         });
         cancel.text('✕');
         cancel.on('mouseenter', () => {
           cancel.styles({
-            background: 'var(--islands-field-cancel-hover-bg, #f5f5f5)',
+            background: 'var(--yoya-field-cancel-hover-bg, var(--yoya-bg-tertiary, #f0f0f0))',
           });
         });
         cancel.on('click', (ev) => { ev.stopPropagation(); that._handleCancel(); });
@@ -12158,17 +12467,19 @@ class VField extends Tag {
     this._buildEditEl();
     this._buildBtnContainer();
     this._editContainer = div(e => {
+      e.className('yoya-field__edit-container');
       e.styles({
         display: 'none',
         alignItems: 'center',
-        gap: 'var(--islands-field-edit-gap, 6px)',
+        gap: 'var(--yoya-field-edit-gap, 6px)',
         width: '100%',
         boxSizing: 'border-box',
-        padding: 'var(--islands-field-edit-padding, 4px)',
-        background: 'var(--islands-field-edit-bg, white)',
-        borderRadius: 'var(--islands-field-radius, 6px)',
-        border: 'var(--islands-field-edit-border, 1px solid var(--islands-border, #e0e0e0))',
-        boxShadow: 'var(--islands-field-edit-shadow, 0 2px 8px rgba(0,0,0,0.1))',
+        padding: 'var(--yoya-field-edit-padding, 4px)',
+        background: 'var(--yoya-field-edit-bg, var(--yoya-bg-secondary, #f7f8fa))',
+        borderRadius: 'var(--yoya-field-radius, 6px)',
+        border: 'var(--yoya-field-edit-border, 1px solid var(--yoya-border, #e0e0e0))',
+        boxShadow: 'var(--yoya-field-edit-shadow, 0 2px 8px rgba(0,0,0,0.1))',
+        color: 'var(--yoya-field-text-color, var(--yoya-text, #333))',
       });
       e.child(this._editEl);
       // 按钮（手动保存模式）
@@ -12428,6 +12739,412 @@ Tag.prototype.vField = function(setup = null) {
 };
 
 /**
+ * Yoya.Basic - Switchers 分段控制器组件
+ * 用于在一组互斥选项中选择一个，类似 segmented control / radio group 的横向按钮样式
+ * @module Yoya.Switchers
+ * @example
+ * // 基础用法
+ * import { vSwitchers } from '../yoya/index.js';
+ *
+ * vSwitchers(s => {
+ *   s.options([
+ *     { value: 'day', label: '日' },
+ *     { value: 'week', label: '周' },
+ *     { value: 'month', label: '月' },
+ *   ]);
+ *   s.value('week');
+ *   s.onChange((value) => {
+ *     console.log('选中：', value);
+ *   });
+ * });
+ *
+ * // 自定义尺寸
+ * vSwitchers(s => {
+ *   s.options(['小', '中', '大']);
+ *   s.size('small'); // 'small' | 'medium' | 'large'
+ * });
+ *
+ * // 带禁用项
+ * vSwitchers(s => {
+ *   s.options([
+ *     { value: 'opt1', label: '选项 1' },
+ *     { value: 'opt2', label: '选项 2', disabled: true },
+ *     { value: 'opt3', label: '选项 3' },
+ *   ]);
+ *   s.value('opt1');
+ * });
+ */
+
+
+// ============================================
+// VSwitchers 分段控制器
+// ============================================
+
+/**
+ * VSwitchers 分段控制器
+ * 支持单选、多选、禁用项、尺寸调整等
+ * @class
+ * @extends Tag
+ */
+class VSwitchers extends Tag {
+  static _stateAttrs = ['disabled'];
+
+  /**
+   * 创建 VSwitchers 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(setup = null) {
+    super('div', null);
+
+    // 内部引用
+    this._items = [];
+    this._selectedValue = null;
+    this._selectedValues = []; // 多选模式
+    this._options = [];
+    this._multiple = false;
+    this._onChange = null;
+    this._size = 'medium';
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      disabled: false,
+    });
+
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-switchers');
+
+    // 4. 保存基础样式快照
+    this.saveBaseStylesSnapshot();
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 注册状态处理器
+   * @private
+   */
+  _registerStateHandlers() {
+    // disabled 状态
+    this.registerStateHandler('disabled', (enabled, host) => {
+      if (enabled) {
+        host.addClass('yoya-switchers--disabled');
+      } else {
+        host.removeClass('yoya-switchers--disabled');
+      }
+      // 同步更新所有选项的禁用状态
+      host._updateAllItemsDisabled();
+    });
+  }
+
+  /**
+   * 同步更新所有选项的禁用状态
+   * @private
+   */
+  _updateAllItemsDisabled() {
+    const isDisabled = this.hasState('disabled');
+    this._items.forEach((item, index) => {
+      const option = this._options[index];
+      if (option && !option.disabled) {
+        // 选项本身不禁用，但容器禁用
+        if (isDisabled) {
+          item.addClass('yoya-switchers__item--disabled');
+        } else {
+          item.removeClass('yoya-switchers__item--disabled');
+        }
+      }
+    });
+  }
+
+  /**
+   * 设置选项
+   * @param {Array} options - 选项数组（支持字符串或对象 {value, label, disabled}）
+   * @returns {this}
+   */
+  options(options) {
+    if (options === undefined) return this._options;
+
+    this._options = options.map(opt => {
+      if (typeof opt === 'string') {
+        return { value: opt, label: opt, disabled: false };
+      }
+      return {
+        value: opt.value || opt.label || '',
+        label: opt.label || opt.value || '',
+        disabled: opt.disabled || false,
+      };
+    });
+
+    this._renderItems();
+    return this;
+  }
+
+  /**
+   * 渲染选项项
+   * @private
+   */
+  _renderItems() {
+    // 清空现有项
+    this._items = [];
+    this.clear();
+
+    this._options.forEach((option, index) => {
+      const item = this._createItem(option, index);
+      this._items.push(item);
+      this.child(item);
+    });
+
+    // 如果有已选值，更新选中状态
+    if (this._multiple && this._selectedValues.length > 0) {
+      this._updateSelectedState();
+    } else if (!this._multiple && this._selectedValue !== null) {
+      this._updateSelectedState();
+    }
+  }
+
+  /**
+   * 创建选项项
+   * @param {Object} option - 选项配置
+   * @param {number} index - 索引
+   * @returns {Tag} 选项元素
+   * @private
+   */
+  _createItem(option, index) {
+    const item = div(i => {
+      i.addClass('yoya-switchers__item');
+      i.text(option.label);
+
+      // 如果选项本身禁用或容器禁用，添加禁用样式
+      if (option.disabled || this.hasState('disabled')) {
+        i.addClass('yoya-switchers__item--disabled');
+      }
+
+      // 点击事件
+      if (!option.disabled && !this.hasState('disabled')) {
+        i.on('click', () => {
+          this._handleItemClick(option, index);
+        });
+      }
+    });
+
+    return item;
+  }
+
+  /**
+   * 处理选项点击
+   * @param {Object} option - 选项配置
+   * @param {number} index - 索引
+   * @private
+   */
+  _handleItemClick(option, index) {
+    if (this._multiple) {
+      // 多选模式
+      const valueIndex = this._selectedValues.indexOf(option.value);
+      if (valueIndex > -1) {
+        // 取消选中
+        this._selectedValues.splice(valueIndex, 1);
+      } else {
+        // 选中
+        this._selectedValues.push(option.value);
+      }
+      this._updateSelectedState();
+      if (this._onChange) {
+        this._onChange([...this._selectedValues], option, index);
+      }
+    } else {
+      // 单选模式
+      if (this._selectedValue === option.value) {
+        return; // 已选中，不重复触发
+      }
+      this._selectedValue = option.value;
+      this._updateSelectedState();
+      if (this._onChange) {
+        this._onChange(option.value, option, index);
+      }
+    }
+  }
+
+  /**
+   * 更新选中状态
+   * @private
+   */
+  _updateSelectedState() {
+    this._items.forEach((item, index) => {
+      const option = this._options[index];
+      if (!option) return;
+
+      if (this._multiple) {
+        const isSelected = this._selectedValues.indexOf(option.value) > -1;
+        if (isSelected) {
+          item.addClass('yoya-switchers__item--active');
+        } else {
+          item.removeClass('yoya-switchers__item--active');
+        }
+      } else {
+        if (option.value === this._selectedValue) {
+          item.addClass('yoya-switchers__item--active');
+        } else {
+          item.removeClass('yoya-switchers__item--active');
+        }
+      }
+    });
+  }
+
+  /**
+   * 设置/获取选中值
+   * @param {string|Array} value - 选中值（多选时为数组）
+   * @returns {this|*}
+   */
+  value(value) {
+    if (value === undefined) {
+      return this._multiple ? [...this._selectedValues] : this._selectedValue;
+    }
+
+    if (this._multiple) {
+      this._selectedValues = Array.isArray(value) ? [...value] : [value];
+    } else {
+      this._selectedValue = value;
+    }
+
+    this._updateSelectedState();
+    return this;
+  }
+
+  /**
+   * 设置多选模式
+   * @param {boolean} multiple - 是否多选
+   * @returns {this}
+   */
+  multiple(multiple) {
+    if (multiple === undefined) return this._multiple;
+    this._multiple = multiple;
+    return this;
+  }
+
+  /**
+   * 设置禁用状态
+   * @param {boolean} disabled - 是否禁用
+   * @returns {this}
+   */
+  disabled(disabled) {
+    return this.setState('disabled', disabled);
+  }
+
+  /**
+   * 设置尺寸
+   * @param {string} size - 'small' | 'medium' | 'large'
+   * @returns {this}
+   */
+  size(size) {
+    if (size === undefined) return this._size;
+
+    // 移除旧尺寸类
+    this.removeClass('yoya-switchers--small')
+        .removeClass('yoya-switchers--medium')
+        .removeClass('yoya-switchers--large');
+
+    this._size = size;
+
+    // 添加新尺寸类
+    if (size === 'small' || size === 'medium' || size === 'large') {
+      this.addClass(`yoya-switchers--${size}`);
+    } else {
+      this.addClass('yoya-switchers--medium');
+    }
+
+    return this;
+  }
+
+  /**
+   * 设置变化事件回调
+   * @param {Function} callback - 回调函数
+   * @returns {this}
+   */
+  onChange(callback) {
+    if (typeof callback === 'function') {
+      this._onChange = callback;
+    }
+    return this;
+  }
+
+  /**
+   * 设置背景色
+   * @param {string} color - 颜色值
+   * @returns {this}
+   */
+  background(color) {
+    if (color === undefined) return this.style('background-color');
+    this.style('background-color', color);
+    return this;
+  }
+
+  /**
+   * 设置内边距
+   * @param {string} value - 内边距值
+   * @returns {this}
+   */
+  padding(value) {
+    if (value === undefined) return this.style('padding');
+    this.style('padding', value);
+    return this;
+  }
+
+  /**
+   * 设置外边距
+   * @param {string} value - 外边距值
+   * @returns {this}
+   */
+  margin(value) {
+    if (value === undefined) return this.style('margin');
+    this.style('margin', value);
+    return this;
+  }
+
+  /**
+   * 设置宽度
+   * @param {string} value - 宽度值
+   * @returns {this}
+   */
+  width(value) {
+    if (value === undefined) return this.style('width');
+    this.style('width', value);
+    return this;
+  }
+}
+
+/**
+ * 创建 VSwitchers 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VSwitchers}
+ */
+function vSwitchers(setup = null) {
+  return new VSwitchers(setup);
+}
+
+// ============================================
+// Tag 原型扩展方法
+// ============================================
+
+/**
+ * Tag 原型扩展 - 添加 vSwitchers 子元素
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {this}
+ */
+Tag.prototype.vSwitchers = function(setup = null) {
+  const el = vSwitchers(setup);
+  this.child(el);
+  return this;
+};
+
+/**
  * Yoya.Basic - Body 组件
  * 页面整体背景容器
  */
@@ -12457,39 +13174,34 @@ class VBody extends Tag {
     // 初始化状态
     this.initializeStates({ fullscreen: true });
 
-    // 应用基础样式（使用主题变量）
-    this.styles({
-      // 背景色
-      background: 'var(--islands-body-bg, var(--islands-bg, white))',
-      backgroundColor: 'var(--islands-body-bg-color, var(--islands-body-bg, var(--islands-bg, white)))',
+    // 应用基础 CSS 类
+    this.addClass('yoya-body');
+    this.addClass('yoya-body--fullscreen');
 
-      // 最小高度
-      minHeight: 'var(--islands-body-min-height, 100vh)',
+    // 注册状态处理器
+    this._registerStateHandlers();
 
-      // 宽度
-      width: 'var(--islands-body-width, 100%)',
-
-      // 布局
-      display: 'var(--islands-body-display, flex)',
-      flexDirection: 'var(--islands-body-flex-direction, column)',
-      alignItems: 'var(--islands-body-align-items, stretch)',
-
-      // 内边距
-      padding: 'var(--islands-body-padding, 0)',
-      margin: 'var(--islands-body-margin, 0)',
-      boxSizing: 'border-box',
-
-      // 过渡效果
-      transition: 'background-color 0.3s ease, min-height 0.3s ease',
-    });
-
-    // 应用组件基础样式
-    this._applyThemeBaseStyles();
+    // 监听主题变化
+    this._setupThemeListener();
 
     // 执行 setup
     if (setup) {
       this.setup(setup);
     }
+  }
+
+  /**
+   * 监听主题变化事件
+   */
+  _setupThemeListener() {
+    if (typeof window === 'undefined') return;
+
+    this._themeChangeListener = (e) => {
+      // 主题变化时重新应用样式
+      this._applyThemeBaseStyles();
+    };
+
+    window.addEventListener('theme-changed', this._themeChangeListener);
   }
 
   /**
@@ -12540,9 +13252,6 @@ class VBody extends Tag {
    */
   fullscreen(enabled) {
     this.setState('fullscreen', enabled);
-    if (enabled) {
-      this.style('minHeight', 'var(--islands-body-min-height, 100vh)');
-    }
     return this;
   }
 
@@ -12552,7 +13261,16 @@ class VBody extends Tag {
    * @returns {VBody} this
    */
   align(align) {
-    this.style('alignItems', align);
+    this.removeClass('yoya-body--align-top', 'yoya-body--align-bottom', 'yoya-body--align-stretch', 'yoya-body--center');
+    if (align === 'top') {
+      this.addClass('yoya-body--align-top');
+    } else if (align === 'bottom') {
+      this.addClass('yoya-body--align-bottom');
+    } else if (align === 'center') {
+      this.addClass('yoya-body--center');
+    } else {
+      this.addClass('yoya-body--align-stretch');
+    }
     return this;
   }
 
@@ -12561,8 +13279,7 @@ class VBody extends Tag {
    * @returns {VBody} this
    */
   center() {
-    this.style('alignItems', 'center')
-      .style('justifyContent', 'center');
+    this.addClass('yoya-body--center');
     return this;
   }
 
@@ -12599,15 +13316,22 @@ class VBody extends Tag {
     // fullscreen 状态处理器
     this.registerStateHandler('fullscreen', (enabled, host) => {
       if (enabled) {
-        host.styles({
-          minHeight: 'var(--islands-body-min-height, 100vh)',
-          width: 'var(--islands-body-width, 100%)',
-        });
+        host.addClass('yoya-body--fullscreen');
       } else {
-        host.style('minHeight', '');
-        host.style('width', '');
+        host.removeClass('yoya-body--fullscreen');
       }
     });
+  }
+
+  /**
+   * 销毁组件，清理事件监听
+   */
+  destroy() {
+    // 移除主题变化监听器
+    if (this._themeChangeListener && typeof window !== 'undefined') {
+      window.removeEventListener('theme-changed', this._themeChangeListener);
+    }
+    super.destroy();
   }
 }
 
@@ -12680,9 +13404,9 @@ class VTable extends Tag {
     this.styles({
       width: '100%',
       borderCollapse: 'collapse',
-      fontSize: 'var(--islands-table-font-size, 14px)',
-      color: 'var(--islands-table-text, var(--islands-text))',
-      background: 'var(--islands-table-bg, var(--islands-bg))',
+      fontSize: 'var(--yoya-table-font-size, 14px)',
+      color: 'var(--yoya-table-text, var(--yoya-text))',
+      background: 'var(--yoya-table-bg, var(--yoya-bg))',
     });
   }
 
@@ -12691,7 +13415,7 @@ class VTable extends Tag {
     this.registerStateHandler('bordered', (enabled, host) => {
       if (enabled) {
         host.styles({
-          border: '1px solid var(--islands-table-border, var(--islands-border))',
+          border: '1px solid var(--yoya-table-border, var(--yoya-border))',
         });
       } else {
         host.style('border', '');
@@ -12704,9 +13428,9 @@ class VTable extends Tag {
       const el = host._boundElement || host._el;
       if (el) {
         if (enabled) {
-          el.style.setProperty('--islands-table-striped-bg', 'var(--islands-bg-secondary)');
+          el.style.setProperty('--yoya-table-striped-bg', 'var(--yoya-bg-secondary)');
         } else {
-          el.style.removeProperty('--islands-table-striped-bg');
+          el.style.removeProperty('--yoya-table-striped-bg');
         }
       }
       // 通知所有 VTr 子元素更新样式
@@ -12719,9 +13443,9 @@ class VTable extends Tag {
       const el = host._boundElement || host._el;
       if (el) {
         if (enabled) {
-          el.style.setProperty('--islands-table-hover-bg', 'var(--islands-hover-bg)');
+          el.style.setProperty('--yoya-table-hover-bg', 'var(--yoya-hover-bg)');
         } else {
-          el.style.removeProperty('--islands-table-hover-bg');
+          el.style.removeProperty('--yoya-table-hover-bg');
         }
       }
       // 通知所有 VTr 子元素更新样式
@@ -12733,9 +13457,9 @@ class VTable extends Tag {
       const el = host._boundElement || host._el;
       if (el) {
         if (enabled) {
-          el.style.setProperty('--islands-table-cell-padding', '8px 12px');
+          el.style.setProperty('--yoya-table-cell-padding', '8px 12px');
         } else {
-          el.style.removeProperty('--islands-table-cell-padding');
+          el.style.removeProperty('--yoya-table-cell-padding');
         }
       }
     });
@@ -12814,8 +13538,8 @@ class VThead extends Tag {
     super('thead', null);
 
     this.styles({
-      background: 'var(--islands-table-head-bg, var(--islands-bg-secondary))',
-      borderBottom: '2px solid var(--islands-table-border, var(--islands-border))',
+      background: 'var(--yoya-table-head-bg, var(--yoya-bg-secondary))',
+      borderBottom: '2px solid var(--yoya-table-border, var(--yoya-border))',
     });
 
     if (setup !== null) {
@@ -12868,7 +13592,7 @@ class VTbody extends Tag {
     super('tbody', null);
 
     this.styles({
-      background: 'var(--islands-table-body-bg, var(--islands-bg))',
+      background: 'var(--yoya-table-body-bg, var(--yoya-bg))',
     });
 
     if (setup !== null) {
@@ -12921,8 +13645,8 @@ class VTfoot extends Tag {
     super('tfoot', null);
 
     this.styles({
-      background: 'var(--islands-table-foot-bg, var(--islands-bg-secondary))',
-      borderTop: '2px solid var(--islands-table-border, var(--islands-border))',
+      background: 'var(--yoya-table-foot-bg, var(--yoya-bg-secondary))',
+      borderTop: '2px solid var(--yoya-table-border, var(--yoya-border))',
     });
 
     if (setup !== null) {
@@ -13008,7 +13732,7 @@ class VTr extends Tag {
     this.registerStateHandler('isEvenRow', (isEven, host) => {
       // 只有当 striped 状态启用且是偶数行时才应用背景色
       if (isEven && host.hasState('striped')) {
-        host.style('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+        host.style('background', 'var(--yoya-table-striped-bg, var(--yoya-bg-secondary))');
         host._hasStripedBg = true;
       } else {
         host.style('background', '');
@@ -13019,7 +13743,7 @@ class VTr extends Tag {
     // striped 状态 - 重新应用偶数行样式
     this.registerStateHandler('striped', (enabled, host) => {
       if (enabled && host.hasState('isEvenRow')) {
-        host.style('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+        host.style('background', 'var(--yoya-table-striped-bg, var(--yoya-bg-secondary))');
         host._hasStripedBg = true;
       } else {
         if (!host.hasState('hoverable')) {
@@ -13047,14 +13771,14 @@ class VTr extends Tag {
         host._mouseenterHandler = () => {
           // 直接设置 DOM 元素的 style.setProperty 来覆盖简写属性
           if (host._el) {
-            host._el.style.setProperty('background', 'var(--islands-table-hover-bg, var(--islands-hover-bg))');
+            host._el.style.setProperty('background', 'var(--yoya-table-hover-bg, var(--yoya-hover-bg))');
           }
         };
         host._mouseleaveHandler = () => {
           // 若有条纹且是偶数行，恢复条纹色；否则恢复透明
           if (host._hasStripedBg) {
             if (host._el) {
-              host._el.style.setProperty('background', 'var(--islands-table-striped-bg, var(--islands-bg-secondary))');
+              host._el.style.setProperty('background', 'var(--yoya-table-striped-bg, var(--yoya-bg-secondary))');
             }
           } else {
             if (host._el) {
@@ -13094,11 +13818,11 @@ class VTh extends Tag {
     super('th', null);
 
     this.styles({
-      padding: 'var(--islands-table-head-padding, 12px 16px)',
+      padding: 'var(--yoya-table-head-padding, 12px 16px)',
       textAlign: 'left',
       fontWeight: '600',
-      color: 'var(--islands-table-head-color, var(--islands-text))',
-      borderBottom: '2px solid var(--islands-table-border, var(--islands-border))',
+      color: 'var(--yoya-table-head-color, var(--yoya-text))',
+      borderBottom: '2px solid var(--yoya-table-border, var(--yoya-border))',
       whiteSpace: 'nowrap',
     });
 
@@ -13121,9 +13845,9 @@ class VTd extends Tag {
     super('td', null);
 
     this.styles({
-      padding: 'var(--islands-table-cell-padding, 12px 16px)',
-      borderBottom: '1px solid var(--islands-table-row-border, var(--islands-border))',
-      color: 'var(--islands-table-cell-color, var(--islands-text))',
+      padding: 'var(--yoya-table-cell-padding, 12px 16px)',
+      borderBottom: '1px solid var(--yoya-table-row-border, var(--yoya-border))',
+      color: 'var(--yoya-table-cell-color, var(--yoya-text))',
       verticalAlign: 'middle',
     });
 
@@ -13337,9 +14061,9 @@ class VEchart extends Tag {
       if (loading) {
         this._chartInstance.showLoading({
           text: text,
-          color: 'var(--islands-primary-color, #5470c6)',
-          textColor: 'var(--islands-text-color, #333)',
-          maskColor: 'var(--islands-mask-bg, rgba(255, 255, 255, 0.8))',
+          color: 'var(--yoya-primary-color, #5470c6)',
+          textColor: 'var(--yoya-text-color, #333)',
+          maskColor: 'var(--yoya-mask-bg, rgba(255, 255, 255, 0.8))',
           lineWidth: 2,
         });
       } else {
@@ -13581,462 +14305,2510 @@ Tag.prototype.vEchart = function(setup = null) {
 };
 
 /**
- * Yoya.Basic - 主题变量配置
- * 所有组件支持的主题变量列表
+ * Yoya.Basic - Router 路由组件
+ * 基于 URL Hash 的简单路由系统，支持路由匹配、参数提取、导航守卫
+ * @module Yoya.Router
+ * @example
+ * // 基础用法
+ * import { vRouter, vRoute, vLink } from '../yoya/index.js';
  *
- * 使用方式：在 CSS 中定义这些变量，或在 JavaScript 中通过 style.setProperty 设置
+ * vRouter(r => {
+ *   r.mode('hash');  // hash 模式（默认）
+ *   r.default('/home');
+ *
+ *   r.route('/home', h => {
+ *     h.component(() => div('首页内容'));
+ *   });
+ *
+ *   r.route('/user/:id', h => {
+ *     h.component((params) => div(`用户 ID: ${params.id}`));
+ *   });
+ *
+ *   r.route('/about', {
+ *     component: () => div('关于页面'),
+ *     beforeEnter: (to, from) => {
+ *       console.log('即将进入关于页面');
+ *       return true; // 返回 false 可阻止导航
+ *     }
+ *   });
+ * });
+ *
+ * // 导航链接
+ * vLink('/home', '首页');
+ * vLink('/user/123', '用户详情');
  */
 
-// ============================================
-// 基础主题变量
-// ============================================
-
-const baseVariables = {
-  // 主色
-  '--islands-primary': '#667eea',
-  '--islands-primary-hover': '#5a6fd6',
-  '--islands-primary-alpha': 'rgba(102, 126, 234, 0.1)',
-
-  // 成功色
-  '--islands-success': '#28a745',
-  '--islands-success-hover': '#218838',
-
-  // 警告色
-  '--islands-warning': '#ffc107',
-  '--islands-warning-hover': '#e0a800',
-
-  // 错误色
-  '--islands-error': '#dc3545',
-  '--islands-error-hover': '#c82333',
-
-  // 背景色
-  '--islands-bg': 'white',
-  '--islands-bg-secondary': '#f7f8fa',
-
-  // 文本色
-  '--islands-text': '#333',
-  '--islands-text-secondary': '#666',
-
-  // 边框色
-  '--islands-border': '#e0e0e0',
-
-  // 间距
-  '--islands-padding-sm': '8px',
-  '--islands-padding-md': '16px',
-  '--islands-padding-lg': '24px',
-  '--islands-margin-md': '8px',
-  '--islands-gap-sm': '6px',
-  '--islands-gap-md': '12px',
-
-  // 圆角
-  '--islands-radius-sm': '4px',
-  '--islands-radius-md': '8px',
-  '--islands-radius-lg': '12px',
-
-  // 阴影
-  '--islands-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-
-  // 悬停背景
-  '--islands-hover-bg': 'rgba(102, 126, 234, 0.05)',
-};
 
 // ============================================
-// Card 卡片组件变量
-// ============================================
-
-const cardVariables = {
-  '--islands-card-bg': 'white',
-  '--islands-card-radius': '8px',
-  '--islands-card-shadow': '0 2px 8px rgba(0,0,0,0.1)',
-  '--islands-card-border': '1px solid transparent',
-  '--islands-card-hover-shadow': '0 4px 16px rgba(0,0,0,0.15)',
-
-  // 头部
-  '--islands-card-header-padding': '16px',
-  '--islands-card-header-border': '1px solid #e0e0e0',
-  '--islands-card-header-font-weight': '600',
-  '--islands-card-header-font-size': '16px',
-  '--islands-card-header-color': '#333',
-  '--islands-card-header-bg': 'transparent',
-
-  // 内容
-  '--islands-card-body-padding': '16px',
-  '--islands-card-body-font-size': '14px',
-  '--islands-card-body-color': '#333',
-  '--islands-card-body-bg': 'transparent',
-
-  // 底部
-  '--islands-card-footer-padding': '16px',
-  '--islands-card-footer-border': '1px solid #e0e0e0',
-  '--islands-card-footer-gap': '8px',
-  '--islands-card-footer-font-size': '14px',
-  '--islands-card-footer-color': '#666',
-  '--islands-card-footer-bg': 'transparent',
-};
-
-// ============================================
-// Button 按钮组件变量
-// ============================================
-
-const buttonVariables = {
-  '--islands-button-padding': '8px 16px',
-  '--islands-button-padding-sm': '4px 10px',
-  '--islands-button-padding-lg': '10px 20px',
-  '--islands-button-font-size': '14px',
-  '--islands-button-font-size-sm': '12px',
-  '--islands-button-font-size-lg': '16px',
-  '--islands-button-height': '32px',
-  '--islands-button-height-sm': '24px',
-  '--islands-button-height-lg': '40px',
-  '--islands-button-min-width': '64px',
-  '--islands-button-radius': '6px',
-};
-
-// ============================================
-// Menu 菜单组件变量
-// ============================================
-
-const menuVariables = {
-  // 菜单容器
-  '--islands-menu-bg': 'white',
-  '--islands-menu-radius': '8px',
-  '--islands-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-  '--islands-menu-padding': '8px 0',
-  '--islands-menu-min-width': '160px',
-  '--islands-menu-border': '1px solid #e0e0e0',
-
-  // 菜单项
-  '--islands-menu-item-padding': '10px',
-  '--islands-menu-item-horizontal-padding': '16px',
-  '--islands-menu-item-gap': '10px',
-  '--islands-menu-item-radius': '4px',
-  '--islands-menu-item-color': '#333',
-  '--islands-menu-item-font-size': '13px',
-  '--islands-menu-item-hover-bg': 'rgba(102, 126, 234, 0.05)',
-  '--islands-menu-item-active-bg': 'rgba(102, 126, 234, 0.1)',
-  '--islands-menu-item-active-font-weight': '500',
-  '--islands-menu-item-active-color': '#667eea',
-  '--islands-menu-item-disabled-opacity': '0.5',
-  '--islands-menu-item-disabled-cursor': 'not-allowed',
-  '--islands-menu-item-disabled-color': '#999',
-  '--islands-menu-item-danger-color': '#dc3545',
-
-  // 分割线
-  '--islands-menu-divider-height': '1px',
-  '--islands-menu-divider-bg': '#e0e0e0',
-  '--islands-menu-divider-margin': '8px',
-
-  // 菜单组
-  '--islands-menu-group-label-padding': '8px 16px 4px',
-  '--islands-menu-group-label-font-size': '12px',
-  '--islands-menu-group-label-color': '#999',
-  '--islands-menu-group-label-font-weight': '500',
-  '--islands-menu-group-label-letter-spacing': '0.5px',
-
-  // 下拉菜单
-  '--islands-dropdown-trigger-padding': '8px 16px',
-  '--islands-dropdown-trigger-bg': '#667eea',
-  '--islands-dropdown-trigger-color': 'white',
-  '--islands-dropdown-trigger-radius': '6px',
-  '--islands-dropdown-trigger-gap': '6px',
-  '--islands-dropdown-trigger-hover-bg': '#5a6fd6',
-  '--islands-dropdown-arrow-size': '10px',
-  '--islands-dropdown-menu-offset': '4px',
-  '--islands-dropdown-menu-min-width': '160px',
-  '--islands-dropdown-menu-bg': 'white',
-  '--islands-dropdown-menu-radius': '8px',
-  '--islands-dropdown-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-  '--islands-dropdown-menu-padding': '8px 0',
-  '--islands-dropdown-z-index': '1000',
-
-  // 右键菜单
-  '--islands-context-menu-z-index': '9999',
-  '--islands-context-menu-bg': 'white',
-  '--islands-context-menu-radius': '8px',
-  '--islands-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-  '--islands-context-menu-padding': '8px 0',
-  '--islands-context-menu-min-width': '160px',
-  '--islands-context-menu-border': '1px solid #e0e0e0',
-};
-
-// ============================================
-// Message 消息组件变量
-// ============================================
-
-const messageVariables = {
-  // 容器
-  '--islands-message-z-index': '9999',
-  '--islands-message-gap': '10px',
-  '--islands-message-container-padding': '16px',
-  '--islands-message-max-width': '420px',
-
-  // 消息体
-  '--islands-message-icon-size': '18px',
-  '--islands-message-icon-margin': '10px',
-  '--islands-message-font-size': '14px',
-  '--islands-message-line-height': '1.5',
-  '--islands-message-text-color': 'inherit',
-  '--islands-message-close-size': '20px',
-  '--islands-message-close-padding': '0 4px',
-  '--islands-message-close-opacity': '0.7',
-  '--islands-message-close-hover-opacity': '1',
-  '--islands-message-close-color': 'inherit',
-
-  // 成功消息
-  '--islands-message-success-bg': 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
-  '--islands-message-success-color': '#155724',
-  '--islands-message-success-border': '1px solid #c3e6cb',
-
-  // 错误消息
-  '--islands-message-error-bg': 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)',
-  '--islands-message-error-color': '#721c24',
-  '--islands-message-error-border': '1px solid #f5c6cb',
-
-  // 警告消息
-  '--islands-message-warning-bg': 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)',
-  '--islands-message-warning-color': '#856404',
-  '--islands-message-warning-border': '1px solid #ffeaa7',
-
-  // 信息消息
-  '--islands-message-info-bg': 'linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)',
-  '--islands-message-info-color': '#0c5460',
-  '--islands-message-info-border': '1px solid #bee5eb',
-};
-
-// ============================================
-// Code 代码组件变量
-// ============================================
-
-const codeVariables = {
-  // 容器
-  '--islands-code-bg': '#1e1e1e',
-  '--islands-code-radius': '8px',
-  '--islands-code-border': '1px solid rgba(255,255,255,0.1)',
-  '--islands-code-padding': '16px',
-  '--islands-code-font-size': '13px',
-  '--islands-code-line-height': '1.6',
-  '--islands-code-text-color': '#d4d4d4',
-  '--islands-code-font-family': '"Fira Code", "Consolas", "Monaco", monospace',
-
-  // 标题栏
-  '--islands-code-header-padding': '10px 16px',
-  '--islands-code-header-bg': 'rgba(255,255,255,0.05)',
-  '--islands-code-header-border': '1px solid rgba(255,255,255,0.1)',
-  '--islands-code-title-color': '#007acc',
-  '--islands-code-title-font-size': '13px',
-  '--islands-code-title-font-weight': '600',
-
-  // 复制按钮
-  '--islands-code-copy-padding': '4px 10px',
-  '--islands-code-copy-radius': '4px',
-  '--islands-code-copy-font-size': '12px',
-  '--islands-code-copy-bg': '#444',
-  '--islands-code-copy-color': '#ccc',
-  '--islands-code-copy-hover-bg': '#555',
-  '--islands-code-copy-hover-color': 'white',
-  '--islands-code-copy-success-bg': '#28a745',
-  '--islands-code-copy-success-color': 'white',
-
-  // 语法高亮
-  '--islands-code-token-comment': '#6a9955',
-  '--islands-code-token-keyword': '#569cd6',
-  '--islands-code-token-string': '#ce9178',
-  '--islands-code-token-function': '#dcdcaa',
-  '--islands-code-token-number': '#b5cea8',
-};
-
-// ============================================
-// Field 可编辑字段组件变量
-// ============================================
-
-const fieldVariables = {
-  // 基础
-  '--islands-field-gap': '6px',
-  '--islands-field-min-width': '80px',
-  '--islands-field-min-height': '32px',
-  '--islands-field-font-size': '14px',
-  '--islands-field-text-color': '#333',
-  '--islands-field-radius': '6px',
-
-  // 显示状态
-  '--islands-field-show-gap': '4px',
-  '--islands-field-show-height': '32px',
-  '--islands-field-show-padding': '8px 12px',
-  '--islands-field-show-bg': 'transparent',
-  '--islands-field-show-border': '1px solid transparent',
-  '--islands-field-show-hover-bg': 'rgba(0,0,0,0.03)',
-  '--islands-field-show-hover-border': '#e0e0e0',
-
-  // 编辑图标
-  '--islands-field-edit-icon-size': '12px',
-  '--islands-field-edit-icon-color': '#999',
-  '--islands-field-edit-icon-margin': '6px',
-
-  // 编辑状态
-  '--islands-field-edit-gap': '6px',
-  '--islands-field-edit-padding': '4px',
-  '--islands-field-edit-bg': 'white',
-  '--islands-field-edit-border': '1px solid #e0e0e0',
-  '--islands-field-edit-shadow': '0 2px 8px rgba(0,0,0,0.1)',
-
-  // 按钮
-  '--islands-field-btn-size': '24px',
-  '--islands-field-btn-padding': '0 6px',
-  '--islands-field-btn-radius': '4px',
-  '--islands-field-btn-font-size': '11px',
-  '--islands-field-btn-gap': '4px',
-  '--islands-field-save-bg': '#28a745',
-  '--islands-field-save-color': 'white',
-  '--islands-field-save-border': '1px solid #28a745',
-  '--islands-field-save-hover-bg': '#218838',
-  '--islands-field-cancel-bg': 'white',
-  '--islands-field-cancel-color': '#666',
-  '--islands-field-cancel-border': '1px solid #e0e0e0',
-  '--islands-field-cancel-hover-bg': '#f5f5f5',
-
-  // 状态
-  '--islands-field-disabled-opacity': '0.5',
-  '--islands-field-disabled-cursor': 'not-allowed',
-  '--islands-field-loading-opacity': '0.7',
-};
-
-// ============================================
-// Descriptions 详情组件变量
-// ============================================
-
-const descriptionsVariables = {
-  '--islands-descriptions-font-size': '14px',
-  '--islands-descriptions-text': '#333',
-  '--islands-descriptions-bg': 'transparent',
-
-  // 标题
-  '--islands-descriptions-title-padding': '12px 0',
-  '--islands-descriptions-title-size': '16px',
-  '--islands-descriptions-title-font-weight': '600',
-  '--islands-descriptions-title-color': '#333',
-  '--islands-descriptions-title-margin': '12px',
-
-  // 表格
-  '--islands-descriptions-padding': '12px 16px',
-  '--islands-descriptions-border': '#e0e0e0',
-
-  // 标签
-  '--islands-descriptions-label-bg': '#f7f8fa',
-  '--islands-descriptions-label-color': '#666',
-  '--islands-descriptions-label-font-weight': '500',
-  '--islands-descriptions-label-width': '120px',
-
-  // 内容
-  '--islands-descriptions-content-color': '#333',
-};
-
-// ============================================
-// Body 页面背景组件变量
-// ============================================
-
-const bodyVariables = {
-  // 背景
-  '--islands-body-bg': 'var(--islands-bg, white)',
-  '--islands-body-bg-color': 'var(--islands-body-bg, var(--islands-bg, white))',
-
-  // 尺寸
-  '--islands-body-min-height': '100vh',
-  '--islands-body-width': '100%',
-
-  // 布局
-  '--islands-body-display': 'flex',
-  '--islands-body-flex-direction': 'column',
-  '--islands-body-align-items': 'stretch',
-  '--islands-body-justify-content': 'flex-start',
-
-  // 间距
-  '--islands-body-padding': '0',
-  '--islands-body-margin': '0',
-
-  // 过渡
-  '--islands-body-transition': 'background-color 0.3s ease, min-height 0.3s ease',
-
-  // 全屏模式
-  '--islands-body-fullscreen-min-height': '100vh',
-  '--islands-body-fullscreen-width': '100%',
-};
-
-// ============================================
-// 导出所有变量
-// ============================================
-
-const allVariables = {
-  ...baseVariables,
-  ...cardVariables,
-  ...buttonVariables,
-  ...menuVariables,
-  ...messageVariables,
-  ...codeVariables,
-  ...fieldVariables,
-  ...descriptionsVariables,
-  ...bodyVariables,
-};
-
-// ============================================
-// 辅助函数：应用主题变量到指定元素
+// 工具函数
 // ============================================
 
 /**
- * 应用主题变量到指定元素
- * @param {HTMLElement} element - 目标元素
- * @param {Object} variables - 变量对象
+ * 解析 URL 参数
+ * @param {string} path - URL 路径
+ * @returns {Object} 参数对象
+ * @private
  */
-function applyVariables(element, variables) {
-  for (const [name, value] of Object.entries(variables)) {
-    element.style.setProperty(name, value);
+function parseParams(path) {
+  const params = {};
+  const queryString = path.split('?')[1];
+  if (!queryString) return params;
+
+  const pairs = queryString.split('&');
+  for (const pair of pairs) {
+    const [key, value] = pair.split('=');
+    if (key) {
+      params[decodeURIComponent(key)] = value ? decodeURIComponent(value) : '';
+    }
+  }
+  return params;
+}
+
+/**
+ * 匹配路由路径
+ * @param {string} pattern - 路由模式（如 /user/:id）
+ * @param {string} path - 实际路径
+ * @returns {Object|null} 匹配结果，包含 params
+ * @private
+ */
+function matchRoute(pattern, path) {
+  // 移除查询参数
+  const patternWithoutQuery = pattern.split('?')[0];
+  const pathWithoutQuery = path.split('?')[0];
+
+  const patternParts = patternWithoutQuery.split('/').filter(Boolean);
+  const pathParts = pathWithoutQuery.split('/').filter(Boolean);
+
+  if (patternParts.length !== pathParts.length) {
+    return null;
+  }
+
+  const params = {};
+  for (let i = 0; i < patternParts.length; i++) {
+    const patternPart = patternParts[i];
+    const pathPart = pathParts[i];
+
+    if (patternPart.startsWith(':')) {
+      // 动态参数
+      const paramName = patternPart.slice(1);
+      params[paramName] = pathPart;
+    } else if (patternPart !== pathPart) {
+      return null;
+    }
+  }
+
+  // 合并查询参数
+  Object.assign(params, parseParams(path));
+
+  return { params, path: pathWithoutQuery };
+}
+
+/**
+ * 获取当前 hash 路径
+ * @returns {string} 当前路径
+ * @private
+ */
+function getCurrentHashPath() {
+  const hash = window.location.hash.slice(1); // 去掉 #
+  return hash || '/';
+}
+
+/**
+ * 设置 hash 路径
+ * @param {string} path - 目标路径
+ * @private
+ */
+function setHashPath(path) {
+  window.location.hash = path;
+}
+
+// ============================================
+// VRouter 路由容器
+// ============================================
+
+/**
+ * VRouter 路由容器
+ * 管理路由配置和导航
+ * @class
+ * @extends Tag
+ */
+class VRouter extends Tag {
+  /**
+   * 创建 VRouter 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(setup = null) {
+    super('div', null);
+
+    this._routes = new Map(); // 路由配置
+    this._currentRoute = null; // 当前路由
+    this._currentParams = {}; // 当前路由参数
+    this._defaultPath = '/'; // 默认路径
+    this._mode = 'hash'; // 路由模式（仅支持 hash）
+    this._globalBeforeEnter = null; // 全局前置守卫
+    this._globalAfterEach = null; // 全局后置钩子
+    this._isNavigating = false; // 是否正在导航
+    this._view = null; // 路由视图容器
+    this._initialDispatchPending = true; // 标记初始派发是否待处理
+
+    // 基础样式
+    this.styles({
+      display: 'block',
+      minHeight: '100%',
+    });
+
+    if (setup !== null) {
+      this.setup(setup);
+    }
+
+    // 启动路由监听
+    this._startListening();
+
+    // 如果有默认路径且当前是根路径，跳转到默认路径
+    // 注意：实际的初始路由派发会等待 _view 被设置后执行
+    if (this._defaultPath && getCurrentHashPath() === '/') {
+      this.navigate(this._defaultPath, { replace: true });
+    }
+  }
+
+  /**
+   * 启动路由监听
+   * @private
+   */
+  _startListening() {
+    this._handleHashChange = () => {
+      this._dispatchRoute();
+    };
+    window.addEventListener('hashchange', this._handleHashChange);
+  }
+
+  /**
+   * 停止路由监听
+   * @private
+   */
+  _stopListening() {
+    if (this._handleHashChange) {
+      window.removeEventListener('hashchange', this._handleHashChange);
+    }
+  }
+
+  /**
+   * 派发路由
+   * @private
+   */
+  async _dispatchRoute() {
+    if (this._isNavigating) return;
+
+    const currentPath = getCurrentHashPath();
+
+    // 查找匹配的路由
+    let matchedRoute = null;
+    let matchResult = null;
+
+    for (const [pattern, route] of this._routes.entries()) {
+      matchResult = matchRoute(pattern, currentPath);
+      if (matchResult) {
+        matchedRoute = route;
+        break;
+      }
+    }
+
+    const from = this._currentRoute;
+    const to = matchedRoute ? { path: matchResult.path, pattern: matchedRoute.pattern, params: matchResult.params } : null;
+
+    // 全局前置守卫
+    if (this._globalBeforeEnter) {
+      const result = await this._globalBeforeEnter(to, from);
+      if (result === false) return;
+    }
+
+    // 路由守卫
+    if (matchedRoute && typeof matchedRoute.beforeEnter === 'function') {
+      const result = await matchedRoute.beforeEnter(to, from);
+      if (result === false) return;
+    }
+
+    // 更新当前路由
+    this._currentRoute = to;
+    this._currentParams = matchResult ? matchResult.params : {};
+
+    // 渲染路由组件
+    this._renderRoute(matchedRoute);
+
+    // 全局后置钩子
+    if (this._globalAfterEach) {
+      this._globalAfterEach(to, from);
+    }
+  }
+
+  /**
+   * 渲染路由组件
+   * @private
+   */
+  _renderRoute(route) {
+    let component = null;
+
+    if (!route) {
+      // 404 处理
+      component = div(div => {
+        div.style('text-align', 'center');
+        div.style('padding', '60px 20px');
+        div.h1(h => {
+          h.style('font-size', '72px');
+          h.style('color', 'var(--yoya-primary)');
+          h.text('404');
+        });
+        div.p(p => {
+          p.style('font-size', '18px');
+          p.style('color', '#888');
+          p.text('页面未找到');
+        });
+      });
+    } else if (route.component) {
+      // 创建组件实例
+      component = route.component(this._currentParams);
+    }
+
+    // 渲染到 VRouterView
+    if (this._view) {
+      this._view._render(component);
+    } else {
+      // 如果没有 VRouterView，直接渲染到自己
+      this._children = [];
+      if (component) {
+        this.child(component);
+      }
+    }
+  }
+
+  /**
+   * 导航到指定路径
+   * @param {string} path - 目标路径
+   * @param {Object} [options={}] - 导航选项
+   * @param {boolean} [options.replace=false] - 是否替换历史记录
+   * @returns {this}
+   */
+  navigate(path, options = {}) {
+    if (options.replace) {
+      window.history.replaceState(null, '', `#${path}`);
+      this._dispatchRoute();
+    } else {
+      setHashPath(path);
+    }
+    return this;
+  }
+
+  /**
+   * 前进/后退
+   * @param {number} delta - 步数
+   * @returns {this}
+   */
+  go(delta) {
+    window.history.go(delta);
+    return this;
+  }
+
+  /**
+   * 后退
+   * @returns {this}
+   */
+  back() {
+    return this.go(-1);
+  }
+
+  /**
+   * 前进
+   * @returns {this}
+   */
+  forward() {
+    return this.go(1);
+  }
+
+  /**
+   * 获取当前路径
+   * @returns {string}
+   */
+  currentPath() {
+    return getCurrentHashPath();
+  }
+
+  /**
+   * 获取当前路由参数
+   * @returns {Object}
+   */
+  currentParams() {
+    return this._currentParams;
+  }
+
+  /**
+   * 刷新当前路由
+   * @returns {this}
+   */
+  refresh() {
+    this._dispatchRoute();
+    return this;
+  }
+
+  /**
+   * 销毁路由器
+   */
+  destroy() {
+    this._stopListening();
+    super.destroy();
+  }
+
+  // ============================================
+  // 链式配置方法
+  // ============================================
+
+  /**
+   * 设置路由模式（仅支持 hash）
+   * @param {'hash'} mode - 路由模式
+   * @returns {this}
+   */
+  mode(mode) {
+    this._mode = mode;
+    return this;
+  }
+
+  /**
+   * 设置默认路径
+   * @param {string} path - 默认路径
+   * @returns {this}
+   */
+  default(path) {
+    this._defaultPath = path;
+    return this;
+  }
+
+  /**
+   * 添加路由
+   * @param {string} pattern - 路由模式
+   * @param {Object|Function} config - 路由配置
+   * @returns {this}
+   * @example
+   * r.route('/home', {
+   *   component: () => div('首页'),
+   *   beforeEnter: (to, from) => true
+   * });
+   * r.route('/user/:id', h => {
+   *   h.component((params) => div(`用户：${params.id}`));
+   * });
+   */
+  route(pattern, config) {
+    if (typeof config === 'function') {
+      // 函数式配置
+      const handler = {
+        component: null,
+        beforeEnter: null,
+        component(fn) {
+          this.component = fn;
+          return this;
+        },
+        beforeEnter(fn) {
+          this.beforeEnter = fn;
+          return this;
+        }
+      };
+      config(handler);
+      this._routes.set(pattern, {
+        pattern,
+        component: handler.component,
+        beforeEnter: handler.beforeEnter,
+      });
+    } else if (typeof config === 'object') {
+      // 对象配置
+      this._routes.set(pattern, {
+        pattern,
+        component: config.component,
+        beforeEnter: config.beforeEnter,
+      });
+    }
+    return this;
+  }
+
+  /**
+   * 设置全局前置守卫
+   * @param {Function} guard - 守卫函数
+   * @returns {this}
+   */
+  beforeEach(guard) {
+    this._globalBeforeEnter = guard;
+    return this;
+  }
+
+  /**
+   * 设置全局后置钩子
+   * @param {Function} hook - 钩子函数
+   * @returns {this}
+   */
+  afterEach(hook) {
+    this._globalAfterEach = hook;
+    return this;
   }
 }
 
 /**
- * 应用主题变量到根元素
- * @param {Object} variables - 变量对象
+ * 创建 VRouter 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VRouter}
  */
-function applyGlobalVariables(variables) {
-  const root = document.documentElement;
-  applyVariables(root, variables);
+function vRouter(setup = null) {
+  return new VRouter(setup);
+}
+
+// ============================================
+// VRoute 路由配置助手（可选，用于更清晰的配置）
+// ============================================
+
+/**
+ * VRoute 路由配置助手
+ * 用于更清晰地配置单个路由
+ * @class
+ */
+class VRoute {
+  constructor(pattern) {
+    this._pattern = pattern;
+    this._component = null;
+    this._beforeEnter = null;
+  }
+
+  component(fn) {
+    this._component = fn;
+    return this;
+  }
+
+  beforeEnter(fn) {
+    this._beforeEnter = fn;
+    return this;
+  }
+
+  build() {
+    return {
+      pattern: this._pattern,
+      component: this._component,
+      beforeEnter: this._beforeEnter,
+    };
+  }
 }
 
 /**
- * 创建暗色主题变量
+ * 创建 VRoute 实例
+ * @param {string} pattern - 路由模式
+ * @returns {VRoute}
  */
-function createDarkTheme$1() {
-  return {
-    '--islands-bg': '#1a1a1a',
-    '--islands-bg-secondary': '#2a2a2a',
-    '--islands-text': '#e0e0e0',
-    '--islands-text-secondary': '#a0a0a0',
-    '--islands-border': '#404040',
-    '--islands-card-bg': '#2a2a2a',
-    '--islands-menu-bg': '#2a2a2a',
-    '--islands-dropdown-menu-bg': '#2a2a2a',
-    '--islands-context-menu-bg': '#2a2a2a',
-    '--islands-field-edit-bg': '#2a2a2a',
-    '--islands-button-bg': '#3a3a3a',
-    '--islands-hover-bg': 'rgba(255,255,255,0.05)',
-  };
+function vRoute(pattern) {
+  return new VRoute(pattern);
+}
+
+// ============================================
+// VLink 导航链接组件
+// ============================================
+
+/**
+ * VLink 导航链接
+ * 用于创建路由跳转链接
+ * @class
+ * @extends Tag
+ */
+class VLink extends Tag {
+  /**
+   * 创建 VLink 实例
+   * @param {string} [to='/'] - 目标路径
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(to = '/', setup = null) {
+    super('a', null);
+
+    this._to = to;
+    this._replace = false;
+
+    // 基础样式
+    this.styles({
+      cursor: 'pointer',
+      textDecoration: 'none',
+      color: 'inherit',
+    });
+
+    // 设置 href
+    this.attr('href', `#${to}`);
+
+    // 绑定点击事件
+    this.on('click', (e) => {
+      e.preventDefault();
+      this._navigate();
+    });
+
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 执行导航
+   * @private
+   */
+  _navigate() {
+    if (this._replace) {
+      window.history.replaceState(null, '', `#${this._to}`);
+      window.dispatchEvent(new Event('hashchange'));
+    } else {
+      window.location.hash = this._to;
+    }
+  }
+
+  /**
+   * 设置目标路径
+   * @param {string} path - 路径
+   * @returns {this}
+   */
+  to(path) {
+    this._to = path;
+    this.attr('href', `#${path}`);
+    return this;
+  }
+
+  /**
+   * 使用 replace 模式（不产生历史记录）
+   * @param {boolean} [replace=true] - 是否替换历史
+   * @returns {this}
+   */
+  replace(replace = true) {
+    this._replace = replace;
+    return this;
+  }
 }
 
 /**
- * Yoya.Theme - 主题管理系统
- * 提供主题初始化、加载、切换等功能
+ * 创建 VLink 实例
+ * @param {string} [to='/'] - 目标路径
+ * @param {string|Function} [content=''] - 链接内容
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VLink}
+ */
+function vLink(to = '/', content = '', setup = null) {
+  if (typeof content === 'function') {
+    setup = content;
+    content = '';
+  }
+
+  const link = new VLink(to, setup);
+
+  if (content) {
+    link.text(content);
+  }
+
+  return link;
+}
+
+// ============================================
+// VRouterView 路由视图（用于在指定位置渲染路由内容）
+// ============================================
+
+/**
+ * VRouterView 路由视图
+ * 在指定位置渲染匹配的路由组件
+ * @class
+ * @extends Tag
+ */
+class VRouterView extends Tag {
+  /**
+   * 创建 VRouterView 实例
+   * @param {VRouter} router - 路由器实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(router, setup = null) {
+    super('div', null);
+
+    this._router = router;
+
+    // 基础样式
+    this.styles({
+      flex: 1,
+      display: 'block',
+    });
+
+    // 将 VRouterView 设置为路由器的渲染容器
+    router._view = this;
+
+    // 触发初始路由派发（如果之前有待处理的）
+    if (router._initialDispatchPending) {
+      router._initialDispatchPending = false;
+      // 等待微任务确保 DOM 准备就绪
+      Promise.resolve().then(() => {
+        router._dispatchRoute();
+      });
+    }
+
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 刷新视图（由路由器调用）
+   * @private
+   */
+  _render(component) {
+    // 清空子元素（包括真实 DOM）
+    this.clear();
+
+    if (component) {
+      this.child(component);
+    }
+  }
+}
+
+/**
+ * 创建 VRouterView 实例
+ * @param {VRouter} router - 路由器实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VRouterView}
+ */
+function vRouterView(router, setup = null) {
+  return new VRouterView(router, setup);
+}
+
+// ============================================
+// Tag 原型扩展
+// ============================================
+
+Tag.prototype.vRouter = function(setup = null) {
+  const router = vRouter(setup);
+  this.child(router);
+  return this;
+};
+
+Tag.prototype.vLink = function(to = '/', content = '', setup = null) {
+  const link = vLink(to, content, setup);
+  this.child(link);
+  return this;
+};
+
+Tag.prototype.vRouterView = function(router, setup = null) {
+  const view = vRouterView(router, setup);
+  this.child(view);
+  return this;
+};
+
+/**
+ * Yoya.Components - Tabs
+ * IDEA 风格的标签页组件，紧凑设计，优秀的标题与内容结合
  */
 
 
-// 主题注册表
-const themeRegistry = new Map();
+// ============================================
+// VTabs 标签页容器组件
+// ============================================
+
+class VTabs extends Tag {
+  static _stateAttrs = ['editable', 'closable', 'dragable', 'activeIndex'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      editable: false,
+      closable: true,
+      dragable: false,
+      activeIndex: 0,
+    });
+
+    // 3. 内部状态
+    this._tabs = [];
+    this._activeTab = null;
+    this._tabsHeader = null;
+    this._contentContainer = null;
+
+    // 4. 设置基础 CSS 类
+    this.addClass('yoya-tabs');
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 执行 setup
+    if (setup) {
+      this.setup(setup);
+    }
+  }
+
+  _registerStateHandlers() {
+    // closable 状态处理器
+    this.registerStateHandler('closable', (closable, host) => {
+      if (closable) {
+        host.addClass('yoya-tabs--closable');
+      } else {
+        host.removeClass('yoya-tabs--closable');
+      }
+    });
+  }
+
+  /**
+   * 添加标签页
+   * @param {string} id - 标签页唯一标识
+   * @param {string} title - 标签页标题
+   * @param {Function} content - 内容创建函数
+   * @param {Object} options - 选项 { icon, closable, data }
+   * @returns {VTabs} this
+   */
+  addTab(id, title, content, options = {}) {
+    const { icon = null, closable = true, data = {} } = options;
+
+    // 检查是否已存在
+    const existingIndex = this._tabs.findIndex((t) => t.id === id);
+    if (existingIndex >= 0) {
+      // 已存在则激活该标签页
+      this.setActiveTab(id);
+      return this;
+    }
+
+    // 延迟初始化 DOM 结构
+    this._ensureDom();
+
+    // 创建标签页数据
+    const tabData = {
+      id,
+      title,
+      icon,
+      closable,
+      data,
+      content,
+      el: null,
+      contentEl: null,
+      _closeBtn: null,
+    };
+
+    this._tabs.push(tabData);
+
+    // 创建标签元素
+    const tabEl = this._createTabElement(tabData);
+    this._tabsHeader.child(tabEl);
+    tabData.el = tabEl;
+
+    // 创建内容元素（隐藏）
+    const contentEl = this._createTabContent(tabData);
+    this._contentContainer.child(contentEl);
+    tabData.contentEl = contentEl;
+
+    // 如果是第一个标签页或当前没有激活的标签页，激活它
+    if (this._tabs.length === 1 || !this._activeTab) {
+      this.setActiveTab(id);
+    }
+
+    return this;
+  }
+
+  /**
+   * 确保 DOM 结构已初始化
+   */
+  _ensureDom() {
+    if (!this._tabsHeader) {
+      // 创建标签栏容器 - IDEA 风格：紧凑、与内容无缝衔接
+      this._tabsHeader = div(h => {
+        h.addClass('yoya-tabs__header');
+      });
+
+      // 创建内容容器
+      this._contentContainer = div(c => {
+        c.addClass('yoya-tabs__content-container');
+      });
+
+      this._children = [this._tabsHeader, this._contentContainer];
+    }
+  }
+
+  /**
+   * 创建标签元素
+   */
+  _createTabElement(tabData) {
+    const self = this;
+
+    const tabEl = div(t => {
+      t.addClass('yoya-tabs__tab');
+
+      // 如果标签页不可关闭，添加标记类
+      if (!tabData.closable) {
+        t.addClass('yoya-tabs__tab--unclosable');
+      }
+
+      t.on('click', () => {
+        self.setActiveTab(tabData.id);
+      });
+
+      // 图标
+      if (tabData.icon) {
+        t.child(
+          span(i => {
+            i.addClass('yoya-tabs__tab-icon');
+            i.html(tabData.icon);
+          })
+        );
+      }
+
+      // 标题 - IDEA 风格：紧凑清晰
+      t.child(
+        span(s => {
+          s.addClass('yoya-tabs__tab-title');
+          s.text(tabData.title);
+          tabData._titleEl = s;
+        })
+      );
+
+      // 关闭按钮
+      t.child(
+        span(c => {
+          c.addClass('yoya-tabs__tab-close');
+          c.html('×');
+
+          c.on('click', (e) => {
+            e.stopPropagation();
+            self.removeTab(tabData.id);
+          });
+
+          tabData._closeBtn = c;
+        })
+      );
+    });
+
+    return tabEl;
+  }
+
+  /**
+   * 创建内容元素
+   */
+  _createTabContent(tabData) {
+    const contentEl = div(c => {
+      c.addClass('yoya-tabs__content');
+
+      // 执行内容创建函数
+      if (typeof tabData.content === 'function') {
+        tabData.content(c);
+      } else if (tabData.content instanceof Tag) {
+        c.child(tabData.content);
+      }
+    });
+
+    return contentEl;
+  }
+
+  /**
+   * 设置激活的标签页
+   * @param {string} id - 标签页 ID
+   * @returns {VTabs} this
+   */
+  setActiveTab(id) {
+    const tabData = this._tabs.find((t) => t.id === id);
+    if (!tabData) return this;
+
+    const previousTab = this._activeTab;
+
+    // 更新激活状态
+    this._activeTab = tabData;
+    this.setState('activeIndex', this._tabs.indexOf(tabData));
+
+    // 更新之前激活的标签样式
+    if (previousTab && previousTab.el) {
+      previousTab.el.removeClass('yoya-tabs__tab--active');
+      // 关闭按钮恢复隐藏
+      if (previousTab._closeBtn) {
+        previousTab._closeBtn.style('opacity', '0');
+      }
+    }
+
+    // 更新新激活的标签样式 - IDEA 风格：激活标签与内容背景一致，无缝衔接
+    tabData.el.addClass('yoya-tabs__tab--active');
+
+    // 激活标签的关闭按钮始终可见
+    if (tabData._closeBtn) {
+      tabData._closeBtn.style('opacity', '0.7');
+    }
+
+    // 隐藏所有内容
+    this._tabs.forEach((t) => {
+      if (t.contentEl) {
+        t.contentEl.removeClass('yoya-tabs__content--active');
+      }
+    });
+
+    // 显示当前内容
+    if (tabData.contentEl) {
+      tabData.contentEl.addClass('yoya-tabs__content--active');
+    }
+
+    // 派发事件
+    if (this._onChange) {
+      this._onChange(tabData.id, tabData);
+    }
+
+    return this;
+  }
+
+  /**
+   * 移除标签页
+   * @param {string} id - 标签页 ID
+   * @returns {VTabs} this
+   */
+  removeTab(id) {
+    const index = this._tabs.findIndex((t) => t.id === id);
+    if (index < 0) return this;
+
+    const tabData = this._tabs[index];
+    const wasActive = this._activeTab?.id === id;
+
+    // 从 DOM 移除 - 使用 destroy 方法标记为删除
+    if (tabData.el) {
+      tabData.el.destroy();
+    }
+    if (tabData.contentEl) {
+      tabData.contentEl.destroy();
+    }
+
+    // 从数组移除
+    this._tabs.splice(index, 1);
+
+    // 如果移除的是激活的标签页，激活相邻的标签页
+    if (wasActive) {
+      if (this._tabs.length > 0) {
+        const newIndex = Math.min(index, this._tabs.length - 1);
+        this.setActiveTab(this._tabs[newIndex].id);
+      } else {
+        this._activeTab = null;
+      }
+    }
+
+    return this;
+  }
+
+  /**
+   * 更新标签页标题
+   * @param {string} id - 标签页 ID
+   * @param {string} title - 新标题
+   * @returns {VTabs} this
+   */
+  updateTabTitle(id, title) {
+    const tabData = this._tabs.find((t) => t.id === id);
+    if (!tabData) return this;
+
+    tabData.title = title;
+    if (tabData._titleEl) {
+      tabData._titleEl.text(title);
+    }
+
+    return this;
+  }
+
+  /**
+   * 获取激活的标签页 ID
+   * @returns {string|null}
+   */
+  getActiveTabId() {
+    return this._activeTab?.id || null;
+  }
+
+  /**
+   * 获取激活的标签页数据
+   * @returns {Object|null}
+   */
+  getActiveTab() {
+    return this._activeTab || null;
+  }
+
+  /**
+   * 获取所有标签页
+   * @returns {Array}
+   */
+  getTabs() {
+    return [...this._tabs];
+  }
+
+  /**
+   * 标签变化回调
+   * @param {Function} fn
+   * @returns {VTabs} this
+   */
+  onChange(fn) {
+    this._onChange = fn;
+    return this;
+  }
+
+  renderDom() {
+    if (this._deleted) return null;
+
+    if (!this._initialized) {
+      // 使用延迟初始化
+      this._ensureDom();
+      this._initialized = true;
+    }
+
+    return super.renderDom();
+  }
+}
+
+function vTabs(setup = null) {
+  return new VTabs(setup);
+}
+
+// ============================================
+// Tag 原型扩展
+// ============================================
+
+Tag.prototype.vTabs = function (setup = null) {
+  const tabs = vTabs(setup);
+  this.child(tabs);
+  return this;
+};
+
+/**
+ * Yoya.Components - Pager 分页导航
+ * 用于处理分页导航，支持页码显示、上一页/下一页、跳转等功能
+ * @module Yoya.Pager
+ * @example
+ * // 基础用法
+ * import { vPager } from '../yoya/index.js';
+ *
+ * vPager(p => {
+ *   p.total(100);        // 总记录数
+ *   p.pageSize(10);      // 每页显示数量
+ *   p.current(1);        // 当前页码
+ *   p.onChange((page) => {
+ *     console.log('切换到第', page, '页');
+ *   });
+ * });
+ *
+ * // 简洁模式（只显示必要按钮）
+ * vPager(p => {
+ *   p.total(100);
+ *   p.simple(true);
+ *   p.onChange((page) => {});
+ * });
+ *
+ * // 显示完整页码
+ * vPager(p => {
+ *   p.total(200);
+ *   p.pageSize(20);
+ *   p.showQuickJumper(true);  // 显示跳转输入框
+ *   p.showTotal(true);        // 显示总记录数
+ *   p.onChange((page) => {});
+ * });
+ */
+
+
+// ============================================
+// VPager 分页导航组件
+// ============================================
+
+class VPager extends Tag {
+  static _stateAttrs = ['disabled', 'current', 'pageSize', 'total', 'totalPage', 'showQuickJumper', 'showTotal', 'simple'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      disabled: false,
+      current: 1,
+      pageSize: 10,
+      total: 0,
+      totalPage: 0,
+      showQuickJumper: false,
+      showTotal: false,
+      simple: false,
+    });
+
+    // 3. 内部状态
+    this._total = 0;
+    this._pageSize = 10;
+    this._current = 1;
+    this._totalPage = 0;
+    this._showQuickJumper = false;
+    this._showTotal = false;
+    this._simple = false;
+    this._onChange = null;
+
+    // 4. 设置基础 CSS 类
+    this.addClass('yoya-pager');
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 构建内容
+    this._buildContent();
+
+    // 7. 执行 setup
+    if (setup) {
+      this.setup(setup);
+    }
+  }
+
+  _setupBaseStyles() {
+    this.styles({
+      display: 'flex',
+      alignItems: 'center',
+      gap: '2px',
+      fontSize: '11px',
+      color: 'var(--yoya-pager-color, var(--yoya-text, #333))',
+      userSelect: 'none',
+    });
+  }
+
+  _registerStateHandlers() {
+    // disabled 状态处理器
+    this.registerStateHandler('disabled', (disabled, host) => {
+      if (disabled) {
+        host.addClass('yoya-pager--disabled');
+      } else {
+        host.removeClass('yoya-pager--disabled');
+      }
+    });
+
+    // current 状态处理器 - 更新页码显示
+    this.registerStateHandler('current', (current, host) => {
+      // 检查是否超出范围
+      let newCurrent = current;
+      if (host._totalPage > 0 && current > host._totalPage) {
+        newCurrent = host._totalPage;
+      }
+      if (newCurrent < 1) newCurrent = 1;
+
+      host._current = newCurrent;
+      host._renderPageNumbers();
+      // 触发变化事件
+      host._triggerChange(newCurrent);
+    });
+
+    // total 状态处理器 - 重新计算总页数
+    this.registerStateHandler('total', (total, host) => {
+      host._total = total;
+      host._totalPage = Math.ceil(total / host._pageSize);
+      if (host._current > host._totalPage && host._totalPage > 0) {
+        host.setState('current', host._totalPage);
+      }
+      host._renderPageNumbers();
+    });
+
+    // pageSize 状态处理器 - 重新计算总页数
+    this.registerStateHandler('pageSize', (pageSize, host) => {
+      host._pageSize = pageSize;
+      host._totalPage = Math.ceil(host._total / pageSize);
+      host._renderPageNumbers();
+    });
+
+    // simple 状态处理器 - 重新渲染页码
+    this.registerStateHandler('simple', (simple, host) => {
+      host._simple = simple;
+      host._renderPageNumbers();
+    });
+  }
+
+  /**
+   * 创建导航按钮（上一页/下一页）
+   * @private
+   */
+  _createNavButton(direction) {
+    const self = this;
+    const isPrev = direction === 'prev';
+
+    const btn = div((b) => {
+      b.addClass('yoya-pager__nav');
+
+      b.html(isPrev ? '‹' : '›');
+
+      b.on('mouseenter', () => {
+        if (!self.hasState('disabled') && !self._isNavDisabled(isPrev)) {
+          b.styles({
+            borderColor: 'var(--yoya-primary)',
+            color: 'var(--yoya-primary)',
+          });
+        }
+      });
+
+      b.on('mouseleave', () => {
+        if (!self.hasState('disabled') && !self._isNavDisabled(isPrev)) {
+          b.styles({
+            borderColor: 'var(--yoya-border)',
+            color: 'var(--yoya-text-primary)',
+          });
+        }
+      });
+
+      b.on('click', (e) => {
+        e.stopPropagation();
+        if (self.hasState('disabled') || self._isNavDisabled(isPrev)) return;
+
+        const newPage = isPrev ? self._current - 1 : self._current + 1;
+        self.setState('current', newPage);
+      });
+
+      // 初始禁用状态
+      if (self._isNavDisabled(isPrev)) {
+        b.addClass('yoya-pager__nav--disabled');
+      }
+    });
+
+    return btn;
+  }
+
+  /**
+   * 创建页码按钮
+   * @private
+   */
+  _createPageButton(pageNum) {
+    const self = this;
+    const isCurrent = pageNum === self._current;
+
+    const btn = div((b) => {
+      b.addClass('yoya-pager__number');
+      if (isCurrent) {
+        b.addClass('yoya-pager__number--active');
+      }
+
+      b.text(String(pageNum));
+
+      if (!isCurrent) {
+        b.on('mouseenter', () => {
+          if (!self.hasState('disabled')) {
+            b.styles({
+              borderColor: 'var(--yoya-primary)',
+              color: 'var(--yoya-primary)',
+            });
+          }
+        });
+
+        b.on('mouseleave', () => {
+          if (!self.hasState('disabled')) {
+            b.styles({
+              borderColor: 'var(--yoya-border)',
+              color: 'var(--yoya-text-primary)',
+            });
+          }
+        });
+      }
+
+      b.on('click', (e) => {
+        e.stopPropagation();
+        if (self.hasState('disabled') || isCurrent) return;
+
+        self.setState('current', pageNum);
+      });
+    });
+
+    return btn;
+  }
+
+  /**
+   * 创建省略号
+   * @private
+   */
+  _createMoreButton() {
+    const more = div((m) => {
+      m.addClass('yoya-pager__more');
+      m.text('···');
+    });
+    return more;
+  }
+
+  /**
+   * 创建总记录数显示
+   * @private
+   */
+  _createTotalText() {
+    const total = div((t) => {
+      t.addClass('yoya-pager__total');
+      t.text(`共 ${this._total} 条`);
+    });
+    return total;
+  }
+
+  /**
+   * 创建快速跳转输入框
+   * @private
+   */
+  _createJumperInput() {
+    const self = this;
+
+    const wrapper = div((w) => {
+      w.addClass('yoya-pager__jumper');
+
+      const label = span((s) => {
+        s.addClass('yoya-pager__jumper-label');
+        s.text('跳至');
+      });
+
+      const input = div((i) => {
+        i.addClass('yoya-pager__jumper-input');
+
+        const inputEl = document.createElement('input');
+        inputEl.type = 'number';
+        inputEl.min = '1';
+        inputEl.max = String(self._totalPage);
+        inputEl.value = String(self._current);
+        inputEl.style.cssText = `
+          width: 100%;
+          border: none;
+          outline: none;
+          text-align: center;
+          font-size: 11px;
+          color: var(--yoya-text, #333);
+          background: transparent;
+          -moz-appearance: textfield;
+        `;
+        inputEl.style.webkitAppearance = 'none';
+
+        // 移除数字输入框的上下箭头
+        const style = document.createElement('style');
+        style.textContent = `
+          input[type=number]::-webkit-inner-spin-button,
+          input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+          }
+        `;
+        inputEl.appendChild(style);
+
+        inputEl.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            const page = parseInt(inputEl.value, 10);
+            if (page >= 1 && page <= self._totalPage) {
+              self.setState('current', page);
+              self._triggerChange(page);
+            }
+          }
+        };
+
+        inputEl.onblur = () => {
+          const page = parseInt(inputEl.value, 10);
+          if (page >= 1 && page <= self._totalPage) {
+            self.setState('current', page);
+            self._triggerChange(page);
+          } else {
+            inputEl.value = String(self._current);
+          }
+        };
+
+        i._el.appendChild(inputEl);
+        self._jumperInput = inputEl;
+      });
+
+      const unit = span((s) => {
+        s.addClass('yoya-pager__jumper-unit');
+        s.text('页');
+      });
+
+      w.child(label).child(input).child(unit);
+    });
+
+    return wrapper;
+  }
+
+  /**
+   * 判断导航按钮是否应该禁用
+   * @private
+   */
+  _isNavDisabled(isPrev) {
+    if (this.hasState('disabled')) return true;
+    if (isPrev) return this._current <= 1;
+    return this._current >= this._totalPage;
+  }
+
+  /**
+   * 渲染页码数字
+   * @private
+   */
+  _renderPageNumbers() {
+    if (!this._pageContainer) return;
+
+    // 清空现有内容
+    this._pageContainer._children = [];
+    if (this._pageContainer._el) {
+      this._pageContainer._el.innerHTML = '';
+    }
+
+    if (this._simple) {
+      // 简洁模式：只显示当前页/总页数
+      const simpleText = span((s) => {
+        s.addClass('yoya-pager__simple');
+        s.text(`${this._current} / ${this._totalPage || 1}`);
+      });
+      this._pageContainer.child(simpleText);
+    } else {
+      // 完整模式
+      const pages = this._calculateVisiblePages();
+
+      pages.forEach((page) => {
+        if (page === 'more') {
+          this._pageContainer.child(this._createMoreButton());
+        } else {
+          this._pageContainer.child(this._createPageButton(page));
+        }
+      });
+    }
+
+    // 更新导航按钮状态
+    this._updateNavButtons();
+  }
+
+  /**
+   * 计算可见的页码
+   * @private
+   */
+  _calculateVisiblePages() {
+    const pages = [];
+    const totalPage = this._totalPage || 1;
+    const current = this._current;
+
+    if (totalPage <= 7) {
+      // 总页数较少，显示所有
+      for (let i = 1; i <= totalPage; i++) {
+        pages.push(i);
+      }
+    } else {
+      // 总页数较多，智能显示
+      if (current <= 4) {
+        // 当前页靠近开始
+        pages.push(1, 2, 3, 4, 5, 'more', totalPage);
+      } else if (current >= totalPage - 3) {
+        // 当前页靠近结束
+        pages.push(1, 'more', totalPage - 4, totalPage - 3, totalPage - 2, totalPage - 1, totalPage);
+      } else {
+        // 当前页在中间
+        pages.push(1, 'more', current - 1, current, current + 1, 'more', totalPage);
+      }
+    }
+
+    return pages;
+  }
+
+  /**
+   * 更新导航按钮状态
+   * @private
+   */
+  _updateNavButtons() {
+    const prevDisabled = this._isNavDisabled(true);
+    const nextDisabled = this._isNavDisabled(false);
+
+    if (this._prevBtn) {
+      if (prevDisabled) {
+        this._prevBtn.addClass('yoya-pager__nav--disabled');
+      } else {
+        this._prevBtn.removeClass('yoya-pager__nav--disabled');
+      }
+    }
+    if (this._nextBtn) {
+      if (nextDisabled) {
+        this._nextBtn.addClass('yoya-pager__nav--disabled');
+      } else {
+        this._nextBtn.removeClass('yoya-pager__nav--disabled');
+      }
+    }
+  }
+
+  /**
+   * 触发变化事件
+   * @private
+   */
+  _triggerChange(page) {
+    if (this._onChange) {
+      this._onChange(page, {
+        current: page,
+        pageSize: this._pageSize,
+        total: this._total,
+        totalPage: this._totalPage,
+      });
+    }
+
+    // 更新跳转输入框的值
+    if (this._jumperInput) {
+      this._jumperInput.value = String(page);
+    }
+  }
+
+  /**
+   * 构建组件内容
+   * @private
+   */
+  _buildContent() {
+    // 显示总记录数
+    if (this._showTotal) {
+      this.child(this._createTotalText());
+    }
+
+    // 上一页按钮
+    this._prevBtn = this._createNavButton('prev');
+    this.child(this._prevBtn);
+
+    // 页码数字容器
+    this._pageContainer = div((c) => {
+      c.addClass('yoya-pager__pages');
+    });
+    this.child(this._pageContainer);
+
+    // 下一页按钮
+    this._nextBtn = this._createNavButton('next');
+    this.child(this._nextBtn);
+
+    // 快速跳转
+    if (this._showQuickJumper) {
+      this.child(this._createJumperInput());
+    }
+
+    // 初始渲染页码
+    this._renderPageNumbers();
+  }
+
+  /**
+   * 设置总记录数
+   * @param {number} total - 总记录数
+   * @returns {VPager} this
+   */
+  total(total) {
+    this.setState('total', total);
+    return this;
+  }
+
+  /**
+   * 设置每页显示数量
+   * @param {number} size - 每页显示数量
+   * @returns {VPager} this
+   */
+  pageSize(size) {
+    this.setState('pageSize', size);
+    return this;
+  }
+
+  /**
+   * 设置当前页码
+   * @param {number} page - 当前页码
+   * @returns {VPager} this
+   */
+  current(page) {
+    this.setState('current', page);
+    return this;
+  }
+
+  /**
+   * 设置是否显示快速跳转
+   * @param {boolean} show - 是否显示
+   * @returns {VPager} this
+   */
+  showQuickJumper(show) {
+    this._showQuickJumper = show;
+    this.setState('showQuickJumper', show);
+    return this;
+  }
+
+  /**
+   * 设置是否显示总记录数
+   * @param {boolean} show - 是否显示
+   * @returns {VPager} this
+   */
+  showTotal(show) {
+    this._showTotal = show;
+    this.setState('showTotal', show);
+    return this;
+  }
+
+  /**
+   * 设置是否为简洁模式
+   * @param {boolean} simple - 是否简洁模式
+   * @returns {VPager} this
+   */
+  simple(simple) {
+    this._simple = simple;
+    this.setState('simple', simple);
+    return this;
+  }
+
+  /**
+   * 设置禁用状态
+   * @param {boolean} disabled - 是否禁用
+   * @returns {VPager} this
+   */
+  disabled(disabled) {
+    this.setState('disabled', disabled);
+    return this;
+  }
+
+  /**
+   * 设置变化事件回调
+   * @param {Function} fn - 回调函数
+   * @returns {VPager} this
+   */
+  onChange(fn) {
+    this._onChange = fn;
+    return this;
+  }
+
+  /**
+   * 获取当前页码
+   * @returns {number}
+   */
+  getCurrent() {
+    return this._current;
+  }
+
+  /**
+   * 获取每页显示数量
+   * @returns {number}
+   */
+  getPageSize() {
+    return this._pageSize;
+  }
+
+  /**
+   * 获取总记录数
+   * @returns {number}
+   */
+  getTotal() {
+    return this._total;
+  }
+
+  /**
+   * 获取总页数
+   * @returns {number}
+   */
+  getTotalPage() {
+    return this._totalPage;
+  }
+}
+
+/**
+ * 创建 VPager 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VPager}
+ */
+function vPager(setup = null) {
+  return new VPager(setup);
+}
+
+// ============================================
+// Tag 原型扩展
+// ============================================
+
+Tag.prototype.vPager = function (setup = null) {
+  const pager = vPager(setup);
+  this.child(pager);
+  return this;
+};
+
+/**
+ * Yoya.Basic - Modal 弹出框组件
+ * 提供完全透明的弹出框控制，内容由用户自定义
+ * @module Yoya.Modal
+ * @example
+ * // 基础用法
+ * import { vModal, vButton, toast } from '../yoya/index.js';
+ *
+ * const modal = vModal(m => {
+ *   m.content(c => {
+ *     c.h2('标题');
+ *     c.p('这里是弹出框内容');
+ *   });
+ *   m.footer(f => {
+ *     f.button('确定', b => b.onclick(() => {
+ *       toast.success('已确认');
+ *       modal.hide();
+ *     }));
+ *     f.button('取消', b => b.onclick(() => modal.hide()));
+ *   });
+ * });
+ *
+ * vButton('打开弹出框', b => b.onclick(() => modal.show()));
+ */
+
+
+// ============================================
+// VModal 弹出框
+// ============================================
+
+/**
+ * VModal 弹出框组件
+ * 提供完全透明的弹出框控制，内容由用户自定义
+ * @class
+ * @extends Tag
+ */
+class VModal extends Tag {
+  static _stateAttrs = ['visible', 'closable', 'maskClosable', 'centered'];
+
+  /**
+   * 创建 VModal 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(setup = null) {
+    super('div', null);
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this._visible = false;
+    this._closable = true;
+    this._maskClosable = true;
+    this._centered = false;
+    this._width = '500px';
+    this._title = null;
+    this._contentBox = null;
+    this._headerBox = null;
+    this._footerBox = null;
+    this._maskBox = null;
+    this._closeBtn = null;
+    this._afterCloseCallbacks = [];
+
+    // 3. 设置基础样式
+    this.addClass('yoya-modal');
+    this.style('display', 'none');
+    this.style('position', 'fixed');
+    this.style('top', '0');
+    this.style('left', '0');
+    this.style('width', '100%');
+    this.style('height', '100%');
+    this.style('z-index', '1000');
+
+    // 4. 构建遮罩和内容
+    this._buildMask();
+    this._buildContent();
+
+    // 5. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 6. 应用 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 构建遮罩层
+   * @private
+   */
+  _buildMask() {
+    this._maskBox = div(mask => {
+      mask.addClass('yoya-modal__mask');
+      mask.styles({
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        transition: 'opacity 0.3s ease'
+      });
+
+      // 点击遮罩关闭
+      mask.on('click', () => {
+        if (this._maskClosable) {
+          this.hide();
+        }
+      });
+    });
+    this._children.push(this._maskBox);
+  }
+
+  /**
+   * 构建弹出框内容
+   * @private
+   */
+  _buildContent() {
+    // 内容容器
+    this._contentBox = div(inner => {
+      inner.addClass('yoya-modal__body');
+    });
+
+    // 创建模态框内容区域
+    this._contentElement = div(content => {
+      content.addClass('yoya-modal__content');
+      content.styles({
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        overflow: 'auto',
+        transition: 'transform 0.3s ease, opacity 0.3s ease',
+        opacity: '0',
+        zIndex: '1001'
+      });
+
+      // 关闭按钮
+      if (this._closable) {
+        content.child(this._createCloseButton());
+      }
+
+      // 内容容器
+      content.child(this._contentBox);
+    });
+
+    // 添加到 modal 的 children
+    this.child(this._contentElement);
+  }
+
+  /**
+   * 创建关闭按钮
+   * @private
+   */
+  _createCloseButton() {
+    this._closeBtn = button(close => {
+      close.addClass('yoya-modal__close');
+      close.styles({
+        position: 'absolute',
+        top: '12px',
+        right: '12px',
+        border: 'none',
+        backgroundColor: 'transparent',
+        cursor: 'pointer',
+        fontSize: '18px',
+        lineHeight: '1',
+        transition: 'color 0.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0'
+      });
+
+      close.text('×');
+
+      close.on('mouseenter', () => {
+        close.style('color', 'var(--yoya-modal-close-hover-color, #333)');
+      });
+      close.on('mouseleave', () => {
+        close.style('color', 'var(--yoya-modal-close-color, #999)');
+      });
+      close.on('click', () => this.hide());
+    });
+    return this._closeBtn;
+  }
+
+  /**
+   * 注册状态处理器
+   * @private
+   */
+  _registerStateHandlers() {
+    // visible 状态处理器
+    this.registerStateHandler('visible', (visible, host) => {
+      // 同步内部属性
+      this._visible = visible;
+
+      if (visible) {
+        host.style('display', 'block');
+        // 动画：显示
+        requestAnimationFrame(() => {
+          if (this._contentElement) {
+            this._contentElement.style('opacity', '1');
+          }
+        });
+      } else {
+        // 动画：隐藏
+        if (this._contentElement) {
+          this._contentElement.style('opacity', '0');
+        }
+        setTimeout(() => {
+          if (!this._visible) {
+            host.style('display', 'none');
+            // 执行关闭后回调
+            this._executeAfterCloseCallbacks();
+          }
+        }, 300);
+      }
+    });
+
+    // closable 状态处理器
+    this.registerStateHandler('closable', (closable, host) => {
+      if (this._closeBtn) {
+        this._closeBtn.style('display', closable ? 'flex' : 'none');
+      }
+    });
+
+    // centered 状态处理器
+    this.registerStateHandler('centered', (centered, host) => {
+      if (this._contentElement) {
+        if (centered) {
+          this._contentElement.addClass('yoya-modal__content--centered');
+        } else {
+          this._contentElement.removeClass('yoya-modal__content--centered');
+        }
+      }
+    });
+  }
+
+  /**
+   * 设置弹出框宽度
+   * @param {string} width - 宽度值
+   * @returns {this}
+   */
+  width(width) {
+    this._width = width;
+    if (this._contentElement) {
+      this._contentElement.style('width', width);
+    }
+    return this;
+  }
+
+  /**
+   * 设置弹出框标题
+   * @param {string|Function} title - 标题内容或 setup 函数
+   * @returns {this}
+   */
+  title(title) {
+    if (!this._headerBox) {
+      this._headerBox = div(header => {
+        header.addClass('yoya-modal__header');
+        header.style('padding', '16px 20px');
+        header.style('borderBottom', '1px solid #f0f0f0');
+        header.style('fontWeight', '600');
+        header.style('fontSize', '16px');
+        header.style('lineHeight', '1.5');
+
+        if (typeof title === 'function') {
+          title(header);
+        } else {
+          header.text(title);
+        }
+      });
+      // 将头部插入到内容区域的最前面
+      if (this._contentBox) {
+        if (this._contentBox._children) {
+          this._contentBox._children.unshift(this._headerBox);
+        } else {
+          this._contentBox.child(this._headerBox);
+        }
+      }
+    } else {
+      if (typeof title === 'function') {
+        this._headerBox.setup(title);
+      } else {
+        this._headerBox.text(title);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * 设置弹出框内容
+   * @param {Function|string} content - 内容 setup 函数或文本
+   * @returns {this}
+   */
+  content(content) {
+    if (!this._contentBox) {
+      this._contentBox = div(inner => {
+        inner.addClass('yoya-modal__body');
+        inner.style('padding', '20px');
+      });
+      this._children.push(this._contentBox);
+
+      // 如果已经有 header（比如 VConfirm 先调用了 title()），将其添加到 contentBox
+      if (this._headerBox) {
+        this._contentBox._children.unshift(this._headerBox);
+      }
+    }
+
+    if (typeof content === 'function') {
+      // 提供常用工厂方法
+      const api = {
+        p: (text) => {
+          const el = p(text);
+          this._contentBox.child(el);
+          return el;
+        },
+        div: (setup) => {
+          const el = div(setup);
+          this._contentBox.child(el);
+          return el;
+        },
+        h1: (text) => {
+          const el = h1(text);
+          this._contentBox.child(el);
+          return el;
+        },
+        h2: (text) => {
+          const el = h2(text);
+          this._contentBox.child(el);
+          return el;
+        },
+        h3: (text) => {
+          const el = h3(text);
+          this._contentBox.child(el);
+          return el;
+        },
+        button: (setup) => {
+          const el = button(setup);
+          this._contentBox.child(el);
+          return el;
+        },
+        // 导出组件工厂函数，允许用户嵌套使用
+        vForm: (setup) => {
+          const el = vForm(setup);
+          this._contentBox.child(el);
+          return el;
+        },
+        vInput: (setup) => {
+          const el = vInput(setup);
+          this._contentBox.child(el);
+          return el;
+        },
+        vTextarea: (setup) => {
+          const el = vTextarea(setup);
+          this._contentBox.child(el);
+          return el;
+        },
+      };
+      content(api);
+    } else if (typeof content === 'string') {
+      this._contentBox.text(content);
+    }
+    return this;
+  }
+
+  /**
+   * 设置弹出框底部
+   * @param {Function} setup - 底部内容 setup 函数
+   * @returns {this}
+   */
+  footer(setup) {
+    if (!this._footerBox) {
+      this._footerBox = div(footer => {
+        footer.addClass('yoya-modal__footer');
+        footer.style('padding', '12px 20px');
+        footer.style('borderTop', '1px solid #f0f0f0');
+        footer.style('display', 'flex');
+        footer.style('justifyContent', 'flex-end');
+        footer.style('gap', '8px');
+      });
+      // 将底部添加到内容区域的最后面
+      if (this._contentBox && this._contentBox._children) {
+        this._contentBox._children.push(this._footerBox);
+      }
+    }
+
+    if (typeof setup === 'function') {
+      // 提供 button、vButton 和 child 工厂方法
+      const api = {
+        button: (btnSetup) => {
+          const btn = button(btnSetup);
+          this._footerBox.child(btn);
+          return btn;
+        },
+        vButton: (text) => {
+          const btn = vButton(text);
+          this._footerBox.child(btn);
+          return btn;
+        },
+        child: (el) => {
+          this._footerBox.child(el);
+          return el;
+        }
+      };
+      setup(api);
+    }
+    return this;
+  }
+
+  /**
+   * 设置是否可关闭
+   * @param {boolean} closable - 是否可关闭
+   * @returns {this}
+   */
+  closable(closable) {
+    this.setState('closable', closable);
+    return this;
+  }
+
+  /**
+   * 设置是否可点击遮罩关闭
+   * @param {boolean} maskClosable - 是否可点击遮罩关闭
+   * @returns {this}
+   */
+  maskClosable(maskClosable) {
+    this._maskClosable = maskClosable;
+    return this;
+  }
+
+  /**
+   * 设置是否居中模式
+   * @param {boolean} centered - 是否居中
+   * @returns {this}
+   */
+  centered(centered) {
+    this.setState('centered', centered);
+    return this;
+  }
+
+  /**
+   * 显示弹出框
+   * @returns {this}
+   */
+  show() {
+    // 如果没有绑定到 DOM，先绑定到 document.body
+    // 检查 _boundElement 是否存在且是否在 DOM 中
+    if (typeof document !== 'undefined') {
+      const isInDom = this._boundElement && document.body.contains(this._boundElement);
+      if (!isInDom) {
+        this.bindTo(document.body);
+      }
+    }
+    this.setState('visible', true);
+    return this;
+  }
+
+  /**
+   * 隐藏弹出框
+   * @returns {this}
+   */
+  hide() {
+    this.setState('visible', false);
+    return this;
+  }
+
+  /**
+   * 切换弹出框显示状态
+   * @returns {this}
+   */
+  toggle() {
+    if (this._visible) {
+      this.hide();
+    } else {
+      this.show();
+    }
+    return this;
+  }
+
+  /**
+   * 注册关闭后回调
+   * @param {Function} callback - 回调函数
+   * @returns {this}
+   */
+  afterClose(callback) {
+    this._afterCloseCallbacks.push(callback);
+    return this;
+  }
+
+  /**
+   * 执行关闭后回调
+   * @private
+   */
+  _executeAfterCloseCallbacks() {
+    const callbacks = [...this._afterCloseCallbacks];
+    this._afterCloseCallbacks = [];
+    callbacks.forEach(cb => cb(this));
+  }
+
+  /**
+   * 获取弹出框内容区域
+   * @returns {Tag} 内容区域引用
+   */
+  getBody() {
+    return this._contentBox;
+  }
+
+  /**
+   * 获取弹出框头部区域
+   * @returns {Tag} 头部区域引用
+   */
+  getHeader() {
+    return this._headerBox;
+  }
+
+  /**
+   * 获取弹出框底部区域
+   * @returns {Tag} 底部区域引用
+   */
+  getFooter() {
+    return this._footerBox;
+  }
+}
+
+/**
+ * 创建 VModal 实例
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VModal}
+ */
+function vModal(setup = null) {
+  return new VModal(setup);
+}
+
+// ============================================
+// VConfirm 确认框（简化版弹出框）
+// ============================================
+
+/**
+ * VConfirm 确认框组件
+ * 用于快速创建确认对话框
+ * @class
+ * @extends VModal
+ */
+class VConfirm extends VModal {
+  /**
+   * 创建 VConfirm 实例
+   * @param {string} [title='确认'] - 标题
+   * @param {string} [content=''] - 内容
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(title = '确认', content = '', setup = null) {
+    super(null);
+
+    this._onConfirm = null;
+    this._onCancel = null;
+    this._confirmText = '确定';
+    this._cancelText = '取消';
+    this._confirmType = 'primary';
+
+    this.title(title);
+    this.content(content);
+    this._buildFooter();
+
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 构建底部按钮
+   * @private
+   */
+  _buildFooter() {
+    this.footer(f => {
+      // 取消按钮
+      f.button(cancelBtn => {
+        cancelBtn.text(this._cancelText);
+        cancelBtn.addClass('yoya-btn yoya-btn--secondary');
+        cancelBtn.style('padding', '6px 16px');
+        cancelBtn.style('fontSize', '14px');
+
+        cancelBtn.on('click', () => {
+          if (this._onCancel) this._onCancel();
+          this.hide();
+        });
+      });
+
+      // 确定按钮
+      f.button(confirmBtn => {
+        confirmBtn.text(this._confirmText);
+        confirmBtn.addClass('yoya-btn yoya-btn--primary');
+        confirmBtn.style('padding', '6px 16px');
+        confirmBtn.style('fontSize', '14px');
+
+        confirmBtn.on('click', () => {
+          if (this._onConfirm) this._onConfirm();
+          this.hide();
+        });
+      });
+    });
+  }
+
+  /**
+   * 设置确认按钮文本
+   * @param {string} text - 按钮文本
+   * @returns {this}
+   */
+  confirmText(text) {
+    this._confirmText = text;
+    return this;
+  }
+
+  /**
+   * 设置取消按钮文本
+   * @param {string} text - 按钮文本
+   * @returns {this}
+   */
+  cancelText(text) {
+    this._cancelText = text;
+    return this;
+  }
+
+  /**
+   * 设置确认回调
+   * @param {Function} fn - 回调函数
+   * @returns {this}
+   */
+  onConfirm(fn) {
+    this._onConfirm = fn;
+    return this;
+  }
+
+  /**
+   * 设置取消回调
+   * @param {Function} fn - 回调函数
+   * @returns {this}
+   */
+  onCancel(fn) {
+    this._onCancel = fn;
+    return this;
+  }
+}
+
+/**
+ * 创建 VConfirm 实例
+ * @param {string} [title='确认'] - 标题
+ * @param {string} [content=''] - 内容
+ * @param {Function} [setup=null] - 初始化函数
+ * @returns {VConfirm}
+ */
+function vConfirm(title = '确认', content = '', setup = null) {
+  return new VConfirm(title, content, setup);
+}
+
+// ============================================
+// 便捷方法
+// ============================================
+
+/**
+ * 快速创建确认框
+ * @param {string} content - 确认内容
+ * @param {Function} onConfirm - 确认回调
+ * @param {Function} [onCancel] - 取消回调
+ * @returns {VConfirm}
+ */
+function confirm(content, onConfirm, onCancel) {
+  const modal = vConfirm('确认', content);
+  if (onConfirm) modal.onConfirm(onConfirm);
+  if (onCancel) modal.onCancel(onCancel);
+  modal.show();
+  return modal;
+}
+
+// ============================================
+// CSS 样式
+// ============================================
+
+// 注入全局样式
+if (typeof document !== 'undefined') {
+  const styleId = 'yoya-modal-styles';
+  if (!document.getElementById(styleId)) {
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = `
+      .yoya-modal {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+
+      .yoya-modal__mask {
+        background-color: var(--yoya-modal-mask-bg, rgba(0, 0, 0, 0.45));
+        backdrop-filter: var(--yoya-modal-mask-backdrop-filter, blur(4px));
+        animation: yoya-modal-fade-in var(--yoya-modal-animation-duration, 0.3s) var(--yoya-modal-animation-timing, ease);
+      }
+
+      .yoya-modal__content {
+        background-color: var(--yoya-modal-bg, white);
+        border-radius: var(--yoya-modal-radius, 8px);
+        box-shadow: var(--yoya-modal-shadow, 0 4px 12px rgba(0, 0, 0, 0.15));
+        min-width: var(--yoya-modal-min-width, 300px);
+        max-width: var(--yoya-modal-max-width, 90%);
+        max-height: var(--yoya-modal-max-height, 90vh);
+        animation: yoya-modal-zoom-in var(--yoya-modal-animation-duration, 0.3s) var(--yoya-modal-animation-timing, ease);
+      }
+
+      .yoya-modal__content--centered {
+        text-align: center;
+      }
+
+      .yoya-modal__header {
+        padding: var(--yoya-modal-header-padding, 16px 20px);
+        border-bottom: var(--yoya-modal-header-border, 1px solid #e0e0e0);
+        font-weight: var(--yoya-modal-header-font-weight, 600);
+        font-size: var(--yoya-modal-header-font-size, 16px);
+        line-height: var(--yoya-modal-header-line-height, 1.5);
+        color: var(--yoya-modal-header-color, #333);
+      }
+
+      .yoya-modal__body {
+        padding: var(--yoya-modal-body-padding, 20px);
+        color: var(--yoya-modal-body-color, #333);
+        font-size: var(--yoya-modal-body-font-size, 14px);
+        line-height: var(--yoya-modal-body-line-height, 1.5);
+      }
+
+      .yoya-modal__footer {
+        padding: var(--yoya-modal-footer-padding, 12px 20px);
+        border-top: var(--yoya-modal-footer-border, 1px solid #e0e0e0);
+        display: flex;
+        justify-content: var(--yoya-modal-footer-justify, flex-end);
+        gap: var(--yoya-modal-footer-gap, 8px);
+      }
+
+      .yoya-modal__close {
+        font-family: inherit;
+        width: var(--yoya-modal-close-size, 24px);
+        height: var(--yoya-modal-close-size, 24px);
+        color: var(--yoya-modal-close-color, #999);
+        border-radius: var(--yoya-modal-close-radius, 4px);
+      }
+
+      .yoya-modal__close:hover {
+        background-color: var(--yoya-modal-close-hover-bg, rgba(0, 0, 0, 0.05));
+        color: var(--yoya-modal-close-hover-color, #333);
+      }
+
+      @keyframes yoya-modal-fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes yoya-modal-zoom-in {
+        from {
+          transform: translate(-50%, -50%) scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .yoya-modal.hiding .yoya-modal__content {
+        animation: yoya-modal-zoom-out var(--yoya-modal-animation-duration, 0.3s) var(--yoya-modal-animation-timing, ease) forwards;
+      }
+
+      .yoya-modal.hiding .yoya-modal__mask {
+        animation: yoya-modal-fade-out var(--yoya-modal-animation-duration, 0.3s) var(--yoya-modal-animation-timing, ease) forwards;
+      }
+
+      @keyframes yoya-modal-zoom-out {
+        from {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+        to {
+          transform: translate(-50%, -50%) scale(0.95);
+          opacity: 0;
+        }
+      }
+
+      @keyframes yoya-modal-fade-out {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
+}
+
+/**
+ * Yoya.Theme - 主题管理系统 (CSS-based)
+ * 通过加载 CSS 文件和切换 data-attribute 来管理主题
+ */
+
 
 // 当前主题和 mode
-let currentThemeId = null;
+let currentThemeId = 'islands';
 let currentMode = 'auto'; // 'auto' | 'light' | 'dark'
 
 // localStorage 键名
 const STORAGE_KEY_THEME = 'yoya-theme';
 const STORAGE_KEY_MODE = 'yoya-mode';
+
+// 已加载的 CSS 文件引用
+let loadedLinkElement = null;
 
 /**
  * 获取当前 mode（解析 auto）
@@ -14056,57 +16828,94 @@ function setupAutoThemeListener() {
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     if (currentMode === 'auto') {
-      const theme = getThemeWithMode(currentThemeId || 'islands', e.matches ? 'dark' : 'light');
-      if (theme) {
-        applyTheme(theme, false);
-      }
+      const effectiveMode = e.matches ? 'dark' : 'light';
+      setThemeAttribute(effectiveMode);
+      dispatchThemeChanged(effectiveMode);
     }
   });
 }
 
 /**
- * 注册主题
- * @param {string} themeId - 主题 ID
- * @param {Function} themeFactory - 主题创建函数
- * @param {Function} options.lightFactory - 浅色主题创建函数（可选）
- * @param {Function} options.darkFactory - 深色主题创建函数（可选）
+ * 在 HTML 元素上设置主题属性
  */
-function registerTheme(themeId, themeFactory, options = {}) {
-  themeRegistry.set(themeId, {
-    factory: themeFactory,
-    lightFactory: options.lightFactory,
-    darkFactory: options.darkFactory,
-  });
+function setThemeAttribute(mode) {
+  const html = document.documentElement;
+  const effectiveMode = mode || getEffectiveMode();
+
+  if (currentThemeId === 'islands') {
+    if (effectiveMode === 'dark') {
+      html.setAttribute('data-theme', 'islands-dark');
+    } else {
+      html.setAttribute('data-theme', 'islands-light');
+    }
+  } else {
+    html.setAttribute('data-theme', `${currentThemeId}-${effectiveMode}`);
+  }
 }
 
 /**
- * 根据 mode 获取主题实例
+ * 加载主题 CSS 文件
  */
-function getThemeWithMode(themeId, mode = null) {
-  const entry = themeRegistry.get(themeId);
-  if (!entry) return null;
+function loadThemeCSS(themeId, mode) {
+  // 移除旧的 link 元素
+  if (loadedLinkElement) {
+    loadedLinkElement.remove();
+  }
 
   const effectiveMode = mode || getEffectiveMode();
-  const factory = effectiveMode === 'dark' ? entry.darkFactory || entry.factory : entry.lightFactory || entry.factory;
 
-  if (factory) {
-    return factory();
+  // 创建新的 link 元素
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+
+  // Islands 主题使用内置的 CSS 文件
+  if (themeId === 'islands') {
+    // 使用 base.css，它包含了 :root 和 [data-theme] 选择器
+    const basePath = getThemeBasePath();
+    link.href = `${basePath}/css/base.css`;
+    link.dataset.theme = 'islands';
+  } else {
+    // 其他主题可以自定义 CSS 路径
+    const themeConfig = getThemeConfig(themeId);
+    if (themeConfig && themeConfig.cssPath) {
+      link.href = themeConfig.cssPath;
+    } else {
+      // 默认回退到 islands
+      const basePath = getThemeBasePath();
+      link.href = `${basePath}/css/base.css`;
+    }
+    link.dataset.theme = themeId;
   }
-  return null;
+
+  // 加载完成回调
+  link.onload = () => {
+    console.log(`Theme CSS loaded: ${themeId}-${effectiveMode}`);
+  };
+
+  link.onerror = () => {
+    console.error(`Failed to load theme CSS: ${themeId}`);
+  };
+
+  // 添加到文档
+  document.head.appendChild(link);
+  loadedLinkElement = link;
 }
 
 /**
- * 获取主题实例
- * @param {string} themeId - 主题 ID
- * @returns {Theme|null}
+ * 获取主题配置
  */
-function getTheme(themeId) {
-  return getThemeWithMode(themeId, currentMode === 'auto' ? null : currentMode);
+const themeConfigs = new Map();
+
+function registerThemeConfig(themeId, config) {
+  themeConfigs.set(themeId, config);
+}
+
+function getThemeConfig(themeId) {
+  return themeConfigs.get(themeId);
 }
 
 /**
  * 从 localStorage 读取主题配置
- * @returns {string|null}
  */
 function loadThemeFromStorage() {
   try {
@@ -14118,7 +16927,6 @@ function loadThemeFromStorage() {
 
 /**
  * 从 localStorage 读取 mode 配置
- * @returns {string|null}
  */
 function loadModeFromStorage() {
   try {
@@ -14130,7 +16938,6 @@ function loadModeFromStorage() {
 
 /**
  * 保存主题配置到 localStorage
- * @param {string} themeId - 主题 ID
  */
 function saveThemeToStorage(themeId) {
   try {
@@ -14142,7 +16949,6 @@ function saveThemeToStorage(themeId) {
 
 /**
  * 保存 mode 配置到 localStorage
- * @param {string} mode - mode 值 (auto|light|dark)
  */
 function saveModeToStorage(mode) {
   try {
@@ -14153,162 +16959,18 @@ function saveModeToStorage(mode) {
 }
 
 /**
- * 应用主题 CSS 变量到 DOM
- * @param {Theme} theme - 主题实例
+ * 派发主题变化事件
  */
-function applyThemeVariables(theme) {
-  if (!theme || !theme.variables) return;
+function dispatchThemeChanged(effectiveMode) {
+  if (typeof window === 'undefined') return;
 
-  const root = document.documentElement;
-  for (const [key, value] of Object.entries(theme.variables)) {
-    root.style.setProperty(key, value);
-  }
-}
-
-/**
- * 为组件应用主题样式
- * @param {Theme} theme - 主题实例
- */
-function applyComponentStyles(theme) {
-  if (!theme || !theme.componentThemes) return;
-
-  // 为每个组件类型应用样式
-  for (const [componentName, config] of Object.entries(theme.componentThemes)) {
-    const componentClass = getComponentClass(componentName);
-    if (!componentClass) continue;
-
-    // 应用基础样式
-    if (config.baseStyles) {
-      applyBaseStyles(componentClass, config.baseStyles);
+  window.dispatchEvent(new CustomEvent('theme-changed', {
+    detail: {
+      themeId: currentThemeId,
+      mode: effectiveMode,
+      currentMode
     }
-
-    // 应用状态样式
-    if (config.stateStyles) {
-      applyStateStyles(componentClass, componentName, config.stateStyles);
-    }
-
-    // 应用变体样式
-    if (config.variants) {
-      applyVariantStyles(componentClass, componentName, config.variants);
-    }
-  }
-}
-
-/**
- * 获取组件类
- * @param {string} componentName - 组件名
- * @returns {Function|null}
- */
-function getComponentClass(componentName) {
-  // 从全局 scope 查找组件类
-  if (typeof window !== 'undefined') {
-    return window[componentName] || null;
-  }
-  return null;
-}
-
-/**
- * 应用基础样式
- * @param {Function} componentClass - 组件类
- * @param {Object} styles - 样式对象
- */
-function applyBaseStyles(componentClass, styles) {
-  if (!componentClass || !componentClass.prototype) return;
-
-  // 保存基础样式引用
-  const proto = componentClass.prototype;
-  if (!proto._themeBaseStyles) {
-    proto._themeBaseStyles = styles;
-
-    // 包装 setup 方法以应用基础样式
-    const originalSetup = proto.setup;
-    proto.setup = function (...args) {
-      const result = originalSetup ? originalSetup.call(this, ...args) : this;
-      // 应用基础样式
-      if (styles) {
-        this.styles(styles);
-      }
-      return result;
-    };
-  }
-}
-
-/**
- * 应用状态样式
- * @param {Function} componentClass - 组件类
- * @param {string} componentName - 组件名
- * @param {Object} stateStyles - 状态样式对象
- */
-function applyStateStyles(componentClass, componentName, stateStyles) {
-  if (!componentClass || !componentClass.prototype) return;
-
-  const proto = componentClass.prototype;
-
-  // 包装 _registerStateHandlers 方法
-  const originalRegisterHandlers = proto._registerStateHandlers;
-  proto._registerStateHandlers = function (...args) {
-    // 先调用原有的状态处理器注册
-    const result = originalRegisterHandlers ? originalRegisterHandlers.call(this, ...args) : undefined;
-
-    // 注册主题状态样式处理器
-    for (const [stateName, styles] of Object.entries(stateStyles)) {
-      this.registerStateHandler(stateName, (value, host) => {
-        if (value) {
-          host.styles(styles);
-          // 如果已经绑定到 DOM，直接更新 DOM 样式
-          if (host._boundElement) {
-            for (const [prop, val] of Object.entries(styles)) {
-              host._boundElement.style[prop] = val;
-            }
-          }
-        } else {
-          // 恢复样式
-          for (const prop of Object.keys(styles)) {
-            host.style(prop, '');
-            if (host._boundElement) {
-              host._boundElement.style[prop] = '';
-            }
-          }
-        }
-      });
-    }
-
-    return result;
-  };
-}
-
-/**
- * 应用变体样式
- * @param {Function} componentClass - 组件类
- * @param {string} componentName - 组件名
- * @param {Object} variants - 变体样式对象
- */
-function applyVariantStyles(componentClass, componentName, variants) {
-  if (!componentClass || !componentClass.prototype) return;
-
-  const proto = componentClass.prototype;
-
-  // 保存变体样式
-  if (!proto._themeVariants) {
-    proto._themeVariants = variants;
-
-    // 添加 variant 方法
-    if (!proto.variant) {
-      proto.variant = function (variantName) {
-        const variantStyles = this._themeVariants?.[variantName];
-        if (variantStyles) {
-          this.styles(variantStyles);
-          // 如果已经绑定到 DOM，直接更新 DOM 样式
-          if (this._boundElement) {
-            for (const [prop, val] of Object.entries(variantStyles)) {
-              this._boundElement.style[prop] = val;
-            }
-          }
-        }
-        return this;
-      };
-    }
-  }
+  }));
 }
 
 /**
@@ -14317,92 +16979,38 @@ function applyVariantStyles(componentClass, componentName, variants) {
  * @param {string} options.defaultTheme - 默认主题 ID (如 'islands')
  * @param {string} options.defaultMode - 默认 mode (如 'auto' | 'light' | 'dark')
  * @param {Function} options.onLoaded - 主题加载完成的回调
- * @param {Map} options.themes - 主题 Map，key 为主题 ID，value 为 { factory, lightFactory, darkFactory }
  */
 function initTheme(options = {}) {
   const {
     defaultTheme = 'islands',
     defaultMode = 'auto',
     onLoaded = null,
-    themes = new Map(),
   } = options;
-
-  // 注册提供的主题
-  for (const [themeId, config] of themes.entries()) {
-    registerTheme(themeId, config.factory, {
-      lightFactory: config.lightFactory,
-      darkFactory: config.darkFactory,
-    });
-  }
 
   // 从 localStorage 读取主题和 mode
   const savedTheme = loadThemeFromStorage();
   const savedMode = loadModeFromStorage();
 
-  // 处理 savedTheme 可能包含 mode 后缀的情况（如 'islands:dark'）
-  let themeId = savedTheme || defaultTheme;
-  if (themeId && themeId.includes(':')) {
-    themeId = themeId.split(':')[0];
-  }
-
+  currentThemeId = savedTheme || defaultTheme;
   currentMode = savedMode || defaultMode;
 
-  // 加载并应用主题
-  try {
-    const theme = getThemeWithMode(themeId, currentMode === 'auto' ? null : currentMode);
-    if (theme) {
-      applyTheme(theme, false);
-    }
+  // 获取实际生效的 mode
+  const effectiveMode = getEffectiveMode();
 
-    // 设置 auto mode 监听器
-    if (currentMode === 'auto') {
-      setupAutoThemeListener();
-    }
+  // 设置 data-theme 属性
+  setThemeAttribute(effectiveMode);
 
-    // 调用回调
-    if (typeof onLoaded === 'function') {
-      onLoaded(theme);
-    }
-  } catch (err) {
-    console.error('Failed to load theme:', err);
-    if (typeof onLoaded === 'function') {
-      onLoaded(null);
-    }
-  }
-}
+  // 加载主题 CSS
+  loadThemeCSS(currentThemeId, effectiveMode);
 
-/**
- * 应用主题
- * @param {Theme} theme - 主题实例
- * @param {boolean} save - 是否保存到 localStorage
- */
-function applyTheme(theme, save = true) {
-  if (!theme) return;
-
-  currentThemeId = theme.name.split(':')[0]; // 获取主题 ID（不含 mode）
-
-  // 注册主题到主题管理器（如果尚未注册）
-  if (!themeManager.getTheme(theme.name)) {
-    themeManager.registerTheme(theme);
+  // 设置 auto mode 监听器
+  if (currentMode === 'auto') {
+    setupAutoThemeListener();
   }
 
-  // 应用 CSS 变量
-  applyThemeVariables(theme);
-
-  // 应用组件样式
-  applyComponentStyles(theme);
-
-  // 更新主题管理器
-  themeManager.setTheme(theme.name);
-
-  // 保存到 localStorage（保存主题 ID，不含 mode）
-  if (save) {
-    saveThemeToStorage(currentThemeId);
-  }
-
-  // 派发事件
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme } }));
+  // 调用回调
+  if (typeof onLoaded === 'function') {
+    onLoaded({ themeId: currentThemeId, mode: effectiveMode });
   }
 }
 
@@ -14411,12 +17019,15 @@ function applyTheme(theme, save = true) {
  * @param {string} themeId - 主题 ID
  */
 function switchTheme(themeId) {
-  const theme = getThemeWithMode(themeId, currentMode === 'auto' ? null : currentMode);
-  if (theme) {
-    applyTheme(theme, true);
-    return true;
-  }
-  return false;
+  currentThemeId = themeId;
+  saveThemeToStorage(themeId);
+
+  const effectiveMode = getEffectiveMode();
+  setThemeAttribute(effectiveMode);
+  loadThemeCSS(themeId, effectiveMode);
+  dispatchThemeChanged(effectiveMode);
+
+  return true;
 }
 
 /**
@@ -14427,13 +17038,9 @@ function setThemeMode(mode) {
   currentMode = mode;
   saveModeToStorage(mode);
 
-  // 重新应用当前主题
-  if (currentThemeId) {
-    const theme = getThemeWithMode(currentThemeId, mode === 'auto' ? null : mode);
-    if (theme) {
-      applyTheme(theme, false);
-    }
-  }
+  const effectiveMode = getEffectiveMode();
+  setThemeAttribute(effectiveMode);
+  dispatchThemeChanged(effectiveMode);
 
   // 设置 auto mode 监听器
   if (mode === 'auto') {
@@ -14465,1629 +17072,117 @@ function getCurrentThemeId() {
   return currentThemeId;
 }
 
+// ========================================
+// 主题 CSS 文件路径导出（用于自定义主题）
+// ========================================
+
 /**
- * 获取所有已注册的主题 ID
- * @returns {string[]}
+ * 获取主题基础路径
+ * @returns {string} 主题 CSS 文件的基础路径
  */
-function getRegisteredThemes() {
-  return Array.from(themeRegistry.keys());
+function getThemeBasePath() {
+  const modulePath = import.meta.url;
+  const baseUrl = modulePath.substring(0, modulePath.lastIndexOf('/'));
+  return `${baseUrl}`;
 }
 
 /**
- * Islands 主题 - 浅色模式
- * Small 尺寸规格
+ * 获取主题 CSS 文件路径
+ * @param {string} cssName - CSS 文件名称（不带扩展名）
+ * @returns {string} 完整的 CSS 文件路径
  */
-
-
-// Small 尺寸规格
-const size$2 = {
-  paddingXs: '4px',
-  paddingSm: '6px',
-  paddingMd: '8px',
-  paddingLg: '10px',
-  marginXs: '4px',
-  marginSm: '6px',
-  marginMd: '8px',
-  marginLg: '10px',
-  gapXs: '4px',
-  gapSm: '6px',
-  gapMd: '8px',
-  gapLg: '10px',
-  radiusSm: '4px',
-  radiusMd: '6px',
-  radiusLg: '8px',
-  fontSizeSm: '12px',
-  fontSizeMd: '13px',
-};
-
-/**
- * 创建 Islands 浅色主题
- */
-function createLightTheme() {
-  const theme = new Theme('islands:light');
-
-  // 定义颜色变量 - JetBrains Islands 浅色主题配色
-  const colors = {
-    // 主色调 - JetBrains 蓝紫色
-    primary: '#5A67D6',        // 主要交互色
-    primaryLight: '#7B85EE',    // 悬停/高亮
-    primaryDark: '#4655B8',     // 按压/激活
-    primaryAlpha: 'rgba(90, 103, 214, 0.1)',  // 半透明背景
-
-    // 背景色 - Islands 风格白色系
-    background: '#FFFFFF',
-    backgroundSecondary: '#F5F6F7',   // 次级背景（表头、分组）
-    backgroundTertiary: '#EBECED',    // 第三级背景（禁用、不可用）
-    backgroundHover: '#E8EAED',       // 悬停背景
-
-    // 文字颜色 - JetBrains 灰度体系
-    textPrimary: '#2B2D30',     // 主要文字
-    textSecondary: '#6B6E75',   // 次要文字/描述
-    textTertiary: '#9A9DA3',    // 辅助文字
-    textDisabled: '#B8BAC0',    // 禁用文字
-    textLink: '#3574F0',        // 链接色
-
-    // 边框 - JetBrains 边框色
-    border: '#D3D3D6',          // 主边框
-    borderLight: '#E5E5E7',     // 次级边框
-    borderFocus: '#5A67D6',     // 聚焦边框
-    borderHover: '#A8A8AC',     // 悬停边框
-
-    // 状态色 - JetBrains 语义色
-    success: '#49B85C',         // 成功（绿色）
-    successBg: 'rgba(73, 184, 92, 0.1)',
-    warning: '#F0A664',         // 警告（橙色）
-    warningBg: 'rgba(240, 166, 100, 0.1)',
-    error: '#E05252',           // 错误（红色）
-    errorBg: 'rgba(224, 82, 82, 0.1)',
-    info: '#4FB3E4',            // 信息（蓝色）
-    infoBg: 'rgba(79, 179, 228, 0.1)',
-
-    //  selection - 选区背景
-    selection: 'rgba(90, 103, 214, 0.2)',
-    selectionInactive: 'rgba(90, 103, 214, 0.1)',
-
-    // 阴影 - JetBrains 柔和阴影
-    shadow: 'rgba(30, 32, 35, 0.08)',
-    shadowHover: 'rgba(30, 32, 35, 0.12)',
-    shadowDropdown: 'rgba(30, 32, 35, 0.15)',
-
-    // 特殊效果
-    overlay: 'rgba(30, 32, 35, 0.5)'};
-
-  // 全局样式变量
-  theme.variables = {
-    '--islands-primary': colors.primary,
-    '--islands-primary-light': colors.primaryLight,
-    '--islands-primary-dark': colors.primaryDark,
-    '--islands-primary-alpha': colors.primaryAlpha,
-    '--islands-bg': colors.background,
-    '--islands-bg-secondary': colors.backgroundSecondary,
-    '--islands-bg-tertiary': colors.backgroundTertiary,
-    '--islands-bg-hover': colors.backgroundHover,
-    '--islands-text': colors.textPrimary,
-    '--islands-text-secondary': colors.textSecondary,
-    '--islands-text-tertiary': colors.textTertiary,
-    '--islands-text-disabled': colors.textDisabled,
-    '--islands-text-link': colors.textLink,
-    '--islands-border': colors.border,
-    '--islands-border-light': colors.borderLight,
-    '--islands-border-focus': colors.borderFocus,
-    '--islands-border-hover': colors.borderHover,
-    '--islands-success': colors.success,
-    '--islands-success-bg': colors.successBg,
-    '--islands-warning': colors.warning,
-    '--islands-warning-bg': colors.warningBg,
-    '--islands-error': colors.error,
-    '--islands-error-bg': colors.errorBg,
-    '--islands-info': colors.info,
-    '--islands-info-bg': colors.infoBg,
-    '--islands-selection': colors.selection,
-    '--islands-selection-inactive': colors.selectionInactive,
-    '--islands-shadow': colors.shadow,
-    '--islands-shadow-hover': colors.shadowHover,
-    '--islands-shadow-dropdown': colors.shadowDropdown,
-    '--islands-hover-bg': colors.backgroundHover,
-    '--islands-error-alpha': colors.errorBg,
-    '--islands-overlay': colors.overlay,
-    // 尺寸变量
-    '--islands-padding-xs': size$2.paddingXs,
-    '--islands-padding-sm': size$2.paddingSm,
-    '--islands-padding-md': size$2.paddingMd,
-    '--islands-padding-lg': size$2.paddingLg,
-    '--islands-margin-xs': size$2.marginXs,
-    '--islands-margin-sm': size$2.marginSm,
-    '--islands-margin-md': size$2.marginMd,
-    '--islands-margin-lg': size$2.marginLg,
-    '--islands-gap-xs': size$2.gapXs,
-    '--islands-gap-sm': size$2.gapSm,
-    '--islands-gap-md': size$2.gapMd,
-    '--islands-gap-lg': size$2.gapLg,
-    '--islands-radius-sm': size$2.radiusSm,
-    '--islands-radius-md': size$2.radiusMd,
-    '--islands-radius-lg': size$2.radiusLg,
-    '--islands-font-size-sm': size$2.fontSizeSm,
-    '--islands-font-size-md': size$2.fontSizeMd,
-    // 按钮变量
-    '--islands-button-padding': '8px 16px',
-    '--islands-button-padding-lg': '10px 20px',
-    '--islands-button-padding-sm': '4px 10px',
-    '--islands-button-font-size': '14px',
-    '--islands-button-font-size-lg': '16px',
-    '--islands-button-font-size-sm': '12px',
-    '--islands-button-height': '32px',
-    '--islands-button-height-lg': '40px',
-    '--islands-button-height-sm': '24px',
-    '--islands-button-radius': '6px',
-    '--islands-button-min-width': '64px',
-    '--islands-button-primary-bg': colors.primary,
-    '--islands-button-primary-hover': colors.primaryLight,
-    '--islands-button-primary-active': colors.primaryDark,
-    '--islands-button-success-bg': colors.success,
-    '--islands-button-success-hover': '#3D9F4E',
-    '--islands-button-warning-bg': colors.warning,
-    '--islands-button-warning-hover': '#E0962E',
-    '--islands-button-danger-bg': colors.error,
-    '--islands-button-danger-hover': '#C84646',
-    '--islands-button-default-bg': colors.background,
-    '--islands-button-default-hover': colors.backgroundHover,
-    '--islands-button-default-border': colors.border,
-    // 输入框变量
-    '--islands-input-padding': '8px 12px',
-    '--islands-input-padding-lg': '10px 16px',
-    '--islands-input-padding-sm': '4px 8px',
-    '--islands-input-font-size': '14px',
-    '--islands-input-font-size-lg': '16px',
-    '--islands-input-font-size-sm': '12px',
-    '--islands-input-height': '32px',
-    '--islands-input-height-lg': '40px',
-    '--islands-input-height-sm': '24px',
-    '--islands-input-radius': '6px',
-    '--islands-input-border': colors.border,
-    '--islands-input-bg': colors.background,
-    '--islands-input-text': colors.textPrimary,
-    '--islands-input-disabled-bg': colors.backgroundTertiary,
-    // 选择框变量
-    '--islands-select-padding': '8px 12px',
-    '--islands-select-padding-lg': '10px 16px',
-    '--islands-select-padding-sm': '4px 8px',
-    '--islands-select-font-size': '14px',
-    '--islands-select-font-size-lg': '16px',
-    '--islands-select-font-size-sm': '12px',
-    '--islands-select-height': '32px',
-    '--islands-select-height-lg': '40px',
-    '--islands-select-height-sm': '24px',
-    '--islands-select-radius': '6px',
-    '--islands-select-border': colors.border,
-    '--islands-select-bg': colors.background,
-    '--islands-select-text': colors.textPrimary,
-    '--islands-select-disabled-bg': colors.backgroundTertiary,
-    // 文本域变量
-    '--islands-textarea-padding': '8px 12px',
-    '--islands-textarea-font-size': '14px',
-    '--islands-textarea-radius': '6px',
-    '--islands-textarea-border': colors.border,
-    '--islands-textarea-bg': colors.background,
-    '--islands-textarea-text': colors.textPrimary,
-    '--islands-textarea-disabled-bg': colors.backgroundTertiary,
-    '--islands-textarea-min-height': '80px',
-    // 复选框变量
-    '--islands-checkbox-font-size': '14px',
-    '--islands-checkbox-text': colors.textPrimary,
-    // 开关变量
-    '--islands-switch-width': '44px',
-    '--islands-switch-height': '22px',
-    '--islands-switch-bg': colors.border,
-    // 表单变量
-    '--islands-form-gap': '16px',
-    // 详情展示变量
-    '--islands-descriptions-font-size': '14px',
-    '--islands-descriptions-text': colors.textPrimary,
-    '--islands-descriptions-title-size': '16px',
-    '--islands-descriptions-title-color': colors.textPrimary,
-    '--islands-descriptions-title-padding': '12px 0',
-    '--islands-descriptions-padding': '12px 16px',
-    '--islands-descriptions-border': colors.border,
-    '--islands-descriptions-label-bg': colors.backgroundSecondary,
-    '--islands-descriptions-label-color': colors.textSecondary,
-    '--islands-descriptions-content-color': colors.textPrimary,
-    // 字段编辑变量
-    '--islands-field-padding': '4px 8px',
-    '--islands-field-radius': '4px',
-    '--islands-field-min-width': '80px',
-    '--islands-field-min-height': '24px',
-    // 代码变量
-    '--islands-code-bg': '#1e1e1e',
-    '--islands-code-radius': '8px',
-    '--islands-code-border': '1px solid rgba(255,255,255,0.1)',
-    '--islands-code-padding': '16px',
-    '--islands-code-font-size': '13px',
-    '--islands-code-line-height': '1.6',
-    '--islands-code-text-color': '#d4d4d4',
-    '--islands-code-font-family': '"Fira Code", "Consolas", "Monaco", monospace',
-    '--islands-code-header-padding': '10px 16px',
-    '--islands-code-header-bg': 'rgba(255,255,255,0.05)',
-    '--islands-code-header-border': '1px solid rgba(255,255,255,0.1)',
-    '--islands-code-title-color': '#007acc',
-    '--islands-code-title-font-size': '13px',
-    '--islands-code-title-font-weight': '600',
-    '--islands-code-copy-padding': '4px 10px',
-    '--islands-code-copy-radius': '4px',
-    '--islands-code-copy-font-size': '12px',
-    '--islands-code-copy-bg': '#444',
-    '--islands-code-copy-color': '#ccc',
-    '--islands-code-copy-hover-bg': '#555',
-    '--islands-code-copy-hover-color': 'white',
-    '--islands-code-copy-success-bg': '#28a745',
-    '--islands-code-copy-success-color': 'white',
-    // 消息变量
-    '--islands-message-z-index': '9999',
-    '--islands-message-gap': '10px',
-    '--islands-message-container-padding': '16px',
-    '--islands-message-max-width': '420px',
-    '--islands-message-icon-size': '18px',
-    '--islands-message-icon-margin': '10px',
-    '--islands-message-font-size': '14px',
-    '--islands-message-line-height': '1.5',
-    '--islands-message-close-size': '20px',
-    '--islands-message-close-padding': '0 4px',
-    '--islands-message-close-opacity': '0.7',
-    '--islands-message-close-hover-opacity': '1',
-    '--islands-message-success-bg': colors.successBg,
-    '--islands-message-success-color': colors.success,
-    '--islands-message-success-border': `1px solid ${colors.success}`,
-    '--islands-message-error-bg': colors.errorBg,
-    '--islands-message-error-color': colors.error,
-    '--islands-message-error-border': `1px solid ${colors.error}`,
-    '--islands-message-warning-bg': colors.warningBg,
-    '--islands-message-warning-color': colors.warning,
-    '--islands-message-warning-border': `1px solid ${colors.warning}`,
-    '--islands-message-info-bg': colors.infoBg,
-    '--islands-message-info-color': colors.info,
-    '--islands-message-info-border': `1px solid ${colors.info}`,
-    // 菜单变量
-    '--islands-menu-bg': 'white',
-    '--islands-menu-radius': '8px',
-    '--islands-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-    '--islands-menu-padding': '8px 0',
-    '--islands-menu-min-width': '160px',
-    '--islands-menu-item-padding': '10px',
-    '--islands-menu-item-horizontal-padding': '16px',
-    '--islands-menu-item-gap': '10px',
-    '--islands-menu-item-radius': '4px',
-    '--islands-menu-item-color': '#333',
-    '--islands-menu-item-font-size': '13px',
-    '--islands-menu-item-hover-bg': 'rgba(102, 126, 234, 0.05)',
-    '--islands-menu-item-active-bg': 'rgba(102, 126, 234, 0.1)',
-    '--islands-menu-item-active-font-weight': '500',
-    '--islands-menu-item-active-color': '#667eea',
-    '--islands-menu-item-disabled-opacity': '0.5',
-    '--islands-menu-item-danger-color': '#dc3545',
-    '--islands-menu-divider-height': '1px',
-    '--islands-menu-divider-bg': '#e0e0e0',
-    '--islands-menu-group-label-padding': '8px 16px 4px',
-    '--islands-menu-group-label-font-size': '12px',
-    '--islands-menu-group-label-color': '#999',
-    '--islands-dropdown-trigger-bg': '#667eea',
-    '--islands-dropdown-trigger-color': 'white',
-    '--islands-dropdown-trigger-radius': '6px',
-    '--islands-dropdown-menu-bg': 'white',
-    '--islands-dropdown-menu-radius': '8px',
-    '--islands-dropdown-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-    '--islands-context-menu-bg': 'white',
-    '--islands-context-menu-radius': '8px',
-    '--islands-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.15)',
-    // 表格变量
-    '--islands-table-bg': colors.background,
-    '--islands-table-text': colors.textPrimary,
-    '--islands-table-border': colors.border,
-    '--islands-table-head-bg': colors.backgroundSecondary,
-    '--islands-table-head-color': colors.textPrimary,
-    '--islands-table-body-bg': colors.background,
-    '--islands-table-foot-bg': colors.backgroundSecondary,
-    '--islands-table-row-border': colors.border,
-    '--islands-table-cell-color': colors.textPrimary,
-    '--islands-table-cell-padding': '12px 16px',
-    '--islands-table-head-padding': '12px 16px',
-    '--islands-table-striped-bg': colors.backgroundSecondary,
-    '--islands-table-hover-bg': 'rgba(102, 126, 234, 0.05)',
-    '--islands-table-font-size': '14px',
-  };
-
-  // 组件主题定义
-  theme.componentThemes = {
-    // 按钮
-    Button: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-      },
-      baseStyles: {
-        padding: `${size$2.paddingSm} ${size$2.paddingMd}`,
-        fontSize: size$2.fontSizeSm,
-        borderRadius: size$2.radiusSm,
-      },
-    },
-
-    // 菜单
-    Menu: {
-      stateStyles: {},
-      baseStyles: {
-        background: colors.background,
-        borderRadius: size$2.radiusMd,
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        padding: `${size$2.paddingSm} 0`,
-        minWidth: '140px',
-      },
-    },
-
-    // 菜单项
-    MenuItem: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        },
-        active: {
-          background: 'rgba(102, 126, 234, 0.1)',
-          fontWeight: '500',
-        },
-        danger: {
-          color: colors.error,
-        },
-      },
-      baseStyles: {
-        padding: `${size$2.paddingSm} ${size$2.paddingMd}`,
-        cursor: 'pointer',
-        alignItems: 'center',
-        gap: size$2.gapSm,
-        transition: 'background-color 0.2s',
-        borderRadius: size$2.radiusSm,
-        color: colors.textPrimary,
-        fontSize: size$2.fontSizeSm,
-      },
-    },
-
-    // 卡片
-    Card: {
-      stateStyles: {},
-      baseStyles: {
-        background: colors.background,
-        borderRadius: size$2.radiusLg,
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        overflow: 'hidden',
-      },
-    },
-
-    // 卡片头部
-    CardHeader: {
-      stateStyles: {},
-      baseStyles: {
-        padding: `${size$2.paddingMd} ${size$2.paddingLg}`,
-        borderBottom: `1px solid ${colors.borderLight}`,
-        background: colors.backgroundSecondary,
-        fontSize: size$2.fontSizeMd,
-      },
-    },
-
-    // 卡片内容
-    CardBody: {
-      stateStyles: {},
-      baseStyles: {
-        padding: `${size$2.paddingMd} ${size$2.paddingLg}`,
-        fontSize: size$2.fontSizeMd,
-      },
-    },
-
-    // 卡片底部
-    CardFooter: {
-      stateStyles: {},
-      baseStyles: {
-        padding: `${size$2.paddingMd} ${size$2.paddingLg}`,
-        borderTop: `1px solid ${colors.borderLight}`,
-        background: colors.backgroundSecondary,
-        fontSize: size$2.fontSizeSm,
-      },
-    },
-
-    // 消息
-    Message: {
-      stateStyles: {},
-      variants: {
-        success: {
-          background: '#d4edda',
-          border: '1px solid #c3e6cb',
-          color: '#155724',
-        },
-        error: {
-          background: '#f8d7da',
-          border: '1px solid #f5c6cb',
-          color: '#721c24',
-        },
-        warning: {
-          background: '#fff3cd',
-          border: '1px solid #ffeeba',
-          color: '#856404',
-        },
-        info: {
-          background: '#d1ecf1',
-          border: '1px solid #bee5eb',
-          color: '#0c5460',
-        },
-      },
-      baseStyles: {
-        padding: `${size$2.paddingSm} ${size$2.paddingMd}`,
-        borderRadius: size$2.radiusMd,
-        fontSize: size$2.fontSizeSm,
-        margin: `${size$2.marginSm} 0`,
-      },
-    },
-
-    // 输入框
-    Input: {
-      stateStyles: {
-        disabled: {
-          background: colors.backgroundTertiary,
-          cursor: 'not-allowed',
-        },
-      },
-      baseStyles: {
-        padding: `${size$2.paddingSm} ${size$2.paddingMd}`,
-        border: `1px solid ${colors.border}`,
-        borderRadius: size$2.radiusSm,
-        fontSize: size$2.fontSizeSm,
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-      },
-    },
-
-    // 分隔线
-    Divider: {
-      stateStyles: {},
-      baseStyles: {
-        height: '1px',
-        background: colors.border,
-        margin: `${size$2.marginMd} 0`,
-      },
-    },
-
-    // 按钮组件
-    VButton: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        },
-        loading: {
-          cursor: 'wait',
-          pointerEvents: 'none',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: size$2.gapSm,
-        padding: '8px 16px',
-        fontSize: '14px',
-        fontWeight: '400',
-        borderRadius: size$2.radiusSm,
-        border: '1px solid transparent',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        outline: 'none',
-        minWidth: '64px',
-        height: '32px',
-      },
-    },
-
-    // 输入框组件
-    VInput: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-        error: {
-          borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: '100%',
-        padding: '8px 12px',
-        fontSize: '14px',
-        borderRadius: size$2.radiusSm,
-        border: `1px solid ${colors.border}`,
-        background: colors.background,
-        color: colors.textPrimary,
-        transition: 'all 0.2s',
-        outline: 'none',
-        height: '32px',
-        boxSizing: 'border-box',
-      },
-    },
-
-    // 选择框组件
-    VSelect: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-        error: {
-          borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: '100%',
-        padding: '8px 12px',
-        fontSize: '14px',
-        borderRadius: size$2.radiusSm,
-        border: `1px solid ${colors.border}`,
-        background: colors.background,
-        color: colors.textPrimary,
-        transition: 'all 0.2s',
-        outline: 'none',
-        height: '32px',
-        boxSizing: 'border-box',
-        cursor: 'pointer',
-      },
-    },
-
-    // 文本域组件
-    VTextarea: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-        error: {
-          borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        width: '100%',
-        padding: '8px 12px',
-        fontSize: '14px',
-        borderRadius: size$2.radiusSm,
-        border: `1px solid ${colors.border}`,
-        background: colors.background,
-        color: colors.textPrimary,
-        transition: 'all 0.2s',
-        outline: 'none',
-        boxSizing: 'border-box',
-        minHeight: '80px',
-      },
-    },
-
-    // 复选框组件
-    VCheckbox: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: size$2.gapSm,
-        cursor: 'pointer',
-        fontSize: '14px',
-        color: colors.textPrimary,
-        userSelect: 'none',
-      },
-    },
-
-    // 开关组件
-    VSwitch: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: '44px',
-        height: '22px',
-        borderRadius: '11px',
-        background: colors.border,
-        padding: '2px',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        position: 'relative',
-        boxSizing: 'border-box',
-      },
-    },
-
-    // 表单容器
-    VForm: {
-      stateStyles: {},
-      baseStyles: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        width: '100%',
-      },
-    },
-
-    // 详情展示
-    VDescriptions: {
-      stateStyles: {},
-      baseStyles: {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        fontSize: '14px',
-        color: colors.textPrimary,
-      },
-    },
-
-    // 可编辑字段
-    VField: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: size$2.gapSm,
-        padding: '4px 8px',
-        borderRadius: size$2.radiusSm,
-        border: '1px dashed transparent',
-        minWidth: '80px',
-        minHeight: '24px',
-        position: 'relative',
-        boxSizing: 'border-box',
-        transition: 'all 0.2s',
-      },
-    },
-
-    // 页面背景
-    VBody: {
-      stateStyles: {},
-      baseStyles: {
-        display: 'flex',
-        flexDirection: 'column',
-        background: colors.background,
-        minHeight: '100vh',
-        width: '100%',
-        transition: 'background-color 0.3s ease',
-      },
-    },
-
-    // 表格
-    VTable: {
-      stateStyles: {
-        bordered: {
-          border: '1px solid var(--islands-table-border)',
-        },
-        compact: {
-          '--islands-table-cell-padding': '8px 12px',
-        },
-      },
-      baseStyles: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        fontSize: 'var(--islands-table-font-size, 14px)',
-        color: 'var(--islands-table-text)',
-        background: 'var(--islands-table-bg)',
-      },
-    },
-
-    // 表格行
-    VTr: {
-      stateStyles: {
-        striped: {
-          background: 'var(--islands-table-striped-bg)',
-        },
-        hoverable: {
-          transition: 'background-color 0.2s',
-        },
-      },
-      baseStyles: {
-        transition: 'background-color 0.2s',
-      },
-    },
-
-    // 表格头单元格
-    VTh: {
-      stateStyles: {},
-      baseStyles: {
-        padding: 'var(--islands-table-head-padding)',
-        textAlign: 'left',
-        fontWeight: '600',
-        color: 'var(--islands-table-head-color)',
-        borderBottom: '2px solid var(--islands-table-border)',
-        whiteSpace: 'nowrap',
-      },
-    },
-
-    // 表格单元格
-    VTd: {
-      stateStyles: {},
-      baseStyles: {
-        padding: 'var(--islands-table-cell-padding)',
-        borderBottom: '1px solid var(--islands-table-row-border)',
-        color: 'var(--islands-table-cell-color)',
-        verticalAlign: 'middle',
-      },
-    },
-
-    // 表格头部
-    VThead: {
-      stateStyles: {},
-      baseStyles: {
-        background: 'var(--islands-table-head-bg)',
-        borderBottom: '2px solid var(--islands-table-border)',
-      },
-    },
-
-    // 表格主体
-    VTbody: {
-      stateStyles: {},
-      baseStyles: {
-        background: 'var(--islands-table-body-bg)',
-      },
-    },
-
-    // 表格底部
-    VTfoot: {
-      stateStyles: {},
-      baseStyles: {
-        background: 'var(--islands-table-foot-bg)',
-        borderTop: '2px solid var(--islands-table-border)',
-      },
-    },
-  };
-
-  return theme;
+function getThemeCssPath(cssName) {
+  const basePath = getThemeBasePath();
+  return `${basePath}/css/${cssName}.css`;
 }
 
 /**
- * Islands 主题 - 深色模式
- * Small 尺寸规格
+ * 获取组件 CSS 文件路径
+ * @param {string} componentName - 组件名称
+ * @returns {string} 组件 CSS 文件路径
  */
-
-
-// Small 尺寸规格
-const size$1 = {
-  paddingXs: '4px',
-  paddingSm: '6px',
-  paddingMd: '8px',
-  paddingLg: '10px',
-  marginXs: '4px',
-  marginSm: '6px',
-  marginMd: '8px',
-  marginLg: '10px',
-  gapXs: '4px',
-  gapSm: '6px',
-  gapMd: '8px',
-  gapLg: '10px',
-  radiusSm: '4px',
-  radiusMd: '6px',
-  radiusLg: '8px',
-  fontSizeSm: '12px',
-  fontSizeMd: '13px',
-};
-
-/**
- * 创建 Islands 深色主题
- */
-function createDarkTheme() {
-  const theme = new Theme('islands:dark');
-
-  // 定义颜色变量 - JetBrains Islands 深色主题配色
-  const colors = {
-    // 主色调 - JetBrains 蓝紫色（深色模式调整）
-    primary: '#7B85EE',        // 主要交互色（提亮）
-    primaryLight: '#949FF5',    // 悬停/高亮
-    primaryDark: '#5A67D6',     // 按压/激活
-    primaryAlpha: 'rgba(123, 133, 238, 0.15)',  // 半透明背景
-
-    // 背景色 - Islands 风格深色系
-    background: '#19191C',      // 主背景（深灰黑）
-    backgroundSecondary: '#252528',   // 次级背景（表头、分组）
-    backgroundTertiary: '#2F2F33',    // 第三级背景（禁用、不可用）
-    backgroundHover: '#353539',       // 悬停背景
-
-    // 文字颜色 - JetBrains 灰度体系（深色模式）
-    textPrimary: '#E8E8E8',     // 主要文字
-    textSecondary: '#9B9DA3',   // 次要文字/描述
-    textTertiary: '#6B6E75',    // 辅助文字
-    textDisabled: '#4F5157',    // 禁用文字
-    textLink: '#5A8BFF',        // 链接色（提亮）
-
-    // 边框 - JetBrains 边框色（深色模式）
-    border: '#3E3E42',          // 主边框
-    borderLight: '#4A4A4F',     // 次级边框
-    borderFocus: '#7B85EE',     // 聚焦边框
-    borderHover: '#5A5C63',     // 悬停边框
-
-    // 状态色 - JetBrains 语义色（深色模式调整）
-    success: '#5FD471',         // 成功（亮绿色）
-    successBg: 'rgba(95, 212, 113, 0.15)',
-    warning: '#F5B86A',         // 警告（亮橙色）
-    warningBg: 'rgba(245, 184, 106, 0.15)',
-    error: '#F56A6A',           // 错误（亮红色）
-    errorBg: 'rgba(245, 106, 106, 0.15)',
-    info: '#5FC4F0',            // 信息（亮蓝色）
-    infoBg: 'rgba(95, 196, 240, 0.15)',
-
-    // selection - 选区背景
-    selection: 'rgba(123, 133, 238, 0.25)',
-    selectionInactive: 'rgba(123, 133, 238, 0.1)',
-
-    // 阴影 - JetBrains 深色模式阴影
-    shadow: 'rgba(0, 0, 0, 0.3)',
-    shadowHover: 'rgba(0, 0, 0, 0.4)',
-    shadowDropdown: 'rgba(0, 0, 0, 0.5)',
-
-    // 特殊效果
-    overlay: 'rgba(0, 0, 0, 0.6)'};
-
-  // 全局样式变量
-  theme.variables = {
-    '--islands-primary': colors.primary,
-    '--islands-primary-light': colors.primaryLight,
-    '--islands-primary-dark': colors.primaryDark,
-    '--islands-primary-alpha': colors.primaryAlpha,
-    '--islands-bg': colors.background,
-    '--islands-bg-secondary': colors.backgroundSecondary,
-    '--islands-bg-tertiary': colors.backgroundTertiary,
-    '--islands-bg-hover': colors.backgroundHover,
-    '--islands-text': colors.textPrimary,
-    '--islands-text-secondary': colors.textSecondary,
-    '--islands-text-tertiary': colors.textTertiary,
-    '--islands-text-disabled': colors.textDisabled,
-    '--islands-text-link': colors.textLink,
-    '--islands-border': colors.border,
-    '--islands-border-light': colors.borderLight,
-    '--islands-border-focus': colors.borderFocus,
-    '--islands-border-hover': colors.borderHover,
-    '--islands-success': colors.success,
-    '--islands-success-bg': colors.successBg,
-    '--islands-warning': colors.warning,
-    '--islands-warning-bg': colors.warningBg,
-    '--islands-error': colors.error,
-    '--islands-error-bg': colors.errorBg,
-    '--islands-info': colors.info,
-    '--islands-info-bg': colors.infoBg,
-    '--islands-selection': colors.selection,
-    '--islands-selection-inactive': colors.selectionInactive,
-    '--islands-shadow': colors.shadow,
-    '--islands-shadow-hover': colors.shadowHover,
-    '--islands-shadow-dropdown': colors.shadowDropdown,
-    '--islands-hover-bg': colors.backgroundHover,
-    '--islands-error-alpha': colors.errorBg,
-    '--islands-overlay': colors.overlay,
-    // 尺寸变量
-    '--islands-padding-xs': size$1.paddingXs,
-    '--islands-padding-sm': size$1.paddingSm,
-    '--islands-padding-md': size$1.paddingMd,
-    '--islands-padding-lg': size$1.paddingLg,
-    '--islands-margin-xs': size$1.marginXs,
-    '--islands-margin-sm': size$1.marginSm,
-    '--islands-margin-md': size$1.marginMd,
-    '--islands-margin-lg': size$1.marginLg,
-    '--islands-gap-xs': size$1.gapXs,
-    '--islands-gap-sm': size$1.gapSm,
-    '--islands-gap-md': size$1.gapMd,
-    '--islands-gap-lg': size$1.gapLg,
-    '--islands-radius-sm': size$1.radiusSm,
-    '--islands-radius-md': size$1.radiusMd,
-    '--islands-radius-lg': size$1.radiusLg,
-    '--islands-font-size-sm': size$1.fontSizeSm,
-    '--islands-font-size-md': size$1.fontSizeMd,
-    // 按钮变量
-    '--islands-button-padding': '8px 16px',
-    '--islands-button-padding-lg': '10px 20px',
-    '--islands-button-padding-sm': '4px 10px',
-    '--islands-button-font-size': '14px',
-    '--islands-button-font-size-lg': '16px',
-    '--islands-button-font-size-sm': '12px',
-    '--islands-button-height': '32px',
-    '--islands-button-height-lg': '40px',
-    '--islands-button-height-sm': '24px',
-    '--islands-button-radius': '6px',
-    '--islands-button-min-width': '64px',
-    '--islands-button-primary-bg': colors.primary,
-    '--islands-button-primary-hover': colors.primaryLight,
-    '--islands-button-primary-active': colors.primaryDark,
-    '--islands-button-success-bg': colors.success,
-    '--islands-button-success-hover': '#52C663',
-    '--islands-button-warning-bg': colors.warning,
-    '--islands-button-warning-hover': '#E0962E',
-    '--islands-button-danger-bg': colors.error,
-    '--islands-button-danger-hover': '#E05252',
-    '--islands-button-default-bg': colors.background,
-    '--islands-button-default-hover': colors.backgroundHover,
-    '--islands-button-default-border': colors.border,
-    // 输入框变量
-    '--islands-input-padding': '8px 12px',
-    '--islands-input-padding-lg': '10px 16px',
-    '--islands-input-padding-sm': '4px 8px',
-    '--islands-input-font-size': '14px',
-    '--islands-input-font-size-lg': '16px',
-    '--islands-input-font-size-sm': '12px',
-    '--islands-input-height': '32px',
-    '--islands-input-height-lg': '40px',
-    '--islands-input-height-sm': '24px',
-    '--islands-input-radius': '6px',
-    '--islands-input-border': colors.border,
-    '--islands-input-bg': colors.background,
-    '--islands-input-text': colors.textPrimary,
-    '--islands-input-disabled-bg': colors.backgroundTertiary,
-    // 选择框变量
-    '--islands-select-padding': '8px 12px',
-    '--islands-select-padding-lg': '10px 16px',
-    '--islands-select-padding-sm': '4px 8px',
-    '--islands-select-font-size': '14px',
-    '--islands-select-font-size-lg': '16px',
-    '--islands-select-font-size-sm': '12px',
-    '--islands-select-height': '32px',
-    '--islands-select-height-lg': '40px',
-    '--islands-select-height-sm': '24px',
-    '--islands-select-radius': '6px',
-    '--islands-select-border': colors.border,
-    '--islands-select-bg': colors.background,
-    '--islands-select-text': colors.textPrimary,
-    '--islands-select-disabled-bg': colors.backgroundTertiary,
-    // 文本域变量
-    '--islands-textarea-padding': '8px 12px',
-    '--islands-textarea-font-size': '14px',
-    '--islands-textarea-radius': '6px',
-    '--islands-textarea-border': colors.border,
-    '--islands-textarea-bg': colors.background,
-    '--islands-textarea-text': colors.textPrimary,
-    '--islands-textarea-disabled-bg': colors.backgroundTertiary,
-    '--islands-textarea-min-height': '80px',
-    // 复选框变量
-    '--islands-checkbox-font-size': '14px',
-    '--islands-checkbox-text': colors.textPrimary,
-    // 开关变量
-    '--islands-switch-width': '44px',
-    '--islands-switch-height': '22px',
-    '--islands-switch-bg': colors.border,
-    // 表单变量
-    '--islands-form-gap': '16px',
-    // 详情展示变量
-    '--islands-descriptions-font-size': '14px',
-    '--islands-descriptions-text': colors.textPrimary,
-    '--islands-descriptions-title-size': '16px',
-    '--islands-descriptions-title-color': colors.textPrimary,
-    '--islands-descriptions-title-padding': '12px 0',
-    '--islands-descriptions-padding': '12px 16px',
-    '--islands-descriptions-border': colors.border,
-    '--islands-descriptions-label-bg': colors.backgroundSecondary,
-    '--islands-descriptions-label-color': colors.textSecondary,
-    '--islands-descriptions-content-color': colors.textPrimary,
-    // 字段编辑变量
-    '--islands-field-padding': '4px 8px',
-    '--islands-field-radius': '4px',
-    '--islands-field-min-width': '80px',
-    '--islands-field-min-height': '24px',
-    // 代码变量
-    '--islands-code-bg': '#2d2d2d',
-    '--islands-code-radius': '8px',
-    '--islands-code-border': '1px solid rgba(255,255,255,0.1)',
-    '--islands-code-padding': '16px',
-    '--islands-code-font-size': '13px',
-    '--islands-code-line-height': '1.6',
-    '--islands-code-text-color': '#d4d4d4',
-    '--islands-code-font-family': '"Fira Code", "Consolas", "Monaco", monospace',
-    '--islands-code-header-padding': '10px 16px',
-    '--islands-code-header-bg': 'rgba(255,255,255,0.05)',
-    '--islands-code-header-border': '1px solid rgba(255,255,255,0.1)',
-    '--islands-code-title-color': '#007acc',
-    '--islands-code-title-font-size': '13px',
-    '--islands-code-title-font-weight': '600',
-    '--islands-code-copy-padding': '4px 10px',
-    '--islands-code-copy-radius': '4px',
-    '--islands-code-copy-font-size': '12px',
-    '--islands-code-copy-bg': '#444',
-    '--islands-code-copy-color': '#ccc',
-    '--islands-code-copy-hover-bg': '#555',
-    '--islands-code-copy-hover-color': 'white',
-    '--islands-code-copy-success-bg': '#28a745',
-    '--islands-code-copy-success-color': 'white',
-    // 消息变量
-    '--islands-message-z-index': '9999',
-    '--islands-message-gap': '10px',
-    '--islands-message-container-padding': '16px',
-    '--islands-message-max-width': '420px',
-    '--islands-message-icon-size': '18px',
-    '--islands-message-icon-margin': '10px',
-    '--islands-message-font-size': '14px',
-    '--islands-message-line-height': '1.5',
-    '--islands-message-close-size': '20px',
-    '--islands-message-close-padding': '0 4px',
-    '--islands-message-close-opacity': '0.7',
-    '--islands-message-close-hover-opacity': '1',
-    '--islands-message-success-bg': colors.successBg,
-    '--islands-message-success-color': colors.success,
-    '--islands-message-success-border': `1px solid ${colors.success}`,
-    '--islands-message-error-bg': colors.errorBg,
-    '--islands-message-error-color': colors.error,
-    '--islands-message-error-border': `1px solid ${colors.error}`,
-    '--islands-message-warning-bg': colors.warningBg,
-    '--islands-message-warning-color': colors.warning,
-    '--islands-message-warning-border': `1px solid ${colors.warning}`,
-    '--islands-message-info-bg': colors.infoBg,
-    '--islands-message-info-color': colors.info,
-    '--islands-message-info-border': `1px solid ${colors.info}`,
-    // 菜单变量
-    '--islands-menu-bg': '#252542',
-    '--islands-menu-radius': '8px',
-    '--islands-menu-shadow': '0 4px 12px rgba(0,0,0,0.3)',
-    '--islands-menu-padding': '8px 0',
-    '--islands-menu-min-width': '160px',
-    '--islands-menu-item-padding': '10px',
-    '--islands-menu-item-horizontal-padding': '16px',
-    '--islands-menu-item-gap': '10px',
-    '--islands-menu-item-radius': '4px',
-    '--islands-menu-item-color': '#eaeaea',
-    '--islands-menu-item-font-size': '13px',
-    '--islands-menu-item-hover-bg': 'rgba(255, 255, 255, 0.05)',
-    '--islands-menu-item-active-bg': 'rgba(124, 143, 240, 0.2)',
-    '--islands-menu-item-active-font-weight': '500',
-    '--islands-menu-item-active-color': '#7c8ff0',
-    '--islands-menu-item-disabled-opacity': '0.5',
-    '--islands-menu-item-danger-color': '#f87171',
-    '--islands-menu-divider-height': '1px',
-    '--islands-menu-divider-bg': '#3a3a5c',
-    '--islands-menu-group-label-padding': '8px 16px 4px',
-    '--islands-menu-group-label-font-size': '12px',
-    '--islands-menu-group-label-color': '#999',
-    '--islands-dropdown-trigger-bg': '#7c8ff0',
-    '--islands-dropdown-trigger-color': 'white',
-    '--islands-dropdown-trigger-radius': '6px',
-    '--islands-dropdown-menu-bg': '#252542',
-    '--islands-dropdown-menu-radius': '8px',
-    '--islands-dropdown-menu-shadow': '0 4px 12px rgba(0,0,0,0.3)',
-    '--islands-context-menu-bg': '#252542',
-    '--islands-context-menu-radius': '8px',
-    '--islands-context-menu-shadow': '0 4px 12px rgba(0,0,0,0.3)',
-    // 表格变量
-    '--islands-table-bg': colors.background,
-    '--islands-table-text': colors.textPrimary,
-    '--islands-table-border': colors.border,
-    '--islands-table-head-bg': colors.backgroundSecondary,
-    '--islands-table-head-color': colors.textPrimary,
-    '--islands-table-body-bg': colors.background,
-    '--islands-table-foot-bg': colors.backgroundSecondary,
-    '--islands-table-row-border': colors.border,
-    '--islands-table-cell-color': colors.textPrimary,
-    '--islands-table-cell-padding': '12px 16px',
-    '--islands-table-head-padding': '12px 16px',
-    '--islands-table-striped-bg': colors.backgroundSecondary,
-    '--islands-table-hover-bg': 'rgba(255, 255, 255, 0.05)',
-    '--islands-table-font-size': '14px',
-  };
-
-  // 组件主题定义
-  theme.componentThemes = {
-    // 按钮
-    Button: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-      },
-      baseStyles: {
-        padding: `${size$1.paddingSm} ${size$1.paddingMd}`,
-        fontSize: size$1.fontSizeSm,
-        borderRadius: size$1.radiusSm,
-      },
-    },
-
-    // 菜单
-    Menu: {
-      stateStyles: {},
-      baseStyles: {
-        background: colors.backgroundSecondary,
-        borderRadius: size$1.radiusMd,
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        padding: `${size$1.paddingSm} 0`,
-        minWidth: '140px',
-      },
-    },
-
-    // 菜单项
-    MenuItem: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        },
-        active: {
-          background: 'rgba(124, 143, 240, 0.2)',
-          fontWeight: '500',
-        },
-        danger: {
-          color: colors.error,
-        },
-      },
-      baseStyles: {
-        padding: `${size$1.paddingSm} ${size$1.paddingMd}`,
-        cursor: 'pointer',
-        alignItems: 'center',
-        gap: size$1.gapSm,
-        transition: 'background-color 0.2s',
-        borderRadius: size$1.radiusSm,
-        color: colors.textPrimary,
-        fontSize: size$1.fontSizeSm,
-      },
-      hoverStyles: {
-        background: 'rgba(255, 255, 255, 0.05)',
-      },
-    },
-
-    // 卡片
-    Card: {
-      stateStyles: {},
-      baseStyles: {
-        background: colors.backgroundSecondary,
-        borderRadius: size$1.radiusLg,
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        overflow: 'hidden',
-      },
-    },
-
-    // 卡片头部
-    CardHeader: {
-      stateStyles: {},
-      baseStyles: {
-        padding: `${size$1.paddingMd} ${size$1.paddingLg}`,
-        borderBottom: `1px solid ${colors.border}`,
-        background: colors.backgroundTertiary,
-        fontSize: size$1.fontSizeMd,
-      },
-    },
-
-    // 卡片内容
-    CardBody: {
-      stateStyles: {},
-      baseStyles: {
-        padding: `${size$1.paddingMd} ${size$1.paddingLg}`,
-        fontSize: size$1.fontSizeMd,
-      },
-    },
-
-    // 卡片底部
-    CardFooter: {
-      stateStyles: {},
-      baseStyles: {
-        padding: `${size$1.paddingMd} ${size$1.paddingLg}`,
-        borderTop: `1px solid ${colors.border}`,
-        background: colors.backgroundTertiary,
-        fontSize: size$1.fontSizeSm,
-      },
-    },
-
-    // 消息
-    Message: {
-      stateStyles: {},
-      variants: {
-        success: {
-          background: 'rgba(74, 222, 128, 0.15)',
-          border: '1px solid rgba(74, 222, 128, 0.3)',
-          color: colors.success,
-        },
-        error: {
-          background: 'rgba(248, 113, 113, 0.15)',
-          border: '1px solid rgba(248, 113, 113, 0.3)',
-          color: colors.error,
-        },
-        warning: {
-          background: 'rgba(251, 191, 36, 0.15)',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
-          color: colors.warning,
-        },
-        info: {
-          background: 'rgba(34, 211, 238, 0.15)',
-          border: '1px solid rgba(34, 211, 238, 0.3)',
-          color: colors.info,
-        },
-      },
-      baseStyles: {
-        padding: `${size$1.paddingSm} ${size$1.paddingMd}`,
-        borderRadius: size$1.radiusMd,
-        fontSize: size$1.fontSizeSm,
-        margin: `${size$1.marginSm} 0`,
-      },
-    },
-
-    // 输入框
-    Input: {
-      stateStyles: {
-        disabled: {
-          background: colors.backgroundTertiary,
-          cursor: 'not-allowed',
-        },
-      },
-      baseStyles: {
-        padding: `${size$1.paddingSm} ${size$1.paddingMd}`,
-        border: `1px solid ${colors.border}`,
-        borderRadius: size$1.radiusSm,
-        fontSize: size$1.fontSizeSm,
-        background: colors.background,
-        color: colors.textPrimary,
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-      },
-    },
-
-    // 分隔线
-    Divider: {
-      stateStyles: {},
-      baseStyles: {
-        height: '1px',
-        background: colors.border,
-        margin: `${size$1.marginMd} 0`,
-      },
-    },
-
-    // 按钮组件
-    VButton: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        },
-        loading: {
-          cursor: 'wait',
-          pointerEvents: 'none',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: size$1.gapSm,
-        padding: '8px 16px',
-        fontSize: '14px',
-        fontWeight: '400',
-        borderRadius: size$1.radiusSm,
-        border: '1px solid transparent',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        outline: 'none',
-        minWidth: '64px',
-        height: '32px',
-      },
-    },
-
-    // 输入框组件
-    VInput: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-        error: {
-          borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(248, 113, 113, 0.2)',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: '100%',
-        padding: '8px 12px',
-        fontSize: '14px',
-        borderRadius: size$1.radiusSm,
-        border: `1px solid ${colors.border}`,
-        background: colors.background,
-        color: colors.textPrimary,
-        transition: 'all 0.2s',
-        outline: 'none',
-        height: '32px',
-        boxSizing: 'border-box',
-      },
-    },
-
-    // 选择框组件
-    VSelect: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-        error: {
-          borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(248, 113, 113, 0.2)',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: '100%',
-        padding: '8px 12px',
-        fontSize: '14px',
-        borderRadius: size$1.radiusSm,
-        border: `1px solid ${colors.border}`,
-        background: colors.background,
-        color: colors.textPrimary,
-        transition: 'all 0.2s',
-        outline: 'none',
-        height: '32px',
-        boxSizing: 'border-box',
-        cursor: 'pointer',
-      },
-    },
-
-    // 文本域组件
-    VTextarea: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: colors.backgroundTertiary,
-        },
-        error: {
-          borderColor: colors.error,
-          boxShadow: '0 0 0 2px rgba(248, 113, 113, 0.2)',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        width: '100%',
-        padding: '8px 12px',
-        fontSize: '14px',
-        borderRadius: size$1.radiusSm,
-        border: `1px solid ${colors.border}`,
-        background: colors.background,
-        color: colors.textPrimary,
-        transition: 'all 0.2s',
-        outline: 'none',
-        boxSizing: 'border-box',
-        minHeight: '80px',
-      },
-    },
-
-    // 复选框组件
-    VCheckbox: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: size$1.gapSm,
-        cursor: 'pointer',
-        fontSize: '14px',
-        color: colors.textPrimary,
-        userSelect: 'none',
-      },
-    },
-
-    // 开关组件
-    VSwitch: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: '44px',
-        height: '22px',
-        borderRadius: '11px',
-        background: colors.border,
-        padding: '2px',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        position: 'relative',
-        boxSizing: 'border-box',
-      },
-    },
-
-    // 表单容器
-    VForm: {
-      stateStyles: {},
-      baseStyles: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        width: '100%',
-      },
-    },
-
-    // 详情展示
-    VDescriptions: {
-      stateStyles: {},
-      baseStyles: {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        fontSize: '14px',
-        color: colors.textPrimary,
-      },
-    },
-
-    // 可编辑字段
-    VField: {
-      stateStyles: {
-        disabled: {
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        },
-      },
-      baseStyles: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: size$1.gapSm,
-        padding: '4px 8px',
-        borderRadius: size$1.radiusSm,
-        border: '1px dashed transparent',
-        minWidth: '80px',
-        minHeight: '24px',
-        position: 'relative',
-        boxSizing: 'border-box',
-        transition: 'all 0.2s',
-      },
-    },
-
-    // 页面背景
-    VBody: {
-      stateStyles: {},
-      baseStyles: {
-        display: 'flex',
-        flexDirection: 'column',
-        background: colors.background,
-        minHeight: '100vh',
-        width: '100%',
-        transition: 'background-color 0.3s ease',
-      },
-    },
-
-    // 表格
-    VTable: {
-      stateStyles: {
-        bordered: {
-          border: '1px solid var(--islands-table-border)',
-        },
-        compact: {
-          '--islands-table-cell-padding': '8px 12px',
-        },
-      },
-      baseStyles: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        fontSize: 'var(--islands-table-font-size, 14px)',
-        color: 'var(--islands-table-text)',
-        background: 'var(--islands-table-bg)',
-      },
-    },
-
-    // 表格行
-    VTr: {
-      stateStyles: {
-        striped: {
-          background: 'var(--islands-table-striped-bg)',
-        },
-        hoverable: {
-          transition: 'background-color 0.2s',
-        },
-      },
-      baseStyles: {
-        transition: 'background-color 0.2s',
-      },
-    },
-
-    // 表格头单元格
-    VTh: {
-      stateStyles: {},
-      baseStyles: {
-        padding: 'var(--islands-table-head-padding)',
-        textAlign: 'left',
-        fontWeight: '600',
-        color: 'var(--islands-table-head-color)',
-        borderBottom: '2px solid var(--islands-table-border)',
-        whiteSpace: 'nowrap',
-      },
-    },
-
-    // 表格单元格
-    VTd: {
-      stateStyles: {},
-      baseStyles: {
-        padding: 'var(--islands-table-cell-padding)',
-        borderBottom: '1px solid var(--islands-table-row-border)',
-        color: 'var(--islands-table-cell-color)',
-        verticalAlign: 'middle',
-      },
-    },
-
-    // 表格头部
-    VThead: {
-      stateStyles: {},
-      baseStyles: {
-        background: 'var(--islands-table-head-bg)',
-        borderBottom: '2px solid var(--islands-table-border)',
-      },
-    },
-
-    // 表格主体
-    VTbody: {
-      stateStyles: {},
-      baseStyles: {
-        background: 'var(--islands-table-body-bg)',
-      },
-    },
-
-    // 表格底部
-    VTfoot: {
-      stateStyles: {},
-      baseStyles: {
-        background: 'var(--islands-table-foot-bg)',
-        borderTop: '2px solid var(--islands-table-border)',
-      },
-    },
-  };
-
-  return theme;
+function getComponentCssPath(componentName) {
+  const basePath = getThemeBasePath();
+  return `${basePath}/css/components/${componentName}.css`;
 }
 
 /**
- * Islands 主题系列
- * 提供 light 和 dark 两种模式
+ * 组件 CSS 文件列表
  */
-
-
-// 导出尺寸规格
-const size = {
-  paddingXs: '4px',
-  paddingSm: '6px',
-  paddingMd: '8px',
-  paddingLg: '10px',
-  marginXs: '4px',
-  marginSm: '6px',
-  marginMd: '8px',
-  marginLg: '10px',
-  gapXs: '4px',
-  gapSm: '6px',
-  gapMd: '8px',
-  gapLg: '10px',
-  radiusSm: '4px',
-  radiusMd: '6px',
-  radiusLg: '8px',
-  fontSizeSm: '12px',
-  fontSizeMd: '13px',
+const COMPONENT_CSS_FILES = {
+  base: 'css/base.css',
+  button: 'css/components/button.css',
+  card: 'css/components/card.css',
+  menu: 'css/components/menu.css',
+  form: 'css/components/form.css',
+  code: 'css/components/code.css',
+  detail: 'css/components/detail.css',
+  pager: 'css/components/pager.css',
+  tabs: 'css/components/tabs.css',
+  switchers: 'css/components/switchers.css',
+  body: 'css/components/body.css',
+  table: 'css/components/table.css',
+  message: 'css/components/message.css',
+  box: 'css/components/box.css',
+  field: 'css/components/field.css',
+  index: 'css/components/index.css',
 };
+
+/**
+ * 手动加载 CSS 文件到文档
+ * @param {string} cssPath - CSS 文件路径
+ * @param {Object} options - 选项
+ * @param {string} options.themeId - 主题 ID
+ * @param {boolean} options.replaceExisting - 是否替换现有的主题 CSS
+ * @returns {HTMLLinkElement} 创建的 link 元素
+ */
+function loadCssFile(cssPath, options = {}) {
+  const {
+    themeId = 'custom',
+    replaceExisting = true
+  } = options;
+
+  // 移除旧的 link 元素
+  if (replaceExisting && loadedLinkElement) {
+    loadedLinkElement.remove();
+  }
+
+  // 创建新的 link 元素
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = cssPath;
+  link.dataset.theme = themeId;
+
+  // 加载完成回调
+  link.onload = () => {
+    console.log(`CSS loaded: ${cssPath}`);
+  };
+
+  link.onerror = () => {
+    console.error(`Failed to load CSS: ${cssPath}`);
+  };
+
+  // 添加到文档
+  document.head.appendChild(link);
+
+  if (replaceExisting) {
+    loadedLinkElement = link;
+  }
+
+  return link;
+}
+
+/**
+ * 加载多个组件 CSS 文件
+ * @param {string[]} componentNames - 组件名称数组
+ * @returns {Promise<HTMLLinkElement[]>} 加载的 link 元素数组
+ */
+function loadComponentCssFiles(componentNames) {
+  return Promise.all(componentNames.map(name => {
+    const cssPath = getComponentCssPath(name);
+    return loadCssFile(cssPath, { replaceExisting: false });
+  }));
+}
 
 /**
  * Yoya.I18n - 国际化模块
@@ -16493,9 +17588,9 @@ class VDynamicLoader extends Tag {
     this._loadingContent = options.loadingContent || div('加载中...');
     this._errorContent = options.errorContent || div(c => {
       c.styles({
-        color: 'var(--islands-error, #dc3545)',
+        color: 'var(--yoya-error, #dc3545)',
         padding: '12px',
-        background: 'var(--islands-bg-error, #fff5f5)',
+        background: 'var(--yoya-bg-error, #fff5f5)',
         borderRadius: '4px',
       });
       c.text('组件加载失败');
@@ -17038,11 +18133,411 @@ function getModuleCacheStatus(loader) {
 }
 
 /**
+ * Yoya.Icons - SVG 图标库
+ * 提供常用图标的函数式创建方法
+ * 使用 PascalCase 命名，直接返回 SVG 元素
+ *
+ * 所有图标都基于 svg.js 的 SvgTag 基类构建，遵循项目组件开发规范
+ */
+
+
+/**
+ * 创建基础图标配置
+ * 返回默认的 SVG 属性配置对象
+ */
+function defaultIconProps(props = {}) {
+  return {
+    width: props.width || '24',
+    height: props.height || '24',
+    viewBox: props.viewBox || '0 0 24 24',
+    fill: 'none',
+    stroke: props.stroke || 'currentColor',
+    strokeWidth: props['stroke-width'] || '2',
+    strokeLinecap: props['stroke-linecap'] || 'round',
+    strokeLinejoin: props['stroke-linejoin'] || 'round',
+    ...props,
+  };
+}
+
+/**
+ * 创建图标
+ * 使用 svg 工厂函数创建 SVG 容器，内部包含 path 路径
+ * @param {string} d - 路径数据
+ * @param {Object} props - 属性配置
+ * @returns {SvgTag} SVG 元素（svg 容器）
+ */
+function createIcon(d, props = {}) {
+  const attrs = defaultIconProps(props);
+
+  // 创建 SVG 容器
+  return svg(setup => {
+    setup.attr('width', attrs.width);
+    setup.attr('height', attrs.height);
+    setup.attr('viewBox', attrs.viewBox);
+    setup.style('display', 'inline-block');
+    setup.style('vertical-align', 'middle');
+
+    // 创建 path 路径作为子元素
+    setup.path(pathSetup => {
+      pathSetup.d(attrs.d || d);
+      pathSetup.attr('fill', attrs.fill);
+      pathSetup.attr('stroke', attrs.stroke);
+      pathSetup.attr('stroke-width', attrs.strokeWidth);
+      pathSetup.attr('stroke-linecap', attrs.strokeLinecap);
+      pathSetup.attr('stroke-linejoin', attrs.strokeLinejoin);
+
+      // 应用额外的属性到 path
+      for (const [key, value] of Object.entries(props)) {
+        if (!['d', 'width', 'height', 'viewBox'].includes(key)) {
+          pathSetup.attr(key, value);
+        }
+      }
+    });
+  });
+}
+
+// ============= 导航类图标 =============
+
+function HomeIcon(props = {}) {
+  return createIcon('M 3 9 l 9 -7 l 9 7 v 11 a 2 2 0 0 1 -2 2 h -14 a 2 2 0 0 1 -2 -2 z', props);
+}
+
+function DashboardIcon(props = {}) {
+  createIcon('', props);
+  // 需要在 svg.js 中支持多路径，这里简化为单路径图标
+  return createIcon('M 3 3 h 8 v 8 h -8 Z M 13 3 h 8 v 8 h -8 Z M 3 13 h 8 v 8 h -8 Z M 13 13 h 8 v 8 h -8 Z', props);
+}
+
+function MenuIcon(props = {}) {
+  return createIcon('M 3 6 h 18 M 3 12 h 18 M 3 18 h 18', props);
+}
+
+function ChevronDownIcon(props = {}) {
+  return createIcon('M 6 9 l 6 6 l 6 -6', props);
+}
+
+function ChevronUpIcon(props = {}) {
+  return createIcon('M 18 15 l -6 -6 l -6 6', props);
+}
+
+function ChevronLeftIcon(props = {}) {
+  return createIcon('M 15 6 l -6 6 l 6 6', props);
+}
+
+function ChevronRightIcon(props = {}) {
+  return createIcon('M 9 6 l 6 6 l -6 6', props);
+}
+
+function ArrowLeftIcon(props = {}) {
+  return createIcon('M 19 12 h -16 M 9 6 l -6 6 l 6 6', props);
+}
+
+function ArrowRightIcon(props = {}) {
+  return createIcon('M 5 12 h 16 M 15 6 l 6 6 l -6 6', props);
+}
+
+function CloseIcon(props = {}) {
+  return createIcon('M 18 6 L 6 18 M 6 6 l 12 12', props);
+}
+
+function PlusIcon(props = {}) {
+  return createIcon('M 12 5 v 14 M 5 12 h 14', props);
+}
+
+function MinusIcon(props = {}) {
+  return createIcon('M 5 12 h 14', props);
+}
+
+// ============= 用户类图标 =============
+
+function UserIcon(props = {}) {
+  return createIcon('M 20 21 v -2 a 4 4 0 0 0 -4 -4 h -8 a 4 4 0 0 0 -4 4 v 2 M 12 3 a 4 4 0 1 0 0 8 a 4 4 0 1 0 0 -8', props);
+}
+
+function UsersIcon(props = {}) {
+  return createIcon('M 17 21 v -2 a 4 4 0 0 0 -4 -4 h -1 M 16 3.13 a 4 4 0 0 1 0 7.75 M 23 21 v -2 a 4 4 0 0 0 -3 -3.87 M 20 9.88 a 4 4 0 0 1 0 7.75 M 7 21 v -2 a 4 4 0 0 1 -4 -4 v 0 a 4 4 0 0 1 1.47 -3.06 M 12 7 a 4 4 0 1 0 0 8 a 4 4 0 1 0 0 -8', props);
+}
+
+function SettingsIcon(props = {}) {
+  return createIcon('M 12 15 a 3 3 0 1 0 0 -6 a 3 3 0 1 0 0 6 z M 19.4 15 a 1.65 1.65 0 0 0 .33 1.82 l .06 .06 a 2 2 0 1 1 -2.83 2.83 l -.06 -.06 a 1.65 1.65 0 0 0 -1.82 -.33 a 1.65 1.65 0 0 0 -1 1.51 v .17 a 2 2 0 1 1 -4 0 v -.17 a 1.65 1.65 0 0 0 -1 -1.51 a 1.65 1.65 0 0 0 -1.82 .33 l -.06 .06 a 2 2 0 1 1 -2.83 -2.83 l .06 -.06 a 1.65 1.65 0 0 0 .33 -1.82 a 1.65 1.65 0 0 0 -1.51 -1 h -.17 a 2 2 0 1 1 0 -4 h .17 a 1.65 1.65 0 0 0 1.51 -1 a 1.65 1.65 0 0 0 -.33 -1.82 l -.06 -.06 a 2 2 0 1 1 2.83 -2.83 l .06 .06 a 1.65 1.65 0 0 0 1.82 -.33 h .17 a 1.65 1.65 0 0 0 1 -1.51 v -.17 a 2 2 0 1 1 4 0 v .17 a 1.65 1.65 0 0 0 1 1.51 a 1.65 1.65 0 0 0 1.82 -.33 l .06 -.06 a 2 2 0 1 1 2.83 2.83 l -.06 .06 a 1.65 1.65 0 0 0 -.33 1.82 v .17 a 1.65 1.65 0 0 0 1.51 1 h .17 a 2 2 0 1 1 0 4 h -.17 a 1.65 1.65 0 0 0 -1.51 1', props);
+}
+
+function ProfileIcon(props = {}) {
+  return createIcon('M 20 21 v -2 a 4 4 0 0 0 -4 -4 h -8 a 4 4 0 0 0 -4 4 v 2 M 12 3 a 4 4 0 1 0 0 8 a 4 4 0 1 0 0 -8 M 3 7 h 18', props);
+}
+
+function LoginIcon(props = {}) {
+  return createIcon('M 15 3 h 4 a 2 2 0 0 1 2 2 v 14 a 2 2 0 0 1 -2 2 h -4 M 10 17 l 5 -5 l -5 -5 M 15 12 h -9', props);
+}
+
+function LogoutIcon(props = {}) {
+  return createIcon('M 9 21 h -4 a 2 2 0 0 1 -2 -2 v -14 a 2 2 0 0 1 2 -2 h 4 M 16 17 l 5 -5 l -5 -5 M 21 12 h -9', props);
+}
+
+// ============= 操作类图标 =============
+
+function SearchIcon(props = {}) {
+  return createIcon('M 11 19 a 8 8 0 1 0 0 -16 a 8 8 0 1 0 0 16 M 21 21 l -4.35 -4.35', props);
+}
+
+function EditIcon(props = {}) {
+  return createIcon('M 11 4 h 4 a 2 2 0 0 1 2 2 v 14 a 2 2 0 0 1 -2 2 h -4 M 11 4 l -6 6 v 8 h 12 v -8 l -6 -6 M 11 4 v 6', props);
+}
+
+function DeleteIcon(props = {}) {
+  return createIcon('M 3 6 h 18 M 19 6 v 14 a 2 2 0 0 1 -2 2 h -10 a 2 2 0 0 1 -2 -2 v -14 M 8 6 v -4 h 8 v 4', props);
+}
+
+function SaveIcon(props = {}) {
+  return createIcon('M 19 21 h -14 a 2 2 0 0 1 -2 -2 v -14 a 2 2 0 0 1 2 -2 h 11.586 a 2 2 0 0 1 1.414 .586 l 4.414 4.414 a 2 2 0 0 1 .586 1.414 v 11.586 a 2 2 0 0 1 -2 2 M 17 21 v -8 h -10 v 8 M 7 3 v 5 h 8 v -5', props);
+}
+
+function UploadIcon(props = {}) {
+  return createIcon('M 21 15 v 4 a 2 2 0 0 1 -2 2 h -14 a 2 2 0 0 1 -2 -2 v -4 M 17 8 l -5 -5 l -5 5 M 12 3 v 12', props);
+}
+
+function DownloadIcon(props = {}) {
+  return createIcon('M 21 15 v 4 a 2 2 0 0 1 -2 2 h -14 a 2 2 0 0 1 -2 -2 v -4 M 7 10 l 5 5 l 5 -5 M 12 15 v -12', props);
+}
+
+function CopyIcon(props = {}) {
+  return createIcon('M 8 4 h 10 a 2 2 0 0 1 2 2 v 14 a 2 2 0 0 1 -2 2 h -10 a 2 2 0 0 1 -2 -2 v -14 a 2 2 0 0 1 2 -2 M 8 4 v 10 a 2 2 0 0 1 -2 2 h -4 a 2 2 0 0 1 -2 -2 v -14 a 2 2 0 0 1 2 -2 h 4', props);
+}
+
+function CheckIcon(props = {}) {
+  return createIcon('M 20 6 l -11 11 l -6 -6', props);
+}
+
+function XIcon(props = {}) {
+  return createIcon('M 18 6 l -12 12 M 6 6 l 12 12', props);
+}
+
+// ============= 文件类图标 =============
+
+function FileIcon(props = {}) {
+  return createIcon('M 14 2 h -8 a 2 2 0 0 0 -2 2 v 16 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 v -10 l -6 -6 z M 14 2 v 6 h 6', props);
+}
+
+function FolderIcon(props = {}) {
+  return createIcon('M 22 19 a 2 2 0 0 1 -2 2 h -16 a 2 2 0 0 1 -2 -2 v -14 a 2 2 0 0 1 2 -2 h 8 l 2 2 h 8 a 2 2 0 0 1 2 2 v 2 z', props);
+}
+
+function FileTextIcon(props = {}) {
+  return createIcon('M 14 2 h -8 a 2 2 0 0 0 -2 2 v 16 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 v -10 l -6 -6 z M 14 2 v 6 h 6 M 10 13 v 6 M 14 13 v 6 M 18 13 v 6', props);
+}
+
+function ImageIcon(props = {}) {
+  return createIcon('M 21 19 v -14 a 2 2 0 0 0 -2 -2 h -14 a 2 2 0 0 0 -2 2 v 14 a 2 2 0 0 0 2 2 h 14 a 2 2 0 0 0 2 -2 z M 8.5 13.5 l 2.5 3 l 3.5 -4.5 l 4.5 6 h -13 z M 8.5 10.5 a 2.5 2.5 0 1 0 0 -5 a 2.5 2.5 0 1 0 0 5', props);
+}
+
+function VideoIcon(props = {}) {
+  return createIcon('M 23 7 l -7 5 l 7 5 v -10 z M 3 5 h 13 a 2 2 0 0 1 2 2 v 10 a 2 2 0 0 1 -2 2 h -13 a 2 2 0 0 1 -2 -2 v -10 a 2 2 0 0 1 2 -2', props);
+}
+
+// ============= 通知类图标 =============
+
+function BellIcon(props = {}) {
+  return createIcon('M 18 8 a 6 6 0 1 0 -12 0 c 0 7 -3 9 -3 9 h 18 s -3 -2 -3 -9 M 13.73 21 a 2 2 0 0 1 -3.46 0', props);
+}
+
+function AlertCircleIcon(props = {}) {
+  return createIcon('M 12 22 a 10 10 0 1 0 0 -20 a 10 10 0 1 0 0 20 M 12 8 v 8 M 12 16 h .01', props);
+}
+
+function AlertTriangleIcon(props = {}) {
+  return createIcon('M 10.29 3.86 l -8.48 14.71 a 2 2 0 0 0 1.71 3 h 16.96 a 2 2 0 0 0 1.71 -3 l -8.48 -14.71 a 2 2 0 0 0 -3.46 0 M 12 9 v 4 M 12 17 h .01', props);
+}
+
+function InfoIcon(props = {}) {
+  return createIcon('M 12 22 a 10 10 0 1 0 0 -20 a 10 10 0 1 0 0 20 M 12 16 v -4 M 12 8 h .01', props);
+}
+
+function CheckCircleIcon(props = {}) {
+  return createIcon('M 22 11.08 v 1 a 10 10 0 1 1 -5.93 -9.14 M 22 4 l -10 10 l -5 -5', props);
+}
+
+function XCircleIcon(props = {}) {
+  return createIcon('M 22 11.08 v 1 a 10 10 0 1 1 -5.93 -9.14 M 22 4 l -10 10 l -5 -5 M 18 6 l -12 12 M 6 6 l 12 12', props);
+}
+
+// ============= 通讯类图标 =============
+
+function MailIcon(props = {}) {
+  return createIcon('M 4 4 h 16 a 2 2 0 0 1 2 2 v 12 a 2 2 0 0 1 -2 2 h -16 a 2 2 0 0 1 -2 -2 v -12 a 2 2 0 0 1 2 -2 z M 22 6 l -10 7 l -10 -7', props);
+}
+
+function PhoneIcon(props = {}) {
+  return createIcon('M 22 16.92 v 3 a 2 2 0 0 1 -2.18 2 a 19.79 19.79 0 0 1 -8.63 -3.07 a 19.5 19.5 0 0 1 -6 -6 a 19.79 19.79 0 0 1 -3.07 -8.67 a 2 2 0 0 1 2 -2.17 l 3 -0.01 a 2 2 0 0 1 2 1.72 c 0.12 0.9 0.34 1.77 0.65 2.6 a 2 2 0 0 1 -0.45 2.11 l -1.27 1.27 a 16 16 0 0 0 6 6 l 1.27 -1.27 a 2 2 0 0 1 2.11 -0.45 c 0.83 0.31 1.7 0.53 2.6 0.65 a 2 2 0 0 1 1.72 1.97', props);
+}
+
+function MessageSquareIcon(props = {}) {
+  return createIcon('M 21 15 a 2 2 0 0 1 -2 2 h -7 l -7 7 v -7 a 2 2 0 0 1 -2 -2 v -10 a 2 2 0 0 1 2 -2 h 14 a 2 2 0 0 1 2 2 v 10', props);
+}
+
+function MessageCircleIcon(props = {}) {
+  return createIcon('M 21 11.5 a 8.38 8.38 0 0 1 -.9 3.8 a 8.5 8.5 0 0 1 -7.6 4.7 a 8.38 8.38 0 0 1 -3.8 -.9 l -3.7 2.2 v -3.7 a 8.5 8.5 0 0 1 -4.7 -7.6 a 8.38 8.38 0 0 1 .9 -3.8 a 8.5 8.5 0 0 1 7.6 -4.7 a 8.38 8.38 0 0 1 3.8 .9 a 8.5 8.5 0 0 1 4.7 7.6', props);
+}
+
+// ============= 状态类图标 =============
+
+function HeartIcon(props = {}) {
+  return createIcon('M 20.84 4.61 a 5.5 5.5 0 0 0 -7.78 0 l -1.06 1.06 l -1.06 -1.06 a 5.5 5.5 0 0 0 -7.78 7.78 l 8.84 8.84 a 1 1 0 0 0 1.42 0 l 8.84 -8.84 a 5.5 5.5 0 0 0 0 -7.78', props);
+}
+
+function StarIcon(props = {}) {
+  return createIcon('M 12 2 l 3.09 6.26 l 6.91 1 l -5 4.87 l 1.18 6.88 l -6.18 -3.26 l -6.18 3.26 l 1.18 -6.88 l -5 -4.87 l 6.91 -1 z', props);
+}
+
+function ThumbsUpIcon(props = {}) {
+  return createIcon('M 14 9 v 11 a 2 2 0 0 1 -2 2 h 0 a 2 2 0 0 1 -2 -2 v -11 a 2 2 0 0 1 2 -2 h 0 a 2 2 0 0 1 2 2 M 7 9 h 14 a 2 2 0 0 1 2 2 v 7 a 2 2 0 0 1 -2 2 h -7 a 2 2 0 0 1 -2 -2 v -7 a 2 2 0 0 1 2 -2 M 7 20 h 7 M 7 9 l -2 -7', props);
+}
+
+function ThumbsDownIcon(props = {}) {
+  return createIcon('M 10 15 v -11 a 2 2 0 0 1 2 -2 h 0 a 2 2 0 0 1 2 2 v 11 a 2 2 0 0 1 -2 2 h 0 a 2 2 0 0 1 -2 -2 M 17 15 h -14 a 2 2 0 0 1 -2 -2 v -7 a 2 2 0 0 1 2 -2 h 7 a 2 2 0 0 1 2 2 v 7 a 2 2 0 0 1 -2 2 M 17 4 h -7 M 17 15 l 2 7', props);
+}
+
+// ============= 时间类图标 =============
+
+function ClockIcon(props = {}) {
+  return createIcon('M 12 22 a 10 10 0 1 0 0 -20 a 10 10 0 1 0 0 20 M 12 6 v 6 l 4 2', props);
+}
+
+function CalendarIcon(props = {}) {
+  return createIcon('M 19 4 h -1 v -2 a 2 2 0 0 0 -2 -2 h -8 a 2 2 0 0 0 -2 2 v 2 h -1 a 2 2 0 0 0 -2 2 v 14 a 2 2 0 0 0 2 2 h 14 a 2 2 0 0 0 2 -2 v -14 a 2 2 0 0 0 -2 -2 M 19 10 h -14 v 8 h 14 v -8 M 9 4 v 6 M 15 4 v 6', props);
+}
+
+function CalendarEventIcon(props = {}) {
+  return createIcon('M 19 4 h -1 v -2 a 2 2 0 0 0 -2 -2 h -8 a 2 2 0 0 0 -2 2 v 2 h -1 a 2 2 0 0 0 -2 2 v 14 a 2 2 0 0 0 2 2 h 14 a 2 2 0 0 0 2 -2 v -14 a 2 2 0 0 0 -2 -2 M 19 10 h -14 v 8 h 14 v -8 M 9 4 v 6 M 15 4 v 6 M 12 14 l 2 2 l 4 -4', props);
+}
+
+// ============= 链接类图标 =============
+
+function LinkIcon(props = {}) {
+  return createIcon('M 10 13 a 5 5 0 0 0 7.54 .54 l 3 -3 a 5 5 0 0 0 -7.07 -7.07 l -1.72 1.71 M 14 11 a 5 5 0 0 0 -7.54 -.54 l -3 3 a 5 5 0 0 0 7.07 7.07 l 1.71 -1.71', props);
+}
+
+function ExternalLinkIcon(props = {}) {
+  return createIcon('M 18 13 v 6 a 2 2 0 0 1 -2 2 h -10 a 2 2 0 0 1 -2 -2 v -10 a 2 2 0 0 1 2 -2 h 6 M 15 3 h 6 v 6 M 10 14 l 11 -11', props);
+}
+
+function ShareIcon(props = {}) {
+  return createIcon('M 4 12 v 6 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 v -6 a 2 2 0 0 0 -2 -2 h -4 M 16 6 l -4 -4 l -4 4 M 12 2 v 13', props);
+}
+
+// ============= 设备类图标 =============
+
+function MonitorIcon(props = {}) {
+  return createIcon('M 3 3 h 18 v 14 h -18 z M 8 21 h 8 M 12 17 v 4', props);
+}
+
+function SmartphoneIcon(props = {}) {
+  return createIcon('M 6 2 h 12 a 2 2 0 0 1 2 2 v 16 a 2 2 0 0 1 -2 2 h -12 a 2 2 0 0 1 -2 -2 v -16 a 2 2 0 0 1 2 -2 M 12 18 h .01', props);
+}
+
+function TabletIcon(props = {}) {
+  return createIcon('M 4 2 h 16 a 2 2 0 0 1 2 2 v 16 a 2 2 0 0 1 -2 2 h -16 a 2 2 0 0 1 -2 -2 v -16 a 2 2 0 0 1 2 -2 M 12 18 h .01', props);
+}
+
+// ============= 其他图标 =============
+
+function EyeIcon(props = {}) {
+  return createIcon('M 1 12 s 4 -8 11 -8 s 11 8 11 8 s -4 8 -11 8 s -11 -8 -11 -8 M 12 5 a 7 7 0 1 0 0 14 a 7 7 0 1 0 0 -14 M 12 9 a 3 3 0 1 0 0 6 a 3 3 0 1 0 0 -6', props);
+}
+
+function EyeOffIcon(props = {}) {
+  return createIcon('M 17.94 17.94 a 10.07 10.07 0 0 1 -13.88 0 M 1 1 l 22 22 M 10.58 10.58 a 3 3 0 0 0 3.84 3.84 M 9.9 4.24 a 10.07 10.07 0 0 1 10.04 2.82 M 5.64 5.64 a 10.07 10.07 0 0 0 -3.58 2.42 M 1 12 s 4 -8 11 -8 c 1.3 0 2.54 .22 3.71 .61', props);
+}
+
+function LockIcon(props = {}) {
+  return createIcon('M 19 11 h -1 v -4 a 5 5 0 0 0 -10 0 v 4 h -1 a 2 2 0 0 0 -2 2 v 8 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 v -8 a 2 2 0 0 0 -2 -2 M 12 3 a 3 3 0 0 1 3 3 v 4 h -6 v -4 a 3 3 0 0 1 3 -3', props);
+}
+
+function UnlockIcon(props = {}) {
+  return createIcon('M 19 11 h -1 v -4 a 5 5 0 0 1 8.71 -3.29 M 7 11 v -4 a 5 5 0 0 1 9.9 -1 M 19 11 h -1 v 4 h -10 v -4 h -1 a 2 2 0 0 0 -2 2 v 8 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 v -8 a 2 2 0 0 0 -2 -2', props);
+}
+
+function KeyIcon(props = {}) {
+  return createIcon('M 21 2 l -2 2 m 0 4 l -2 2 m 0 4 a 2 2 0 1 1 -2.83 -2.83 l 7.83 -7.83 a 2 2 0 0 1 2.83 2.83 z M 12 12 l -3 3 M 9 15 l -2 2 M 15 9 l -3 3', props);
+}
+
+function FilterIcon(props = {}) {
+  return createIcon('M 22 3 h -16 a 2 2 0 0 0 -2 2 v 2 l 8 7 v 6 l 4 2 v -8 l 8 -7 v -2 a 2 2 0 0 0 -2 -2', props);
+}
+
+function LayersIcon(props = {}) {
+  return createIcon('M 12 2 l -10 5 l 10 5 l 10 -5 z M 2 17 l 10 5 l 10 -5 M 2 12 l 10 5 l 10 -5', props);
+}
+
+function PackageIcon(props = {}) {
+  return createIcon('M 16.5 9.4 l -9 -5.19 M 21 16 v -4.5 a 2 2 0 0 0 -1 -1.73 l -7 -4 a 2 2 0 0 0 -2 0 l -7 4 a 2 2 0 0 0 -1 1.73 v 4.5 a 2 2 0 0 0 1 1.73 l 7 4 a 2 2 0 0 0 2 0 l 7 -4 a 2 2 0 0 0 1 -1.73 M 3.27 6.96 l 8.73 5.04 l 8.73 -5.04 M 12 22 v -10', props);
+}
+
+function ShoppingCartIcon(props = {}) {
+  return createIcon('M 6 6 h 15 l -1.5 9 h -12 z M 6 6 l -1 -4 h -2 M 9 21 a 1 1 0 1 0 0 -2 a 1 1 0 1 0 0 2 M 20 21 a 1 1 0 1 0 0 -2 a 1 1 0 1 0 0 2', props);
+}
+
+function CreditCardIcon(props = {}) {
+  return createIcon('M 3 4 h 18 a 2 2 0 0 1 2 2 v 12 a 2 2 0 0 1 -2 2 h -18 a 2 2 0 0 1 -2 -2 v -12 a 2 2 0 0 1 2 -2 M 3 10 h 18', props);
+}
+
+function DollarSignIcon(props = {}) {
+  return createIcon('M 12 2 v 20 M 17 5 h -5 a 3 3 0 0 0 0 6 h 5 a 3 3 0 0 1 0 6 h -5', props);
+}
+
+function TrendingUpIcon(props = {}) {
+  return createIcon('M 23 6 l -9.5 9.5 l -5 -5 l -10 10', props);
+}
+
+function TrendingDownIcon(props = {}) {
+  return createIcon('M 23 18 l -9.5 -9.5 l -5 5 l -10 -10', props);
+}
+
+function ActivityIcon(props = {}) {
+  return createIcon('M 22 12 l -4 0 l -3 -9 l -6 18 l -3 -9 l -4 0', props);
+}
+
+function ZapIcon(props = {}) {
+  return createIcon('M 13 2 l -10 13 h 9 l -1 11 l 10 -13 h -9 z', props);
+}
+
+function HelpCircleIcon(props = {}) {
+  return createIcon('M 12 22 a 10 10 0 1 0 0 -20 a 10 10 0 1 0 0 20 M 9.09 9 a 3 3 0 0 1 5.83 1 c 0 2 -3 3 -3 3 M 12 17 h .01', props);
+}
+
+function MaximizeIcon(props = {}) {
+  return createIcon('M 8 3 h 13 v 13 M 3 8 h 13 v 13 M 3 21 l 8 -8 M 21 3 l -8 8', props);
+}
+
+function MinimizeIcon(props = {}) {
+  return createIcon('M 8 3 h 13 v 13 M 3 8 h 13 v 13 M 21 21 l -8 -8 M 3 3 l 8 8', props);
+}
+
+function RefreshCwIcon(props = {}) {
+  return createIcon('M 1 4 v 6 h 6 M 23 20 v -6 h -6 M 20.49 15 a 9 9 0 1 1 -2.12 -9.36 l 2.63 -2.64 M 3.51 9 a 9 9 0 1 1 2.12 9.36 l -2.63 2.64', props);
+}
+
+function MoreHorizontalIcon(props = {}) {
+  return createIcon('M 12 12 h .01 M 19 12 h .01 M 5 12 h .01', props);
+}
+
+function MoreVerticalIcon(props = {}) {
+  return createIcon('M 12 12 h .01 M 12 19 h .01 M 12 5 h .01', props);
+}
+
+function GridIcon(props = {}) {
+  return createIcon('M 3 3 h 8 v 8 h -8 z M 13 3 h 8 v 8 h -8 z M 3 13 h 8 v 8 h -8 z M 13 13 h 8 v 8 h -8 z', props);
+}
+
+function ListIcon(props = {}) {
+  return createIcon('M 8 6 h 13 M 8 12 h 13 M 8 18 h 13 M 3 6 h .01 M 3 12 h .01 M 3 18 h .01', props);
+}
+
+/**
  * Yoya.Basic - Browser-native HTML DSL Library
  * 提供类似 Kotlin HTML DSL 的声明式语法
  */
 
 initTagExtensions(Tag);
 
-export { A, Article, Aside, Audio, Blockquote, Br, Button, Canvas, Center, Circle, Code, CodeBlock, Container, Dd, Defs, Div, Divider, Dl, Dt, Ellipse, Em, Filter, Flex, Footer, Form, G, Grid, H1, H2, H3, H4, H5, H6, HStack, Header, Hr, IFrame, Img, Input, Label, Li, Line, LinearGradient, LoadStatus, Main, Nav, Ol, Option, P, Path, Pattern, Polygon, Polyline, Pre, RadialGradient, Rect, ResponsiveGrid, Section, Select, Source, Spacer, Span, Stack, StateMachine, Stop, Strong, Svg, SvgElement, Image as SvgImage, SvgTag, Text as SvgText, Table, Tag, Tbody, Td, Textarea, Tfoot, Th, Thead, Theme, ThemeManager, Tr, Tspan, Ul, VBody, VButton, VCard, VCardBody, VCardFooter, VCardHeader, VCheckbox, VCheckboxes, VCode, VContextMenu, VDetail, VDetailItem, VDropdownMenu, VDynamicLoader, VEchart, VField, VForm, VInput, VMenu, VMenuDivider, VMenuGroup, VMenuItem, VMessage, VMessageContainer, VMessageManager, VSelect, VSidebar, VStack, VSubMenu, VSwitch, VTable, VTbody, VTd, VTextarea, VTfoot, VTh, VThead, VTimer, VTimer2, VTr, Video, a, allVariables, applyGlobalVariables, applyTheme, applyVariables, article, aside, audio, baseVariables, blockquote, br, button, buttonVariables, canvas, cardVariables, center, circle, clearModuleCache, code, codeBlock, codeVariables, container, createBody, createDarkTheme, createDarkTheme$1 as createDarkThemeVars, createLightTheme, createText, createTheme, dd, defs, descriptionsVariables, div, divider, dl, dt, ellipse, em, fieldVariables, filter, flex, footer, form, g, getCurrentThemeId, getEffectiveThemeMode, getLanguage, getModuleCacheStatus, getRegisteredThemes, getSupportedLanguages, getTheme, getThemeMode, grid, h1, h2, h3, h4, h5, h6, hasLanguage, header, hr, hstack, iframe, img, initI18n, initStateMachine, initTagExtensions, initTheme, input, size as islandsSize, label, li, line, linearGradient, loadLanguageFromStorage, loadModules, main, menuVariables, messageVariables, nav, ol, option, p, path, pattern, polygon, polyline, pre, preloadModules, radialGradient, rect, registerLanguage, registerStateHandler, registerTheme, responsiveGrid, saveLanguageToStorage, section, select, setLanguage, setThemeMode, source, spacer, span, stack, stop, strong, svg, svgElement, svgImage, svgText, switchTheme, t, table, tag, tbody, td, text, textarea, tfoot, th, thead, themeManager, toast, tr, translate, tspan, ul, vBody, vButton, vCard, vCardBody, vCardFooter, vCardHeader, vCheckbox, vCheckboxes, vCode, vContextMenu, vDetail, vDetailItem, vDropdownMenu, vDynamicLoader, vEchart, vField, vForm, vInput, vMenu, vMenuDivider, vMenuGroup, vMenuItem, vMessage, vMessageContainer, vMessageManager, vOption, vSelect, vSidebar, vSubMenu, vSwitch, vTable, vTbody, vTd, vTextarea, vTfoot, vTh, vThead, vTimer, vTimer2, vTr, video, vstack };
+export { A, ActivityIcon, AlertCircleIcon, AlertTriangleIcon, ArrowLeftIcon, ArrowRightIcon, Article, Aside, Audio, BellIcon, Blockquote, Br, Button, COMPONENT_CSS_FILES, CalendarEventIcon, CalendarIcon, Canvas, Center, CheckCircleIcon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, Circle, ClockIcon, CloseIcon, Code, CodeBlock, Container, CopyIcon, CreditCardIcon, DashboardIcon, Dd, Defs, DeleteIcon, Div, Divider, Dl, DollarSignIcon, DownloadIcon, Dt, EditIcon, Ellipse, Em, ExternalLinkIcon, EyeIcon, EyeOffIcon, FileIcon, FileTextIcon, Filter, FilterIcon, Flex, FolderIcon, Footer, Form, G, Grid, GridIcon, H1, H2, H3, H4, H5, H6, HStack, Header, HeartIcon, HelpCircleIcon, HomeIcon, Hr, IFrame, ImageIcon, Img, InfoIcon, Input, KeyIcon, Label, LayersIcon, Li, Line, LinearGradient, LinkIcon, ListIcon, LoadStatus, LockIcon, LoginIcon, LogoutIcon, MailIcon, Main, MaximizeIcon, MenuIcon, MessageCircleIcon, MessageSquareIcon, MinimizeIcon, MinusIcon, MonitorIcon, MoreHorizontalIcon, MoreVerticalIcon, Nav, Ol, Option, P, PackageIcon, Path, Pattern, PhoneIcon, PlusIcon, Polygon, Polyline, Pre, ProfileIcon, RadialGradient, Rect, RefreshCwIcon, ResponsiveGrid, SaveIcon, SearchIcon, Section, Select, SettingsIcon, ShareIcon, ShoppingCartIcon, SmartphoneIcon, Source, Spacer, Span, Stack, StarIcon, StateMachine, Stop, Strong, Svg, SvgElement, Image as SvgImage, SvgTag, Text as SvgText, Table, TabletIcon, Tag, Tbody, Td, Textarea, Tfoot, Th, Thead, Theme, ThemeManager, ThumbsDownIcon, ThumbsUpIcon, Tr, TrendingDownIcon, TrendingUpIcon, Tspan, Ul, UnlockIcon, UploadIcon, UserIcon, UsersIcon, VBody, VBox, VButton, VButtons, VCard, VCardBody, VCardFooter, VCardHeader, VCheckbox, VCheckboxes, VCode, VConfirm, VContextMenu, VDetail, VDetailItem, VDropdownMenu, VDynamicLoader, VEchart, VField, VForm, VInput, VLink, VMenu, VMenuDivider, VMenuGroup, VMenuItem, VMessage, VMessageContainer, VMessageManager, VModal, VPager, VRoute, VRouter, VRouterView, VSelect, VSidebar, VStack, VSubMenu, VSwitch, VSwitchers, VTable, VTabs, VTbody, VTd, VTextarea, VTfoot, VTh, VThead, VTimer, VTimer2, VTopNavbar, VTr, Video, VideoIcon, XCircleIcon, XIcon, ZapIcon, a, article, aside, audio, blockquote, br, button, canvas, center, circle, clearModuleCache, code, codeBlock, confirm, container, createBody, createText, createTheme, dd, defs, div, divider, dl, dt, ellipse, em, filter, flex, footer, form, g, getComponentCssPath, getCurrentThemeId, getEffectiveThemeMode, getLanguage, getModuleCacheStatus, getSupportedLanguages, getThemeBasePath, getThemeCssPath, getThemeMode, grid, h1, h2, h3, h4, h5, h6, hasLanguage, header, hr, hstack, iframe, img, initI18n, initStateMachine, initTagExtensions, initTheme, input, label, li, line, linearGradient, loadComponentCssFiles, loadCssFile, loadLanguageFromStorage, loadModules, main, nav, ol, option, p, path, pattern, polygon, polyline, pre, preloadModules, radialGradient, rect, registerLanguage, registerStateHandler, registerThemeConfig, responsiveGrid, saveLanguageToStorage, section, select, setLanguage, setThemeMode, source, spacer, span, stack, stop, strong, svg, svgElement, svgImage, svgText, switchTheme, t, table, tag, tbody, td, text, textarea, tfoot, th, thead, themeManager, toast, tr, translate, tspan, ul, vBody, vBox, vButton, vButtons, vCard, vCardBody, vCardFooter, vCardHeader, vCheckbox, vCheckboxes, vCode, vConfirm, vContextMenu, vDetail, vDetailItem, vDropdownMenu, vDynamicLoader, vEchart, vField, vForm, vInput, vLink, vMenu, vMenuDivider, vMenuGroup, vMenuItem, vMessage, vMessageContainer, vMessageManager, vModal, vOption, vPager, vRoute, vRouter, vRouterView, vSelect, vSidebar, vSubMenu, vSwitch, vSwitchers, vTable, vTabs, vTbody, vTd, vTextarea, vTfoot, vTh, vThead, vTimer, vTimer2, vTopNavbar, vTr, video, vstack };
 //# sourceMappingURL=yoya.esm.js.map

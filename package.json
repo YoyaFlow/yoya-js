@@ -18,6 +18,12 @@
       "types": "./src/yoya/index.d.ts",
       "default": "./dist/yoya.esm.js"
     },
+    "./theme": {
+      "default": "./dist/yoya.theme.min.css"
+    },
+    "./theme/full": {
+      "default": "./dist/yoya.theme.css"
+    },
     "./echart": {
       "types": "./src/yoya/yoya.echart.d.ts",
       "default": "./src/yoya/yoya.echart.js"
@@ -40,7 +46,8 @@
     "test:browser:ui": "playwright test --ui",
     "test:browser:debug": "playwright test --debug",
     "check": "tsc --noEmit",
-    "build": "rollup -c rollup.config.js",
+    "build": "rollup -c rollup.config.js && rollup -c rollup.theme.config.js",
+    "build:theme": "rollup -c rollup.theme.config.js",
     "build:echart": "rollup -c rollup.echart.config.js",
     "docs": "jsdoc -c jsdoc.conf.json",
     "docs:clean": "rm -rf docs && jsdoc -c jsdoc.conf.json"
@@ -57,9 +64,11 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@rollup/plugin-terser": "^1.0.0",
+    "cssnano": "^7.1.3",
     "jsdoc": "^4.0.5",
     "jsdom": "^24.0.0",
     "rollup": "^4.9.0",
+    "rollup-plugin-postcss": "^4.0.2",
     "typescript": "^5.0.0",
     "vite": "^5.0.0"
   }

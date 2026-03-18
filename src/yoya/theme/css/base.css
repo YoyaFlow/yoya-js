@@ -3,8 +3,8 @@
  * 基础主题变量定义（默认浅色主题）
  */
 
-/* 导入组件样式 */
-@import url('./components/index.css');
+/* 导入组件样式 - 由 Rollup 打包时处理 */
+/* @import url('./components/index.css'); */
 
 :root {
   /* ============================================

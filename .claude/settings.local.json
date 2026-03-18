@@ -149,7 +149,13 @@
       "Bash(node:*)",
       "Bash(sed -E \"s/name: ''''\\(Bell|AlertCircle|AlertTriangle|Info|CheckCircle|XCircle\\)''''/name: ''''\\\\1Icon''''/g\")",
       "Bash(sed -E \"s/name: ''''\\(Mail|Phone|MessageSquare|MessageCircle\\)''''/name: ''''\\\\1Icon''''/g\")",
-      "Bash(sed -E \"s/name: ''''\\(HelpCircle|Maximize|Minimize|RefreshCw|MoreHorizontal|MoreVertical|GridIcon|List\\)''''/name: ''''\\\\1Icon''''/g\")"
+      "Bash(sed -E \"s/name: ''''\\(HelpCircle|Maximize|Minimize|RefreshCw|MoreHorizontal|MoreVertical|GridIcon|List\\)''''/name: ''''\\\\1Icon''''/g\")",
+      "Skill(update-config)",
+      "Bash(rm -rf /home/join/code/cctest/tests/screenshots/*.png)",
+      "Bash(rm -rf /home/join/code/cctest/.playwright-mcp/*.png)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(ls -la dist/yoya.theme*)"
     ]
   },
   "enableAllProjectMcpServers": true,

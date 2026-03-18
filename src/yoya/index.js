@@ -184,11 +184,21 @@ export {
   // 核心函数
   initTheme,
   switchTheme,
-  setThemeMode,     // 设置 mode (auto|light|dark)
+  setThemeMode,     // 设置 mode (auto|dark|light)
   getThemeMode,     // 获取当前 mode
   getEffectiveThemeMode, // 获取生效的 mode
   getCurrentThemeId,
   registerThemeConfig,
+
+  // CSS 文件路径工具（用于自定义主题）
+  getThemeBasePath,
+  getThemeCssPath,
+  getComponentCssPath,
+  loadCssFile,
+  loadComponentCssFiles,
+
+  // CSS 文件列表
+  COMPONENT_CSS_FILES,
 } from './theme/index.js';
 
 // 导出 i18n 模块

@@ -108,17 +108,6 @@ function loadThemeCSS(themeId, mode) {
 }
 
 /**
- * 获取主题基础路径
- */
-function getThemeBasePath() {
-  // 使用 import.meta.url 获取当前模块的路径
-  // theme/index.js 在 src/yoya/theme/ 目录下
-  const modulePath = import.meta.url;
-  const baseUrl = modulePath.substring(0, modulePath.lastIndexOf('/'));
-  return `${baseUrl}`;
-}
-
-/**
  * 获取主题配置
  */
 const themeConfigs = new Map();
@@ -313,3 +302,115 @@ export function saveLanguageToStorage(lang) {
 
 // 导出主题管理器
 export { themeManager };
+
+// ========================================
+// 主题 CSS 文件路径导出（用于自定义主题）
+// ========================================
+
+/**
+ * 获取主题基础路径
+ * @returns {string} 主题 CSS 文件的基础路径
+ */
+export function getThemeBasePath() {
+  const modulePath = import.meta.url;
+  const baseUrl = modulePath.substring(0, modulePath.lastIndexOf('/'));
+  return `${baseUrl}`;
+}
+
+/**
+ * 获取主题 CSS 文件路径
+ * @param {string} cssName - CSS 文件名称（不带扩展名）
+ * @returns {string} 完整的 CSS 文件路径
+ */
+export function getThemeCssPath(cssName) {
+  const basePath = getThemeBasePath();
+  return `${basePath}/css/${cssName}.css`;
+}
+
+/**
+ * 获取组件 CSS 文件路径
+ * @param {string} componentName - 组件名称
+ * @returns {string} 组件 CSS 文件路径
+ */
+export function getComponentCssPath(componentName) {
+  const basePath = getThemeBasePath();
+  return `${basePath}/css/components/${componentName}.css`;
+}
+
+/**
+ * 组件 CSS 文件列表
+ */
+export const COMPONENT_CSS_FILES = {
+  base: 'css/base.css',
+  button: 'css/components/button.css',
+  card: 'css/components/card.css',
+  menu: 'css/components/menu.css',
+  form: 'css/components/form.css',
+  code: 'css/components/code.css',
+  detail: 'css/components/detail.css',
+  pager: 'css/components/pager.css',
+  tabs: 'css/components/tabs.css',
+  switchers: 'css/components/switchers.css',
+  body: 'css/components/body.css',
+  table: 'css/components/table.css',
+  message: 'css/components/message.css',
+  box: 'css/components/box.css',
+  field: 'css/components/field.css',
+  index: 'css/components/index.css',
+};
+
+/**
+ * 手动加载 CSS 文件到文档
+ * @param {string} cssPath - CSS 文件路径
+ * @param {Object} options - 选项
+ * @param {string} options.themeId - 主题 ID
+ * @param {boolean} options.replaceExisting - 是否替换现有的主题 CSS
+ * @returns {HTMLLinkElement} 创建的 link 元素
+ */
+export function loadCssFile(cssPath, options = {}) {
+  const {
+    themeId = 'custom',
+    replaceExisting = true
+  } = options;
+
+  // 移除旧的 link 元素
+  if (replaceExisting && loadedLinkElement) {
+    loadedLinkElement.remove();
+  }
+
+  // 创建新的 link 元素
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = cssPath;
+  link.dataset.theme = themeId;
+
+  // 加载完成回调
+  link.onload = () => {
+    console.log(`CSS loaded: ${cssPath}`);
+  };
+
+  link.onerror = () => {
+    console.error(`Failed to load CSS: ${cssPath}`);
+  };
+
+  // 添加到文档
+  document.head.appendChild(link);
+
+  if (replaceExisting) {
+    loadedLinkElement = link;
+  }
+
+  return link;
+}
+
+/**
+ * 加载多个组件 CSS 文件
+ * @param {string[]} componentNames - 组件名称数组
+ * @returns {Promise<HTMLLinkElement[]>} 加载的 link 元素数组
+ */
+export function loadComponentCssFiles(componentNames) {
+  return Promise.all(componentNames.map(name => {
+    const cssPath = getComponentCssPath(name);
+    return loadCssFile(cssPath, { replaceExisting: false });
+  }));
+}
