@@ -1,0 +1,206 @@
+/**
+ * Yoya.Theme - Tabs Component Styles
+ * 标签页组件样式（IDEA 风格：紧凑、无圆角、与内容无缝衔接）
+ */
+
+/* ============================================
+   基础 Tabs 容器
+   ============================================ */
+.yoya-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--yoya-bg);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* ============================================
+   标签栏容器
+   ============================================ */
+.yoya-tabs__header {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  border-bottom: 1px solid var(--yoya-border);
+  background: var(--yoya-bg-secondary);
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
+  margin-bottom: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
+}
+
+.yoya-tabs__header::-webkit-scrollbar {
+  height: 3px;
+}
+
+.yoya-tabs__header::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.yoya-tabs__header::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 2px;
+}
+
+.yoya-tabs__header::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
+}
+
+/* ============================================
+   单个标签样式
+   ============================================ */
+.yoya-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  padding-right: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--yoya-text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+  user-select: none;
+  white-space: nowrap;
+  position: relative;
+  min-width: 0;
+  flex-shrink: 0;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  margin-top: 0;
+}
+
+.yoya-tabs__tab:hover {
+  background: var(--yoya-bg-hover);
+}
+
+/* 标签激活状态 */
+.yoya-tabs__tab--active {
+  color: var(--yoya-text-primary);
+  background: var(--yoya-bg);
+  border-bottom-color: var(--yoya-primary);
+  font-weight: 500;
+}
+
+/* ============================================
+   标签图标
+   ============================================ */
+.yoya-tabs__tab-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+/* ============================================
+   标签标题
+   ============================================ */
+.yoya-tabs__tab-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0;
+}
+
+/* ============================================
+   关闭按钮
+   ============================================ */
+.yoya-tabs__tab-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--yoya-text-secondary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  opacity: 0;
+}
+
+/* 鼠标悬停时显示关闭按钮 */
+.yoya-tabs__tab:hover .yoya-tabs__tab-close {
+  opacity: 0.7;
+}
+
+.yoya-tabs__tab-close:hover {
+  opacity: 1;
+  background: var(--yoya-error-bg);
+  color: var(--yoya-error);
+}
+
+/* 激活标签的关闭按钮始终可见 */
+.yoya-tabs__tab--active .yoya-tabs__tab-close {
+  opacity: 0.7;
+}
+
+/* 标签页不可关闭时隐藏关闭按钮 */
+.yoya-tabs__tab--unclosable .yoya-tabs__tab-close {
+  display: none !important;
+}
+
+/* ============================================
+   内容容器
+   ============================================ */
+.yoya-tabs__content-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+}
+
+/* ============================================
+   单个标签内容
+   ============================================ */
+.yoya-tabs__content {
+  display: none;
+  flex: 1;
+  overflow: auto;
+  background: var(--yoya-bg);
+}
+
+.yoya-tabs__content--active {
+  display: block;
+}
+
+/* ============================================
+   closable 状态 - 显示关闭按钮
+   ============================================ */
+.yoya-tabs--closable .yoya-tabs__tab-close {
+  display: none;
+}
+
+.yoya-tabs--closable .yoya-tabs__tab:hover .yoya-tabs__tab-close {
+  display: flex;
+}
+
+/* ============================================
+    compact 紧凑模式
+   ============================================ */
+.yoya-tabs--compact .yoya-tabs__tab {
+  padding: 4px 8px;
+  padding-right: 6px;
+  font-size: 12px;
+}
+
+/* ============================================
+    responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-tabs__tab {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}

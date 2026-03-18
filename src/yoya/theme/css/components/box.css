@@ -1,0 +1,141 @@
+/**
+ * Yoya.Theme - Box Component Styles
+ * 通用容器组件样式
+ */
+
+/* ============================================
+   基础 Box 样式
+   ============================================ */
+.yoya-box {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  color: inherit;
+  box-sizing: border-box;
+  border-radius: var(--yoya-radius-md, 6px);
+  transition: all var(--yoya-transition-normal, 0.2s) ease;
+}
+
+/* ============================================
+   阴影状态
+   ============================================ */
+.yoya-box--shadowed {
+  box-shadow: var(--yoya-shadow, 0 4px 12px rgba(30, 32, 35, 0.08));
+}
+
+.yoya-box--shadowed:hover {
+  box-shadow: var(--yoya-shadow-hover, 0 6px 16px rgba(30, 32, 35, 0.15));
+}
+
+/* ============================================
+   边框状态
+   ============================================ */
+.yoya-box--bordered {
+  border: 1px solid var(--yoya-border, #e0e0e0);
+}
+
+/* ============================================
+   背景色辅助类
+   ============================================ */
+.yoya-box--bg-primary {
+  background-color: var(--yoya-primary);
+  color: var(--yoya-text-inverse);
+}
+
+.yoya-box--bg-secondary {
+  background-color: var(--yoya-bg-secondary);
+}
+
+.yoya-box--bg-tertiary {
+  background-color: var(--yoya-bg-tertiary);
+}
+
+.yoya-box--bg-success {
+  background-color: var(--yoya-success-bg);
+  color: var(--yoya-success);
+}
+
+.yoya-box--bg-warning {
+  background-color: var(--yoya-warning-bg);
+  color: var(--yoya-warning);
+}
+
+.yoya-box--bg-error {
+  background-color: var(--yoya-error-bg);
+  color: var(--yoya-error);
+}
+
+.yoya-box--bg-info {
+  background-color: var(--yoya-info-bg);
+  color: var(--yoya-info);
+}
+
+/* ============================================
+   圆角辅助类
+   ============================================ */
+.yoya-box--radius-sm {
+  border-radius: var(--yoya-radius-sm, 4px);
+}
+
+.yoya-box--radius-md {
+  border-radius: var(--yoya-radius-md, 6px);
+}
+
+.yoya-box--radius-lg {
+  border-radius: var(--yoya-radius-lg, 8px);
+}
+
+.yoya-box--radius-xl {
+  border-radius: var(--yoya-radius-xl, 12px);
+}
+
+.yoya-box--radius-full {
+  border-radius: 50%;
+}
+
+/* ============================================
+   内边距辅助类
+   ============================================ */
+.yoya-box--padding-xs {
+  padding: var(--yoya-padding-xs, 4px);
+}
+
+.yoya-box--padding-sm {
+  padding: var(--yoya-padding-sm, 6px);
+}
+
+.yoya-box--padding-md {
+  padding: var(--yoya-padding-md, 8px);
+}
+
+.yoya-box--padding-lg {
+  padding: var(--yoya-padding-lg, 10px);
+}
+
+.yoya-box--padding-xl {
+  padding: var(--yoya-padding-xl, 16px);
+}
+
+/* ============================================
+   外边距辅助类
+   ============================================ */
+.yoya-box--margin-xs {
+  margin: var(--yoya-margin-xs, 4px);
+}
+
+.yoya-box--margin-sm {
+  margin: var(--yoya-margin-sm, 6px);
+}
+
+.yoya-box--margin-md {
+  margin: var(--yoya-margin-md, 8px);
+}
+
+.yoya-box--margin-lg {
+  margin: var(--yoya-margin-lg, 10px);
+}
+
+.yoya-box--margin-xl {
+  margin: var(--yoya-margin-xl, 16px);
+}

@@ -31,15 +31,15 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
         span.styles({
           fontSize: '16px',
           fontWeight: '600',
-          color: 'var(--islands-primary, #667eea)',
+          color: 'var(--yoya-text-primary, #333)',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
         });
         span.text('🏝️ Yoya.Basic');
       });
-      if (collapsible) {
-        sidebar.showToggleBtn();
-      }
+      // if (collapsible) {
+      //   sidebar.showToggleBtn();
+      // }
     });
 
     // 内容区
@@ -66,7 +66,7 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
               padding: '8px 16px',
               color: isActive
                 ? 'var(--yoya-primary, #2563EB)'
-                : 'var(--yoya-text, #333)',
+                : 'var(--yoya-text-primary, #333)',
               background: isActive
                 ? 'var(--yoya-primary-alpha, rgba(37, 99, 235, 0.1))'
                 : 'transparent',

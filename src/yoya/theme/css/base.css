@@ -1,0 +1,384 @@
+/**
+ * Yoya.Theme - Base CSS Variables
+ * 基础主题变量定义（默认浅色主题）
+ */
+
+/* 导入组件样式 */
+@import url('./components/index.css');
+
+:root {
+  /* ============================================
+     主色调 - 蓝色
+     ============================================ */
+  --yoya-primary: #1E40AF;
+  --yoya-primary-light: #3B82F6;
+  --yoya-primary-dark: #1E3A8A;
+  --yoya-primary-alpha: rgba(30, 64, 175, 0.08);
+  --yoya-primary-hover: rgba(30, 64, 175, 0.12);
+
+  /* ============================================
+     状态色
+     ============================================ */
+  --yoya-success: #28a745;
+  --yoya-success-bg: rgba(40, 167, 69, 0.08);
+  --yoya-success-hover: rgba(40, 167, 69, 0.15);
+
+  --yoya-warning: #ffc107;
+  --yoya-warning-bg: rgba(255, 193, 7, 0.08);
+  --yoya-warning-hover: rgba(255, 193, 7, 0.15);
+
+  --yoya-error: #dc3545;
+  --yoya-error-bg: rgba(220, 53, 69, 0.08);
+  --yoya-error-hover: rgba(220, 53, 69, 0.15);
+
+  --yoya-info: #17a2b8;
+  --yoya-info-bg: rgba(23, 162, 184, 0.08);
+  --yoya-info-hover: rgba(23, 162, 184, 0.15);
+
+  /* ============================================
+     背景色
+     ============================================ */
+  --yoya-bg: #ffffff;
+  --yoya-bg-secondary: #f7f8fa;
+  --yoya-bg-tertiary: #f0f1f3;
+  --yoya-bg-hover: #e8eaed;
+  --yoya-bg-elevated: #ffffff;
+
+  /* ============================================
+     文本色
+     ============================================ */
+  --yoya-text-primary: #1a1c1f;
+  --yoya-text-secondary: #4a4d55;
+  --yoya-text-tertiary: #8b8d93;
+  --yoya-text-disabled: #b8bac0;
+  --yoya-text-inverse: #ffffff;
+
+  /* ============================================
+     边框色
+     ============================================ */
+  --yoya-border: #e0e0e0;
+  --yoya-border-light: #e5e5e7;
+  --yoya-border-focus: #1e40af;
+  --yoya-border-hover: #a8a8ac;
+  --yoya-border-strong: #c2c2c5;
+
+  /* ============================================
+     阴影
+     ============================================ */
+  --yoya-shadow: 0 4px 12px rgba(30, 32, 35, 0.08);
+  --yoya-shadow-hover: 0 6px 16px rgba(30, 32, 35, 0.15);
+  --yoya-shadow-dropdown: 0 4px 12px rgba(30, 32, 35, 0.2);
+  --yoya-shadow-elevated: 0 8px 24px rgba(30, 32, 35, 0.12);
+
+  /* ============================================
+     尺寸 - 间距
+     ============================================ */
+  --yoya-padding-xs: 4px;
+  --yoya-padding-sm: 6px;
+  --yoya-padding-md: 8px;
+  --yoya-padding-lg: 10px;
+  --yoya-padding-xl: 16px;
+
+  --yoya-margin-xs: 4px;
+  --yoya-margin-sm: 6px;
+  --yoya-margin-md: 8px;
+  --yoya-margin-lg: 10px;
+  --yoya-margin-xl: 16px;
+
+  --yoya-gap-xs: 4px;
+  --yoya-gap-sm: 6px;
+  --yoya-gap-md: 8px;
+  --yoya-gap-lg: 10px;
+  --yoya-gap-xl: 16px;
+
+  /* ============================================
+     尺寸 - 圆角
+     ============================================ */
+  --yoya-radius-sm: 4px;
+  --yoya-radius-md: 6px;
+  --yoya-radius-lg: 8px;
+  --yoya-radius-xl: 12px;
+
+  /* ============================================
+     尺寸 - 字体
+     ============================================ */
+  --yoya-font-size-xs: 12px;
+  --yoya-font-size-sm: 13px;
+  --yoya-font-size-md: 14px;
+  --yoya-font-size-lg: 16px;
+  --yoya-font-size-xl: 18px;
+
+  /* ============================================
+     过渡
+     ============================================ */
+  --yoya-transition-fast: 0.15s ease;
+  --yoya-transition-normal: 0.2s ease;
+  --yoya-transition-slow: 0.3s ease;
+
+  /* ============================================
+     其他
+     ============================================ */
+  --yoya-overlay: rgba(30, 32, 35, 0.5);
+  --yoya-scrim: rgba(0, 0, 0, 0.32);
+  --yoya-backdrop: rgba(255, 255, 255, 0.8);
+  --yoya-selection: rgba(30, 64, 175, 0.15);
+  --yoya-selection-inactive: rgba(30, 64, 175, 0.08);
+
+  /* ============================================
+     Modal 弹出框
+     ============================================ */
+  --yoya-modal-mask-bg: rgba(0, 0, 0, 0.45);
+  --yoya-modal-mask-backdrop-filter: blur(4px);
+  --yoya-modal-bg: #ffffff;
+  --yoya-modal-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --yoya-modal-radius: 8px;
+  --yoya-modal-header-border: 1px solid #e0e0e0;
+  --yoya-modal-header-color: #333;
+  --yoya-modal-body-color: #333;
+  --yoya-modal-footer-border: 1px solid #e0e0e0;
+  --yoya-modal-close-color: #999;
+  --yoya-modal-close-hover-color: #333;
+  --yoya-modal-close-hover-bg: rgba(0, 0, 0, 0.05);
+
+  /* ============================================
+     Message 组件
+     ============================================ */
+  --yoya-message-z-index: 9999;
+  --yoya-message-gap: 10px;
+  --yoya-message-container-padding: 16px;
+  --yoya-message-max-width: 420px;
+  --yoya-message-icon-size: 18px;
+  --yoya-message-icon-margin: 10px;
+  --yoya-message-font-size: 14px;
+  --yoya-message-line-height: 1.5;
+  --yoya-message-close-size: 20px;
+  --yoya-message-close-padding: 0 4px;
+  --yoya-message-close-opacity: 0.7;
+  --yoya-message-close-hover-opacity: 1;
+  --yoya-message-text-color: var(--yoya-text-primary);
+  --yoya-message-success-bg: var(--yoya-success-bg);
+  --yoya-message-success-color: var(--yoya-success);
+  --yoya-message-success-border: 1px solid var(--yoya-success);
+  --yoya-message-error-bg: var(--yoya-error-bg);
+  --yoya-message-error-color: var(--yoya-error);
+  --yoya-message-error-border: 1px solid var(--yoya-error);
+  --yoya-message-warning-bg: var(--yoya-warning-bg);
+  --yoya-message-warning-color: var(--yoya-warning);
+  --yoya-message-warning-border: 1px solid var(--yoya-warning);
+  --yoya-message-info-bg: var(--yoya-info-bg);
+  --yoya-message-info-color: var(--yoya-info);
+  --yoya-message-info-border: 1px solid var(--yoya-info);
+}
+
+/* ============================================
+   深色模式变量
+   ============================================ */
+
+[data-theme="islands-dark"],
+[data-theme="dark"] {
+  /* 主色调 */
+  --yoya-primary: #5a8bf7;
+  --yoya-primary-light: #7ba3f8;
+  --yoya-primary-dark: #3a6bd7;
+  --yoya-primary-alpha: rgba(90, 139, 247, 0.12);
+  --yoya-primary-hover: rgba(90, 139, 247, 0.2);
+
+  /* 状态色 */
+  --yoya-success: #4ade80;
+  --yoya-success-bg: rgba(74, 222, 128, 0.12);
+  --yoya-success-hover: rgba(74, 222, 128, 0.2);
+
+  --yoya-warning: #fbbf24;
+  --yoya-warning-bg: rgba(251, 191, 36, 0.12);
+  --yoya-warning-hover: rgba(251, 191, 36, 0.2);
+
+  --yoya-error: #f87171;
+  --yoya-error-bg: rgba(248, 113, 113, 0.12);
+  --yoya-error-hover: rgba(248, 113, 113, 0.2);
+
+  --yoya-info: #38bdf8;
+  --yoya-info-bg: rgba(56, 189, 248, 0.12);
+  --yoya-info-hover: rgba(56, 189, 248, 0.2);
+
+  /* 背景色 */
+  --yoya-bg: #1a1a1a;
+  --yoya-bg-secondary: #2a2a2a;
+  --yoya-bg-tertiary: #333333;
+  --yoya-bg-hover: #3a3a3a;
+  --yoya-bg-elevated: #2d2d2d;
+
+  /* 文本色 */
+  --yoya-text-primary: #e0e0e0;
+  --yoya-text-secondary: #a0a0a0;
+  --yoya-text-tertiary: #707070;
+  --yoya-text-disabled: #505050;
+  --yoya-text-inverse: #ffffff;
+
+  /* 边框色 */
+  --yoya-border: #404040;
+  --yoya-border-light: #353535;
+  --yoya-border-focus: #5a8bf7;
+  --yoya-border-hover: #505050;
+  --yoya-border-strong: #4a4a4a;
+
+  /* 阴影 */
+  --yoya-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --yoya-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.4);
+  --yoya-shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --yoya-shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  /* 其他 */
+  --yoya-overlay: rgba(0, 0, 0, 0.6);
+  --yoya-scrim: rgba(0, 0, 0, 0.5);
+  --yoya-backdrop: rgba(26, 26, 26, 0.8);
+  --yoya-selection: rgba(90, 139, 247, 0.2);
+  --yoya-selection-inactive: rgba(90, 139, 247, 0.1);
+
+  /* Modal 弹出框 */
+  --yoya-modal-mask-bg: rgba(0, 0, 0, 0.65);
+  --yoya-modal-mask-backdrop-filter: blur(4px);
+  --yoya-modal-bg: #2a2a2a;
+  --yoya-modal-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --yoya-modal-radius: 8px;
+  --yoya-modal-header-border: 1px solid #404040;
+  --yoya-modal-header-color: #e0e0e0;
+  --yoya-modal-body-color: #e0e0e0;
+  --yoya-modal-footer-border: 1px solid #404040;
+  --yoya-modal-close-color: #a0a0a0;
+  --yoya-modal-close-hover-color: #e0e0e0;
+  --yoya-modal-close-hover-bg: rgba(255, 255, 255, 0.05);
+
+  /* Message 组件 */
+  --yoya-message-z-index: 9999;
+  --yoya-message-gap: 10px;
+  --yoya-message-container-padding: 16px;
+  --yoya-message-max-width: 420px;
+  --yoya-message-icon-size: 18px;
+  --yoya-message-icon-margin: 10px;
+  --yoya-message-font-size: 14px;
+  --yoya-message-line-height: 1.5;
+  --yoya-message-close-size: 20px;
+  --yoya-message-close-padding: 0 4px;
+  --yoya-message-close-opacity: 0.7;
+  --yoya-message-close-hover-opacity: 1;
+  --yoya-message-text-color: var(--yoya-text-primary);
+  --yoya-message-success-bg: var(--yoya-success-bg);
+  --yoya-message-success-color: var(--yoya-success);
+  --yoya-message-success-border: 1px solid var(--yoya-success);
+  --yoya-message-error-bg: var(--yoya-error-bg);
+  --yoya-message-error-color: var(--yoya-error);
+  --yoya-message-error-border: 1px solid var(--yoya-error);
+  --yoya-message-warning-bg: var(--yoya-warning-bg);
+  --yoya-message-warning-color: var(--yoya-warning);
+  --yoya-message-warning-border: 1px solid var(--yoya-warning);
+  --yoya-message-info-bg: var(--yoya-info-bg);
+  --yoya-message-info-color: var(--yoya-info);
+  --yoya-message-info-border: 1px solid var(--yoya-info);
+}
+
+/* ============================================
+   自动模式 - 跟随系统
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    /* 主色调 */
+    --yoya-primary: #5a8bf7;
+    --yoya-primary-light: #7ba3f8;
+    --yoya-primary-dark: #3a6bd7;
+    --yoya-primary-alpha: rgba(90, 139, 247, 0.12);
+    --yoya-primary-hover: rgba(90, 139, 247, 0.2);
+
+    /* 状态色 */
+    --yoya-success: #4ade80;
+    --yoya-success-bg: rgba(74, 222, 128, 0.12);
+    --yoya-success-hover: rgba(74, 222, 128, 0.2);
+
+    --yoya-warning: #fbbf24;
+    --yoya-warning-bg: rgba(251, 191, 36, 0.12);
+    --yoya-warning-hover: rgba(251, 191, 36, 0.2);
+
+    --yoya-error: #f87171;
+    --yoya-error-bg: rgba(248, 113, 113, 0.12);
+    --yoya-error-hover: rgba(248, 113, 113, 0.2);
+
+    --yoya-info: #38bdf8;
+    --yoya-info-bg: rgba(56, 189, 248, 0.12);
+    --yoya-info-hover: rgba(56, 189, 248, 0.2);
+
+    /* 背景色 */
+    --yoya-bg: #1a1a1a;
+    --yoya-bg-secondary: #2a2a2a;
+    --yoya-bg-tertiary: #333333;
+    --yoya-bg-hover: #3a3a3a;
+    --yoya-bg-elevated: #2d2d2d;
+
+    /* 文本色 */
+    --yoya-text-primary: #e0e0e0;
+    --yoya-text-secondary: #a0a0a0;
+    --yoya-text-tertiary: #707070;
+    --yoya-text-disabled: #505050;
+    --yoya-text-inverse: #ffffff;
+
+    /* 边框色 */
+    --yoya-border: #404040;
+    --yoya-border-light: #353535;
+    --yoya-border-focus: #5a8bf7;
+    --yoya-border-hover: #505050;
+    --yoya-border-strong: #4a4a4a;
+
+    /* 阴影 */
+    --yoya-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --yoya-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.4);
+    --yoya-shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --yoya-shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+    /* 其他 */
+    --yoya-overlay: rgba(0, 0, 0, 0.6);
+    --yoya-scrim: rgba(0, 0, 0, 0.5);
+    --yoya-backdrop: rgba(26, 26, 26, 0.8);
+    --yoya-selection: rgba(90, 139, 247, 0.2);
+    --yoya-selection-inactive: rgba(90, 139, 247, 0.1);
+
+    /* Modal 弹出框 */
+    --yoya-modal-mask-bg: rgba(0, 0, 0, 0.65);
+    --yoya-modal-mask-backdrop-filter: blur(4px);
+    --yoya-modal-bg: #2a2a2a;
+    --yoya-modal-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --yoya-modal-radius: 8px;
+    --yoya-modal-header-border: 1px solid #404040;
+    --yoya-modal-header-color: #e0e0e0;
+    --yoya-modal-body-color: #e0e0e0;
+    --yoya-modal-footer-border: 1px solid #404040;
+    --yoya-modal-close-color: #a0a0a0;
+    --yoya-modal-close-hover-color: #e0e0e0;
+    --yoya-modal-close-hover-bg: rgba(255, 255, 255, 0.05);
+
+    /* Message 组件 */
+    --yoya-message-z-index: 9999;
+    --yoya-message-gap: 10px;
+    --yoya-message-container-padding: 16px;
+    --yoya-message-max-width: 420px;
+    --yoya-message-icon-size: 18px;
+    --yoya-message-icon-margin: 10px;
+    --yoya-message-font-size: 14px;
+    --yoya-message-line-height: 1.5;
+    --yoya-message-close-size: 20px;
+    --yoya-message-close-padding: 0 4px;
+    --yoya-message-close-opacity: 0.7;
+    --yoya-message-close-hover-opacity: 1;
+    --yoya-message-text-color: var(--yoya-text-primary);
+    --yoya-message-success-bg: var(--yoya-success-bg);
+    --yoya-message-success-color: var(--yoya-success);
+    --yoya-message-success-border: 1px solid var(--yoya-success);
+    --yoya-message-error-bg: var(--yoya-error-bg);
+    --yoya-message-error-color: var(--yoya-error);
+    --yoya-message-error-border: 1px solid var(--yoya-error);
+    --yoya-message-warning-bg: var(--yoya-warning-bg);
+    --yoya-message-warning-color: var(--yoya-warning);
+    --yoya-message-warning-border: 1px solid var(--yoya-warning);
+    --yoya-message-info-bg: var(--yoya-info-bg);
+    --yoya-message-info-color: var(--yoya-info);
+    --yoya-message-info-border: 1px solid var(--yoya-info);
+  }
+}

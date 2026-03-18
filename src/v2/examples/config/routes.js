@@ -7,6 +7,7 @@
 export const routes = {
   'Home': () => import('../pages/Home/index.js').then(m => m.createHomePage),
   'Button': () => import('../pages/Button/index.js').then(m => m.createButtonPage),
+  'Buttons': () => import('../pages/Buttons/index.js').then(m => m.createButtonsPage),
   'Form': () => import('../pages/Form/index.js').then(m => m.createFormPage),
   'Menu': () => import('../pages/Menu/index.js').then(m => m.createMenuPage),
   'Card': () => import('../pages/Card/index.js').then(m => m.createCardPage),
@@ -24,6 +25,8 @@ export const routes = {
   'Theme': () => import('../pages/Theme/index.js').then(m => m.createThemePage),
   'Tabs': () => import('../pages/Tabs/index.js').then(m => m.createTabsPage),
   'VPager': () => import('../pages/Pager/index.js').then(m => m.createVPagerPage),
+  'Icons': () => import('../pages/Icons/index.js').then(m => m.createIconsPage),
+  'Modal': () => import('../pages/Modal/index.js').then(m => m.createModalPage),
 };
 
 /**
@@ -33,10 +36,12 @@ export async function getPageComponent(fileName) {
   const pageMap = {
     'index.html': 'Home',
     'button.html': 'Button',
+    'buttons.html': 'Buttons',
     'form.html': 'Form',
     'menu.html': 'Menu',
     'card.html': 'Card',
     'message.html': 'Message',
+    'modal.html': 'Modal',
     'code.html': 'Code',
     'detail.html': 'Detail',
     'field.html': 'Field',
@@ -50,6 +55,7 @@ export async function getPageComponent(fileName) {
     'theme.html': 'Theme',
     'tabs.html': 'Tabs',
     'pager.html': 'VPager',
+    'icons.html': 'Icons',
   };
 
   const pageName = pageMap[fileName];

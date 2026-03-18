@@ -1,0 +1,141 @@
+/**
+ * Yoya.Theme - Card Component Styles
+ * 卡片组件样式
+ */
+
+/* ============================================
+   基础卡片样式
+   ============================================ */
+.yoya-card {
+  background: var(--yoya-bg-elevated);
+  border-radius: var(--yoya-radius-lg, 8px);
+  box-shadow: var(--yoya-shadow, 0 4px 12px rgba(30, 32, 35, 0.08));
+  border: 1px solid var(--yoya-border-light);
+  overflow: hidden;
+  transition: box-shadow var(--yoya-transition-normal, 0.2s ease);
+}
+
+.yoya-card:hover {
+  box-shadow: var(--yoya-shadow-hover, 0 6px 16px rgba(30, 32, 35, 0.15));
+}
+
+/* ============================================
+   卡片头部
+   ============================================ */
+.yoya-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--yoya-padding-lg, 10px) var(--yoya-padding-xl, 16px);
+  border-bottom: 1px solid var(--yoya-border-light);
+  background: var(--yoya-bg-secondary);
+}
+
+.yoya-card__title {
+  font-size: var(--yoya-font-size-lg, 16px);
+  font-weight: 600;
+  color: var(--yoya-text-primary);
+  margin: 0;
+}
+
+.yoya-card__subtitle {
+  font-size: var(--yoya-font-size-sm, 13px);
+  color: var(--yoya-text-secondary);
+  margin-top: 2px;
+}
+
+/* ============================================
+   卡片内容区
+   ============================================ */
+.yoya-card__body {
+  padding: var(--yoya-padding-xl, 16px);
+  color: var(--yoya-text-primary);
+}
+
+/* ============================================
+   卡片底部
+   ============================================ */
+.yoya-card__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--yoya-gap-md, 8px);
+  padding: var(--yoya-padding-md, 8px) var(--yoya-padding-xl, 16px);
+  border-top: 1px solid var(--yoya-border-light);
+  background: var(--yoya-bg-secondary);
+}
+
+/* ============================================
+   卡片变体
+   ============================================ */
+.yoya-card--outlined {
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid var(--yoya-border);
+}
+
+.yoya-card--outlined:hover {
+  box-shadow: none;
+}
+
+.yoya-card--elevated {
+  box-shadow: var(--yoya-shadow-elevated, 0 8px 24px rgba(30, 32, 35, 0.12));
+  border: none;
+}
+
+.yoya-card--elevated:hover {
+  box-shadow: 0 12px 32px rgba(30, 32, 35, 0.16);
+}
+
+/* ============================================
+   卡片尺寸
+   ============================================ */
+.yoya-card--compact .yoya-card__body {
+  padding: var(--yoya-padding-md, 8px);
+}
+
+.yoya-card--compact .yoya-card__header {
+  padding: var(--yoya-padding-md, 8px) var(--yoya-padding-lg, 10px);
+}
+
+/* ============================================
+   卡片交互
+   ============================================ */
+.yoya-card--clickable {
+  cursor: pointer;
+}
+
+.yoya-card--clickable:hover {
+  box-shadow: var(--yoya-shadow-hover, 0 6px 16px rgba(30, 32, 35, 0.15));
+}
+
+/* ============================================
+   卡片悬浮效果
+   ============================================ */
+.yoya-card--hoverable {
+  cursor: pointer;
+  transition: box-shadow var(--yoya-transition-normal, 0.2s ease), transform var(--yoya-transition-normal, 0.2s ease);
+}
+
+.yoya-card--hoverable:hover {
+  box-shadow: var(--yoya-shadow-hover, 0 6px 16px rgba(30, 32, 35, 0.15));
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   无阴影卡片
+   ============================================ */
+.yoya-card--no-shadow {
+  box-shadow: none !important;
+}
+
+/* ============================================
+    responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-card__header,
+  .yoya-card__body,
+  .yoya-card__footer {
+    padding-left: var(--yoya-padding-md, 8px);
+    padding-right: var(--yoya-padding-md, 8px);
+  }
+}

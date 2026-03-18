@@ -197,6 +197,9 @@ class VCode extends Tag {
         inner.styles({
           color: 'var(--yoya-code-text-color, #d4d4d4)',
           fontFamily: 'inherit',
+          background: 'transparent',
+          border: 'none',
+          padding: 0,
         });
         if (this._showLineNumbers) {
           inner.styles({ counterReset: 'line' });

@@ -173,6 +173,421 @@ vLink('/user/123', '用户详情');
 vRouterView(router);
 ```
 
+### Modal 弹出框
+
+```javascript
+import { vModal, vConfirm, toast } from 'yoya';
+
+// 基础弹出框
+const modal = vModal(m => {
+  m.content(c => {
+    c.p('弹出框内容');
+  });
+  m.footer(f => {
+    f.button('取消', b => b.onClick(() => modal.hide()));
+    f.button('确定', b => {
+      b.type('primary');
+      b.onClick(() => {
+        toast.success('已确认');
+        modal.hide();
+      });
+    });
+  });
+});
+modal.show();
+
+// 带标题的弹出框
+const titleModal = vModal(m => {
+  m.title('📢 系统通知');
+  m.content(c => {
+    c.p('您有一条新的系统消息');
+  });
+  m.footer(f => {
+    f.button('我知道了', b => {
+      b.type('primary');
+      b.onClick(() => modal.hide());
+    });
+  });
+  m.width('450px');
+});
+
+// 确认框
+vConfirm('⚠️ 删除确认', '确定要删除吗？', setup => {
+  setup
+    .confirmText('删除')
+    .cancelText('取消')
+    .onConfirm(() => toast.error('已删除'))
+    .onCancel(() => toast.info('已取消'))
+    .show();
+});
+
+// 快捷确认方法
+confirm('确定要执行此操作吗？',
+  () => toast.success('已确认'),
+  () => toast.info('已取消')
+);
+
+// API: title(), content(), footer(), width(), closable(), maskClosable(),
+//      show(), hide(), toggle(), afterClose()
+```
+
+### Tabs 标签页
+
+```javascript
+import { vTabs, vTab, vTabPanel } from 'yoya';
+
+// 基础标签页
+const tabs = vTabs(t => {
+  t.tab('tab1', '标签 1');
+  t.tab('tab2', '标签 2');
+  t.tab('tab3', '标签 3');
+  t.defaultTab('tab1');
+
+  t.panel('tab1', panel => {
+    panel.p('标签页 1 的内容');
+  });
+  t.panel('tab2', panel => {
+    panel.p('标签页 2 的内容');
+  });
+  t.panel('tab3', panel => {
+    panel.p('标签页 3 的内容');
+  });
+
+  t.onChange((tabId) => {
+    console.log('切换到:', tabId);
+  });
+});
+```
+
+### Pager 分页组件
+
+```javascript
+import { vPager } from 'yoya';
+
+// 基础分页
+const pager = vPager(p => {
+  p.total(100);        // 总条目数
+  p.pageSize(10);      // 每页显示数
+  p.current(1);        // 当前页
+
+  p.onChange((page) => {
+    console.log('当前页:', page);
+    // 加载数据...
+  });
+});
+
+// 自定义显示
+vPager(p => {
+  p.total(200);
+  p.pageSize(20);
+  p.showTotal(true);   // 显示总数
+  p.showQuickJumper(true);  // 显示快速跳转
+  p.onChange(loadData);
+});
+```
+
+### Echart 图表组件
+
+```javascript
+import { vEchart } from 'yoya';
+
+// 柱状图
+vEchart(e => {
+  e.width('600px').height('400px');
+  e.option({
+    title: { text: '销售统计' },
+    xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五'] },
+    yAxis: { type: 'value' },
+    series: [{
+      type: 'bar',
+      data: [120, 200, 150, 80, 70],
+      itemStyle: { color: '#1E40AF' }
+    }]
+  });
+});
+
+// 折线图
+vEchart(e => {
+  e.option({
+    title: { text: '趋势分析' },
+    xAxis: { type: 'category', data: ['1 月', '2 月', '3 月', '4 月'] },
+    yAxis: { type: 'value' },
+    series: [{
+      type: 'line',
+      data: [820, 932, 901, 1234],
+      smooth: true
+    }]
+  });
+});
+
+// 饼图
+vEchart(e => {
+  e.option({
+    title: { text: '占比分析' },
+    series: [{
+      type: 'pie',
+      radius: '50%',
+      data: [
+        { value: 1048, name: '搜索引擎' },
+        { value: 735, name: '直接访问' },
+        { value: 580, name: '邮件营销' }
+      ]
+    }]
+  });
+});
+```
+
+### Table 表格组件
+
+```javascript
+import { vTable } from 'yoya';
+
+// 基础表格
+vTable(t => {
+  t.columns([
+    { key: 'name', title: '姓名' },
+    { key: 'age', title: '年龄' },
+    { key: 'email', title: '邮箱' }
+  ]);
+  t.data([
+    { name: '张三', age: 25, email: 'zhangsan@example.com' },
+    { name: '李四', age: 30, email: 'lisi@example.com' }
+  ]);
+  t.striped(true);     // 斑马纹
+  t.hoverable(true);   // 悬停高亮
+});
+
+// 带操作的表格
+vTable(t => {
+  t.columns([
+    { key: 'name', title: '姓名' },
+    {
+      key: 'action',
+      title: '操作',
+      render: (row) => `
+        <button onclick="edit(${row.id})">编辑</button>
+        <button onclick="del(${row.id})">删除</button>
+      `
+    }
+  ]);
+  t.data(userData);
+});
+```
+
+### Code 代码展示组件
+
+```javascript
+import { vCode, toast } from 'yoya';
+
+// 基础代码展示
+vCode(c => {
+  c.content(`
+const hello = (name) => {
+  console.log('Hello, ' + name);
+};
+hello('World');
+  `);
+  c.language('javascript');
+  c.title('💻 JavaScript 示例');
+  c.onCopy(() => {
+    toast.success('代码已复制');
+  });
+});
+
+// 不带标题栏
+vCode(c => {
+  c.content('console.log("Hello");');
+  c.showCopyButton(false);
+  c.showLineNumbers(false);
+});
+
+// 快速创建
+codeBlock('示例代码', `const x = 1;`);
+```
+
+### Detail 详情组件
+
+```javascript
+import { vDetail } from 'yoya';
+
+// 基础详情
+vDetail(d => {
+  d.title('用户信息');
+  d.item('姓名', '张三');
+  d.item('年龄', '25 岁');
+  d.item('邮箱', 'zhangsan@example.com');
+  d.item('地址', '北京市朝阳区');
+});
+
+// 自定义内容
+vDetail(d => {
+  d.title('订单详情');
+  d.item('订单号', '20240318001');
+  d.item('状态', '已完成');
+  d.item('商品', c => {
+    c.ul(list => {
+      list.li('商品 A x 2');
+      list.li('商品 B x 1');
+    });
+  });
+  d.item('总价', '¥299.00');
+});
+```
+
+### Field 字段组件
+
+```javascript
+import { vField } from 'yoya';
+
+// 基础字段
+vField(f => {
+  f.label('用户名');
+  f.required(true);
+  f.child(vInput(i => {
+    i.placeholder('请输入用户名');
+  }));
+  f.help('用户名长度为 3-20 个字符');
+});
+
+// 字段组
+vField(f => {
+  f.label('联系方式');
+  f.child(vInput(i => {
+    i.type('tel');
+    i.placeholder('手机号');
+  }));
+  f.child(vInput(i => {
+    i.type('email');
+    i.placeholder('邮箱');
+  }));
+});
+```
+
+### Switchers 切换器组件
+
+```javascript
+import { vSwitch, vRadio, vRadioGroup } from 'yoya';
+
+// 开关
+vSwitch(s => {
+  s.checked(true);
+  s.onChange((checked) => {
+    console.log('开关状态:', checked);
+  });
+});
+
+// 单选组
+vRadioGroup(g => {
+  g.option('1', '选项 A');
+  g.option('2', '选项 B');
+  g.option('3', '选项 C');
+  g.value('1');
+  g.onChange((value) => {
+    console.log('选中:', value);
+  });
+});
+
+// 单选按钮
+vRadio(r => {
+  r.label('同意协议');
+  r.checked(true);
+});
+```
+
+### Card 卡片组件
+
+```javascript
+import { vCard, cardHeader, cardBody, cardFooter } from 'yoya';
+
+// 基础卡片
+vCard(c => {
+  c.cardHeader('卡片标题');
+  c.cardBody('卡片内容区域');
+  c.cardFooter(f => {
+    f.child(vButton('操作'));
+  });
+});
+
+// 多内容卡片
+vCard(c => {
+  c.cardHeader(h => {
+    h.h3('用户信息');
+    h.button('编辑', b => b.onClick(openEdit));
+  });
+  c.cardBody(body => {
+    body.p('姓名：张三');
+    body.p('年龄：25 岁');
+    body.p('邮箱：zhangsan@example.com');
+  });
+});
+```
+
+### Menu 菜单组件
+
+```javascript
+import { vMenu, menuItem, dropdownMenu, contextMenu, toast } from 'yoya';
+
+// 基础菜单
+vMenu(m => {
+  m.item(it => {
+    it.text('📋 菜单项 1')
+      .onclick(() => toast.info('菜单项 1'));
+  });
+  m.item(it => {
+    it.text('📁 菜单项 2')
+      .onclick(() => toast.info('菜单项 2'));
+  });
+  m.divider();
+  m.item(it => {
+    it.text('⚙️ 设置')
+      .onclick(() => toast.info('设置'));
+  });
+});
+
+// 带分组菜单
+vMenu(m => {
+  m.group(g => {
+    g.label('文件操作');
+    g.item(it => {
+      it.text('📄 新建').onclick(() => toast.info('新建'));
+    });
+    g.item(it => {
+      it.text('📂 打开').onclick(() => toast.info('打开'));
+    });
+  });
+});
+
+// 下拉菜单
+dropdownMenu(d => {
+  d.trigger('点击我');
+  d.menuContent(vMenu(m => {
+    m.item(it => {
+      it.text('📋 选项 1').onclick(() => toast.info('选项 1'));
+    });
+  }));
+  d.closeOnClickOutside();
+});
+
+// 右键菜单
+const ctxMenu = contextMenu(ctx => {
+  ctx.menuContent(vMenu(m => {
+    m.item(it => {
+      it.text('✏️ 编辑').onclick(() => {
+        toast.info('编辑');
+        ctxMenu.hide();
+      });
+    });
+    m.item(it => {
+      it.text('🗑️ 删除').danger().onclick(() => {
+        toast.error('删除');
+        ctxMenu.hide();
+      });
+    });
+  }));
+});
+ctxMenu.target(document.getElementById('target'));
+```
+
 ### SVG 组件
 
 ```javascript

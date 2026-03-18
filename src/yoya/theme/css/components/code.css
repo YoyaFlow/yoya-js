@@ -1,0 +1,106 @@
+/**
+ * Yoya.Theme - Code Component Styles
+ * 代码展示组件样式
+ */
+
+/* ============================================
+   内联 Code 元素
+   ============================================ */
+code {
+  padding: var(--yoya-code-padding, 2px 6px);
+  font-size: var(--yoya-code-font-size, 0.9em);
+  font-family: var(--yoya-code-font-family, 'Menlo', 'Monaco', 'Courier New', monospace);
+  background: var(--yoya-code-bg, var(--yoya-bg-tertiary));
+  color: var(--yoya-code-color, var(--yoya-text-primary));
+  border-radius: var(--yoya-code-radius, 4px);
+  border: var(--yoya-code-border, 1px solid var(--yoya-border-light));
+}
+
+/* ============================================
+   VCode 代码块容器
+   ============================================ */
+.yoya-code {
+  display: flex;
+  flex-direction: column;
+  background: var(--yoya-code-block-bg, var(--yoya-bg-secondary));
+  border-radius: var(--yoya-code-block-radius, 8px);
+  border: var(--yoya-code-block-border, 1px solid var(--yoya-border));
+  overflow: hidden;
+}
+
+/* 代码块头部（标题栏） */
+.yoya-code__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--yoya-code-header-padding, 8px 12px);
+  background: var(--yoya-code-header-bg, var(--yoya-bg-tertiary));
+  border-bottom: var(--yoya-code-header-border, 1px solid var(--yoya-border-light));
+  min-height: 40px;
+}
+
+.yoya-code__title {
+  font-size: var(--yoya-code-title-size, 13px);
+  font-weight: var(--yoya-code-title-weight, 500);
+  color: var(--yoya-code-title-color, var(--yoya-text-primary));
+}
+
+.yoya-code__copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--yoya-code-copy-padding, 4px 8px);
+  font-size: var(--yoya-code-copy-size, 12px);
+  background: var(--yoya-code-copy-bg, var(--yoya-bg));
+  color: var(--yoya-code-copy-color, var(--yoya-text-secondary));
+  border: var(--yoya-code-copy-border, 1px solid var(--yoya-border));
+  border-radius: var(--yoya-code-copy-radius, 4px);
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+}
+
+.yoya-code__copy-btn:hover {
+  background: var(--yoya-code-copy-hover-bg, var(--yoya-bg-hover));
+  color: var(--yoya-code-copy-hover-color, var(--yoya-text-primary));
+}
+
+/* 代码内容区 */
+.yoya-code__content {
+  position: relative;
+  overflow: auto;
+  padding: var(--yoya-code-content-padding, 12px);
+}
+
+.yoya-code__content pre {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow-x: auto;
+}
+
+.yoya-code__content code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: var(--yoya-code-content-font-size, 13px);
+  line-height: var(--yoya-code-line-height, 1.5);
+  color: var(--yoya-code-content-color, var(--yoya-text-primary));
+}
+
+/* 行号 */
+.yoya-code--line-numbers .yoya-code__content pre {
+  counter-reset: line;
+}
+
+.yoya-code--line-numbers .yoya-code__content code {
+  display: block;
+}
+
+/* ============================================
+   表格中的 Code 元素
+   ============================================ */
+table code {
+  background: var(--yoya-code-table-bg, var(--yoya-bg-tertiary));
+  color: var(--yoya-code-table-color, var(--yoya-text-primary));
+  border-color: var(--yoya-code-table-border, var(--yoya-border-light));
+}

@@ -1,0 +1,250 @@
+/**
+ * Yoya.Theme - Button Component Styles
+ * 按钮组件样式
+ */
+
+/* ============================================
+   基础按钮样式
+   ============================================ */
+.yoya-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yoya-gap-sm, 6px);
+  padding: var(--yoya-button-padding, 8px 16px);
+  font-size: var(--yoya-button-font-size, 14px);
+  font-weight: 400;
+  border-radius: var(--yoya-button-radius, 6px);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  min-width: var(--yoya-button-min-width, 64px);
+  height: var(--yoya-button-height, 32px);
+}
+
+.yoya-button:hover {
+  transform: scale(1.02);
+}
+
+.yoya-button:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   按钮类型 - Default
+   ============================================ */
+.yoya-button--default {
+  background: var(--yoya-bg);
+  color: var(--yoya-text-primary);
+  border-color: var(--yoya-border);
+}
+
+.yoya-button--default:hover {
+  background: var(--yoya-bg-hover);
+}
+
+/* ============================================
+   按钮类型 - Primary
+   ============================================ */
+.yoya-button--primary {
+  background: var(--yoya-primary);
+  color: var(--yoya-text-inverse);
+  border-color: var(--yoya-primary);
+}
+
+.yoya-button--primary:hover {
+  background: var(--yoya-primary-dark);
+}
+
+/* ============================================
+   按钮类型 - Success
+   ============================================ */
+.yoya-button--success {
+  background: var(--yoya-success);
+  color: var(--yoya-text-inverse);
+  border-color: var(--yoya-success);
+}
+
+.yoya-button--success:hover {
+  background: var(--yoya-success-hover);
+}
+
+/* ============================================
+   按钮类型 - Warning
+   ============================================ */
+.yoya-button--warning {
+  background: var(--yoya-warning);
+  color: var(--yoya-text-primary);
+  border-color: var(--yoya-warning);
+}
+
+.yoya-button--warning:hover {
+  background: var(--yoya-warning-hover);
+}
+
+/* ============================================
+   按钮类型 - Danger
+   ============================================ */
+.yoya-button--danger {
+  background: var(--yoya-error);
+  color: var(--yoya-text-inverse);
+  border-color: var(--yoya-error);
+}
+
+.yoya-button--danger:hover {
+  background: var(--yoya-error-hover);
+}
+
+/* ============================================
+   按钮类型 - Info
+   ============================================ */
+.yoya-button--info {
+  background: var(--yoya-info);
+  color: var(--yoya-text-inverse);
+  border-color: var(--yoya-info);
+}
+
+.yoya-button--info:hover {
+  background: var(--yoya-info-hover);
+}
+
+/* ============================================
+   Ghost 按钮样式
+   ============================================ */
+.yoya-button--ghost.yoya-button--primary {
+  background: transparent;
+  color: var(--yoya-primary);
+  border-color: var(--yoya-primary);
+}
+
+.yoya-button--ghost.yoya-button--primary:hover {
+  background: var(--yoya-primary-alpha);
+}
+
+.yoya-button--ghost.yoya-button--success {
+  background: transparent;
+  color: var(--yoya-success);
+  border-color: var(--yoya-success);
+}
+
+.yoya-button--ghost.yoya-button--success:hover {
+  background: var(--yoya-success-bg);
+}
+
+.yoya-button--ghost.yoya-button--warning {
+  background: transparent;
+  color: var(--yoya-warning);
+  border-color: var(--yoya-warning);
+}
+
+.yoya-button--ghost.yoya-button--warning:hover {
+  background: var(--yoya-warning-bg);
+}
+
+.yoya-button--ghost.yoya-button--danger {
+  background: transparent;
+  color: var(--yoya-error);
+  border-color: var(--yoya-error);
+}
+
+.yoya-button--ghost.yoya-button--danger:hover {
+  background: var(--yoya-error-bg);
+}
+
+/* ============================================
+   按钮尺寸
+   ============================================ */
+.yoya-button--small {
+  padding: var(--yoya-button-padding-sm, 4px 10px);
+  font-size: var(--yoya-button-font-size-sm, 12px);
+  height: var(--yoya-button-height-sm, 24px);
+}
+
+.yoya-button--medium {
+  padding: var(--yoya-button-padding, 8px 16px);
+  font-size: var(--yoya-button-font-size, 14px);
+  height: var(--yoya-button-height, 32px);
+}
+
+.yoya-button--large {
+  padding: var(--yoya-button-padding-lg, 10px 20px);
+  font-size: var(--yoya-button-font-size-lg, 16px);
+  height: var(--yoya-button-height-lg, 40px);
+}
+
+/* ============================================
+   按钮状态
+   ============================================ */
+.yoya-button--disabled,
+.yoya-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.yoya-button--block {
+  display: flex;
+  width: 100%;
+}
+
+/* ============================================
+   Loading 状态
+   ============================================ */
+.yoya-button--loading {
+  cursor: wait;
+  pointer-events: none;
+}
+
+@keyframes buttonLoadingSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.yoya-button__loading-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: buttonLoadingSpin 0.8s linear infinite;
+}
+
+/* ============================================
+   VButtons 按钮组 - 紧凑模式
+   ============================================ */
+.yoya-buttons {
+  display: inline-flex;
+  gap: var(--yoya-gap-sm, 8px);
+}
+
+/* 横向布局（默认） */
+.yoya-buttons--horizontal {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--yoya-gap-sm, 8px);
+}
+
+/* 竖向布局 */
+.yoya-buttons--vertical {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--yoya-gap-sm, 8px);
+}
+
+/* 紧凑模式 */
+.yoya-buttons--compact,
+.yoya-buttons--compact.yoya-buttons--horizontal {
+  gap: var(--yoya-gap-xs, 4px);
+}
+
+.yoya-buttons--compact.yoya-buttons--vertical {
+  gap: var(--yoya-gap-xs, 4px);
+}

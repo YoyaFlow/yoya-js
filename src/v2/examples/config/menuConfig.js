@@ -14,6 +14,8 @@ export const menuConfig = [
     group: '基础组件',
     items: [
       { label: 'Button 按钮', page: 'Button', file: 'button.html' },
+      { label: 'Buttons 按钮组', page: 'Buttons', file: 'buttons.html' },
+      { label: 'Icons 图标库', page: 'Icons', file: 'icons.html' },
       { label: 'Form 表单', page: 'Form', file: 'form.html' },
       { label: 'Card 卡片', page: 'Card', file: 'card.html' },
     ],
@@ -31,6 +33,7 @@ export const menuConfig = [
     group: '反馈组件',
     items: [
       { label: 'Message 消息', page: 'Message', file: 'message.html' },
+      { label: 'Modal 弹出框', page: 'Modal', file: 'modal.html' },
       { label: 'Code 代码', page: 'Code', file: 'code.html' },
     ],
   },

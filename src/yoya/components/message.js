@@ -35,6 +35,8 @@ import { Tag, div, span } from '../core/basic.js';
  * @extends Tag
  */
 class VMessage extends Tag {
+  static _stateAttrs = ['type'];
+
   /**
    * 创建 VMessage 实例
    * @param {string} [content=''] - 消息内容
@@ -44,6 +46,8 @@ class VMessage extends Tag {
   constructor(content = '', type = 'info', setup = null) {
     super('div', null);
 
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
     this._content = content;
     this._type = type;
     this._closable = true;
@@ -51,19 +55,7 @@ class VMessage extends Tag {
     this._timer = null;
     this._closed = false;
 
-    this.styles({
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      boxShadow: 'var(--yoya-message-box-shadow, 0 4px 12px rgba(0,0,0,0.15))',
-      minWidth: '280px',
-      maxWidth: '400px',
-      animation: 'slideIn 0.3s ease',
-      position: 'relative'
-    });
-
+    this.addClass('yoya-message');
     this._applyTypeStyles();
     this._buildContent();
 
@@ -77,31 +69,8 @@ class VMessage extends Tag {
    * @private
    */
   _applyTypeStyles() {
-    const typeStyles = {
-      success: {
-        background: 'var(--yoya-message-success-bg)',
-        color: 'var(--yoya-message-success-color)',
-        border: 'var(--yoya-message-success-border)',
-      },
-      error: {
-        background: 'var(--yoya-message-error-bg)',
-        color: 'var(--yoya-message-error-color)',
-        border: 'var(--yoya-message-error-border)',
-      },
-      warning: {
-        background: 'var(--yoya-message-warning-bg)',
-        color: 'var(--yoya-message-warning-color)',
-        border: 'var(--yoya-message-warning-border)',
-      },
-      info: {
-        background: 'var(--yoya-message-info-bg)',
-        color: 'var(--yoya-message-info-color)',
-        border: 'var(--yoya-message-info-border)',
-      }
-    };
-
-    const styles = typeStyles[this._type] || typeStyles.info;
-    this.styles(styles);
+    this.removeClass('yoya-message--success', 'yoya-message--error', 'yoya-message--warning', 'yoya-message--info');
+    this.addClass(`yoya-message--${this._type}`);
   }
 
   /**
@@ -126,42 +95,18 @@ class VMessage extends Tag {
   _buildContent() {
     this.child(span(icon => {
       icon.text(this._getTypeIcon());
-      icon.styles({
-        fontSize: 'var(--yoya-message-icon-size, 18px)',
-        fontWeight: 'bold',
-        flexShrink: '0',
-        marginRight: 'var(--yoya-message-icon-margin, 10px)',
-      });
+      icon.addClass('yoya-message__icon');
     }));
 
     this.child(span(text => {
       text.text(this._content);
-      text.styles({
-        flex: 1,
-        fontSize: 'var(--yoya-message-font-size, 14px)',
-        lineHeight: 'var(--yoya-message-line-height, 1.5)',
-        color: 'var(--yoya-message-text-color, inherit)',
-      });
+      text.addClass('yoya-message__text');
     }));
 
     if (this._closable) {
       this.child(span(closeBtn => {
         closeBtn.text('×');
-        closeBtn.styles({
-          fontSize: 'var(--yoya-message-close-size, 20px)',
-          cursor: 'pointer',
-          padding: 'var(--yoya-message-close-padding, 0 4px)',
-          opacity: 'var(--yoya-message-close-opacity, 0.7)',
-          transition: 'opacity 0.2s',
-          flexShrink: '0',
-          color: 'var(--yoya-message-close-color, inherit)',
-        });
-        closeBtn.on('mouseenter', () => {
-          closeBtn.style('opacity', 'var(--yoya-message-close-hover-opacity, 1)');
-        });
-        closeBtn.on('mouseleave', () => {
-          closeBtn.style('opacity', 'var(--yoya-message-close-opacity, 0.7)');
-        });
+        closeBtn.addClass('yoya-message__close');
         closeBtn.on('click', (e) => {
           e.stopPropagation();
           this.close();
@@ -294,16 +239,7 @@ class VMessageContainer extends Tag {
     this._messages = [];
     this._maxVisible = 5;
 
-    this.styles({
-      position: 'fixed',
-      zIndex: 'var(--yoya-message-z-index, 9999)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--yoya-message-gap, 10px)',
-      padding: 'var(--yoya-message-container-padding, 16px)',
-      maxWidth: 'var(--yoya-message-max-width, 420px)',
-    });
-
+    this.addClass('yoya-message-container');
     this._applyPosition();
 
     if (setup !== null) {
@@ -316,17 +252,15 @@ class VMessageContainer extends Tag {
    * @private
    */
   _applyPosition() {
-    const positions = {
-      'top-left': { top: '0', left: '0' },
-      'top-right': { top: '0', right: '0' },
-      'top-center': { top: '0', left: '50%', transform: 'translateX(-50%)' },
-      'bottom-left': { bottom: '0', left: '0' },
-      'bottom-right': { bottom: '0', right: '0' },
-      'bottom-center': { bottom: '0', left: '50%', transform: 'translateX(-50%)' }
-    };
-
-    const pos = positions[this._position] || positions['top-right'];
-    this.styles(pos);
+    this.removeClass(
+      'yoya-message-container--top-left',
+      'yoya-message-container--top-right',
+      'yoya-message-container--top-center',
+      'yoya-message-container--bottom-left',
+      'yoya-message-container--bottom-right',
+      'yoya-message-container--bottom-center'
+    );
+    this.addClass(`yoya-message-container--${this._position}`);
   }
 
   /**

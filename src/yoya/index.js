@@ -83,6 +83,9 @@ export {
 
 // 导出 UI 组件
 export {
+  // Box 组件
+  VBox, vBox,
+
   // Card 组件
   VCard, VCardHeader, VCardBody, VCardFooter,
   vCard, vCardHeader, vCardBody, vCardFooter,
@@ -98,6 +101,7 @@ export {
 
   // Button 组件
   VButton, vButton,
+  VButtons, vButtons,
 
   // Code 组件
   VCode, vCode,
@@ -120,6 +124,9 @@ export {
 
   // Field 组件
   VField, vField,
+
+  // Switchers 组件
+  VSwitchers, vSwitchers,
 
   // Body 组件
   VBody, vBody,
@@ -148,6 +155,11 @@ export {
 
   // Pager 组件
   VPager, vPager,
+
+  // Modal 组件
+  VModal, vModal,
+  VConfirm, vConfirm,
+  confirm,
 } from './components/index.js';
 
 // 导出主题系统
@@ -167,40 +179,17 @@ export {
   initTagExtensions
 } from './core/theme.js';
 
-// 导出主题管理模块
+// 导出主题管理模块（CSS-based）
 export {
-  // 主题管理
+  // 核心函数
   initTheme,
-  applyTheme,
   switchTheme,
   setThemeMode,     // 设置 mode (auto|light|dark)
   getThemeMode,     // 获取当前 mode
   getEffectiveThemeMode, // 获取生效的 mode
   getCurrentThemeId,
-  getRegisteredThemes,
-  registerTheme,
-  getTheme,
-  // 主题变量
-  allVariables,
-  baseVariables,
-  cardVariables,
-  buttonVariables,
-  menuVariables,
-  messageVariables,
-  codeVariables,
-  fieldVariables,
-  descriptionsVariables,
-  applyVariables,
-  applyGlobalVariables,
-  createDarkTheme as createDarkThemeVars,
+  registerThemeConfig,
 } from './theme/index.js';
-
-// 导出 Islands 主题系列
-export {
-  createLightTheme,
-  createDarkTheme,
-  size as islandsSize,
-} from './theme/islands/index.js';
 
 // 导出 i18n 模块
 export {
@@ -235,3 +224,106 @@ export {
   clearModuleCache,
   getModuleCacheStatus,
 } from './core/helper.js';
+
+// 导出图标库（icons.js）
+export {
+  // 导航类图标
+  HomeIcon,
+  DashboardIcon,
+  MenuIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CloseIcon,
+  PlusIcon,
+  MinusIcon,
+
+  // 用户类图标
+  UserIcon,
+  UsersIcon,
+  SettingsIcon,
+  ProfileIcon,
+  LoginIcon,
+  LogoutIcon,
+
+  // 操作类图标
+  SearchIcon,
+  EditIcon,
+  DeleteIcon,
+  SaveIcon,
+  UploadIcon,
+  DownloadIcon,
+  CopyIcon,
+  CheckIcon,
+  XIcon,
+
+  // 文件类图标
+  FileIcon,
+  FolderIcon,
+  FileTextIcon,
+  ImageIcon,
+  VideoIcon,
+
+  // 通知类图标
+  BellIcon,
+  AlertCircleIcon,
+  AlertTriangleIcon,
+  InfoIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+
+  // 通讯类图标
+  MailIcon,
+  PhoneIcon,
+  MessageSquareIcon,
+  MessageCircleIcon,
+
+  // 状态类图标
+  HeartIcon,
+  StarIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+
+  // 时间类图标
+  ClockIcon,
+  CalendarIcon,
+  CalendarEventIcon,
+
+  // 链接类图标
+  LinkIcon,
+  ExternalLinkIcon,
+  ShareIcon,
+
+  // 设备类图标
+  MonitorIcon,
+  SmartphoneIcon,
+  TabletIcon,
+
+  // 其他图标
+  EyeIcon,
+  EyeOffIcon,
+  LockIcon,
+  UnlockIcon,
+  KeyIcon,
+  FilterIcon,
+  LayersIcon,
+  PackageIcon,
+  ShoppingCartIcon,
+  CreditCardIcon,
+  DollarSignIcon,
+  TrendingUpIcon,
+  TrendingDownIcon,
+  ActivityIcon,
+  ZapIcon,
+  HelpCircleIcon,
+  MaximizeIcon,
+  MinimizeIcon,
+  RefreshCwIcon,
+  MoreHorizontalIcon,
+  MoreVerticalIcon,
+  GridIcon,
+  ListIcon,
+} from './core/icons.js';

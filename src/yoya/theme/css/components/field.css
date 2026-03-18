@@ -1,0 +1,202 @@
+/**
+ * Yoya.Theme - Field Component Styles
+ * vField 可编辑字段组件样式
+ */
+
+/* ============================================
+   vField 基础样式
+   ============================================ */
+.yoya-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yoya-field-gap, 6px);
+  color: var(--yoya-field-text-color, var(--yoya-text, #333));
+}
+
+/* ============================================
+   显示容器
+   ============================================ */
+.yoya-field__show-container {
+  display: flex;
+  align-items: center;
+  gap: var(--yoya-field-show-gap, 4px);
+  height: var(--yoya-field-show-height, 32px);
+  padding: var(--yoya-field-show-padding, 8px 12px);
+  border-radius: var(--yoya-field-radius, 6px);
+  border: var(--yoya-field-show-border, 1px solid transparent);
+  background: var(--yoya-field-show-bg, transparent);
+  color: var(--yoya-field-text-color, var(--yoya-text, #333));
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.yoya-field__show-container:hover {
+  background: var(--yoya-field-show-hover-bg, rgba(0,0,0,0.03));
+  border-color: var(--yoya-field-show-hover-border, var(--yoya-border));
+}
+
+/* ============================================
+   编辑容器
+   ============================================ */
+.yoya-field__edit-container {
+  display: none;
+  align-items: center;
+  gap: var(--yoya-field-edit-gap, 6px);
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--yoya-field-edit-padding, 4px);
+  background: var(--yoya-field-edit-bg, var(--yoya-bg-secondary, #f7f8fa));
+  border-radius: var(--yoya-field-radius, 6px);
+  border: var(--yoya-field-edit-border, 1px solid var(--yoya-border, #e0e0e0));
+  box-shadow: var(--yoya-field-edit-shadow, 0 2px 8px rgba(0,0,0,0.1));
+  color: var(--yoya-field-text-color, var(--yoya-text, #333));
+}
+
+/* ============================================
+   编辑区域
+   ============================================ */
+.yoya-field__edit-el {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+/* ============================================
+   按钮容器
+   ============================================ */
+.yoya-field__btn-container {
+  display: flex;
+  gap: var(--yoya-field-btn-gap, 4px);
+}
+
+/* ============================================
+   保存按钮
+   ============================================ */
+.yoya-field__btn-save {
+  min-width: var(--yoya-field-btn-size, 24px);
+  height: var(--yoya-field-btn-size, 24px);
+  padding: var(--yoya-field-btn-padding, 0 6px);
+  border: var(--yoya-field-save-border, 1px solid #28a745);
+  border-radius: var(--yoya-field-btn-radius, 4px);
+  background: var(--yoya-field-save-bg, #28a745);
+  color: var(--yoya-field-save-color, white);
+  font-size: var(--yoya-field-btn-font-size, 11px);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yoya-field__btn-save:hover {
+  background: var(--yoya-field-save-hover-bg, #218838);
+}
+
+/* ============================================
+   取消按钮
+   ============================================ */
+.yoya-field__btn-cancel {
+  min-width: var(--yoya-field-btn-size, 24px);
+  height: var(--yoya-field-btn-size, 24px);
+  padding: var(--yoya-field-btn-padding, 0 6px);
+  border: var(--yoya-field-cancel-border, 1px solid var(--yoya-border, #e0e0e0));
+  border-radius: var(--yoya-field-btn-radius, 4px);
+  background: var(--yoya-field-cancel-bg, var(--yoya-bg-secondary, #f7f8fa));
+  color: var(--yoya-field-cancel-color, var(--yoya-text-secondary, #666));
+  font-size: var(--yoya-field-btn-font-size, 11px);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yoya-field__btn-cancel:hover {
+  background: var(--yoya-field-cancel-hover-bg, var(--yoya-bg-tertiary, #f0f0f0));
+}
+
+/* ============================================
+   编辑图标
+   ============================================ */
+.yoya-field__edit-icon {
+  font-size: var(--yoya-field-edit-icon-size, 14px);
+  color: var(--yoya-field-edit-icon-color, #999);
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-left: var(--yoya-field-edit-icon-margin, 4px);
+  cursor: pointer;
+}
+
+.yoya-field__show-container:hover .yoya-field__edit-icon {
+  opacity: 1;
+}
+
+/* ============================================
+   禁用状态
+   ============================================ */
+.yoya-field--disabled {
+  opacity: var(--yoya-field-disabled-opacity, 0.5);
+  cursor: var(--yoya-field-disabled-cursor, not-allowed);
+  pointer-events: none;
+}
+
+/* ============================================
+   加载中状态
+   ============================================ */
+.yoya-field--loading {
+  opacity: var(--yoya-field-loading-opacity, 0.7);
+  pointer-events: none;
+}
+
+/* ============================================
+   Dark 主题覆盖
+   ============================================ */
+[data-theme='islands-dark'] .yoya-field {
+  color: var(--yoya-field-text-color, var(--yoya-text, #e0e0e0)) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__show-container {
+  color: var(--yoya-field-text-color, var(--yoya-text, #e0e0e0)) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__show-container:hover {
+  background: var(--yoya-field-show-hover-bg, rgba(255,255,255,0.03)) !important;
+  border-color: var(--yoya-field-show-hover-border, var(--yoya-border, #404040)) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__edit-container {
+  background: var(--yoya-field-edit-bg, var(--yoya-bg-secondary, #2a2a2a)) !important;
+  border-color: var(--yoya-field-edit-border, 1px solid var(--yoya-border, #404040)) !important;
+  color: var(--yoya-field-text-color, var(--yoya-text, #e0e0e0)) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__edit-el {
+  color: var(--yoya-field-text-color, var(--yoya-text, #e0e0e0)) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__edit-icon {
+  color: var(--yoya-field-edit-icon-color, #888) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__btn-save {
+  color: var(--yoya-field-save-color, white) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__btn-cancel {
+  background: var(--yoya-field-cancel-bg, var(--yoya-bg-secondary, #2a2a2a)) !important;
+  color: var(--yoya-field-cancel-color, var(--yoya-text-secondary, #a0a0a0)) !important;
+  border-color: var(--yoya-field-cancel-border, 1px solid var(--yoya-border, #404040)) !important;
+}
+
+[data-theme='islands-dark'] .yoya-field__btn-cancel:hover {
+  background: var(--yoya-field-cancel-hover-bg, var(--yoya-bg-tertiary, #3a3a3a)) !important;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-field {
+    font-size: var(--yoya-field-font-size-mobile, 13px);
+  }
+
+  .yoya-field__show-container {
+    height: var(--yoya-field-show-height-mobile, 28px);
+    padding: var(--yoya-field-show-padding-mobile, 6px 10px);
+  }
+}
