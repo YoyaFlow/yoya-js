@@ -3,6 +3,12 @@
  * UI 组件库
  */
 
+// Box 通用容器组件
+export {
+  VBox,
+  vBox,
+} from './box.js';
+
 // Card 卡片组件
 export {
   VCard,
@@ -52,6 +58,8 @@ export {
 export {
   VButton,
   vButton,
+  VButtons,
+  vButtons,
 } from './button.js';
 
 // Code 代码展示组件
@@ -83,6 +91,12 @@ export {
 export {
   VField, vField,
 } from './field.js';
+
+// Switchers 分段控制器组件
+export {
+  VSwitchers,
+  vSwitchers,
+} from './switchers.js';
 
 // Body 页面背景组件
 export {
@@ -130,3 +144,12 @@ export {
   VPager,
   vPager,
 } from './pager.js';
+
+// Modal 弹出框组件
+export {
+  VModal,
+  vModal,
+  VConfirm,
+  vConfirm,
+  confirm,
+} from './modal.js';

@@ -1,0 +1,129 @@
+/**
+ * Yoya.Theme - Table Components Styles
+ * 表格组件样式
+ */
+
+/* ============================================
+   表格基础样式
+   ============================================ */
+.yoya-card table,
+table.yoya-table,
+table.yoya-api-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--yoya-table-font-size, 14px);
+}
+
+/* ============================================
+   表格头部
+   ============================================ */
+.yoya-card table th,
+table.yoya-table th,
+table.yoya-api-table th {
+  padding: var(--yoya-table-header-padding, 12px 16px);
+  text-align: left;
+  font-weight: var(--yoya-table-header-font-weight, 600);
+  color: var(--yoya-text-primary, #333) !important;
+  background: var(--yoya-bg-secondary, #f7f8fa) !important;
+  border-bottom: 2px solid var(--yoya-border, #e0e0e0) !important;
+}
+
+/* ============================================
+   表格单元格
+   ============================================ */
+.yoya-card table td,
+table.yoya-table td,
+table.yoya-api-table td {
+  padding: var(--yoya-table-cell-padding, 12px 16px);
+  color: var(--yoya-text-primary, #333);
+  border-bottom: 1px solid var(--yoya-border, #e0e0e0);
+}
+
+/* ============================================
+   表格行
+   ============================================ */
+.yoya-card table tr:hover,
+table.yoya-table tr:hover {
+  background: var(--yoya-bg-hover, #f0f0f0);
+}
+
+/* ============================================
+   Bordered 模式
+   ============================================ */
+.yoya-card table.yoya-table--bordered th,
+.yoya-card table.yoya-table--bordered td,
+table.yoya-table.yoya-table--bordered th,
+table.yoya-table.yoya-table--bordered td {
+  border: 1px solid var(--yoya-border, #e0e0e0);
+}
+
+/* ============================================
+   Compact 模式
+   ============================================ */
+.yoya-card table.yoya-table--compact th,
+.yoya-card table.yoya-table--compact td,
+table.yoya-table.yoya-table--compact th,
+table.yoya-table.yoya-table--compact td {
+  padding: var(--yoya-table-compact-padding, 8px 12px);
+}
+
+/* ============================================
+   表格内的 Code 元素
+   ============================================ */
+.yoya-card table code,
+table.yoya-table code {
+  padding: var(--yoya-code-padding, 2px 6px);
+  font-size: var(--yoya-code-font-size, 0.85em);
+  font-family: var(--yoya-code-font-family, 'Menlo', 'Monaco', 'Courier New', monospace);
+  background: var(--yoya-bg-tertiary, #f0f0f0);
+  color: var(--yoya-text-primary, #333);
+  border-radius: var(--yoya-code-radius, 4px);
+  border: var(--yoya-code-border, 1px solid var(--yoya-border-light));
+}
+
+/* ============================================
+   Dark 主题覆盖
+   ============================================ */
+[data-theme='islands-dark'] .yoya-card table th,
+[data-theme='islands-dark'] table.yoya-table th,
+[data-theme='islands-dark'] table.yoya-api-table th {
+  background: var(--yoya-bg-secondary, #2a2d35) !important;
+  color: var(--yoya-text-primary, #e0e0e0) !important;
+  border-bottom-color: var(--yoya-border, #444) !important;
+}
+
+[data-theme='islands-dark'] .yoya-card table td,
+[data-theme='islands-dark'] table.yoya-table td,
+[data-theme='islands-dark'] table.yoya-api-table td {
+  color: var(--yoya-text-primary, #e0e0e0);
+  border-bottom-color: var(--yoya-border, #444);
+}
+
+[data-theme='islands-dark'] .yoya-card table tr:hover,
+[data-theme='islands-dark'] table.yoya-table tr:hover {
+  background: var(--yoya-bg-hover, #3a3d45);
+}
+
+[data-theme='islands-dark'] .yoya-card table code,
+[data-theme='islands-dark'] table.yoya-table code {
+  background: var(--yoya-bg-tertiary, #3a3d45);
+  color: var(--yoya-text-primary, #e0e0e0);
+  border-color: var(--yoya-border-light, #555);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-card table,
+  table.yoya-table {
+    font-size: var(--yoya-table-font-size-mobile, 13px);
+  }
+
+  .yoya-card table th,
+  .yoya-card table td,
+  table.yoya-table th,
+  table.yoya-table td {
+    padding: var(--yoya-table-mobile-padding, 8px 10px);
+  }
+}

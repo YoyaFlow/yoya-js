@@ -1,0 +1,19 @@
+/**
+ * Yoya.Theme - Components
+ * 导入所有组件样式
+ */
+
+@import url('./button.css');
+@import url('./menu.css');
+@import url('./card.css');
+@import url('./tabs.css');
+@import url('./pager.css');
+@import url('./form.css');
+@import url('./message.css');
+@import url('./detail.css');
+@import url('./body.css');
+@import url('./code.css');
+@import url('./table.css');
+@import url('./field.css');
+@import url('./box.css');
+@import url('./switchers.css');

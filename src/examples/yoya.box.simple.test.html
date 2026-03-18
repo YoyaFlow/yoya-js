@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VBox 简单测试</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { vBox, toast } from '../../yoya/index.js';
+
+    // 简单测试
+    vBox(app => {
+      app.padding('xl');
+
+      // 测试 1: 透明 Box
+      app.vBox(box1 => {
+        box1.border('1px dashed #999');
+        box1.padding('md');
+        box1.text('测试 1: 透明 Box');
+      });
+
+      // 测试 2: 背景色 Box
+      app.vBox(box2 => {
+        box2.background('var(--yoya-primary)');
+        box2.color('#fff');
+        box2.padding('md');
+        box2.radius('md');
+        box2.margin('md');
+        box2.text('测试 2: 背景色 Box');
+        box2.onClick(() => toast.success('点击了 Box'));
+      });
+
+      // 测试 3: 阴影 Box
+      app.vBox(box3 => {
+        box3.background('#fff');
+        box3.shadow('md');
+        box3.padding('md');
+        box3.radius('lg');
+        box3.margin('md');
+        box3.text('测试 3: 阴影 Box');
+      });
+
+      // 测试 4: 半透明 Box
+      app.vBox(box4 => {
+        box4.background('var(--yoya-success)');
+        box4.opacity(0.2);
+        box4.padding('md');
+        box4.radius('md');
+        box4.margin('md');
+        box4.text('测试 4: 半透明 Box');
+      });
+
+    }).bindTo('#app');
+  </script>
+</body>
+</html>

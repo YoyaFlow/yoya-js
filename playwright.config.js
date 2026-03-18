@@ -10,12 +10,11 @@ export default defineConfig({
       },
     },
   ],
-  // 注释掉 webServer，因为我们已经有服务器在运行
-  // webServer: {
-  //   command: 'npm run dev',
-  //   port: 3002,
-  //   timeout: 120 * 1000,
-  //   reuseExistingServer: true,
-  // },
+  webServer: {
+    command: 'npm run dev',
+    port: 3001,
+    timeout: 120 * 1000,
+    reuseExistingServer: true,
+  },
   reporter: 'list',
 });

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya Icons 测试</title>
+  <link rel="stylesheet" href="../../yoya/theme/css/base.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--yoya-bg-secondary);
+    }
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      background: var(--yoya-bg);
+      border-radius: 8px;
+      border: 1px solid var(--yoya-border);
+    }
+    .icon-item:hover {
+      background: var(--yoya-bg-hover);
+    }
+    .icon-item svg {
+      width: 32px;
+      height: 32px;
+      color: var(--yoya-text-primary);
+      margin-bottom: 8px;
+    }
+    .icon-name {
+      font-size: 12px;
+      color: var(--yoya-text-secondary);
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--yoya-text-primary);
+      margin: 24px 0 12px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--yoya-border);
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { div, h1, h2 } from '../../yoya/index.js';
+    import {
+      // 导航类
+      HomeIcon, DashboardIcon, MenuIcon, ChevronDownIcon, ChevronUpIcon, ChevronLeftIcon, ChevronRightIcon,
+      ArrowLeftIcon, ArrowRightIcon, CloseIcon, PlusIcon, MinusIcon,
+      // 用户类
+      UserIcon, UsersIcon, SettingsIcon, ProfileIcon, LoginIcon, LogoutIcon,
+      // 操作类
+      SearchIcon, EditIcon, DeleteIcon, SaveIcon, UploadIcon, DownloadIcon, CopyIcon, CheckIcon, XIcon,
+      // 文件类
+      FileIcon, FolderIcon, FileTextIcon, ImageIcon, VideoIcon,
+      // 通知类
+      BellIcon, AlertCircleIcon, AlertTriangleIcon, InfoIcon, CheckCircleIcon, XCircleIcon,
+      // 通讯类
+      MailIcon, PhoneIcon, MessageSquareIcon, MessageCircleIcon,
+      // 状态类
+      HeartIcon, StarIcon, ThumbsUpIcon, ThumbsDownIcon,
+      // 时间类
+      ClockIcon, CalendarIcon, CalendarEventIcon,
+      // 链接类
+      LinkIcon, ExternalLinkIcon, ShareIcon,
+      // 设备类
+      MonitorIcon, SmartphoneIcon, TabletIcon,
+      // 其他
+      EyeIcon, EyeOffIcon, LockIcon, UnlockIcon, KeyIcon, FilterIcon, LayersIcon, PackageIcon,
+      ShoppingCartIcon, CreditCardIcon, DollarSignIcon, TrendingUpIcon, TrendingDownIcon,
+      ActivityIcon, ZapIcon, HelpCircleIcon, MaximizeIcon, MinimizeIcon, RefreshCwIcon,
+      MoreHorizontalIcon, MoreVerticalIcon, GridIcon, ListIcon
+    } from '../../yoya/index.js';
+
+    const icons = {
+      '导航类': [
+        { name: 'HomeIcon', icon: HomeIcon },
+        { name: 'DashboardIcon', icon: DashboardIcon },
+        { name: 'MenuIcon', icon: MenuIcon },
+        { name: 'ChevronDownIcon', icon: ChevronDownIcon },
+        { name: 'ChevronUpIcon', icon: ChevronUpIcon },
+        { name: 'ChevronLeftIcon', icon: ChevronLeftIcon },
+        { name: 'ChevronRightIcon', icon: ChevronRightIcon },
+        { name: 'ArrowLeftIcon', icon: ArrowLeftIcon },
+        { name: 'ArrowRightIcon', icon: ArrowRightIcon },
+        { name: 'CloseIcon', icon: CloseIcon },
+        { name: 'PlusIcon', icon: PlusIcon },
+        { name: 'MinusIcon', icon: MinusIcon },
+      ],
+      '用户类': [
+        { name: 'UserIcon', icon: UserIcon },
+        { name: 'UsersIcon', icon: UsersIcon },
+        { name: 'SettingsIcon', icon: SettingsIcon },
+        { name: 'ProfileIcon', icon: ProfileIcon },
+        { name: 'LoginIcon', icon: LoginIcon },
+        { name: 'LogoutIcon', icon: LogoutIcon },
+      ],
+      '操作类': [
+        { name: 'SearchIcon', icon: SearchIcon },
+        { name: 'EditIcon', icon: EditIcon },
+        { name: 'DeleteIcon', icon: DeleteIcon },
+        { name: 'SaveIcon', icon: SaveIcon },
+        { name: 'UploadIcon', icon: UploadIcon },
+        { name: 'DownloadIcon', icon: DownloadIcon },
+        { name: 'CopyIcon', icon: CopyIcon },
+        { name: 'CheckIcon', icon: CheckIcon },
+        { name: 'XIcon', icon: XIcon },
+      ],
+      '文件类': [
+        { name: 'FileIcon', icon: FileIcon },
+        { name: 'FolderIcon', icon: FolderIcon },
+        { name: 'FileTextIcon', icon: FileTextIcon },
+        { name: 'ImageIcon', icon: ImageIcon },
+        { name: 'VideoIcon', icon: VideoIcon },
+      ],
+      '通知类': [
+        { name: 'BellIcon', icon: BellIcon },
+        { name: 'AlertCircleIcon', icon: AlertCircleIcon },
+        { name: 'AlertTriangleIcon', icon: AlertTriangleIcon },
+        { name: 'InfoIcon', icon: InfoIcon },
+        { name: 'CheckCircleIcon', icon: CheckCircleIcon },
+        { name: 'XCircleIcon', icon: XCircleIcon },
+      ],
+      '通讯类': [
+        { name: 'MailIcon', icon: MailIcon },
+        { name: 'PhoneIcon', icon: PhoneIcon },
+        { name: 'MessageSquareIcon', icon: MessageSquareIcon },
+        { name: 'MessageCircleIcon', icon: MessageCircleIcon },
+      ],
+      '状态类': [
+        { name: 'HeartIcon', icon: HeartIcon },
+        { name: 'StarIcon', icon: StarIcon },
+        { name: 'ThumbsUpIcon', icon: ThumbsUpIcon },
+        { name: 'ThumbsDownIcon', icon: ThumbsDownIcon },
+      ],
+      '时间类': [
+        { name: 'ClockIcon', icon: ClockIcon },
+        { name: 'CalendarIcon', icon: CalendarIcon },
+        { name: 'CalendarEventIcon', icon: CalendarEventIcon },
+      ],
+      '链接类': [
+        { name: 'LinkIcon', icon: LinkIcon },
+        { name: 'ExternalLinkIcon', icon: ExternalLinkIcon },
+        { name: 'ShareIcon', icon: ShareIcon },
+      ],
+      '设备类': [
+        { name: 'MonitorIcon', icon: MonitorIcon },
+        { name: 'SmartphoneIcon', icon: SmartphoneIcon },
+        { name: 'TabletIcon', icon: TabletIcon },
+      ],
+      '其他': [
+        { name: 'EyeIcon', icon: EyeIcon },
+        { name: 'EyeOffIcon', icon: EyeOffIcon },
+        { name: 'LockIcon', icon: LockIcon },
+        { name: 'UnlockIcon', icon: UnlockIcon },
+        { name: 'KeyIcon', icon: KeyIcon },
+        { name: 'FilterIcon', icon: FilterIcon },
+        { name: 'LayersIcon', icon: LayersIcon },
+        { name: 'PackageIcon', icon: PackageIcon },
+        { name: 'ShoppingCartIcon', icon: ShoppingCartIcon },
+        { name: 'CreditCardIcon', icon: CreditCardIcon },
+        { name: 'DollarSignIcon', icon: DollarSignIcon },
+        { name: 'TrendingUpIcon', icon: TrendingUpIcon },
+        { name: 'TrendingDownIcon', icon: TrendingDownIcon },
+        { name: 'ActivityIcon', icon: ActivityIcon },
+        { name: 'ZapIcon', icon: ZapIcon },
+        { name: 'HelpCircleIcon', icon: HelpCircleIcon },
+        { name: 'MaximizeIcon', icon: MaximizeIcon },
+        { name: 'MinimizeIcon', icon: MinimizeIcon },
+        { name: 'RefreshCwIcon', icon: RefreshCwIcon },
+        { name: 'MoreHorizontalIcon', icon: MoreHorizontalIcon },
+        { name: 'MoreVerticalIcon', icon: MoreVerticalIcon },
+        { name: 'GridIcon', icon: GridIcon },
+        { name: 'ListIcon', icon: ListIcon },
+      ],
+    };
+
+    const app = document.getElementById('app');
+
+    h1(h => {
+      h.text('Yoya Icons 图标库');
+      h.styles({ textAlign: 'center', marginBottom: '10px' });
+    }).bindTo(app);
+
+    div(subtitle => {
+      subtitle.text('共 72 个图标，使用 PascalCase 命名，直接返回 SVG 元素');
+      subtitle.styles({ textAlign: 'center', color: 'var(--yoya-text-secondary)', marginBottom: '30px' });
+    }).bindTo(app);
+
+      // 渲染每个分类
+    for (const [category, iconList] of Object.entries(icons)) {
+      // 分类标题
+      h2(title => {
+        title.text(category);
+        title.addClass('section-title');
+      }).bindTo(app);
+
+      // 图标网格
+      div(grid => {
+        grid.addClass('icon-grid');
+
+        for (const { name, icon: iconFn } of iconList) {
+          div(item => {
+            item.addClass('icon-item');
+            // 使用 html 方法直接插入 SVG HTML
+            const iconEl = iconFn();
+            item.html(iconEl.outerHTML);
+            // 图标名称
+            div(nameEl => {
+              nameEl.addClass('icon-name');
+              nameEl.text(name);
+            }).bindTo(item);
+          }).bindTo(grid);
+        }
+      }).bindTo(app);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+/**
+ * Yoya.Theme - Pager Component Styles
+ * 分页导航组件样式
+ */
+
+/* ============================================
+   基础 Pager 容器
+   ============================================ */
+.yoya-pager {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--yoya-text-primary);
+  user-select: none;
+}
+
+/* 禁用状态 */
+.yoya-pager--disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+/* ============================================
+   导航按钮（上一页/下一页）
+   ============================================ */
+.yoya-pager__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border: 1px solid var(--yoya-border);
+  border-radius: 2px;
+  background: var(--yoya-bg);
+  color: var(--yoya-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.yoya-pager__nav:hover:not(.yoya-pager__nav--disabled) {
+  border-color: var(--yoya-primary);
+  color: var(--yoya-primary);
+}
+
+.yoya-pager__nav--disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+/* ============================================
+   页码按钮
+   ============================================ */
+.yoya-pager__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 3px;
+  border: 1px solid var(--yoya-border);
+  border-radius: 2px;
+  background: var(--yoya-bg);
+  color: var(--yoya-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 11px;
+  font-weight: 400;
+  user-select: none;
+}
+
+.yoya-pager__number:hover:not(.yoya-pager__number--active) {
+  border-color: var(--yoya-primary);
+  color: var(--yoya-primary);
+}
+
+.yoya-pager__number--active {
+  background: var(--yoya-primary);
+  color: var(--yoya-text-inverse);
+  font-weight: 500;
+}
+
+/* ============================================
+   省略号
+   ============================================ */
+.yoya-pager__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  color: var(--yoya-text-tertiary);
+  font-size: 11px;
+}
+
+/* ============================================
+   总记录数文本
+   ============================================ */
+.yoya-pager__total {
+  color: var(--yoya-text-secondary);
+  font-size: 11px;
+}
+
+/* ============================================
+   简洁模式文本
+   ============================================ */
+.yoya-pager__simple {
+  color: var(--yoya-text-primary);
+  font-size: 13px;
+}
+
+/* ============================================
+   快速跳转容器
+   ============================================ */
+.yoya-pager__jumper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.yoya-pager__jumper-label {
+  color: var(--yoya-text-secondary);
+  font-size: 10px;
+}
+
+.yoya-pager__jumper-input {
+  display: inline-flex;
+  align-items: center;
+  min-width: 28px;
+  height: 20px;
+  padding: 0 4px;
+  border: 1px solid var(--yoya-border);
+  border-radius: 2px;
+  background: var(--yoya-bg);
+}
+
+.yoya-pager__jumper-input input {
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-size: 11px;
+  color: var(--yoya-text-primary);
+  background: transparent;
+  -moz-appearance: textfield;
+  -webkit-appearance: none;
+}
+
+.yoya-pager__jumper-input input::-webkit-inner-spin-button,
+.yoya-pager__jumper-input input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.yoya-pager__jumper-unit {
+  color: var(--yoya-text-secondary);
+  font-size: 10px;
+}
+
+/* ============================================
+   页码容器
+   ============================================ */
+.yoya-pager__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-pager {
+    font-size: 10px;
+    gap: 1px;
+  }
+
+  .yoya-pager__nav {
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .yoya-pager__number {
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+}

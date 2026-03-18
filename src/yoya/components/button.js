@@ -3,7 +3,7 @@
  * 带主题样式的按钮组件
  */
 
-import { Tag, span } from '../core/basic.js';
+import { Tag, span, div } from '../core/basic.js';
 
 // ============================================
 // VButton 按钮组件
@@ -42,14 +42,11 @@ class VButton extends Tag {
       type: 'default'
     });
 
-    // 3. 设置基础样式（直接设置到 this._el）
-    this._setupBaseStyles();
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-button');
 
-    // 4. 保存基础样式快照（用于状态变更时恢复）
-    this.saveBaseStylesSnapshot();
-
-    // 4.5. 应用默认类型样式
-    this._applyTypeStyles();
+    // 4. 应用默认类型 CSS 类
+    this._applyTypeClass();
 
     // 5. 注册状态处理器
     this._registerStateHandlers();
@@ -66,142 +63,27 @@ class VButton extends Tag {
     }
   }
 
-  // 设置基础样式
-  _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 'var(--yoya-gap-sm, 6px)',
-      padding: 'var(--yoya-button-padding, 8px 16px)',
-      fontSize: 'var(--yoya-button-font-size, 14px)',
-      fontWeight: '400',
-      borderRadius: 'var(--yoya-button-radius, 6px)',
-      border: '1px solid transparent',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      outline: 'none',
-      minWidth: 'var(--yoya-button-min-width, 64px)',
-      height: 'var(--yoya-button-height, 32px)',
-      transform: 'scale(1)',
-      transformOrigin: 'center center',
-    });
-
-    // 使用状态机管理 hover
-    this.on('mouseenter', () => {
-      this.setState('hovered', true);
-    });
-
-    this.on('mouseleave', () => {
-      this.setState('hovered', false);
-    });
-
-    // 点击按压效果
-    this.on('mousedown', (e) => {
-      e.preventDefault();
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        this.style('transform', 'scale(0.98)');
-      }
-    });
-
-    this.on('mouseup', () => {
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        this.style('transform', 'scale(1)');
-      }
-    });
-
-    this.on('mouseout', () => {
-      if (!this.hasState('disabled') && !this.hasState('loading')) {
-        this.style('transform', 'scale(1)');
-      }
-    });
-  }
-
-  // 从根元素获取计算后的 CSS 变量值
-  _getComputedVariable(varName) {
-    const root = document.documentElement;
-    return getComputedStyle(root).getPropertyValue(varName).trim();
-  }
-
-  // 应用类型样式
-  _applyTypeStyles() {
+  // 应用类型 CSS 类
+  _applyTypeClass() {
     const type = this._type || 'default';
-    const isGhost = this.hasState('ghost');
 
-    // 使用计算后的颜色值，避免 CSS 变量计算导致的 alpha 泄漏
-    const getBgVar = (varName) => {
-      const value = this._getComputedVariable(varName);
-      return value || 'transparent';
-    };
+    // 移除旧类型类
+    this.removeClass('yoya-button--primary')
+        .removeClass('yoya-button--success')
+        .removeClass('yoya-button--warning')
+        .removeClass('yoya-button--danger')
+        .removeClass('yoya-button--info')
+        .removeClass('yoya-button--default');
 
-    const typeStyles = {
-      primary: {
-        background: isGhost ? 'transparent' : getBgVar('--yoya-primary'),
-        color: isGhost ? getBgVar('--yoya-primary') : 'white',
-        border: `1px solid ${getBgVar('--yoya-primary')}`,
-      },
-      success: {
-        background: isGhost ? getBgVar('--yoya-success-bg') : getBgVar('--yoya-success'),
-        color: isGhost ? getBgVar('--yoya-success') : 'white',
-        border: `1px solid ${getBgVar('--yoya-success')}`,
-      },
-      warning: {
-        background: isGhost ? getBgVar('--yoya-warning-bg') : getBgVar('--yoya-warning'),
-        color: isGhost ? getBgVar('--yoya-warning') : 'var(--yoya-text-primary)',
-        border: `1px solid ${getBgVar('--yoya-warning')}`,
-      },
-      danger: {
-        background: isGhost ? getBgVar('--yoya-error-bg') : getBgVar('--yoya-error'),
-        color: isGhost ? getBgVar('--yoya-error') : 'white',
-        border: `1px solid ${getBgVar('--yoya-error')}`,
-      },
-      default: {
-        background: isGhost ? 'transparent' : (getBgVar('--yoya-button-default-bg') || getBgVar('--yoya-bg')),
-        color: isGhost ? 'var(--yoya-text)' : 'var(--yoya-text)',
-        border: '1px solid var(--yoya-button-default-border)',
-      },
-    };
+    // 添加新类型类
+    this.addClass(`yoya-button--${type}`);
 
-    const styles = typeStyles[type] || typeStyles.default;
-
-    // 保存计算后的背景色，用于 hover 恢复时直接使用
-    this._savedBackground = styles.background;
-
-    this.styles(styles);
-
-    // 存储当前类型样式，用于 hover 时恢复
-    this._currentTypeStyles = styles;
-  }
-
-  // 获取 hover 样式
-  _getHoverStyles() {
-    const type = this._type || 'default';
-    const isGhost = this.hasState('ghost');
-
-    // 使用计算后的颜色值，避免 CSS 变量计算导致的 alpha 泄漏
-    const getBgVar = (varName) => {
-      const value = this._getComputedVariable(varName);
-      return value || 'transparent';
-    };
-
-    const hoverStyles = {
-      primary: {
-        background: isGhost ? getBgVar('--yoya-primary-alpha') : getBgVar('--yoya-button-primary-hover'),
-      },
-      success: {
-        background: isGhost ? getBgVar('--yoya-success-hover') : getBgVar('--yoya-button-success-hover'),
-      },
-      warning: {
-        background: isGhost ? getBgVar('--yoya-warning-hover') : getBgVar('--yoya-button-warning-hover'),
-      },
-      danger: {
-        background: isGhost ? getBgVar('--yoya-error-hover') : getBgVar('--yoya-button-danger-hover'),
-      },
-      default: {
-        background: isGhost ? getBgVar('--yoya-hover-bg') : getBgVar('--yoya-button-default-hover'),
-      },
-    };
-    return hoverStyles[type] || hoverStyles.default;
+    // 处理 ghost 状态
+    if (this.hasState('ghost')) {
+      this.addClass('yoya-button--ghost');
+    } else {
+      this.removeClass('yoya-button--ghost');
+    }
   }
 
   // 注册状态处理器
@@ -209,117 +91,44 @@ class VButton extends Tag {
     // disabled 状态
     this.registerStateHandler('disabled', (enabled, host) => {
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          pointerEvents: 'none',
-        });
+        host.addClass('yoya-button--disabled');
+        host.attr('disabled', 'true');
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-          pointerEvents: 'auto',
-        });
+        host.removeClass('yoya-button--disabled');
+        host.attr('disabled', 'false');
       }
     });
 
     // loading 状态
     this.registerStateHandler('loading', (loading, host) => {
       if (loading) {
-        host.styles({
-          cursor: 'wait',
-          pointerEvents: 'none',
-        });
+        host.addClass('yoya-button--loading');
       } else {
-        host.styles({
-          cursor: 'pointer',
-          pointerEvents: 'auto',
-        });
+        host.removeClass('yoya-button--loading');
       }
       host._updateContent();
     });
 
     // block 状态（占满容器）
     this.registerStateHandler('block', (isBlock, host) => {
-      host.style('display', isBlock ? 'flex' : 'inline-flex');
-      host.style('width', isBlock ? '100%' : '');
+      if (isBlock) {
+        host.addClass('yoya-button--block');
+      } else {
+        host.removeClass('yoya-button--block');
+      }
     });
 
     // ghost 状态
     this.registerStateHandler('ghost', (isGhost, host) => {
-      host._applyTypeStyles();
-    });
-
-    // hovered 状态 - 使用状态机管理 hover
-    this.registerStateHandler('hovered', (isHovered, host) => {
-      if (isHovered && !host.hasState('disabled') && !host.hasState('loading')) {
-        host.styles(host._getHoverStyles());
+      if (isGhost) {
+        host.addClass('yoya-button--ghost');
       } else {
-        // 恢复时使用保存的背景色值，避免重新计算
-        if (host._savedBackground) {
-          // 临时禁用 transition，避免颜色过渡导致的 alpha 混合
-          const savedTransition = host._el.style.transition;
-          host._el.style.transition = 'none';
-          host._el.style.background = host._savedBackground;
-          // 强制重排，确保样式立即生效
-          void host._el.offsetHeight;
-          // 恢复 transition
-          host._el.style.transition = savedTransition || 'all 0.2s ease';
-        } else {
-          host._applyTypeStyles();
-        }
+        host.removeClass('yoya-button--ghost');
       }
+      host._applyTypeClass();
     });
-  }
 
-  // 应用类型样式
-  _applyTypeStyles() {
-    const type = this._type || 'default';
-    const isGhost = this.hasState('ghost');
-
-    // 使用计算后的颜色值，避免 CSS 变量计算导致的 alpha 泄漏
-    const getBgVar = (varName) => {
-      const value = this._getComputedVariable(varName);
-      return value || 'transparent';
-    };
-
-    const typeStyles = {
-      primary: {
-        background: isGhost ? 'transparent' : getBgVar('--yoya-primary'),
-        color: isGhost ? getBgVar('--yoya-primary') : 'white',
-        border: `1px solid ${getBgVar('--yoya-primary')}`,
-      },
-      success: {
-        background: isGhost ? getBgVar('--yoya-success-bg') : getBgVar('--yoya-success'),
-        color: isGhost ? getBgVar('--yoya-success') : 'white',
-        border: `1px solid ${getBgVar('--yoya-success')}`,
-      },
-      warning: {
-        background: isGhost ? getBgVar('--yoya-warning-bg') : getBgVar('--yoya-warning'),
-        color: isGhost ? getBgVar('--yoya-warning') : 'var(--yoya-text-primary)',
-        border: `1px solid ${getBgVar('--yoya-warning')}`,
-      },
-      danger: {
-        background: isGhost ? getBgVar('--yoya-error-bg') : getBgVar('--yoya-error'),
-        color: isGhost ? getBgVar('--yoya-error') : 'white',
-        border: `1px solid ${getBgVar('--yoya-error')}`,
-      },
-      default: {
-        background: isGhost ? 'transparent' : getBgVar('--yoya-button-default-bg') || getBgVar('--yoya-bg'),
-        color: isGhost ? 'var(--yoya-text)' : 'var(--yoya-text)',
-        border: '1px solid var(--yoya-button-default-border)',
-      },
-    };
-
-    const styles = typeStyles[type] || typeStyles.default;
-
-    // 保存计算后的背景色，用于 hover 恢复时直接使用
-    this._savedBackground = styles.background;
-
-    this.styles(styles);
-
-    // 存储当前类型样式，用于 hover 时恢复
-    this._currentTypeStyles = styles;
+    // hovered 状态 - CSS :hover 已处理，无需额外逻辑
   }
 
   // 更新内容（支持 loading 状态）- 复用元素，不重新创建
@@ -391,34 +200,27 @@ class VButton extends Tag {
   type(value) {
     if (value === undefined) return this._type;
     this._type = value;
-    this._applyTypeStyles();
+    this._applyTypeClass();
     return this;
   }
 
   size(value) {
     if (value === undefined) return this._size;
 
-    const sizeStyles = {
-      large: {
-        padding: 'var(--yoya-button-padding-lg, 10px 20px)',
-        fontSize: 'var(--yoya-button-font-size-lg, 16px)',
-        height: 'var(--yoya-button-height-lg, 40px)',
-      },
-      default: {
-        padding: 'var(--yoya-button-padding, 8px 16px)',
-        fontSize: 'var(--yoya-button-font-size, 14px)',
-        height: 'var(--yoya-button-height, 32px)',
-      },
-      small: {
-        padding: 'var(--yoya-button-padding-sm, 4px 10px)',
-        fontSize: 'var(--yoya-button-font-size-sm, 12px)',
-        height: 'var(--yoya-button-height-sm, 24px)',
-      },
-    };
+    // 移除旧尺寸类
+    this.removeClass('yoya-button--small')
+        .removeClass('yoya-button--medium')
+        .removeClass('yoya-button--large');
 
     this._size = value;
-    const styles = sizeStyles[value] || sizeStyles.default;
-    this.styles(styles);
+
+    // 添加新尺寸类
+    if (value === 'small' || value === 'medium' || value === 'large') {
+      this.addClass(`yoya-button--${value}`);
+    } else {
+      this.addClass('yoya-button--medium'); // 默认尺寸
+    }
+
     return this;
   }
 
@@ -447,6 +249,239 @@ function vButton(content = '', setup = null) {
 }
 
 // ============================================
+// VButtons - 按钮组组件（紧凑模式）
+// ============================================
+
+class VButtons extends Tag {
+  // 状态属性
+  static _stateAttrs = ['vertical', 'compact', 'size'];
+
+  constructor(setup = null) {
+    super('div', null);
+
+    // 1. 注册状态属性
+    this.registerStateAttrs(...this.constructor._stateAttrs);
+
+    // 2. 初始化状态
+    this.initializeStates({
+      vertical: false,
+      compact: false,
+      size: null
+    });
+
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-buttons');
+
+    // 4. 注册状态处理器
+    this._registerStateHandlers();
+
+    // 5. 执行 setup
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  // 注册状态处理器
+  _registerStateHandlers() {
+    // vertical 状态 - 控制布局方向
+    this.registerStateHandler('vertical', (isVertical, host) => {
+      if (isVertical) {
+        host.addClass('yoya-buttons--vertical');
+        host.removeClass('yoya-buttons--horizontal');
+      } else {
+        host.addClass('yoya-buttons--horizontal');
+        host.removeClass('yoya-buttons--vertical');
+      }
+    });
+
+    // compact 状态 - 控制是否紧凑模式
+    this.registerStateHandler('compact', (isCompact, host) => {
+      if (isCompact) {
+        host.addClass('yoya-buttons--compact');
+      } else {
+        host.removeClass('yoya-buttons--compact');
+      }
+    });
+
+    // size 状态 - 控制按钮尺寸（传递给子按钮）
+    this.registerStateHandler('size', (size, host) => {
+      // VButtons 本身不直接应用尺寸类，而是在添加按钮时传递给子按钮
+      if (host._itemsInitialized) {
+        host._applySizeToChildren(size);
+      }
+    });
+  }
+
+  // 应用尺寸到所有子按钮
+  _applySizeToChildren(size) {
+    this._children.forEach(child => {
+      if (child instanceof VButton) {
+        child.size(size);
+      }
+    });
+  }
+
+  // ============================================
+  // 链式方法
+  // ============================================
+
+  // 添加单个按钮
+  button(content = '', setup = null) {
+    const btn = vButton(content, setup);
+    this.child(btn);
+    return this;
+  }
+
+  // 批量添加按钮（旧 API，保留兼容）
+  buttons(buttonConfigs) {
+    if (Array.isArray(buttonConfigs)) {
+      buttonConfigs.forEach(config => {
+        if (typeof config === 'string') {
+          this.button(config);
+        } else if (typeof config === 'object' && config !== null) {
+          this.button(config.content || '', config);
+        }
+      });
+    }
+    return this;
+  }
+
+  // 配置化添加按钮组（推荐）
+  // 支持 vButtons({ items: [...], onClick: (item) => {...} })
+  items(items, baseConfig = {}) {
+    if (!Array.isArray(items)) {
+      return this;
+    }
+
+    const {
+      onClick,
+      type = 'default',
+      size,
+      disabled = false,
+      ghost = false,
+      ...restBaseConfig
+    } = baseConfig;
+
+    this._itemsInitialized = true;
+
+    items.forEach((item, index) => {
+      // 支持字符串简写
+      if (typeof item === 'string') {
+        item = { name: item, label: item };
+      }
+
+      const {
+        name,
+        label,
+        content = label || name || `Button ${index}`,
+        type: itemType,
+        size: itemSize,
+        disabled: itemDisabled,
+        ghost: itemGhost,
+        onClick: itemOnClick,
+        ...itemRest
+      } = item;
+
+      // 创建按钮
+      this.button(content, btn => {
+        // 应用基础配置
+        if (type && !itemType) btn.type(type);
+        if (itemType) btn.type(itemType);
+        if (size && !itemSize) btn.size(size);
+        if (itemSize) btn.size(itemSize);
+        if (disabled && !itemDisabled) btn.disabled(disabled);
+        if (itemDisabled) btn.disabled(itemDisabled);
+        if (ghost && !itemGhost) btn.ghost(ghost);
+        if (itemGhost) btn.ghost(itemGhost);
+
+        // 应用其他配置
+        Object.keys(itemRest).forEach(key => {
+          if (typeof btn[key] === 'function') {
+            btn[key](itemRest[key]);
+          }
+        });
+
+        // 统一 onClick 处理：先调用 item.onClick，再调用统一的 onClick
+        btn.on('click', (e) => {
+          if (itemOnClick) itemOnClick(e, item, index);
+          if (onClick) onClick(e, { ...item, index }, index);
+        });
+      });
+    });
+
+    return this;
+  }
+
+  // 设置布局方向
+  vertical(value = true) {
+    if (value === undefined) return this.hasState('vertical');
+    return this.setState('vertical', value);
+  }
+
+  // 快捷方法：横向布局
+  horizontal() {
+    return this.setState('vertical', false);
+  }
+
+  // 设置紧凑模式
+  compact(value = true) {
+    if (value === undefined) return this.hasState('compact');
+    return this.setState('compact', value);
+  }
+
+  // 设置间距
+  gap(value) {
+    if (value === undefined) return this.style('gap');
+    this.style('gap', value);
+    return this;
+  }
+
+  // 设置按钮尺寸
+  size(value) {
+    if (value === undefined) return this._size;
+    this.setState('size', value);
+    return this;
+  }
+}
+
+function vButtons(setup = null) {
+  // 支持 vButtons({ items: [...], onClick: ... }) 对象配置方式
+  if (setup !== null && typeof setup === 'object' && !Array.isArray(setup)) {
+    const { items, onClick, vertical, horizontal, compact, gap, size, ...restSetup } = setup;
+
+    return new VButtons(box => {
+      // 设置布局
+      if (vertical) box.vertical(true);
+      if (horizontal) box.horizontal();
+      if (compact) box.compact(true);
+      if (gap) box.gap(gap);
+      if (size) box.size(size);
+
+      // 应用其他配置
+      Object.keys(restSetup).forEach(key => {
+        if (typeof box[key] === 'function') {
+          box[key](restSetup[key]);
+        }
+      });
+
+      // 添加按钮项
+      if (items && Array.isArray(items)) {
+        box.items(items, { onClick, size });
+      }
+    });
+  }
+
+  return new VButtons(setup);
+}
+
+// Tag 原型扩展
+Tag.prototype.vButtons = function(setup = null) {
+  const buttons = vButtons(setup);
+  this.child(buttons);
+  return this;
+};
+
+// ============================================
 // Tag 原型扩展
 // ============================================
 
@@ -463,4 +498,6 @@ Tag.prototype.vButton = function(content = '', setup = null) {
 export {
   VButton,
   vButton,
+  VButtons,
+  vButtons,
 };

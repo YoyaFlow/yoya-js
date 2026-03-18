@@ -292,6 +292,46 @@ class Tag {
   }
 
   /**
+   * 添加 CSS 类名
+   * @param {string} className - 类名
+   * @returns {this}
+   * @example
+   * el.addClass('active');
+   * el.addClass('yoya-button');
+   */
+  addClass(className) {
+    if (className && typeof className === 'string') {
+      if (!this._classes.has(className)) {
+        this._classes.add(className);
+        if (this._el) {
+          this._el.classList.add(className);
+        }
+      }
+    }
+    return this;
+  }
+
+  /**
+   * 移除 CSS 类名
+   * @param {string} className - 类名
+   * @returns {this}
+   * @example
+   * el.removeClass('active');
+   * el.removeClass('yoya-button--primary');
+   */
+  removeClass(className) {
+    if (className && typeof className === 'string') {
+      if (this._classes.has(className)) {
+        this._classes.delete(className);
+        if (this._el) {
+          this._el.classList.remove(className);
+        }
+      }
+    }
+    return this;
+  }
+
+  /**
    * 样式操作：存储并同步到 DOM 元素
    * @param {string|Object} name - 样式名或样式对象
    * @param {string|number} [value] - 样式值（不传则返回当前值）

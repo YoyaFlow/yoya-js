@@ -69,8 +69,8 @@ class VPager extends Tag {
     this._simple = false;
     this._onChange = null;
 
-    // 4. 设置基础样式
-    this._setupBaseStyles();
+    // 4. 设置基础 CSS 类
+    this.addClass('yoya-pager');
 
     // 5. 注册状态处理器
     this._registerStateHandlers();
@@ -99,9 +99,9 @@ class VPager extends Tag {
     // disabled 状态处理器
     this.registerStateHandler('disabled', (disabled, host) => {
       if (disabled) {
-        host.styles({ opacity: '0.5', cursor: 'not-allowed' });
+        host.addClass('yoya-pager--disabled');
       } else {
-        host.styles({ opacity: '1', cursor: 'default' });
+        host.removeClass('yoya-pager--disabled');
       }
     });
 
@@ -153,22 +153,7 @@ class VPager extends Tag {
     const isPrev = direction === 'prev';
 
     const btn = div((b) => {
-      b.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: '22px',
-        height: '22px',
-        padding: '0 4px',
-        border: '1px solid var(--yoya-pager-border, #d9d9d9)',
-        borderRadius: '2px',
-        background: 'var(--yoya-pager-bg, #fff)',
-        color: 'var(--yoya-pager-color, var(--yoya-text, #333))',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        fontSize: '12px',
-        lineHeight: '1',
-      });
+      b.addClass('yoya-pager__nav');
 
       b.html(isPrev ? '‹' : '›');
 
@@ -184,8 +169,8 @@ class VPager extends Tag {
       b.on('mouseleave', () => {
         if (!self.hasState('disabled') && !self._isNavDisabled(isPrev)) {
           b.styles({
-            borderColor: 'var(--yoya-pager-border, #d9d9d9)',
-            color: 'var(--yoya-pager-color, var(--yoya-text, #333))',
+            borderColor: 'var(--yoya-border)',
+            color: 'var(--yoya-text-primary)',
           });
         }
       });
@@ -200,10 +185,7 @@ class VPager extends Tag {
 
       // 初始禁用状态
       if (self._isNavDisabled(isPrev)) {
-        b.styles({
-          cursor: 'not-allowed',
-          opacity: '0.3',
-        });
+        b.addClass('yoya-pager__nav--disabled');
       }
     });
 
@@ -219,23 +201,10 @@ class VPager extends Tag {
     const isCurrent = pageNum === self._current;
 
     const btn = div((b) => {
-      b.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: '20px',
-        height: '20px',
-        padding: '0 3px',
-        border: '1px solid var(--yoya-pager-border, #d9d9d9)',
-        borderRadius: '2px',
-        background: isCurrent ? 'var(--yoya-primary)' : 'var(--yoya-pager-bg, #fff)',
-        color: isCurrent ? '#fff' : 'var(--yoya-pager-color, var(--yoya-text, #333))',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        fontSize: '11px',
-        fontWeight: isCurrent ? '500' : '400',
-        userSelect: 'none',
-      });
+      b.addClass('yoya-pager__number');
+      if (isCurrent) {
+        b.addClass('yoya-pager__number--active');
+      }
 
       b.text(String(pageNum));
 
@@ -252,8 +221,8 @@ class VPager extends Tag {
         b.on('mouseleave', () => {
           if (!self.hasState('disabled')) {
             b.styles({
-              borderColor: 'var(--yoya-pager-border, #d9d9d9)',
-              color: 'var(--yoya-pager-color, var(--yoya-text, #333))',
+              borderColor: 'var(--yoya-border)',
+              color: 'var(--yoya-text-primary)',
             });
           }
         });
@@ -276,15 +245,7 @@ class VPager extends Tag {
    */
   _createMoreButton() {
     const more = div((m) => {
-      m.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: '20px',
-        height: '20px',
-        color: 'var(--yoya-text-tertiary, #999)',
-        fontSize: '11px',
-      });
+      m.addClass('yoya-pager__more');
       m.text('···');
     });
     return more;
@@ -296,10 +257,7 @@ class VPager extends Tag {
    */
   _createTotalText() {
     const total = div((t) => {
-      t.styles({
-        color: 'var(--yoya-text-secondary, #666)',
-        fontSize: '11px',
-      });
+      t.addClass('yoya-pager__total');
       t.text(`共 ${this._total} 条`);
     });
     return total;
@@ -313,31 +271,15 @@ class VPager extends Tag {
     const self = this;
 
     const wrapper = div((w) => {
-      w.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '2px',
-      });
+      w.addClass('yoya-pager__jumper');
 
       const label = span((s) => {
-        s.styles({
-          color: 'var(--yoya-text-secondary, #666)',
-          fontSize: '10px',
-        });
+        s.addClass('yoya-pager__jumper-label');
         s.text('跳至');
       });
 
       const input = div((i) => {
-        i.styles({
-          display: 'inline-flex',
-          alignItems: 'center',
-          minWidth: '28px',
-          height: '20px',
-          padding: '0 4px',
-          border: '1px solid var(--yoya-pager-border, #d9d9d9)',
-          borderRadius: '2px',
-          background: 'var(--yoya-pager-bg, #fff)',
-        });
+        i.addClass('yoya-pager__jumper-input');
 
         const inputEl = document.createElement('input');
         inputEl.type = 'number';
@@ -392,10 +334,7 @@ class VPager extends Tag {
       });
 
       const unit = span((s) => {
-        s.styles({
-          color: 'var(--yoya-text-secondary, #666)',
-          fontSize: '10px',
-        });
+        s.addClass('yoya-pager__jumper-unit');
         s.text('页');
       });
 
@@ -431,10 +370,7 @@ class VPager extends Tag {
     if (this._simple) {
       // 简洁模式：只显示当前页/总页数
       const simpleText = span((s) => {
-        s.styles({
-          color: 'var(--yoya-text, #333)',
-          fontSize: '13px',
-        });
+        s.addClass('yoya-pager__simple');
         s.text(`${this._current} / ${this._totalPage || 1}`);
       });
       this._pageContainer.child(simpleText);
@@ -495,16 +431,18 @@ class VPager extends Tag {
     const nextDisabled = this._isNavDisabled(false);
 
     if (this._prevBtn) {
-      this._prevBtn.styles({
-        cursor: prevDisabled ? 'not-allowed' : 'pointer',
-        opacity: prevDisabled ? '0.3' : '1',
-      });
+      if (prevDisabled) {
+        this._prevBtn.addClass('yoya-pager__nav--disabled');
+      } else {
+        this._prevBtn.removeClass('yoya-pager__nav--disabled');
+      }
     }
     if (this._nextBtn) {
-      this._nextBtn.styles({
-        cursor: nextDisabled ? 'not-allowed' : 'pointer',
-        opacity: nextDisabled ? '0.3' : '1',
-      });
+      if (nextDisabled) {
+        this._nextBtn.addClass('yoya-pager__nav--disabled');
+      } else {
+        this._nextBtn.removeClass('yoya-pager__nav--disabled');
+      }
     }
   }
 
@@ -544,11 +482,7 @@ class VPager extends Tag {
 
     // 页码数字容器
     this._pageContainer = div((c) => {
-      c.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '4px',
-      });
+      c.addClass('yoya-pager__pages');
     });
     this.child(this._pageContainer);
 

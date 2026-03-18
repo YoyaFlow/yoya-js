@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Icon Render</title>
+  <link rel="stylesheet" href="../../yoya/theme/css/base.css">
+</head>
+<body style="padding: 20px;">
+  <div id="app"></div>
+
+  <script type="module">
+    import { div, span } from '../../yoya/index.js';
+    import { HomeIcon } from '../../yoya/index.js';
+
+    console.log('=== 测试 SVG 图标渲染 ===');
+
+    // 创建图标
+    const iconEl = HomeIcon();
+    console.log('iconEl 类型:', iconEl.constructor.name);
+    console.log('iconEl._el 类型:', iconEl._el?.tagName);
+    console.log('iconEl._el 属性:', {
+      width: iconEl._el?.getAttribute('width'),
+      height: iconEl._el?.getAttribute('height'),
+      viewBox: iconEl._el?.getAttribute('viewBox'),
+      stroke: iconEl._el?.getAttribute('stroke'),
+      d: iconEl._el?.getAttribute('d')
+    });
+
+    // 设置属性
+    iconEl.attr('width', '32');
+    iconEl.attr('height', '32');
+    iconEl.style('color', 'var(--yoya-text-primary, #333)');
+
+    console.log('iconEl._attrs:', iconEl._attrs);
+
+    // 创建容器
+    const container = div(c => {
+      c.styles({
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        background: '#fff',
+        border: '1px solid #ccc'
+      });
+      c.text('测试容器');
+    });
+
+    console.log('container._el:', container._el);
+    console.log('container._children 数量:', container._children.length);
+
+    // 添加图标作为子元素
+    console.log('--- 调用 child(iconEl) 之前 ---');
+    console.log('container._el.tagName:', container._el.tagName);
+    console.log('iconEl.renderDom() 结果:', iconEl.renderDom());
+    console.log('iconEl._el:', iconEl._el);
+
+    container.child(iconEl);
+    console.log('--- 调用 child(iconEl) 之后 ---');
+    console.log('container._children 数量:', container._children.length);
+    console.log('container._el.children 数量:', container._el?.children?.length);
+    console.log('container._el.innerHTML:', container._el.innerHTML);
+
+    // 绑定到 DOM
+    container.bindTo('#app');
+    console.log('--- 绑定到 DOM 之后 ---');
+    console.log('container._el.children 数量:', container._el?.children?.length);
+    console.log('container._el.innerHTML:', container._el.innerHTML);
+
+    // 检查 DOM
+    setTimeout(() => {
+      const svgs = document.querySelectorAll('svg');
+      console.log('DOM 中 SVG 数量:', svgs.length);
+      svgs.forEach((svg, i) => {
+        console.log(`SVG ${i}:`, svg.outerHTML);
+      });
+    }, 100);
+  </script>
+</body>
+</html>

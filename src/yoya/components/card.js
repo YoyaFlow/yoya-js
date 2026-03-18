@@ -53,14 +53,8 @@ class VCard extends Tag {
       noShadow: false,
     });
 
-    // 3. 设置基础样式（使用主题变量）
-    this.styles({
-      background: 'var(--yoya-card-bg, var(--yoya-bg))',
-      borderRadius: 'var(--yoya-card-radius, 8px)',
-      boxShadow: 'var(--yoya-card-shadow, var(--yoya-shadow))',
-      overflow: 'hidden',
-      border: 'var(--yoya-card-border, 1px solid transparent)',
-    });
+    // 3. 设置基础 CSS 类
+    this.addClass('yoya-card');
 
     // 4. 保存基础样式快照
     this.saveBaseStylesSnapshot();
@@ -130,43 +124,28 @@ class VCard extends Tag {
     // hoverable 状态
     this.registerStateHandler('hoverable', (enabled, host) => {
       if (enabled) {
-        host.styles({
-          transition: 'box-shadow 0.3s, transform 0.2s',
-          cursor: 'pointer',
-        });
-        host.on('mouseenter', () => {
-          host.styles({
-            boxShadow: 'var(--yoya-card-hover-shadow, var(--yoya-shadow-hover))',
-            transform: 'translateY(-2px)',
-          });
-        });
-        host.on('mouseleave', () => {
-          host.styles({
-            boxShadow: 'var(--yoya-card-shadow, var(--yoya-shadow))',
-            transform: 'translateY(0)',
-          });
-        });
+        host.addClass('yoya-card--hoverable');
+      } else {
+        host.removeClass('yoya-card--hoverable');
       }
     });
 
     // bordered 状态
     this.registerStateHandler('bordered', (enabled, host) => {
       if (enabled) {
-        host.styles({
-          border: 'var(--yoya-card-border-color, 1px solid var(--yoya-border))',
-          boxShadow: 'none',
-        });
+        host.addClass('yoya-card--outlined');
       } else {
-        host.styles({
-          border: 'var(--yoya-card-border, 1px solid transparent)',
-          boxShadow: 'var(--yoya-card-shadow, var(--yoya-shadow))',
-        });
+        host.removeClass('yoya-card--outlined');
       }
     });
 
     // noShadow 状态
     this.registerStateHandler('noShadow', (enabled, host) => {
-      host.style('boxShadow', enabled ? 'none' : 'var(--yoya-card-shadow, var(--yoya-shadow))');
+      if (enabled) {
+        host.addClass('yoya-card--no-shadow');
+      } else {
+        host.removeClass('yoya-card--no-shadow');
+      }
     });
   }
 
@@ -271,14 +250,7 @@ class VCardHeader extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      padding: 'var(--yoya-card-header-padding, 16px)',
-      borderBottom: 'var(--yoya-card-header-border, 1px solid var(--yoya-border-light))',
-      fontWeight: 'var(--yoya-card-header-font-weight, 600)',
-      fontSize: 'var(--yoya-card-header-font-size, 16px)',
-      color: 'var(--yoya-card-header-color, var(--yoya-text))',
-      background: 'var(--yoya-card-header-bg, var(--yoya-bg-secondary))',
-    });
+    this.addClass('yoya-card__header');
   }
 }
 
@@ -307,12 +279,7 @@ class VCardBody extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      padding: 'var(--yoya-card-body-padding, 16px)',
-      fontSize: 'var(--yoya-card-body-font-size, 14px)',
-      color: 'var(--yoya-card-body-color, var(--yoya-text))',
-      background: 'var(--yoya-card-body-bg, transparent)',
-    });
+    this.addClass('yoya-card__body');
   }
 }
 
@@ -341,15 +308,7 @@ class VCardFooter extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      padding: 'var(--yoya-card-footer-padding, 16px)',
-      borderTop: 'var(--yoya-card-footer-border, 1px solid var(--yoya-border-light))',
-      display: 'flex',
-      gap: 'var(--yoya-card-footer-gap, 8px)',
-      fontSize: 'var(--yoya-card-footer-font-size, 14px)',
-      color: 'var(--yoya-card-footer-color, var(--yoya-text-secondary))',
-      background: 'var(--yoya-card-footer-bg, transparent)',
-    });
+    this.addClass('yoya-card__footer');
   }
 }
 

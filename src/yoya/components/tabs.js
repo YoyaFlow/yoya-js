@@ -29,10 +29,11 @@ class VTabs extends Tag {
     // 3. 内部状态
     this._tabs = [];
     this._activeTab = null;
+    this._tabsHeader = null;
     this._contentContainer = null;
 
-    // 4. 设置基础样式
-    this._setupBaseStyles();
+    // 4. 设置基础 CSS 类
+    this.addClass('yoya-tabs');
 
     // 5. 注册状态处理器
     this._registerStateHandlers();
@@ -43,28 +44,14 @@ class VTabs extends Tag {
     }
   }
 
-  _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      overflow: 'hidden',
-      background: 'var(--yoya-tabs-bg, var(--yoya-bg))',
-      // IDEA 风格：无圆角，完全贴合
-      borderTopLeftRadius: '0',
-      borderTopRightRadius: '0',
-    });
-  }
-
   _registerStateHandlers() {
     // closable 状态处理器
     this.registerStateHandler('closable', (closable, host) => {
-      // 更新所有标签页的关闭按钮显示
-      this._tabs.forEach((tab) => {
-        if (tab._closeBtn) {
-          tab._closeBtn.style('display', closable ? 'flex' : 'none');
-        }
-      });
+      if (closable) {
+        host.addClass('yoya-tabs--closable');
+      } else {
+        host.removeClass('yoya-tabs--closable');
+      }
     });
   }
 
@@ -129,31 +116,13 @@ class VTabs extends Tag {
   _ensureDom() {
     if (!this._tabsHeader) {
       // 创建标签栏容器 - IDEA 风格：紧凑、与内容无缝衔接
-      this._tabsHeader = div((h) => {
-        h.styles({
-          display: 'flex',
-          alignItems: 'flex-end',
-          gap: '0',
-          borderBottom: '1px solid var(--yoya-tabs-border, #e0e0e0)',
-          background: 'var(--yoya-tabs-header-bg, #f7f8fa)',
-          overflowX: 'auto',
-          overflowY: 'hidden',
-          flexShrink: '0',
-          marginBottom: '0',
-        });
-        h.style('scrollbarWidth', 'thin');
-        h.style('scrollbarColor', 'rgba(128, 128, 128, 0.3) transparent');
+      this._tabsHeader = div(h => {
+        h.addClass('yoya-tabs__header');
       });
 
       // 创建内容容器
-      this._contentContainer = div((c) => {
-        c.styles({
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          marginTop: '0',
-        });
+      this._contentContainer = div(c => {
+        c.addClass('yoya-tabs__content-container');
       });
 
       this._children = [this._tabsHeader, this._contentContainer];
@@ -166,45 +135,13 @@ class VTabs extends Tag {
   _createTabElement(tabData) {
     const self = this;
 
-    const tabEl = div((t) => {
-      t.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        // IDEA 风格：更紧凑的 padding
-        padding: '6px 12px',
-        paddingRight: '8px',
-        fontSize: '13px',
-        fontWeight: '400',
-        color: 'var(--yoya-tabs-color, #666)',
-        background: 'transparent',
-        border: 'none',
-        borderBottom: '2px solid transparent',
-        cursor: 'pointer',
-        transition: 'all 0.15s ease',
-        userSelect: 'none',
-        whiteSpace: 'nowrap',
-        position: 'relative',
-        minWidth: '0',
-        flexShrink: '0',
-        // IDEA 风格：标签顶部圆角
-        borderTopLeftRadius: '6px',
-        borderTopRightRadius: '6px',
-        // 与 header 背景融合，无上边距
-        marginTop: '0',
-      });
+    const tabEl = div(t => {
+      t.addClass('yoya-tabs__tab');
 
-      t.on('mouseenter', () => {
-        if (tabData.id !== self._activeTab?.id) {
-          t.style('background', 'var(--yoya-tabs-hover-bg, rgba(0,0,0,0.02))');
-        }
-      });
-
-      t.on('mouseleave', () => {
-        if (tabData.id !== self._activeTab?.id) {
-          t.style('background', 'transparent');
-        }
-      });
+      // 如果标签页不可关闭，添加标记类
+      if (!tabData.closable) {
+        t.addClass('yoya-tabs__tab--unclosable');
+      }
 
       t.on('click', () => {
         self.setActiveTab(tabData.id);
@@ -213,14 +150,8 @@ class VTabs extends Tag {
       // 图标
       if (tabData.icon) {
         t.child(
-          span((i) => {
-            i.styles({
-              display: 'inline-flex',
-              alignItems: 'center',
-              fontSize: '14px',
-              lineHeight: '1',
-              opacity: '0.7',
-            });
+          span(i => {
+            i.addClass('yoya-tabs__tab-icon');
             i.html(tabData.icon);
           })
         );
@@ -228,14 +159,8 @@ class VTabs extends Tag {
 
       // 标题 - IDEA 风格：紧凑清晰
       t.child(
-        span((s) => {
-          s.styles({
-            flex: 1,
-            minWidth: '0',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            letterSpacing: '0',
-          });
+        span(s => {
+          s.addClass('yoya-tabs__tab-title');
           s.text(tabData.title);
           tabData._titleEl = s;
         })
@@ -243,40 +168,10 @@ class VTabs extends Tag {
 
       // 关闭按钮
       t.child(
-        span((c) => {
-          c.styles({
-            display: tabData.closable && this.hasState('closable') ? 'flex' : 'none',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '18px',
-            height: '18px',
-            borderRadius: '3px',
-            fontSize: '14px',
-            lineHeight: '1',
-            color: 'var(--yoya-text-secondary, #999)',
-            cursor: 'pointer',
-            transition: 'all 0.1s ease',
-            opacity: '0',
-          });
-
+        span(c => {
+          c.addClass('yoya-tabs__tab-close');
           c.html('×');
 
-          // 鼠标移到标签上时显示关闭按钮
-          t.on('mouseenter', () => {
-            c.style('opacity', '0.7');
-          });
-          t.on('mouseleave', () => {
-            c.style('opacity', '0');
-          });
-
-          c.on('mouseenter', (e) => {
-            e.stopPropagation();
-            c.styles({ opacity: '1', background: 'var(--yoya-error-bg, rgba(239, 68, 68, 0.1))', color: 'var(--yoya-error, #ef4444)' });
-          });
-          c.on('mouseleave', (e) => {
-            e.stopPropagation();
-            c.styles({ opacity: '0.7', background: 'transparent', color: 'var(--yoya-text-secondary, #999)' });
-          });
           c.on('click', (e) => {
             e.stopPropagation();
             self.removeTab(tabData.id);
@@ -294,13 +189,8 @@ class VTabs extends Tag {
    * 创建内容元素
    */
   _createTabContent(tabData) {
-    const contentEl = div((c) => {
-      c.styles({
-        display: 'none',
-        flex: 1,
-        overflow: 'auto',
-        background: 'var(--yoya-tabs-content-bg, var(--yoya-bg))',
-      });
+    const contentEl = div(c => {
+      c.addClass('yoya-tabs__content');
 
       // 执行内容创建函数
       if (typeof tabData.content === 'function') {
@@ -330,12 +220,7 @@ class VTabs extends Tag {
 
     // 更新之前激活的标签样式
     if (previousTab && previousTab.el) {
-      previousTab.el.styles({
-        color: 'var(--yoya-tabs-color, #666)',
-        background: 'transparent',
-        borderBottomColor: 'transparent',
-        marginTop: '0',
-      });
+      previousTab.el.removeClass('yoya-tabs__tab--active');
       // 关闭按钮恢复隐藏
       if (previousTab._closeBtn) {
         previousTab._closeBtn.style('opacity', '0');
@@ -343,14 +228,7 @@ class VTabs extends Tag {
     }
 
     // 更新新激活的标签样式 - IDEA 风格：激活标签与内容背景一致，无缝衔接
-    tabData.el.styles({
-      color: 'var(--yoya-tabs-active-color, var(--yoya-text, #333))',
-      background: 'var(--yoya-tabs-content-bg, var(--yoya-bg, white))',
-      borderBottomColor: 'var(--yoya-tabs-active-border)',
-      marginTop: '0',
-      // 激活标签字体略微加粗
-      fontWeight: '500',
-    });
+    tabData.el.addClass('yoya-tabs__tab--active');
 
     // 激活标签的关闭按钮始终可见
     if (tabData._closeBtn) {
@@ -360,13 +238,13 @@ class VTabs extends Tag {
     // 隐藏所有内容
     this._tabs.forEach((t) => {
       if (t.contentEl) {
-        t.contentEl.style('display', 'none');
+        t.contentEl.removeClass('yoya-tabs__content--active');
       }
     });
 
     // 显示当前内容
     if (tabData.contentEl) {
-      tabData.contentEl.style('display', 'block');
+      tabData.contentEl.addClass('yoya-tabs__content--active');
     }
 
     // 派发事件
@@ -471,32 +349,6 @@ class VTabs extends Tag {
     if (!this._initialized) {
       // 使用延迟初始化
       this._ensureDom();
-
-      // 添加滚动条样式
-      const style = document.createElement('style');
-      style.textContent = `
-        .yoya-tabs-header::-webkit-scrollbar {
-          height: 3px;
-        }
-        .yoya-tabs-header::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .yoya-tabs-header::-webkit-scrollbar-thumb {
-          background: rgba(128, 128, 128, 0.3);
-          border-radius: 2px;
-        }
-        .yoya-tabs-header::-webkit-scrollbar-thumb:hover {
-          background: rgba(128, 128, 128, 0.5);
-        }
-      `;
-      if (typeof document !== 'undefined') {
-        const existingStyle = this._tabsHeader._el.querySelector('style.yoya-tabs-header-style');
-        if (!existingStyle) {
-          style.className = 'yoya-tabs-header-style';
-          this._tabsHeader._el.appendChild(style);
-        }
-      }
-
       this._initialized = true;
     }
 

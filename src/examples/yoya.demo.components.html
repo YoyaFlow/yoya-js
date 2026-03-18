@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya 组件演示 - VBox & VSwitchers</title>
+  <link rel="stylesheet" href="../../yoya/theme/css/base.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--yoya-bg-secondary, #f5f5f5);
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { vBox, vSwitchers, vCard, vButton, toast, vMenu, vMenuItem } from '../../yoya/index.js';
+
+    // 主应用布局
+    vBox(app => {
+      app.styles({
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      });
+
+      // ============== 顶部导航栏 ==============
+      app.vBox(header => {
+        header.background('var(--yoya-bg, #ffffff)');
+        header.styles({
+          borderBottom: '1px solid var(--yoya-border)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        });
+
+        header.vBox(headerContent => {
+          headerContent.styles({
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '12px 24px',
+            maxWidth: '1200px',
+            margin: '0 auto',
+            width: '100%',
+          });
+
+          // Logo
+          headerContent.vBox(logo => {
+            logo.text('Yoya.Components');
+            logo.styles({
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: 'var(--yoya-primary)',
+            });
+          });
+
+          // 导航链接
+          headerContent.vBox(nav => {
+            nav.styles({ display: 'flex', gap: '20px' });
+
+            ['首页', '组件', '文档', '示例'].forEach((item, index) => {
+              nav.vBox(link => {
+                link.text(item);
+                link.styles({
+                  cursor: 'pointer',
+                  color: index === 1 ? 'var(--yoya-primary)' : 'var(--yoya-text-secondary)',
+                  fontWeight: index === 1 ? '500' : '400',
+                  textDecoration: 'none',
+                });
+                link.onClick(() => {
+                  toast.info(`点击了 ${item}`);
+                });
+              });
+            });
+          });
+        });
+      });
+
+      // ============== 主内容区域 ==============
+      app.vBox(main => {
+        main.styles({ flex: 1, padding: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' });
+
+        // 页面标题
+        main.vBox(pageTitle => {
+          pageTitle.text('组件演示');
+          pageTitle.styles({
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: 'var(--yoya-text-primary)',
+            marginBottom: '8px',
+          });
+
+          pageTitle.vBox(subtitle => {
+            subtitle.text('VBox 和 VSwitchers 组件的实际应用示例');
+            subtitle.styles({
+              fontSize: '14px',
+              color: 'var(--yoya-text-secondary)',
+            });
+          });
+        });
+
+        // ============== 演示区域 1: 数据概览卡片 ==============
+        main.vBox(section1 => {
+          section1.margin('lg');
+
+          // 使用 VSwitchers 切换数据视图
+          section1.vBox(viewSwitcher => {
+            viewSwitcher.vSwitchers(s => {
+              s.options([
+                { value: 'overview', label: '📊 概览' },
+                { value: 'detail', label: '📈 详情' },
+                { value: 'analysis', label: '📉 分析' },
+              ]);
+              s.value('overview');
+              s.onChange((value) => {
+                toast.info(`切换到：${value}`);
+              });
+            });
+          });
+
+          // 数据卡片网格
+          section1.vBox(cardsGrid => {
+            cardsGrid.styles({
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '16px',
+              marginTop: '16px',
+            });
+
+            // 卡片 1
+            cardsGrid.vBox(statCard1 => {
+              statCard1.background('var(--yoya-bg, #ffffff)');
+              statCard1.radius('lg');
+              statCard1.shadow('sm');
+              statCard1.padding('lg');
+
+              statCard1.vBox(icon => {
+                icon.text('👥');
+                icon.styles({ fontSize: '24px', marginBottom: '8px' });
+              });
+
+              statCard1.vBox(label => {
+                label.text('总用户数');
+                label.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)' });
+              });
+
+              statCard1.vBox(value => {
+                value.text('12,846');
+                value.styles({ fontSize: '24px', fontWeight: 'bold', color: 'var(--yoya-text-primary)', marginTop: '4px' });
+              });
+
+              statCard1.vBox(trend => {
+                trend.text('↑ 12.5% 较上周');
+                trend.styles({ fontSize: '12px', color: 'var(--yoya-success)', marginTop: '8px' });
+              });
+            });
+
+            // 卡片 2
+            cardsGrid.vBox(statCard2 => {
+              statCard2.background('var(--yoya-bg, #ffffff)');
+              statCard2.radius('lg');
+              statCard2.shadow('sm');
+              statCard2.padding('lg');
+
+              statCard2.vBox(icon => {
+                icon.text('💰');
+                icon.styles({ fontSize: '24px', marginBottom: '8px' });
+              });
+
+              statCard2.vBox(label => {
+                label.text('收入');
+                label.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)' });
+              });
+
+              statCard2.vBox(value => {
+                value.text('¥48,295');
+                value.styles({ fontSize: '24px', fontWeight: 'bold', color: 'var(--yoya-text-primary)', marginTop: '4px' });
+              });
+
+              statCard2.vBox(trend => {
+                trend.text('↑ 8.2% 较上周');
+                trend.styles({ fontSize: '12px', color: 'var(--yoya-success)', marginTop: '8px' });
+              });
+            });
+
+            // 卡片 3
+            cardsGrid.vBox(statCard3 => {
+              statCard3.background('var(--yoya-bg, #ffffff)');
+              statCard3.radius('lg');
+              statCard3.shadow('sm');
+              statCard3.padding('lg');
+
+              statCard3.vBox(icon => {
+                icon.text('📦');
+                icon.styles({ fontSize: '24px', marginBottom: '8px' });
+              });
+
+              statCard3.vBox(label => {
+                label.text('订单量');
+                label.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)' });
+              });
+
+              statCard3.vBox(value => {
+                value.text('1,428');
+                value.styles({ fontSize: '24px', fontWeight: 'bold', color: 'var(--yoya-text-primary)', marginTop: '4px' });
+              });
+
+              statCard3.vBox(trend => {
+                trend.text('↓ 3.1% 较上周');
+                trend.styles({ fontSize: '12px', color: 'var(--yoya-error)', marginTop: '8px' });
+              });
+            });
+
+            // 卡片 4
+            cardsGrid.vBox(statCard4 => {
+              statCard4.background('var(--yoya-bg, #ffffff)');
+              statCard4.radius('lg');
+              statCard4.shadow('sm');
+              statCard4.padding('lg');
+
+              statCard4.vBox(icon => {
+                icon.text('⭐');
+                icon.styles({ fontSize: '24px', marginBottom: '8px' });
+              });
+
+              statCard4.vBox(label => {
+                label.text('满意度');
+                label.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)' });
+              });
+
+              statCard4.vBox(value => {
+                value.text('98.2%');
+                value.styles({ fontSize: '24px', fontWeight: 'bold', color: 'var(--yoya-text-primary)', marginTop: '4px' });
+              });
+
+              statCard4.vBox(trend => {
+                trend.text('↑ 2.4% 较上周');
+                trend.styles({ fontSize: '12px', color: 'var(--yoya-success)', marginTop: '8px' });
+              });
+            });
+          });
+        });
+
+        // ============== 演示区域 2: 内容筛选器 ==============
+        main.vBox(section2 => {
+          section2.margin('lg');
+
+          section2.vCard(card => {
+            card.vCardHeader(header => {
+              header.styles({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' });
+
+              header.vBox(title => {
+                title.text('内容管理');
+                title.styles({ fontSize: '16px', fontWeight: '600' });
+              });
+
+              // 筛选器
+              header.vBox(filters => {
+                filters.styles({ display: 'flex', gap: '12px' });
+
+                // 类型筛选
+                filters.vSwitchers(s => {
+                  s.options(['全部', '文章', '视频', '图片']);
+                  s.value('全部');
+                  s.size('small');
+                  s.onChange((value) => {
+                    toast.info(`类型：${value}`);
+                  });
+                });
+
+                // 状态筛选
+                filters.vSwitchers(s => {
+                  s.options(['全部', '已发布', '草稿', '归档']);
+                  s.value('已发布');
+                  s.size('small');
+                  s.onChange((value) => {
+                    toast.info(`状态：${value}`);
+                  });
+                });
+              });
+            });
+
+            card.vCardBody(body => {
+              // 内容列表
+              const contents = [
+                { title: '如何学习 React Hooks', type: '文章', status: '已发布', views: '2,341', date: '2024-03-15' },
+                { title: 'TypeScript 入门教程', type: '文章', status: '已发布', views: '1,892', date: '2024-03-14' },
+                { title: 'Vue 3 组合式 API 详解', type: '视频', status: '草稿', views: '-', date: '2024-03-13' },
+                { title: 'CSS Grid 布局指南', type: '文章', status: '已发布', views: '3,156', date: '2024-03-12' },
+              ];
+
+              contents.forEach((item, index) => {
+                body.vBox(row => {
+                  row.styles({
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 0',
+                    borderBottom: index < contents.length - 1 ? '1px solid var(--yoya-border-light)' : 'none',
+                  });
+
+                  row.vBox(info => {
+                    info.styles({ display: 'flex', flexDirection: 'column', gap: '4px' });
+
+                    info.vBox(itemTitle => {
+                      itemTitle.text(item.title);
+                      itemTitle.styles({ fontSize: '14px', fontWeight: '500', color: 'var(--yoya-text-primary)' });
+                    });
+
+                    info.vBox(meta => {
+                      meta.styles({ display: 'flex', gap: '12px' });
+
+                      meta.vBox(tag => {
+                        tag.text(item.type);
+                        tag.background('var(--yoya-info-bg)');
+                        tag.color('var(--yoya-info)');
+                        tag.styles({ fontSize: '11px', padding: '2px 6px', borderRadius: '4px' });
+                      });
+
+                      meta.vBox(tag => {
+                        tag.text(item.status);
+                        tag.background(item.status === '已发布' ? 'var(--yoya-success-bg)' : 'var(--yoya-warning-bg)');
+                        tag.color(item.status === '已发布' ? 'var(--yoya-success)' : 'var(--yoya-warning)');
+                        tag.styles({ fontSize: '11px', padding: '2px 6px', borderRadius: '4px' });
+                      });
+
+                      meta.vBox(date => {
+                        date.text(item.date);
+                        date.styles({ fontSize: '12px', color: 'var(--yoya-text-tertiary)' });
+                      });
+                    });
+                  });
+
+                  row.vBox(actions => {
+                    actions.styles({ display: 'flex', gap: '8px' });
+
+                    actions.vBox(actionBtn => {
+                      actionBtn.text('编辑');
+                      actionBtn.styles({
+                        fontSize: '12px',
+                        padding: '4px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        background: 'var(--yoya-bg-secondary)',
+                        color: 'var(--yoya-text-primary)',
+                        border: '1px solid var(--yoya-border)',
+                      });
+                      actionBtn.onClick(() => toast.info('编辑：' + item.title));
+                    });
+
+                    actions.vBox(actionBtn => {
+                      actionBtn.text('查看');
+                      actionBtn.styles({
+                        fontSize: '12px',
+                        padding: '4px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        background: 'var(--yoya-primary)',
+                        color: '#ffffff',
+                      });
+                      actionBtn.onClick(() => toast.success('查看：' + item.title));
+                    });
+                  });
+                });
+              });
+            });
+
+            card.vCardFooter(footer => {
+              footer.styles({ display: 'flex', justifyContent: 'space-between', alignItems: 'center' });
+
+              footer.vBox(summary => {
+                summary.text('共 4 项内容');
+                summary.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)' });
+              });
+
+              footer.vBox(pagination => {
+                pagination.styles({ display: 'flex', gap: '4px' });
+
+                ['<', '1', '2', '3', '>', '>>'].forEach(btn => {
+                  pagination.vBox(pageBtn => {
+                    pageBtn.text(btn);
+                    pageBtn.styles({
+                      fontSize: '12px',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      background: btn === '1' ? 'var(--yoya-primary)' : 'transparent',
+                      color: btn === '1' ? '#ffffff' : 'var(--yoya-text-primary)',
+                      border: '1px solid var(--yoya-border)',
+                    });
+                    pageBtn.onClick(() => {
+                      if (btn !== '1') toast.info(`翻页：${btn}`);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+
+        // ============== 演示区域 3: 设置面板 ==============
+        main.vBox(section3 => {
+          section3.margin('lg');
+
+          section3.vCard(card => {
+            card.vCardHeader(header => {
+              header.text('系统设置');
+              header.styles({ fontSize: '16px', fontWeight: '600' });
+            });
+
+            card.vCardBody(body => {
+              // 设置项 1: 视图模式
+              body.vBox(settingItem => {
+                settingItem.styles({
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px 0',
+                  borderBottom: '1px solid var(--yoya-border-light)',
+                });
+
+                settingItem.vBox(info => {
+                  info.vBox(label => {
+                    label.text('视图模式');
+                    label.styles({ fontSize: '14px', fontWeight: '500' });
+                  });
+                  info.vBox(desc => {
+                    desc.text('选择您喜欢的界面视图模式');
+                    desc.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)', marginTop: '4px' });
+                  });
+                });
+
+                settingItem.vSwitchers(s => {
+                  s.options([
+                    { value: 'light', label: '☀️ 明亮' },
+                    { value: 'dark', label: '🌙 深色' },
+                    { value: 'auto', label: '🔄 自动' },
+                  ]);
+                  s.value('auto');
+                  s.onChange((value) => {
+                    toast.success(`视图模式已切换为：${value}`);
+                  });
+                });
+              });
+
+              // 设置项 2: 通知频率
+              body.vBox(settingItem => {
+                settingItem.styles({
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px 0',
+                  borderBottom: '1px solid var(--yoya-border-light)',
+                });
+
+                settingItem.vBox(info => {
+                  info.vBox(label => {
+                    label.text('通知频率');
+                    label.styles({ fontSize: '14px', fontWeight: '500' });
+                  });
+                  info.vBox(desc => {
+                    desc.text('设置接收通知的时间间隔');
+                    desc.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)', marginTop: '4px' });
+                  });
+                });
+
+                settingItem.vSwitchers(s => {
+                  s.options(['实时', '每小时', '每天']);
+                  s.value('实时');
+                  s.onChange((value) => {
+                    toast.info(`通知频率：${value}`);
+                  });
+                });
+              });
+
+              // 设置项 3: 数据刷新
+              body.vBox(settingItem => {
+                settingItem.styles({
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px 0',
+                });
+
+                settingItem.vBox(info => {
+                  info.vBox(label => {
+                    label.text('数据刷新');
+                    label.styles({ fontSize: '14px', fontWeight: '500' });
+                  });
+                  info.vBox(desc => {
+                    desc.text('设置数据自动刷新的频率');
+                    desc.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)', marginTop: '4px' });
+                  });
+                });
+
+                settingItem.vSwitchers(s => {
+                  s.options(['5 秒', '10 秒', '30 秒']);
+                  s.value('10 秒');
+                  s.size('small');
+                  s.onChange((value) => {
+                    toast.info(`数据刷新：${value}`);
+                  });
+                });
+              });
+            });
+          });
+        });
+
+        // ============== 演示区域 4: 时间范围选择 ==============
+        main.vBox(section4 => {
+          section4.margin('lg');
+
+          section4.vBox(box => {
+            box.background('var(--yoya-bg, #ffffff)');
+            box.radius('lg');
+            box.shadow('sm');
+            box.padding('lg');
+
+            box.vBox(header => {
+              header.styles({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' });
+
+              header.vBox(title => {
+                title.text('数据统计趋势');
+                title.styles({ fontSize: '16px', fontWeight: '600' });
+              });
+
+              // 时间范围选择器
+              header.vSwitchers(timeRange => {
+                timeRange.options([
+                  { value: 'today', label: '今日' },
+                  { value: 'week', label: '近 7 天' },
+                  { value: 'month', label: '近 30 天' },
+                  { value: 'quarter', label: '近 90 天' },
+                  { value: 'year', label: '全年' },
+                ]);
+                timeRange.value('week');
+                timeRange.onChange((value) => {
+                  toast.info(`时间范围：${value}`);
+                });
+              });
+            });
+
+            // 模拟图表区域
+            box.vBox(chartPlaceholder => {
+              chartPlaceholder.background('var(--yoya-bg-secondary)');
+              chartPlaceholder.radius('md');
+              chartPlaceholder.styles({
+                height: '200px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              });
+
+              chartPlaceholder.vBox(chartText => {
+                chartText.styles({ textAlign: 'center', color: 'var(--yoya-text-tertiary)' });
+
+                chartText.vBox(icon => {
+                  icon.text('📊');
+                  icon.styles({ fontSize: '48px', display: 'block', marginBottom: '8px' });
+                });
+
+                chartText.vBox(label => {
+                  label.text('图表展示区域');
+                  label.styles({ fontSize: '14px' });
+                });
+
+                chartText.vBox(sublabel => {
+                  sublabel.text('可在此处集成 ECharts 或其他图表库');
+                  sublabel.styles({ fontSize: '12px', marginTop: '4px' });
+                });
+              });
+            });
+          });
+        });
+
+        // ============== 底部操作栏 ==============
+        main.vBox(footer => {
+          footer.styles({
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '32px',
+            paddingTop: '24px',
+            borderTop: '1px solid var(--yoya-border)',
+          });
+
+          footer.vBox(left => {
+            left.styles({ display: 'flex', gap: '8px' });
+
+            left.vButton(btn => {
+              btn.text('取消');
+              btn.type('default');
+              btn.onClick(() => toast.info('取消操作'));
+            });
+
+            left.vButton(btn => {
+              btn.text('保存设置');
+              btn.type('primary');
+              btn.onClick(() => toast.success('设置已保存'));
+            });
+          });
+
+          footer.vBox(right => {
+            right.text('最后更新：2024-03-17 10:30');
+            right.styles({ fontSize: '12px', color: 'var(--yoya-text-tertiary)' });
+          });
+        });
+      });
+    }).bindTo('#app');
+  </script>
+</body>
+</html>

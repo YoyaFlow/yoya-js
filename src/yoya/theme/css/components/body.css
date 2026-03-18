@@ -1,0 +1,73 @@
+/**
+ * Yoya.Theme - Body Component Styles
+ * 页面整体背景容器样式
+ */
+
+/* ============================================
+   VBody 页面背景容器
+   ============================================ */
+.yoya-body {
+  /* 背景色 */
+  background: var(--yoya-body-bg, var(--yoya-bg, white));
+  background-color: var(--yoya-body-bg-color, var(--yoya-body-bg, var(--yoya-bg, white)));
+
+  /* 字体颜色 */
+  color: var(--yoya-body-color, var(--yoya-text-primary, #1a1c1f));
+
+  /* 最小高度 */
+  min-height: var(--yoya-body-min-height, 100vh);
+
+  /* 宽度 */
+  width: var(--yoya-body-width, 100%);
+
+  /* 布局 */
+  display: var(--yoya-body-display, flex);
+  flex-direction: var(--yoya-body-flex-direction, column);
+  align-items: var(--yoya-body-align-items, stretch);
+
+  /* 内边距 */
+  padding: var(--yoya-body-padding, 0);
+  margin: var(--yoya-body-margin, 0);
+  box-sizing: border-box;
+
+  /* 过渡效果 */
+  transition: background-color 0.3s ease, min-height 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   VBody 全屏模式
+   ============================================ */
+.yoya-body--fullscreen {
+  min-height: var(--yoya-body-min-height, 100vh);
+  width: var(--yoya-body-width, 100%);
+}
+
+/* ============================================
+   VBody 内容对齐
+   ============================================ */
+.yoya-body--center {
+  align-items: center;
+  justify-content: center;
+}
+
+.yoya-body--align-top {
+  align-items: flex-start;
+}
+
+.yoya-body--align-bottom {
+  align-items: flex-end;
+}
+
+.yoya-body--align-stretch {
+  align-items: stretch;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-body {
+    min-height: var(--yoya-body-min-height-mobile, 100vh);
+    padding: var(--yoya-body-padding-mobile, 0);
+  }
+}

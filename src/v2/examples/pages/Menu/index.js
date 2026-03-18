@@ -234,7 +234,7 @@ vMenu(m => {
             sidebar.width('220px');
             sidebar.collapsedWidth('60px');
             sidebar.header(h => {
-              h.styles({ fontWeight: '600', fontSize: '16px' });
+              h.styles({ fontWeight: '600', fontSize: '16px', color: 'var(--yoya-text-primary, #333)' });
               h.text('🏝️ Yoya.Basic');
             });
             sidebar.content(content => {
@@ -293,7 +293,7 @@ vMenu(m => {
               sidebar.width('220px');
               sidebar.collapsedWidth('60px');
               sidebar.header(h => {
-                h.styles({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' });
+                h.styles({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', color: 'var(--yoya-text-primary, #333)' });
                 h.span('🏝️ Yoya');
                 sidebar.showToggleBtn();
               });
@@ -339,7 +339,7 @@ sidebar.toggle()`
             sidebar.width('220px');
             sidebar.collapsedWidth('60px');
             sidebar.header(h => {
-              h.styles({ fontWeight: '600' });
+              h.styles({ fontWeight: '600', color: 'var(--yoya-text-primary, #333)' });
               h.text('🏝️ Yoya.Basic');
             });
             sidebar.content(content => {
