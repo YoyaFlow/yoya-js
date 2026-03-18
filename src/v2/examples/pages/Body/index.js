@@ -66,7 +66,7 @@ export function createBodyPage() {
       content.child(DocSection('custom', '自定义样式', [
         CodeDemo('自定义背景色',
           vBody(b => {
-            b.background('#f0f2f5');
+            b.background('var(--yoya-bg-secondary, #f7f8fa)');
             b.padding('32px');
             b.child(vCard(c => {
               c.vCardHeader('自定义背景');
@@ -74,7 +74,7 @@ export function createBodyPage() {
             }));
           }),
           `vBody(b => {
-  b.background('#f0f2f5')
+  b.background('var(--yoya-bg-secondary)')
   b.padding('32px')
   b.child(vCard(...))
 })`

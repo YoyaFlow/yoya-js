@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>组件主题测试 - Button, Menu, Card</title>
+  <style>
+    body {
+      padding: 40px;
+      font-family: sans-serif;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--yoya-border, #e0e0e0);
+    }
+    .row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .label {
+      min-width: 100px;
+      color: var(--yoya-text-secondary, #666);
+    }
+  </style>
+</head>
+<body>
+  <h1>组件主题测试</h1>
+
+  <div class="section">
+    <h2>主题切换</h2>
+    <div class="row">
+      <span class="label">切换模式:</span>
+      <div id="theme-switcher"></div>
+      <span id="current-mode" style="margin-left: 16px;"></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Button 按钮</h2>
+    <div class="row">
+      <span class="label">类型:</span>
+      <div id="btn-types"></div>
+    </div>
+    <div class="row">
+      <span class="label">Ghost:</span>
+      <div id="btn-ghost"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Menu 菜单</h2>
+    <div class="row">
+      <span class="label">垂直菜单:</span>
+      <div id="menu-vertical"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Card 卡片</h2>
+    <div id="cards"></div>
+  </div>
+
+  <script type="module">
+    import {
+      vButton, vMenu, vMenuItem, vMenuDivider,
+      vCard, vCardHeader, vCardBody, vCardFooter,
+      initTheme, setThemeMode, getThemeMode, getEffectiveThemeMode,
+      toast
+    } from '../yoya/index.js';
+
+    // 初始化主题
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'light'
+    });
+
+    // 等待 DOM 加载完成
+    document.addEventListener('DOMContentLoaded', () => {
+      initThemeComponents();
+    });
+
+    function initThemeComponents() {
+      // 主题切换器
+      const themeContainer = document.getElementById('theme-switcher');
+      const modeDisplay = document.getElementById('current-mode');
+
+      // 监听主题变化
+      window.addEventListener('theme-changed', (e) => {
+        const { mode, currentMode } = e.detail;
+        modeDisplay.textContent = `当前模式：${currentMode} (生效：${mode})`;
+      });
+
+      // 创建主题切换按钮
+      const switcherDiv = document.createElement('div');
+      switcherDiv.style.display = 'flex';
+      switcherDiv.style.gap = '8px';
+
+      vButton(b => {
+        b.text('☀️ 浅色');
+        b.onClick(() => {
+          setThemeMode('light');
+          toast.success('已切换到浅色模式');
+        });
+      }).bindTo(switcherDiv);
+
+      vButton(b => {
+        b.text('🌙 深色');
+        b.type('primary');
+        b.onClick(() => {
+          setThemeMode('dark');
+          toast.success('已切换到深色模式');
+        });
+      }).bindTo(switcherDiv);
+
+      vButton(b => {
+        b.text('🔄 自动');
+        b.onClick(() => {
+          setThemeMode('auto');
+          toast.info('已切换到自动模式（跟随系统）');
+        });
+      }).bindTo(switcherDiv);
+
+      themeContainer.appendChild(switcherDiv);
+      modeDisplay.textContent = `当前模式：${getThemeMode()} (生效：${getEffectiveThemeMode()})`;
+
+      // Button 按钮
+      const btnTypesContainer = document.getElementById('btn-types');
+      vButton(b => { b.text('Default'); }).bindTo(btnTypesContainer);
+      vButton(b => { b.text('Primary'); b.type('primary'); }).bindTo(btnTypesContainer);
+      vButton(b => { b.text('Success'); b.type('success'); }).bindTo(btnTypesContainer);
+      vButton(b => { b.text('Warning'); b.type('warning'); }).bindTo(btnTypesContainer);
+      vButton(b => { b.text('Danger'); b.type('danger'); }).bindTo(btnTypesContainer);
+
+      const btnGhostContainer = document.getElementById('btn-ghost');
+      vButton(b => { b.text('Ghost Primary'); b.ghost(true); b.type('primary'); }).bindTo(btnGhostContainer);
+      vButton(b => { b.text('Ghost Success'); b.ghost(true); b.type('success'); }).bindTo(btnGhostContainer);
+      vButton(b => { b.text('Ghost Danger'); b.ghost(true); b.type('danger'); }).bindTo(btnGhostContainer);
+
+      // Menu 菜单
+      const menuVertical = vMenu(m => {
+        m.vertical();
+        m.item(it => {
+          it.text('🏠 首页');
+          it.active();
+        });
+        m.item(it => {
+          it.text('📁 文档');
+        });
+        m.item(it => {
+          it.text('⚙️ 设置');
+        });
+        m.divider();
+        m.item(it => {
+          it.text('🗑️ 删除');
+          it.danger();
+        });
+      });
+      document.getElementById('menu-vertical').appendChild(menuVertical.renderDom());
+
+      // Card 卡片
+      const cardsContainer = document.getElementById('cards');
+
+      const card1 = vCard(c => {
+        c.vCardHeader('基础卡片');
+        c.vCardBody('这是一个基础的卡片容器，支持头部、内容区和底部。');
+        c.vCardFooter(f => {
+          f.vButton(b => { b.text('取消'); });
+          f.vButton(b => { b.text('确定'); b.type('primary'); });
+        });
+      });
+      cardsContainer.appendChild(card1.renderDom());
+
+      const card2 = vCard(c => {
+        c.hoverable();
+        c.vCardHeader('悬浮卡片');
+        c.vCardBody('鼠标悬停时会有上浮和阴影加深的效果。');
+      });
+      cardsContainer.appendChild(card2.renderDom());
+
+      console.log('Component theme test page initialized');
+    }
+  </script>
+</body>
+</html>

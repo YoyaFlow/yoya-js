@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VSwitchers 简单测试</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { vBox, vSwitchers, toast } from '../../yoya/index.js';
+
+    // 简单测试
+    vBox(app => {
+      app.padding('xl');
+
+      // 测试 1: 基础单选
+      app.vBox(box1 => {
+        box1.margin('md');
+        box1.text('测试 1: 基础单选');
+        box1.vSwitchers(s => {
+          s.options(['日', '周', '月']);
+          s.value('周');
+          s.onChange((value) => {
+            toast.info(`选中：${value}`);
+          });
+        });
+      });
+
+      // 测试 2: 多选模式
+      app.vBox(box2 => {
+        box2.margin('md');
+        box2.text('测试 2: 多选模式');
+        box2.vSwitchers(s => {
+          s.multiple(true);
+          s.options(['苹果', '香蕉', '橙子', '葡萄']);
+          s.value(['苹果', '橙子']);
+          s.onChange((values) => {
+            toast.info(`选中：${values.join(', ')}`);
+          });
+        });
+      });
+
+      // 测试 3: 带禁用项
+      app.vBox(box3 => {
+        box3.margin('md');
+        box3.text('测试 3: 带禁用项');
+        box3.vSwitchers(s => {
+          s.options([
+            { value: 'opt1', label: '选项 1' },
+            { value: 'opt2', label: '选项 2 (禁用)', disabled: true },
+            { value: 'opt3', label: '选项 3' },
+          ]);
+          s.value('opt1');
+        });
+      });
+
+      // 测试 4: 不同尺寸
+      app.vBox(box4 => {
+        box4.margin('md');
+        box4.styles({ display: 'flex', flexDirection: 'column', gap: '10px' });
+        box4.text('测试 4: 不同尺寸');
+
+        box4.vSwitchers(s => {
+          s.options(['小', '中', '大']);
+          s.size('small');
+          s.text('small');
+        });
+
+        box4.vSwitchers(s => {
+          s.options(['小', '中', '大']);
+          s.size('medium');
+          s.text('medium');
+        });
+
+        box4.vSwitchers(s => {
+          s.options(['小', '中', '大']);
+          s.size('large');
+          s.text('large');
+        });
+      });
+
+    }).bindTo('#app');
+  </script>
+</body>
+</html>

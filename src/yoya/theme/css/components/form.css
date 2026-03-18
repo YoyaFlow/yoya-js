@@ -1,0 +1,432 @@
+/**
+ * Yoya.Theme - Form Components Styles
+ * 表单组件样式
+ */
+
+/* ============================================
+   Input 输入框
+   ============================================ */
+.yoya-input {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px);
+  font-size: var(--yoya-font-size-md, 14px);
+  background: var(--yoya-bg);
+  border: 1px solid var(--yoya-border);
+  border-radius: var(--yoya-radius-md, 6px);
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+  outline: none;
+  min-width: 200px;
+  height: var(--yoya-input-height, 32px);
+  color: var(--yoya-text-primary);
+}
+
+.yoya-input:hover {
+  border-color: var(--yoya-border-hover);
+}
+
+.yoya-input:focus {
+  border-color: var(--yoya-border-focus);
+  box-shadow: 0 0 0 2px var(--yoya-primary-alpha);
+}
+
+.yoya-input--disabled {
+  background: var(--yoya-bg-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.yoya-input--error {
+  border-color: var(--yoya-error);
+}
+
+.yoya-input--error:focus {
+  box-shadow: 0 0 0 2px var(--yoya-error-bg);
+}
+
+.yoya-input__inner {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: inherit;
+  color: inherit;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  padding: inherit;
+}
+
+.yoya-input__loading {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: buttonLoadingSpin 0.8s linear infinite;
+  margin-left: 12px;
+}
+
+/* ============================================
+   Textarea 多行输入
+   ============================================ */
+.yoya-textarea {
+  display: inline-flex;
+  align-items: flex-start;
+  padding: var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px);
+  font-size: var(--yoya-font-size-md, 14px);
+  background: var(--yoya-bg);
+  border: 1px solid var(--yoya-border);
+  border-radius: var(--yoya-radius-md, 6px);
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+  outline: none;
+  min-width: 200px;
+  min-height: 80px;
+  color: var(--yoya-text-primary);
+  resize: vertical;
+}
+
+.yoya-textarea:hover {
+  border-color: var(--yoya-border-hover);
+}
+
+.yoya-textarea:focus {
+  border-color: var(--yoya-border-focus);
+  box-shadow: 0 0 0 2px var(--yoya-primary-alpha);
+}
+
+.yoya-textarea--disabled {
+  background: var(--yoya-bg-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.yoya-textarea--error {
+  border-color: var(--yoya-error);
+}
+
+.yoya-textarea--error:focus {
+  box-shadow: 0 0 0 2px var(--yoya-error-bg);
+}
+
+.yoya-textarea__inner {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: inherit;
+  color: inherit;
+  resize: vertical;
+  font-family: inherit;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: inherit;
+}
+
+/* ============================================
+   Select 选择器
+   ============================================ */
+.yoya-select {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px);
+  font-size: var(--yoya-font-size-md, 14px);
+  background: var(--yoya-bg);
+  border: 1px solid var(--yoya-border);
+  border-radius: var(--yoya-radius-md, 6px);
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+  outline: none;
+  min-width: 150px;
+  height: var(--yoya-input-height, 32px);
+  color: var(--yoya-text-primary);
+  cursor: pointer;
+}
+
+.yoya-select:hover {
+  border-color: var(--yoya-border-hover);
+}
+
+.yoya-select:focus {
+  border-color: var(--yoya-border-focus);
+  box-shadow: 0 0 0 2px var(--yoya-primary-alpha);
+}
+
+.yoya-select--disabled {
+  background: var(--yoya-bg-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.yoya-select--error {
+  border-color: var(--yoya-error);
+}
+
+.yoya-select--error:focus {
+  box-shadow: 0 0 0 2px var(--yoya-error-bg);
+}
+
+.yoya-select__inner {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: inherit;
+  color: inherit;
+  cursor: inherit;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================
+   Checkbox 复选框
+   ============================================ */
+.yoya-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yoya-gap-sm, 6px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.yoya-checkbox__input {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--yoya-border);
+  border-radius: 3px;
+  background: var(--yoya-bg);
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+}
+
+.yoya-checkbox__input:checked {
+  background: var(--yoya-primary);
+  border-color: var(--yoya-primary);
+}
+
+.yoya-checkbox:hover .yoya-checkbox__input {
+  border-color: var(--yoya-border-hover);
+}
+
+.yoya-checkbox--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.yoya-checkbox--error {
+  color: var(--yoya-error);
+}
+
+.yoya-checkbox--error .yoya-checkbox__input {
+  border-color: var(--yoya-error);
+}
+
+/* ============================================
+   Radio 单选框
+   ============================================ */
+.yoya-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yoya-gap-sm, 6px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.yoya-radio__input {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--yoya-border);
+  border-radius: 50%;
+  background: var(--yoya-bg);
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+}
+
+.yoya-radio__input:checked {
+  border-color: var(--yoya-primary);
+  background: var(--yoya-primary);
+  box-shadow: inset 0 0 0 3px var(--yoya-bg);
+}
+
+.yoya-radio:hover .yoya-radio__input {
+  border-color: var(--yoya-border-hover);
+}
+
+/* ============================================
+   Form Label
+   ============================================ */
+.yoya-label {
+  display: inline-block;
+  font-size: var(--yoya-font-size-md, 14px);
+  color: var(--yoya-text-primary);
+  margin-bottom: var(--yoya-margin-xs, 4px);
+}
+
+.yoya-label--required::after {
+  content: '*';
+  color: var(--yoya-error);
+  margin-left: 4px;
+}
+
+/* ============================================
+   Form Group
+   ============================================ */
+.yoya-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yoya-gap-xs, 4px);
+  margin-bottom: var(--yoya-margin-md, 8px);
+}
+
+/* ============================================
+   尺寸变体
+   ============================================ */
+.yoya-input--small,
+.yoya-select--small {
+  height: var(--yoya-input-height-sm, 28px);
+  font-size: var(--yoya-font-size-sm, 13px);
+  padding: var(--yoya-padding-xs, 4px) var(--yoya-padding-sm, 6px);
+}
+
+.yoya-input--large,
+.yoya-select--large {
+  height: var(--yoya-input-height-lg, 40px);
+  font-size: var(--yoya-font-size-lg, 16px);
+  padding: var(--yoya-padding-md, 8px) var(--yoya-padding-lg, 10px);
+}
+
+/* ============================================
+   Form 表单容器
+   ============================================ */
+.yoya-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yoya-gap-md, 16px);
+  width: 100%;
+}
+
+/* ============================================
+   Checkboxes 复选框组
+   ============================================ */
+.yoya-checkboxes {
+  display: flex;
+  gap: var(--yoya-gap-sm, 12px);
+  font-size: var(--yoya-font-size-md, 14px);
+  color: var(--yoya-text-primary);
+}
+
+.yoya-checkboxes--column {
+  flex-direction: column;
+}
+
+.yoya-checkboxes--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.yoya-checkboxes--grid {
+  display: grid;
+  gap: var(--yoya-gap-sm, 12px);
+}
+
+.yoya-checkboxes--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.yoya-checkboxes--error {
+  border: 1px solid var(--yoya-error);
+  border-radius: var(--yoya-radius-md, 6px);
+  padding: var(--yoya-padding-sm, 8px);
+}
+
+/* ============================================
+   Switch 开关
+   ============================================ */
+.yoya-switch {
+  display: inline-flex;
+  align-items: center;
+  width: var(--yoya-switch-width, 44px);
+  height: var(--yoya-switch-height, 22px);
+  border-radius: var(--yoya-switch-radius, 11px);
+  background: var(--yoya-switch-bg, var(--yoya-border));
+  padding: 2px;
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.2s);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.yoya-switch--checked {
+  background: var(--yoya-primary);
+}
+
+.yoya-switch--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.yoya-switch--disabled .yoya-switch__wrapper {
+  cursor: not-allowed;
+}
+
+.yoya-switch--large {
+  width: 56px;
+  height: 28px;
+}
+
+.yoya-switch--large .yoya-switch__knob {
+  width: 24px;
+  height: 24px;
+}
+
+.yoya-switch--large .yoya-switch__knob--checked {
+  transform: translateX(28px);
+}
+
+.yoya-switch--small {
+  width: 32px;
+  height: 16px;
+}
+
+.yoya-switch--small .yoya-switch__knob {
+  width: 12px;
+  height: 12px;
+}
+
+.yoya-switch--small .yoya-switch__knob--checked {
+  transform: translateX(16px);
+}
+
+.yoya-switch__knob {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform var(--yoya-transition-fast, 0.2s);
+  transform: translateX(0);
+}
+
+.yoya-switch__knob--checked {
+  transform: translateX(22px);
+}
+
+.yoya-switch__wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.yoya-switch__label {
+  font-size: 14px;
+  color: var(--yoya-text-primary);
+  user-select: none;
+}
+
+.yoya-switch--disabled .yoya-switch__label {
+  opacity: 0.5;
+}

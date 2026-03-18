@@ -1,0 +1,160 @@
+/**
+ * Yoya.Theme - Switchers Component Styles
+ * 分段控制器组件样式
+ */
+
+/* ============================================
+   基础 Switchers 样式
+   ============================================ */
+.yoya-switchers {
+  display: inline-flex;
+  align-items: center;
+  background: var(--yoya-bg-secondary, #f5f5f5);
+  border-radius: var(--yoya-radius-md, 6px);
+  padding: var(--yoya-padding-xs, 4px);
+  gap: var(--yoya-gap-xs, 4px);
+  box-sizing: border-box;
+}
+
+/* ============================================
+   选项项样式
+   ============================================ */
+.yoya-switchers__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px);
+  font-size: var(--yoya-font-size-md, 14px);
+  font-weight: 400;
+  color: var(--yoya-text-secondary, #666);
+  background: transparent;
+  border: none;
+  border-radius: var(--yoya-radius-sm, 4px);
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s) ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.yoya-switchers__item:hover:not(.yoya-switchers__item--disabled) {
+  background: var(--yoya-bg-hover, #e8eaed);
+  color: var(--yoya-text-primary, #333);
+}
+
+/* ============================================
+   选中状态
+   ============================================ */
+.yoya-switchers__item--active {
+  background: var(--yoya-bg, #ffffff);
+  color: var(--yoya-text-primary, #1a1c1f);
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   禁用状态
+   ============================================ */
+.yoya-switchers--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.yoya-switchers__item--disabled {
+  color: var(--yoya-text-disabled, #b8bac0);
+  cursor: not-allowed;
+  background: transparent !important;
+}
+
+/* ============================================
+   尺寸 - Small
+   ============================================ */
+.yoya-switchers--small {
+  padding: 2px;
+  gap: 2px;
+}
+
+.yoya-switchers--small .yoya-switchers__item {
+  padding: 4px 8px;
+  font-size: var(--yoya-font-size-sm, 12px);
+  border-radius: 3px;
+}
+
+/* ============================================
+   尺寸 - Medium (默认)
+   ============================================ */
+.yoya-switchers--medium {
+  padding: var(--yoya-padding-xs, 4px);
+  gap: var(--yoya-gap-xs, 4px);
+}
+
+.yoya-switchers--medium .yoya-switchers__item {
+  padding: var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px);
+  font-size: var(--yoya-font-size-md, 14px);
+  border-radius: var(--yoya-radius-sm, 4px);
+}
+
+/* ============================================
+   尺寸 - Large
+   ============================================ */
+.yoya-switchers--large {
+  padding: 6px;
+  gap: 6px;
+}
+
+.yoya-switchers--large .yoya-switchers__item {
+  padding: 8px 16px;
+  font-size: var(--yoya-font-size-lg, 16px);
+  border-radius: var(--yoya-radius-md, 6px);
+}
+
+/* ============================================
+   主题色变体
+   ============================================ */
+
+/* 主色调选中样式 */
+.yoya-switchers--primary .yoya-switchers__item--active {
+  background: var(--yoya-primary);
+  color: var(--yoya-text-inverse, #ffffff);
+}
+
+/* 成功色选中样式 */
+.yoya-switchers--success .yoya-switchers__item--active {
+  background: var(--yoya-success);
+  color: var(--yoya-text-inverse, #ffffff);
+}
+
+/* 警告色选中样式 */
+.yoya-switchers--warning .yoya-switchers__item--active {
+  background: var(--yoya-warning);
+  color: var(--yoya-text-primary, #1a1c1f);
+}
+
+/* 危险色选中样式 */
+.yoya-switchers--danger .yoya-switchers__item--active {
+  background: var(--yoya-error);
+  color: var(--yoya-text-inverse, #ffffff);
+}
+
+/* ============================================
+   块级模式（占满容器）
+   ============================================ */
+.yoya-switchers--block {
+  display: flex;
+  width: 100%;
+}
+
+.yoya-switchers--block .yoya-switchers__item {
+  flex: 1;
+}
+
+/* ============================================
+   竖向排列
+   ============================================ */
+.yoya-switchers--vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.yoya-switchers--vertical .yoya-switchers__item {
+  justify-content: flex-start;
+}

@@ -65,6 +65,7 @@ class VField extends Tag {
   }
 
   _setupBaseStyles() {
+    this.className('yoya-field');
     this.styles({
       display: 'inline-flex',
       alignItems: 'center',
@@ -132,6 +133,7 @@ class VField extends Tag {
   _buildShowEl(){
     // 内容
     this._showEl = div(c => {
+      c.className('yoya-field__show-el');
       c.styles({
         flex: 1,
         minWidth: 0,
@@ -145,6 +147,7 @@ class VField extends Tag {
   _buildEditIcon(){
     // 编辑图标
     this._editIcon = span(e => {
+      e.className('yoya-field__edit-icon');
       e.styles({
         fontSize: 'var(--yoya-field-edit-icon-size, 14px)',
         color: 'var(--yoya-field-edit-icon-color, #999)',
@@ -164,6 +167,7 @@ class VField extends Tag {
     this._buildShowEl()
     this._buildEditIcon()
     this._showContainer = div(s => {
+      s.className('yoya-field__show-container');
       s.styles({
         display: 'flex',
         alignItems: 'center',
@@ -173,6 +177,7 @@ class VField extends Tag {
         borderRadius: 'var(--yoya-field-radius, 6px)',
         border: 'var(--yoya-field-show-border, 1px solid transparent)',
         background: 'var(--yoya-field-show-bg, transparent)',
+        color: 'var(--yoya-field-text-color, var(--yoya-text, #333))',
         boxSizing: 'border-box',
         transition: 'background-color 0.2s, border-color 0.2s',
       });
@@ -213,6 +218,7 @@ class VField extends Tag {
   _buildEditEl(){
     // 编辑内容
     this._editEl = div(c => {
+      c.className('yoya-field__edit-el');
       c.styles({
         flex: 1,
         minWidth: 0,
@@ -226,11 +232,13 @@ class VField extends Tag {
   _buildBtnContainer(){
     let that = this;
     this._btnContainer = div(a => {
+      a.className('yoya-field__btn-container');
       a.styles({
         display: 'flex',
         gap: 'var(--yoya-field-btn-gap, 4px)',
       });
       a.child(button(save => {
+        save.className('yoya-field__btn-save');
         save.styles({
           minWidth: 'var(--yoya-field-btn-size, 24px)',
           height: 'var(--yoya-field-btn-size, 24px)',
@@ -252,14 +260,15 @@ class VField extends Tag {
         save.on('click', (ev) => { ev.stopPropagation(); that._handleSave(); });
       }));
       a.child(button(cancel => {
+        cancel.className('yoya-field__btn-cancel');
         cancel.styles({
           minWidth: 'var(--yoya-field-btn-size, 24px)',
           height: 'var(--yoya-field-btn-size, 24px)',
           padding: 'var(--yoya-field-btn-padding, 0 6px)',
-          border: 'var(--yoya-field-cancel-border, 1px solid #e0e0e0)',
+          border: 'var(--yoya-field-cancel-border, 1px solid var(--yoya-border, #e0e0e0))',
           borderRadius: 'var(--yoya-field-btn-radius, 4px)',
-          background: 'var(--yoya-field-cancel-bg, white)',
-          color: 'var(--yoya-field-cancel-color, #666)',
+          background: 'var(--yoya-field-cancel-bg, var(--yoya-bg-secondary, #f7f8fa))',
+          color: 'var(--yoya-field-cancel-color, var(--yoya-text-secondary, #666))',
           fontSize: 'var(--yoya-field-btn-font-size, 11px)',
           cursor: 'pointer',
           transition: 'all 0.2s',
@@ -267,7 +276,7 @@ class VField extends Tag {
         cancel.text('✕');
         cancel.on('mouseenter', () => {
           cancel.styles({
-            background: 'var(--yoya-field-cancel-hover-bg, #f5f5f5)',
+            background: 'var(--yoya-field-cancel-hover-bg, var(--yoya-bg-tertiary, #f0f0f0))',
           });
         });
         cancel.on('click', (ev) => { ev.stopPropagation(); that._handleCancel(); });
@@ -278,6 +287,7 @@ class VField extends Tag {
     this._buildEditEl()
     this._buildBtnContainer()
     this._editContainer = div(e => {
+      e.className('yoya-field__edit-container');
       e.styles({
         display: 'none',
         alignItems: 'center',
@@ -285,10 +295,11 @@ class VField extends Tag {
         width: '100%',
         boxSizing: 'border-box',
         padding: 'var(--yoya-field-edit-padding, 4px)',
-        background: 'var(--yoya-field-edit-bg, white)',
+        background: 'var(--yoya-field-edit-bg, var(--yoya-bg-secondary, #f7f8fa))',
         borderRadius: 'var(--yoya-field-radius, 6px)',
         border: 'var(--yoya-field-edit-border, 1px solid var(--yoya-border, #e0e0e0))',
         boxShadow: 'var(--yoya-field-edit-shadow, 0 2px 8px rgba(0,0,0,0.1))',
+        color: 'var(--yoya-field-text-color, var(--yoya-text, #333))',
       });
       e.child(this._editEl);
       // 按钮（手动保存模式）

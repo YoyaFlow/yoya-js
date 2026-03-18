@@ -328,7 +328,7 @@ export function createRouterPage() {
           row.gap('8px');
           row.child(span('当前路径：').styles({ fontWeight: '600' }));
           row.child(codeEl => {
-            codeEl.styles({ background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px' });
+            codeEl.styles({ background: 'var(--yoya-bg-tertiary)', padding: '4px 8px', borderRadius: '4px' });
             codeEl.text(window.location.hash || '/');
           });
         }));
@@ -347,7 +347,7 @@ export function createRouterPage() {
             r1.gap('8px');
             r1.child(span('当前路径：').styles({ fontWeight: '600' }));
             r1.child(code(c => {
-              c.styles({ background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px' });
+              c.styles({ background: 'var(--yoya-bg-tertiary)', padding: '4px 8px', borderRadius: '4px' });
               c.text(hash);
             }));
           }));
@@ -356,7 +356,7 @@ export function createRouterPage() {
             r2.gap('8px');
             r2.child(span('路由参数：').styles({ fontWeight: '600' }));
             r2.child(code(c => {
-              c.styles({ background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px' });
+              c.styles({ background: 'var(--yoya-bg-tertiary)', padding: '4px 8px', borderRadius: '4px' });
               c.text(paramsStr);
             }));
           }));

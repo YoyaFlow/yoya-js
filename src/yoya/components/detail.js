@@ -10,36 +10,46 @@ import { Tag, div, span, table, tr, td, th } from '../core/basic.js';
 // ============================================
 
 class VDetail extends Tag {
+  static _stateAttrs = ['bordered', 'layout', 'column'];
+
   constructor(setup = null) {
     super('div', null);
+
+    this.registerStateAttrs(...this.constructor._stateAttrs);
 
     this._items = [];
     this._column = 3;
     this._title = null;
     this._bordered = false;
-    this._layout = 'horizontal'; // 'horizontal' | 'vertical'
+    this._layout = 'horizontal';
     this._initialized = false;
 
-    // 1. 设置基础样式
-    this._setupBaseStyles();
+    this.addClass('yoya-detail');
+    this._registerStateHandlers();
 
-    // 2. 保存基础样式快照
-    this.saveBaseStylesSnapshot();
-
-    // 3. 执行 setup
     if (setup !== null) {
       this.setup(setup);
     }
   }
 
-  _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      fontSize: 'var(--yoya-descriptions-font-size, 14px)',
-      color: 'var(--yoya-descriptions-text, var(--yoya-text, #333))',
-      background: 'var(--yoya-descriptions-bg, transparent)',
+  _registerStateHandlers() {
+    this.registerStateHandler('bordered', (bordered, host) => {
+      if (bordered) {
+        host.addClass('yoya-detail--bordered');
+      } else {
+        host.removeClass('yoya-detail--bordered');
+      }
+    });
+
+    this.registerStateHandler('layout', (layout, host) => {
+      host._layout = layout;
+    });
+
+    this.registerStateHandler('column', (column, host) => {
+      host._column = column;
+      if (host._layout === 'vertical' && host._gridContainer) {
+        host._gridContainer.style('gridTemplateColumns', `repeat(${column}, 1fr)`);
+      }
     });
   }
 
@@ -50,13 +60,7 @@ class VDetail extends Tag {
     // 标题
     if (this._title) {
       const titleEl = div(t => {
-        t.styles({
-          padding: 'var(--yoya-descriptions-title-padding, 12px 0)',
-          fontSize: 'var(--yoya-descriptions-title-size, 16px)',
-          fontWeight: 'var(--yoya-descriptions-title-font-weight, 600)',
-          color: 'var(--yoya-descriptions-title-color, var(--yoya-text, #333))',
-          marginBottom: 'var(--yoya-descriptions-title-margin, 12px)',
-        });
+        t.addClass('yoya-detail__title');
         t.text(this._title);
       });
       this.child(titleEl);
@@ -64,10 +68,7 @@ class VDetail extends Tag {
 
     // 表格容器
     const tableContainer = div(tc => {
-      tc.styles({
-        width: '100%',
-        overflowX: 'auto',
-      });
+      tc.addClass('yoya-detail__table-container');
 
       if (this._layout === 'vertical') {
         // 纵向布局：使用 flex 布局
@@ -75,14 +76,9 @@ class VDetail extends Tag {
       } else {
         // 横向布局：使用表格布局
         const tbl = table(t => {
-          t.styles({
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: 'inherit',
-          });
-
+          t.addClass('yoya-detail__table');
           if (this._bordered) {
-            t.style('border', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
+            t.addClass('yoya-detail__table--bordered');
           }
         });
 
@@ -92,29 +88,17 @@ class VDetail extends Tag {
         rows.forEach(rowItems => {
           const trEl = tr(r => {
             if (this._bordered) {
-              r.style('borderBottom', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
+              r.addClass('yoya-detail__row--bordered');
             }
           });
 
           rowItems.forEach(item => {
             // 标签单元格
             const labelTd = td(l => {
-              l.styles({
-                padding: 'var(--yoya-descriptions-padding, 12px 16px)',
-                background: this._bordered
-                  ? 'var(--yoya-descriptions-label-bg, var(--yoya-bg-secondary, #f7f8fa))'
-                  : 'transparent',
-                color: 'var(--yoya-descriptions-label-color, var(--yoya-text-secondary, #666))',
-                fontWeight: 'var(--yoya-descriptions-label-font-weight, 500)',
-                textAlign: 'left',
-                width: 'var(--yoya-descriptions-label-width, 120px)',
-                boxSizing: 'border-box',
-              });
-
+              l.addClass('yoya-detail__label');
               if (this._bordered) {
-                l.style('borderRight', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
+                l.addClass('yoya-detail__label--bordered');
               }
-
               if (item.label) {
                 l.text(item.label);
               }
@@ -122,16 +106,10 @@ class VDetail extends Tag {
 
             // 内容单元格
             const contentTd = td(c => {
-              c.styles({
-                padding: 'var(--yoya-descriptions-padding, 12px 16px)',
-                color: 'var(--yoya-descriptions-content-color, var(--yoya-text, #333))',
-                boxSizing: 'border-box',
-              });
-
+              c.addClass('yoya-detail__content');
               if (this._bordered) {
-                c.style('borderRight', '1px solid var(--yoya-descriptions-border, var(--yoya-border, #e0e0e0))');
+                c.addClass('yoya-detail__content--bordered');
               }
-
               if (item.content) {
                 if (typeof item.content === 'string') {
                   c.text(item.content);
@@ -157,37 +135,23 @@ class VDetail extends Tag {
   // 纵向布局实现
   _buildVerticalLayout(container) {
     const grid = div(g => {
-      g.styles({
-        display: 'grid',
-        gridTemplateColumns: `repeat(${this._column}, 1fr)`,
-        gap: 'var(--yoya-descriptions-vertical-gap, 16px)',
-      });
+      g.addClass('yoya-detail__grid');
+      g.style('gridTemplateColumns', `repeat(${this._column}, 1fr)`);
+      this._gridContainer = g;
 
       this._items.forEach(item => {
         const itemEl = div(i => {
-          i.styles({
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--yoya-descriptions-vertical-item-gap, 6px)',
-          });
+          i.addClass('yoya-detail__grid-item');
 
           // 标签
           const labelEl = span(l => {
-            l.styles({
-              fontSize: 'var(--yoya-descriptions-label-font-size, 12px)',
-              color: 'var(--yoya-descriptions-label-color, var(--yoya-text-secondary, #666))',
-              fontWeight: 'var(--yoya-descriptions-label-font-weight, 500)',
-            });
+            l.addClass('yoya-detail__grid-label');
             if (item.label) l.text(item.label);
           });
 
           // 内容
           const contentEl = div(c => {
-            c.styles({
-              fontSize: 'var(--yoya-descriptions-content-font-size, 14px)',
-              color: 'var(--yoya-descriptions-content-color, var(--yoya-text, #333))',
-              padding: 'var(--yoya-descriptions-vertical-content-padding, 8px 0)',
-            });
+            c.addClass('yoya-detail__grid-content');
 
             if (item.content) {
               if (typeof item.content === 'string') {

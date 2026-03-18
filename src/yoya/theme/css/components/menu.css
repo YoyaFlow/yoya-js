@@ -1,0 +1,358 @@
+/**
+ * Yoya.Theme - Menu Component Styles
+ * 菜单组件样式
+ */
+
+/* ============================================
+   基础菜单样式
+   ============================================ */
+.yoya-menu {
+  display: flex;
+  flex-direction: column;
+  background: var(--yoya-bg-elevated);
+  border-radius: var(--yoya-radius-md, 6px);
+  box-shadow: var(--yoya-shadow-dropdown, 0 4px 12px rgba(30, 32, 35, 0.2));
+  border: 1px solid var(--yoya-border-light);
+  min-width: 160px;
+  padding: var(--yoya-padding-sm, 6px);
+}
+
+.yoya-menu--horizontal {
+  flex-direction: row;
+}
+
+.yoya-menu--compact {
+  padding: var(--yoya-padding-xs, 4px);
+}
+
+.yoya-menu--no-shadow {
+  box-shadow: none;
+}
+
+.yoya-menu--bordered {
+  border: 1px solid var(--yoya-border);
+}
+
+/* ============================================
+   菜单项样式
+   ============================================ */
+.yoya-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--yoya-gap-sm, 6px);
+  padding: var(--yoya-padding-md, 8px) var(--yoya-padding-lg, 10px);
+  border-radius: var(--yoya-radius-sm, 4px);
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+  color: var(--yoya-text-primary);
+  font-size: var(--yoya-font-size-md, 14px);
+  user-select: none;
+}
+
+.yoya-menu-item:hover {
+  background: var(--yoya-bg-hover);
+}
+
+/* ============================================
+   菜单项状态
+   ============================================ */
+.yoya-menu-item--active {
+  background: var(--yoya-primary-alpha);
+  color: var(--yoya-primary);
+}
+
+.yoya-menu-item--active:hover {
+  background: var(--yoya-primary-hover);
+}
+
+.yoya-menu-item--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.yoya-menu-item--danger {
+  color: var(--yoya-error);
+}
+
+.yoya-menu-item--danger:hover {
+  background: var(--yoya-error-bg);
+}
+
+.yoya-menu-item--expanded {
+  background: var(--yoya-menu-item-hover-bg, var(--yoya-hover-bg));
+}
+
+.yoya-menu-item--hovering {
+  background: var(--yoya-bg-hover);
+}
+
+/* ============================================
+   菜单项内部元素
+   ============================================ */
+.yoya-menu-item__icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.yoya-menu-item__text {
+  flex: 1;
+}
+
+.yoya-menu-item__shortcut {
+  font-size: var(--yoya-font-size-xs, 12px);
+  color: var(--yoya-text-tertiary);
+  margin-left: var(--yoya-margin-sm, 6px);
+}
+
+/* ============================================
+   菜单分割线
+   ============================================ */
+.yoya-menu-divider {
+  height: 1px;
+  background: var(--yoya-border-light);
+  margin: var(--yoya-margin-sm, 6px) 0;
+}
+
+/* ============================================
+   菜单组
+   ============================================ */
+.yoya-menu-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.yoya-menu-group__label {
+  padding: var(--yoya-padding-xs, 4px) var(--yoya-padding-md, 8px);
+  font-size: var(--yoya-font-size-xs, 12px);
+  font-weight: 600;
+  color: var(--yoya-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   下拉菜单
+   ============================================ */
+.yoya-dropdown-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.yoya-dropdown-menu__trigger {
+  cursor: pointer;
+  user-select: none;
+}
+
+.yoya-dropdown-menu__content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.yoya-dropdown-menu__content--right {
+  left: auto;
+  right: 0;
+}
+
+/* ============================================
+   右键菜单
+   ============================================ */
+.yoya-context-menu {
+  position: fixed;
+  z-index: 9999;
+}
+
+/* ============================================
+   水平菜单
+   ============================================ */
+.yoya-menu--horizontal .yoya-menu-item {
+  border-radius: var(--yoya-radius-md, 6px);
+}
+
+.yoya-menu--horizontal .yoya-menu-item:hover {
+  background: var(--yoya-bg-hover);
+}
+
+/* ============================================
+   VSidebar 侧边栏
+   ============================================ */
+.yoya-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--yoya-sidebar-width, 240px);
+  min-width: var(--yoya-sidebar-width, 240px);
+  height: 100%;
+  background: var(--yoya-sidebar-bg, var(--yoya-bg-elevated));
+  border-right: var(--yoya-sidebar-border, 1px solid var(--yoya-border-light));
+  color: var(--yoya-sidebar-content-color, var(--yoya-text-primary));
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.yoya-sidebar--collapsed {
+  width: var(--yoya-sidebar-collapsed-width, 64px) !important;
+  min-width: var(--yoya-sidebar-collapsed-width, 64px) !important;
+}
+
+.yoya-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yoya-padding-lg, 16px);
+  border-bottom: 1px solid var(--yoya-border-light);
+  min-height: 60px;
+}
+
+.yoya-sidebar__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--yoya-padding-md, 8px);
+}
+
+.yoya-sidebar__footer {
+  border-top: 1px solid var(--yoya-border-light);
+  padding: var(--yoya-padding-md, 8px);
+}
+
+.yoya-sidebar__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--yoya-padding-sm, 6px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--yoya-text-secondary);
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+}
+
+.yoya-sidebar__toggle:hover {
+  background: var(--yoya-bg-hover);
+  color: var(--yoya-text-primary);
+}
+
+/* ============================================
+   VTopNavbar 顶部导航栏
+   ============================================ */
+.yoya-navbar {
+  display: block;
+  width: 100%;
+  height: var(--yoya-navbar-height, 60px);
+  background: var(--yoya-navbar-bg, var(--yoya-bg-elevated));
+  border-bottom: var(--yoya-navbar-border, 1px solid var(--yoya-border-light));
+  box-sizing: border-box;
+  z-index: var(--yoya-navbar-z-index, 1000);
+  color: var(--yoya-text-primary);
+}
+
+.yoya-navbar--fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.yoya-navbar--bordered {
+  border-bottom: var(--yoya-navbar-border, 1px solid var(--yoya-border-light));
+}
+
+.yoya-navbar--no-border {
+  border-bottom: none;
+}
+
+.yoya-navbar__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 var(--yoya-navbar-padding, 16px);
+  box-sizing: border-box;
+}
+
+.yoya-navbar__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--yoya-gap-sm, 8px);
+  font-size: var(--yoya-font-size-lg, 16px);
+  font-weight: 600;
+  color: var(--yoya-text-primary);
+  cursor: pointer;
+  transition: color var(--yoya-transition-fast, 0.15s ease);
+}
+
+.yoya-navbar__logo:hover {
+  color: var(--yoya-primary);
+}
+
+.yoya-navbar__menu {
+  display: flex;
+  align-items: center;
+  gap: var(--yoya-gap-sm, 4px);
+}
+
+.yoya-navbar__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yoya-gap-xs, 4px);
+  padding: var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px);
+  border-radius: var(--yoya-radius-md, 6px);
+  font-size: var(--yoya-font-size-md, 14px);
+  color: var(--yoya-text-secondary);
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+  background: transparent;
+  border: none;
+}
+
+.yoya-navbar__item:hover {
+  background: var(--yoya-navbar-item-hover-bg, var(--yoya-bg-hover));
+  color: var(--yoya-text-primary);
+}
+
+.yoya-navbar__item--active {
+  background: var(--yoya-navbar-item-active-bg, rgba(37, 99, 235, 0.08));
+  color: var(--yoya-navbar-item-active-color, var(--yoya-primary));
+}
+
+.yoya-navbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--yoya-gap-sm, 8px);
+}
+
+.yoya-navbar__item--hover {
+  background: var(--yoya-navbar-item-hover-bg, var(--yoya-bg-hover));
+  color: var(--yoya-text-primary);
+}
+
+.yoya-navbar__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--yoya-border);
+  margin: 0 var(--yoya-margin-sm, 8px);
+}
+
+/* ============================================
+   Dark Mode 深色模式
+   ============================================ */
+[data-theme='islands-dark'] .yoya-menu-item__shortcut {
+  background: var(--yoya-bg-secondary, #2a2a2a) !important;
+  color: var(--yoya-text-tertiary, #888) !important;
+}
+
+[data-theme='islands-dark'] .yoya-sidebar {
+  color: var(--yoya-sidebar-content-color, var(--yoya-text-primary, #e0e0e0)) !important;
+}
+
+[data-theme='islands-dark'] .yoya-sidebar__header {
+  color: var(--yoya-sidebar-header-color, var(--yoya-text-primary, #e0e0e0)) !important;
+}

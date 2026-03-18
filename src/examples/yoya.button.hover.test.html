@@ -55,10 +55,13 @@
   </div>
 
   <script type="module">
-    import { vButton, applyGlobalVariables, baseVariables } from '../yoya/index.js';
+    import { vButton, initTheme } from '../yoya/index.js';
 
-    // 应用主题变量
-    applyGlobalVariables(baseVariables);
+    // 初始化主题（自动加载 CSS 文件）
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'light'
+    });
 
     // 创建按钮
     vButton(b => {

@@ -30,6 +30,7 @@ export function ApiTable(options = {}) {
       api.styles({ padding: 0 });
 
       api.child(table(tbl => {
+        tbl.className('yoya-api-table');
         tbl.styles({
           width: '100%',
           borderCollapse: 'collapse',
@@ -43,9 +44,6 @@ export function ApiTable(options = {}) {
               padding: '12px 16px',
               textAlign: 'left',
               fontWeight: '600',
-              color: 'var(--islands-text, #333)',
-              background: 'var(--islands-bg-secondary, #f7f8fa)',
-              borderBottom: '2px solid var(--islands-border, #e0e0e0)',
               width: '20%',
             });
             h.text('名称');
@@ -55,9 +53,6 @@ export function ApiTable(options = {}) {
               padding: '12px 16px',
               textAlign: 'left',
               fontWeight: '600',
-              color: 'var(--islands-text, #333)',
-              background: 'var(--islands-bg-secondary, #f7f8fa)',
-              borderBottom: '2px solid var(--islands-border, #e0e0e0)',
               width: '40%',
             });
             h.text('说明');
@@ -67,9 +62,6 @@ export function ApiTable(options = {}) {
               padding: '12px 16px',
               textAlign: 'left',
               fontWeight: '600',
-              color: 'var(--islands-text, #333)',
-              background: 'var(--islands-bg-secondary, #f7f8fa)',
-              borderBottom: '2px solid var(--islands-border, #e0e0e0)',
               width: '40%',
             });
             h.text('参数');
@@ -83,8 +75,8 @@ export function ApiTable(options = {}) {
             row.child(td(c => {
               c.styles({
                 padding: '12px 16px',
-                borderBottom: index < items.length - 1 ? '1px solid var(--islands-border, #e0e0e0)' : 'none',
-                color: 'var(--islands-primary, #667eea)',
+                borderBottom: index < items.length - 1 ? '1px solid var(--yoya-border, #e0e0e0)' : 'none',
+                color: 'var(--yoya-primary, #667eea)',
                 fontWeight: '600',
                 fontFamily: 'monospace',
                 fontSize: '13px',
@@ -97,8 +89,8 @@ export function ApiTable(options = {}) {
             row.child(td(c => {
               c.styles({
                 padding: '12px 16px',
-                borderBottom: index < items.length - 1 ? '1px solid var(--islands-border, #e0e0e0)' : 'none',
-                color: 'var(--islands-text, #333)',
+                borderBottom: index < items.length - 1 ? '1px solid var(--yoya-border, #e0e0e0)' : 'none',
+                color: 'var(--yoya-text-primary, #333)',
                 verticalAlign: 'top',
                 fontSize: '13px',
               });
@@ -109,8 +101,8 @@ export function ApiTable(options = {}) {
             row.child(td(c => {
               c.styles({
                 padding: '12px 16px',
-                borderBottom: index < items.length - 1 ? '1px solid var(--islands-border, #e0e0e0)' : 'none',
-                color: 'var(--islands-text-secondary, #666)',
+                borderBottom: index < items.length - 1 ? '1px solid var(--yoya-border, #e0e0e0)' : 'none',
+                color: 'var(--yoya-text-secondary, #666)',
                 verticalAlign: 'top',
                 fontSize: '13px',
               });
@@ -120,7 +112,7 @@ export function ApiTable(options = {}) {
                 c.child(div(propsDiv => {
                   propsDiv.styles({ marginBottom: '8px' });
                   propsDiv.child(span(s => {
-                    s.styles({ fontWeight: '600', color: '#555' });
+                    s.styles({ fontWeight: '600', color: 'var(--yoya-text-primary, #555)' });
                     s.text('参数:');
                   }));
                   propsDiv.child(div(propList => {
@@ -130,10 +122,10 @@ export function ApiTable(options = {}) {
                         p.styles({ marginBottom: '4px' });
                         p.child(code(c => {
                           c.styles({
-                            background: '#f5f5f5',
+                            background: 'var(--yoya-bg-tertiary)',
                             padding: '2px 6px',
                             borderRadius: '4px',
-                            color: '#d63384',
+                            color: 'var(--yoya-text-primary)',
                           });
                           c.text(prop.name);
                         }));
@@ -150,7 +142,7 @@ export function ApiTable(options = {}) {
               // 返回值
               if (item.returns) {
                 c.child(div(ret => {
-                  ret.styles({ fontWeight: '600', color: '#555' });
+                  ret.styles({ fontWeight: '600', color: 'var(--yoya-text-primary, #555)' });
                   ret.text('返回: ' + item.returns);
                 }));
               }
@@ -159,10 +151,10 @@ export function ApiTable(options = {}) {
               if (item.type && !item.props) {
                 c.child(code(c => {
                   c.styles({
-                    background: '#f5f5f5',
+                    background: 'var(--yoya-bg-tertiary)',
                     padding: '2px 6px',
                     borderRadius: '4px',
-                    color: '#666',
+                    color: 'var(--yoya-text-primary)',
                   });
                   c.text(item.type);
                 }));

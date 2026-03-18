@@ -3,7 +3,7 @@
  */
 
 import {
-  flex, vstack, div, pre, code,
+  flex, vstack, div, pre, code, button,
   vTabs, toast
 } from '../../../../yoya/index.js';
 import { AppShell } from '../../framework/AppShell.js';
@@ -280,32 +280,35 @@ export function createTabsPage() {
                 setTimeout(() => {
                   const container = d._el?.parentElement;
                   if (container) {
-                    const addBtn = document.createElement('button');
-                    addBtn.textContent = '添加标签';
-                    addBtn.style.cssText = 'margin-top: 10px; padding: 8px 16px; cursor: pointer;';
-                    addBtn.onclick = () => {
-                      const count = t.getTabs().length + 1;
-                      t.addTab(`tab${count}`, `标签${count}`, (c) => {
-                        c.styles({ padding: '20px' });
-                        c.text(`标签${count} 内容`);
+                    // 使用 yoya button 组件
+                    const addBtn = button(b => {
+                      b.text('添加标签');
+                      b.styles({ marginTop: '10px' });
+                      b.onclick(() => {
+                        const count = t.getTabs().length + 1;
+                        t.addTab(`tab${count}`, `标签${count}`, (c) => {
+                          c.styles({ padding: '20px' });
+                          c.text(`标签${count} 内容`);
+                        });
+                        toast.success(`添加标签${count}`);
                       });
-                      toast.success(`添加标签${count}`);
-                    };
+                    });
 
-                    const removeBtn = document.createElement('button');
-                    removeBtn.textContent = '移除最后标签';
-                    removeBtn.style.cssText = 'margin-left: 10px; padding: 8px 16px; cursor: pointer;';
-                    removeBtn.onclick = () => {
-                      const tabs = t.getTabs();
-                      if (tabs.length > 1) {
-                        const lastTab = tabs[tabs.length - 1];
-                        t.removeTab(lastTab.id);
-                        toast.info('移除最后一个标签');
-                      }
-                    };
+                    const removeBtn = button(b => {
+                      b.text('移除最后标签');
+                      b.styles({ marginLeft: '10px' });
+                      b.onclick(() => {
+                        const tabs = t.getTabs();
+                        if (tabs.length > 1) {
+                          const lastTab = tabs[tabs.length - 1];
+                          t.removeTab(lastTab.id);
+                          toast.info('移除最后一个标签');
+                        }
+                      });
+                    });
 
-                    container.appendChild(addBtn);
-                    container.appendChild(removeBtn);
+                    container.appendChild(addBtn.renderDom());
+                    container.appendChild(removeBtn.renderDom());
                   }
                 }, 100);
               })

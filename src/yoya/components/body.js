@@ -29,37 +29,12 @@ export class VBody extends Tag {
     // 初始化状态
     this.initializeStates({ fullscreen: true });
 
-    // 应用基础样式（使用主题变量）
-    this.styles({
-      // 背景色
-      background: 'var(--yoya-body-bg, var(--yoya-bg, white))',
-      backgroundColor: 'var(--yoya-body-bg-color, var(--yoya-body-bg, var(--yoya-bg, white)))',
+    // 应用基础 CSS 类
+    this.addClass('yoya-body');
+    this.addClass('yoya-body--fullscreen');
 
-      // 字体颜色
-      color: 'var(--yoya-body-color, var(--yoya-text, #333))',
-
-      // 最小高度
-      minHeight: 'var(--yoya-body-min-height, 100vh)',
-
-      // 宽度
-      width: 'var(--yoya-body-width, 100%)',
-
-      // 布局
-      display: 'var(--yoya-body-display, flex)',
-      flexDirection: 'var(--yoya-body-flex-direction, column)',
-      alignItems: 'var(--yoya-body-align-items, stretch)',
-
-      // 内边距
-      padding: 'var(--yoya-body-padding, 0)',
-      margin: 'var(--yoya-body-margin, 0)',
-      boxSizing: 'border-box',
-
-      // 过渡效果
-      transition: 'background-color 0.3s ease, min-height 0.3s ease, color 0.3s ease',
-    });
-
-    // 应用组件基础样式
-    this._applyThemeBaseStyles();
+    // 注册状态处理器
+    this._registerStateHandlers();
 
     // 监听主题变化
     this._setupThemeListener();
@@ -132,9 +107,6 @@ export class VBody extends Tag {
    */
   fullscreen(enabled) {
     this.setState('fullscreen', enabled);
-    if (enabled) {
-      this.style('minHeight', 'var(--yoya-body-min-height, 100vh)');
-    }
     return this;
   }
 
@@ -144,7 +116,16 @@ export class VBody extends Tag {
    * @returns {VBody} this
    */
   align(align) {
-    this.style('alignItems', align);
+    this.removeClass('yoya-body--align-top', 'yoya-body--align-bottom', 'yoya-body--align-stretch', 'yoya-body--center');
+    if (align === 'top') {
+      this.addClass('yoya-body--align-top');
+    } else if (align === 'bottom') {
+      this.addClass('yoya-body--align-bottom');
+    } else if (align === 'center') {
+      this.addClass('yoya-body--center');
+    } else {
+      this.addClass('yoya-body--align-stretch');
+    }
     return this;
   }
 
@@ -153,8 +134,7 @@ export class VBody extends Tag {
    * @returns {VBody} this
    */
   center() {
-    this.style('alignItems', 'center')
-      .style('justifyContent', 'center');
+    this.addClass('yoya-body--center');
     return this;
   }
 
@@ -191,13 +171,9 @@ export class VBody extends Tag {
     // fullscreen 状态处理器
     this.registerStateHandler('fullscreen', (enabled, host) => {
       if (enabled) {
-        host.styles({
-          minHeight: 'var(--yoya-body-min-height, 100vh)',
-          width: 'var(--yoya-body-width, 100%)',
-        });
+        host.addClass('yoya-body--fullscreen');
       } else {
-        host.style('minHeight', '');
-        host.style('width', '');
+        host.removeClass('yoya-body--fullscreen');
       }
     });
   }

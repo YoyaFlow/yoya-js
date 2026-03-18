@@ -53,22 +53,7 @@ class VInput extends Tag {
     this.placeholder(setup);
   }
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      width: '100%',
-      maxWidth: '100%',
-      fontSize: 'var(--yoya-input-font-size, 14px)',
-      borderRadius: 'var(--yoya-input-radius, 6px)',
-      border: '1px solid var(--yoya-input-border, var(--yoya-border))',
-      background: 'var(--yoya-input-bg, var(--yoya-bg))',
-      color: 'var(--yoya-input-text, var(--yoya-text))',
-      transition: 'all 0.2s',
-      outline: 'none',
-      height: 'var(--yoya-input-height, 32px)',
-      boxSizing: 'border-box',
-      cursor: 'text',
-    });
+    this.addClass('yoya-input');
   }
 
   _createInternalElements() {
@@ -76,18 +61,7 @@ class VInput extends Tag {
     if (this._inputEl) return;
 
     this._inputEl = input(i => {
-      i.styles({
-        flex: 1,
-        border: 'none',
-        outline: 'none',
-        background: 'transparent',
-        fontSize: 'inherit',
-        color: 'inherit',
-        minWidth: 0,
-        width: '100%',
-        height: '100%',
-        padding: 'var(--yoya-input-padding, 8px 12px)',
-      });
+      i.addClass('yoya-input__inner');
     });
 
     // 同步属性到内部 input
@@ -122,16 +96,7 @@ class VInput extends Tag {
   _showLoadingSpinner() {
     if (!this._loadingSpinner) {
       this._loadingSpinner = span(s => {
-        s.styles({
-          display: 'inline-block',
-          width: '14px',
-          height: '14px',
-          border: '2px solid currentColor',
-          borderBottomColor: 'transparent',
-          borderRadius: '50%',
-          animation: 'buttonLoadingSpin 0.8s linear infinite',
-          marginLeft: '12px',
-        });
+        s.addClass('yoya-input__loading');
       });
       this.child(this._loadingSpinner);
     }
@@ -147,23 +112,13 @@ class VInput extends Tag {
   _registerStateHandlers() {
     // disabled 状态
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: 'var(--yoya-input-disabled-bg, var(--yoya-bg-tertiary))',
-        });
+        host.addClass('yoya-input--disabled');
         if (host._inputEl) {
           host._inputEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'text',
-          background: 'var(--yoya-input-bg, var(--yoya-bg))',
-        });
+        host.removeClass('yoya-input--disabled');
         if (host._inputEl) {
           host._inputEl.attr('disabled', null);
         }
@@ -179,14 +134,10 @@ class VInput extends Tag {
 
     // error 状态
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('borderColor', 'var(--yoya-error, var(--yoya-border-error))');
-        host.style('boxShadow', '0 0 0 2px var(--yoya-error-bg, rgba(224, 82, 82, 0.2))');
+        host.addClass('yoya-input--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-input--error');
       }
     });
 
@@ -248,25 +199,12 @@ class VInput extends Tag {
   size(s) {
     if (s === undefined) return this._size;
     this._size = s;
-    const sizeStyles = {
-      large: {
-        padding: 'var(--yoya-input-padding-lg, 10px 16px)',
-        fontSize: 'var(--yoya-input-font-size-lg, 16px)',
-        height: 'var(--yoya-input-height-lg, 40px)',
-      },
-      default: {
-        padding: 'var(--yoya-input-padding, 8px 12px)',
-        fontSize: 'var(--yoya-input-font-size, 14px)',
-        height: 'var(--yoya-input-height, 32px)',
-      },
-      small: {
-        padding: 'var(--yoya-input-padding-sm, 4px 8px)',
-        fontSize: 'var(--yoya-input-font-size-sm, 12px)',
-        height: 'var(--yoya-input-height-sm, 24px)',
-      },
-    };
-    const styles = sizeStyles[s] || sizeStyles.default;
-    this.styles(styles);
+    this.removeClass('yoya-input--large', 'yoya-input--small');
+    if (s === 'large') {
+      this.addClass('yoya-input--large');
+    } else if (s === 'small') {
+      this.addClass('yoya-input--small');
+    }
     return this;
   }
 
@@ -443,39 +381,14 @@ class VSelect extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      width: '100%',
-      fontSize: 'var(--yoya-select-font-size, 14px)',
-      borderRadius: 'var(--yoya-select-radius, 6px)',
-      border: '1px solid var(--yoya-select-border, var(--yoya-border, #e0e0e0))',
-      background: 'var(--yoya-select-bg, var(--yoya-bg, white))',
-      color: 'var(--yoya-select-text, var(--yoya-text, #333))',
-      transition: 'all 0.2s',
-      outline: 'none',
-      height: 'var(--yoya-select-height, 32px)',
-      boxSizing: 'border-box',
-      cursor: 'pointer',
-      position: 'relative',
-    });
+    this.addClass('yoya-select');
   }
 
   _createInternalElements() {
     // 首次创建 select 元素
     if (!this._selectEl) {
       this._selectEl = select(s => {
-        s.styles({
-          flex: 1,
-          border: 'none',
-          outline: 'none',
-          background: 'transparent',
-          fontSize: 'inherit',
-          color: 'inherit',
-          cursor: 'inherit',
-          width: '100%',
-          height: '100%',
-        });
+        s.addClass('yoya-select__inner');
       });
 
       this.child(this._selectEl);
@@ -499,22 +412,13 @@ class VSelect extends Tag {
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: 'var(--yoya-select-disabled-bg, var(--yoya-bg-tertiary, #f5f5f5))',
-        });
+        host.addClass('yoya-select--disabled');
         if (host._selectEl) {
           host._selectEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-        });
+        host.removeClass('yoya-select--disabled');
         if (host._selectEl) {
           host._selectEl.attr('disabled', null);
         }
@@ -522,14 +426,10 @@ class VSelect extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('borderColor', 'var(--yoya-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.addClass('yoya-select--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-select--error');
       }
     });
   }
@@ -611,27 +511,13 @@ class VSelect extends Tag {
 
   size(s) {
     if (s === undefined) return this._size;
-    const sizeStyles = {
-      large: {
-        padding: 'var(--yoya-select-padding-lg, 10px 16px)',
-        fontSize: 'var(--yoya-select-font-size-lg, 16px)',
-        height: 'var(--yoya-select-height-lg, 40px)',
-      },
-      default: {
-        padding: 'var(--yoya-select-padding, 8px 12px)',
-        fontSize: 'var(--yoya-select-font-size, 14px)',
-        height: 'var(--yoya-select-height, 32px)',
-      },
-      small: {
-        padding: 'var(--yoya-select-padding-sm, 4px 8px)',
-        fontSize: 'var(--yoya-select-font-size-sm, 12px)',
-        height: 'var(--yoya-select-height-sm, 24px)',
-      },
-    };
-
     this._size = s;
-    const styles = sizeStyles[s] || sizeStyles.default;
-    this.styles(styles);
+    this.removeClass('yoya-select--large', 'yoya-select--small');
+    if (s === 'large') {
+      this.addClass('yoya-select--large');
+    } else if (s === 'small') {
+      this.addClass('yoya-select--small');
+    }
     return this;
   }
 
@@ -715,40 +601,18 @@ class VTextarea extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      width: '100%',
-      fontSize: 'var(--yoya-textarea-font-size, 14px)',
-      borderRadius: 'var(--yoya-textarea-radius, 6px)',
-      border: '1px solid var(--yoya-textarea-border, var(--yoya-border, #e0e0e0))',
-      background: 'var(--yoya-textarea-bg, var(--yoya-bg, white))',
-      color: 'var(--yoya-textarea-text, var(--yoya-text, #333))',
-      transition: 'all 0.2s',
-      outline: 'none',
-      boxSizing: 'border-box',
-      minHeight: 'var(--yoya-textarea-min-height, 80px)',
-      cursor: 'text',
-    });
+    this.addClass('yoya-textarea');
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-          background: 'var(--yoya-textarea-disabled-bg, var(--yoya-bg-tertiary, #f5f5f5))',
-        });
+        host.addClass('yoya-textarea--disabled');
         if (host._textareaEl) {
           host._textareaEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'text',
-        });
+        host.removeClass('yoya-textarea--disabled');
         if (host._textareaEl) {
           host._textareaEl.attr('disabled', null);
         }
@@ -762,14 +626,10 @@ class VTextarea extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('borderColor', 'var(--yoya-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.addClass('yoya-textarea--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-textarea--error');
       }
     });
   }
@@ -779,20 +639,7 @@ class VTextarea extends Tag {
     if (this._textareaEl) return;
 
     this._textareaEl = textarea(t => {
-      t.styles({
-        flex: 1,
-        border: 'none',
-        outline: 'none',
-        background: 'transparent',
-        fontSize: 'inherit',
-        color: 'inherit',
-        resize: 'vertical',
-        fontFamily: 'inherit',
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        padding: 'var(--yoya-textarea-padding, 8px 12px)',
-      });
+      t.addClass('yoya-textarea__inner');
       t.attr('rows', this._rows);
 
       // 设置初始值（textarea 使用 text 内容）
@@ -955,34 +802,18 @@ class VCheckbox extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 'var(--yoya-gap-sm, 6px)',
-      cursor: 'pointer',
-      fontSize: 'var(--yoya-checkbox-font-size, 14px)',
-      color: 'var(--yoya-checkbox-text, var(--yoya-text, #333))',
-      userSelect: 'none',
-    });
+    this.addClass('yoya-checkbox');
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        });
+        host.addClass('yoya-checkbox--disabled');
         if (host._checkboxEl) {
           host._checkboxEl.attr('disabled', 'disabled');
         }
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-        });
+        host.removeClass('yoya-checkbox--disabled');
         if (host._checkboxEl) {
           host._checkboxEl.attr('disabled', null);
         }
@@ -1004,10 +835,8 @@ class VCheckbox extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();  // 先清空状态样式
-
       if (hasError) {
-        host.style('color', 'var(--yoya-error, #dc3545)');
+        host.addClass('yoya-checkbox--error');
       }
     });
   }
@@ -1017,13 +846,8 @@ class VCheckbox extends Tag {
     if (this._checkboxEl) return;
 
     this._checkboxEl = input(i => {
+      i.addClass('yoya-checkbox__input');
       i.attr('type', 'checkbox');
-      i.styles({
-        width: '16px',
-        height: '16px',
-        margin: 0,
-        cursor: 'inherit',
-      });
     });
 
     // 设置 checked 状态
@@ -1155,53 +979,29 @@ class VSwitch extends Tag {
     // 创建滑块
     const knob = span(k => {
       k._isKnob = true;
-      k.styles({
-        display: 'inline-block',
-        width: '18px',
-        height: '18px',
-        borderRadius: '50%',
-        background: 'white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-        transition: 'transform 0.2s',
-        transform: this._checked ? 'translateX(22px)' : 'translateX(0)',
-      });
+      k.addClass('yoya-switch__knob');
+      if (this._checked) {
+        k.addClass('yoya-switch__knob--checked');
+      }
     });
 
     // 创建 switch 按钮容器
     this._switchEl = div(s => {
-      s.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        width: 'var(--yoya-switch-width, 44px)',
-        height: 'var(--yoya-switch-height, 22px)',
-        borderRadius: 'var(--yoya-switch-radius, 11px)',
-        background: this._checked ? 'var(--yoya-primary)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))',
-        padding: '2px',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        position: 'relative',
-        boxSizing: 'border-box',
-      });
+      s.addClass('yoya-switch');
+      if (this._checked) {
+        s.addClass('yoya-switch--checked');
+      }
       s.child(knob);
     });
 
     // 如果有 label，创建 wrapper
     if (this._label) {
       this._wrapper = div(w => {
-        w.styles({
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          cursor: this.hasState('disabled') ? 'not-allowed' : 'pointer',
-        });
+        w.addClass('yoya-switch__wrapper');
         w.child(this._switchEl);
         w.child(this._labelEl = span(s => {
           s.text(this._label);
-          s.styles({
-            fontSize: '14px',
-            color: 'inherit',
-            userSelect: 'none',
-          });
+          s.addClass('yoya-switch__label');
         }));
       });
       this.child(this._wrapper);
@@ -1225,27 +1025,30 @@ class VSwitch extends Tag {
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      if (host._switchEl) {
-        host._switchEl.style('cursor', enabled ? 'not-allowed' : 'pointer');
-      }
-      if (host._wrapper) {
-        host._wrapper.style('cursor', enabled ? 'not-allowed' : 'pointer');
-      }
-      if (host._labelEl) {
-        host._labelEl.style('opacity', enabled ? '0.5' : '1');
+      if (enabled) {
+        host.addClass('yoya-switch--disabled');
+      } else {
+        host.removeClass('yoya-switch--disabled');
       }
     });
 
     this.registerStateHandler('checked', (checked, host) => {
       host._checked = checked;
       if (host._switchEl) {
-        host._switchEl.style('background',
-          checked ? 'var(--yoya-primary)' : 'var(--yoya-switch-bg, var(--yoya-border, #e0e0e0))');
+        if (checked) {
+          host._switchEl.addClass('yoya-switch--checked');
+        } else {
+          host._switchEl.removeClass('yoya-switch--checked');
+        }
       }
       // 更新滑块位置
       const knob = host._switchEl?._children?.find(c => c._isKnob);
       if (knob) {
-        knob.style('transform', checked ? 'translateX(22px)' : 'translateX(0)');
+        if (checked) {
+          knob.addClass('yoya-switch__knob--checked');
+        } else {
+          knob.removeClass('yoya-switch__knob--checked');
+        }
       }
     });
   }
@@ -1275,17 +1078,14 @@ class VSwitch extends Tag {
   }
 
   size(value) {
-    const sizes = {
-      large: { width: '56px', height: '28px' },
-      default: { width: '44px', height: '22px' },
-      small: { width: '32px', height: '16px' },
-    };
-
-    const size = sizes[value] || sizes.default;
-    this.styles({
-      width: `var(--yoya-switch-width, ${size.width})`,
-      height: `var(--yoya-switch-height, ${size.height})`,
-    });
+    if (value === undefined) return this._size;
+    this._size = value;
+    this.removeClass('yoya-switch--large', 'yoya-switch--small');
+    if (value === 'large') {
+      this.addClass('yoya-switch--large');
+    } else if (value === 'small') {
+      this.addClass('yoya-switch--small');
+    }
     return this;
   }
 
@@ -1315,12 +1115,7 @@ class VForm extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--yoya-form-gap, 16px)',
-      width: '100%',
-    });
+    this.addClass('yoya-form');
   }
 
   // ============================================
@@ -1517,23 +1312,13 @@ class VCheckboxes extends Tag {
   }
 
   _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      gap: 'var(--yoya-gap, 12px)',
-      fontSize: 'var(--yoya-checkbox-font-size, 14px)',
-      color: 'var(--yoya-checkbox-text, var(--yoya-text, #333))',
-    });
+    this.addClass('yoya-checkboxes');
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      host.clearStateStyles();
-
       if (enabled) {
-        host.styles({
-          opacity: '0.5',
-          cursor: 'not-allowed',
-        });
+        host.addClass('yoya-checkboxes--disabled');
         // 禁用所有复选框
         host._checkboxes.forEach(cb => {
           if (cb._checkboxEl) {
@@ -1541,10 +1326,7 @@ class VCheckboxes extends Tag {
           }
         });
       } else {
-        host.styles({
-          opacity: '1',
-          cursor: 'pointer',
-        });
+        host.removeClass('yoya-checkboxes--disabled');
         // 启用所有复选框
         host._checkboxes.forEach(cb => {
           if (cb._checkboxEl) {
@@ -1555,14 +1337,10 @@ class VCheckboxes extends Tag {
     });
 
     this.registerStateHandler('error', (hasError, host) => {
-      host.clearStateStyles();
-
       if (hasError) {
-        host.style('borderColor', 'var(--yoya-error, #dc3545)');
-        host.style('boxShadow', '0 0 0 2px var(--yoya-error-alpha, rgba(220, 53, 69, 0.2))');
+        host.addClass('yoya-checkboxes--error');
       } else {
-        host.style('borderColor', '');
-        host.style('boxShadow', '');
+        host.removeClass('yoya-checkboxes--error');
       }
     });
   }
@@ -1632,24 +1410,16 @@ class VCheckboxes extends Tag {
   }
 
   _applyLayoutStyles() {
-    const layoutStyles = {
-      column: {
-        flexDirection: 'column',
-        gap: 'var(--yoya-gap, 12px)',
-      },
-      row: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 'var(--yoya-gap, 12px)',
-      },
-      grid: {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${this._columns}, 1fr)`,
-        gap: 'var(--yoya-gap, 12px)',
-      },
-    };
+    this.removeClass('yoya-checkboxes--column', 'yoya-checkboxes--row', 'yoya-checkboxes--grid');
 
-    this.styles(layoutStyles[this._layout] || layoutStyles.column);
+    if (this._layout === 'row') {
+      this.addClass('yoya-checkboxes--row');
+    } else if (this._layout === 'grid') {
+      this.addClass('yoya-checkboxes--grid');
+      this.style('gridTemplateColumns', `repeat(${this._columns}, 1fr)`);
+    } else {
+      this.addClass('yoya-checkboxes--column');
+    }
   }
 
   // ============================================
@@ -1840,12 +1610,12 @@ class VTimer extends Tag {
     this._inputEl = input(i => {
       i.attr('type', this._type);
       i.styles({
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid var(--yoya-border, #d1d5db)',
-        background: 'white',
-        fontSize: '14px',
-        color: 'var(--yoya-text, #333)',
+        padding: 'var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px)',
+        borderRadius: 'var(--yoya-radius-md, 6px)',
+        border: '1px solid var(--yoya-border)',
+        background: 'var(--yoya-bg)',
+        fontSize: 'var(--yoya-font-size-md, 14px)',
+        color: 'var(--yoya-text-primary)',
         outline: 'none',
         cursor: 'pointer',
       });
@@ -2039,12 +1809,12 @@ class VTimer2 extends Tag {
       i.attr('type', this._type);
       i.attr('placeholder', '开始日期');
       i.styles({
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid var(--yoya-border, #d1d5db)',
-        background: 'white',
-        fontSize: '14px',
-        color: 'var(--yoya-text, #333)',
+        padding: 'var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px)',
+        borderRadius: 'var(--yoya-radius-md, 6px)',
+        border: '1px solid var(--yoya-border)',
+        background: 'var(--yoya-bg)',
+        fontSize: 'var(--yoya-font-size-md, 14px)',
+        color: 'var(--yoya-text-primary)',
         outline: 'none',
         cursor: 'pointer',
       });
@@ -2056,7 +1826,7 @@ class VTimer2 extends Tag {
     // 分隔符
     const separator = span(s => {
       s.text('至');
-      s.styles({ color: '#999', fontSize: '14px' });
+      s.styles({ color: 'var(--yoya-text-secondary)', fontSize: 'var(--yoya-font-size-md, 14px)' });
     });
 
     // 结束时间输入
@@ -2064,12 +1834,12 @@ class VTimer2 extends Tag {
       i.attr('type', this._type);
       i.attr('placeholder', '结束日期');
       i.styles({
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid var(--yoya-border, #d1d5db)',
-        background: 'white',
-        fontSize: '14px',
-        color: 'var(--yoya-text, #333)',
+        padding: 'var(--yoya-padding-sm, 6px) var(--yoya-padding-md, 8px)',
+        borderRadius: 'var(--yoya-radius-md, 6px)',
+        border: '1px solid var(--yoya-border)',
+        background: 'var(--yoya-bg)',
+        fontSize: 'var(--yoya-font-size-md, 14px)',
+        color: 'var(--yoya-text-primary)',
         outline: 'none',
         cursor: 'pointer',
       });

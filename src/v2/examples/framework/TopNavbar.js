@@ -7,6 +7,7 @@ import { vTopNavbar, toast, setThemeMode, getThemeMode, vButton } from '../../..
 
 export function TopNavbar() {
   let themeButton = null;
+  const icons = { auto: '🔄', light: '☀️', dark: '🌙' };
 
   return vTopNavbar(navbar => {
     navbar.height('56px');
@@ -27,19 +28,29 @@ export function TopNavbar() {
 
     // 右侧：主题切换
     navbar.right(right => {
-      const icons = { auto: '🔄', light: '☀️', dark: '🌙' };
       const mode = getThemeMode();
 
-      themeButton = right.button(icons[mode], () => {
+      const btn = right.button(icons[mode], () => {
         const current = getThemeMode();
         const next = current === 'auto' ? 'light' : current === 'light' ? 'dark' : 'auto';
         setThemeMode(next);
-        themeButton.text(icons[next]);
         toast.info(`主题模式：${next === 'auto' ? '跟随系统' : next === 'light' ? '浅色' : '深色'}`);
       });
 
-      themeButton.ghost();
-      themeButton.size('small');
+      btn.ghost();
+      btn.size('small');
+
+      // 监听主题变化事件，更新按钮图标
+      if (typeof window !== 'undefined') {
+        window.addEventListener('theme-changed', (e) => {
+          const mode = e.detail?.mode || getThemeMode();
+          const rightArea = document.querySelector('.yoya-navbar__right');
+          const button = rightArea?.querySelector('button');
+          if (button) {
+            button.innerHTML = `<span style="display: inline-block;">${icons[mode]}</span>`;
+          }
+        });
+      }
     });
   });
 }

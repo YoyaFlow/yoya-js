@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VButtons 组件测试</title>
+  <link rel="stylesheet" href="../yoya/theme/css/base.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h2>横向按钮组（默认）</h2>
+    <div id="horizontal-buttons"></div>
+  </div>
+
+  <div class="section">
+    <h2>竖向按钮组</h2>
+    <div id="vertical-buttons"></div>
+  </div>
+
+  <div class="section">
+    <h2>批量添加按钮</h2>
+    <div id="batch-buttons"></div>
+  </div>
+
+  <div class="section">
+    <h2>混合类型按钮组</h2>
+    <div id="mixed-buttons"></div>
+  </div>
+
+  <script type="module">
+    import { vButtons, toast } from '../yoya/index.js';
+
+    // 横向按钮组
+    vButtons(box => {
+      box.button('取消', b => b.type('default').onClick(() => toast.info('取消')));
+      box.button('确定', b => b.type('primary').onClick(() => toast.success('确定')));
+    }).bindTo(document.getElementById('horizontal-buttons'));
+
+    // 竖向按钮组
+    vButtons(box => {
+      box.vertical(true);
+      box.button('编辑', b => b.type('primary').onClick(() => toast.info('编辑')));
+      box.button('删除', b => b.type('danger').onClick(() => toast.error('删除')));
+      box.button('分享', b => b.type('info').onClick(() => toast.info('分享')));
+    }).bindTo(document.getElementById('vertical-buttons'));
+
+    // 批量添加按钮
+    vButtons(box => {
+      box.buttons([
+        { content: '按钮 1', type: 'primary', onClick: () => toast.info('按钮 1') },
+        { content: '按钮 2', type: 'success', onClick: () => toast.success('按钮 2') },
+        { content: '按钮 3', type: 'warning', onClick: () => toast.warning('按钮 3') },
+        '按钮 4', // 字符串简写
+      ]);
+    }).bindTo(document.getElementById('batch-buttons'));
+
+    // 混合类型按钮组
+    vButtons(box => {
+      box.button('主要', b => b.type('primary'));
+      box.button('成功', b => b.type('success'));
+      box.button('警告', b => b.type('warning'));
+      box.button('危险', b => b.type('danger'));
+      box.button('信息', b => b.type('info'));
+    }).bindTo(document.getElementById('mixed-buttons'));
+  </script>
+</body>
+</html>

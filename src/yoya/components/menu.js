@@ -32,7 +32,7 @@
  */
 
 import { Tag, span, div, button } from '../core/basic.js';
-import { vButton } from './button.js';
+import { VButton, vButton } from './button.js';
 
 // ============================================
 // VMenu 菜单
@@ -51,16 +51,9 @@ class VMenu extends Tag {
    */
   constructor(setup = null) {
     super('div', null);
-    this.styles({
-      display: 'inline-block',
-      background: 'var(--yoya-menu-bg, var(--yoya-bg))',
-      borderRadius: 'var(--yoya-menu-radius, var(--yoya-radius-md))',
-      boxShadow: 'var(--yoya-menu-shadow, var(--yoya-shadow-dropdown))',
-      padding: 'var(--yoya-menu-padding, 8px) 0',
-      minWidth: 'var(--yoya-menu-min-width, 160px)',
-      border: 'var(--yoya-menu-border, 1px solid var(--yoya-border))',
-      pointerEvents: 'auto',
-    });
+
+    // 设置基础 CSS 类
+    this.addClass('yoya-menu');
 
     if (setup !== null) {
       this.setup(setup);
@@ -72,7 +65,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   vertical() {
-    return this.style('flexDirection', 'column');
+    this.removeClass('yoya-menu--horizontal');
+    return this;
   }
 
   /**
@@ -80,11 +74,7 @@ class VMenu extends Tag {
    * @returns {this}
    */
   horizontal() {
-    this.style('display', 'flex');
-    this.style('flexDirection', 'row');
-    this.style('flexWrap', 'nowrap');
-    this.style('gap', '4px');
-    this.style('padding', '8px');
+    this.addClass('yoya-menu--horizontal');
     return this;
   }
 
@@ -93,7 +83,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   compact() {
-    return this.style('padding', '4px 0');
+    this.addClass('yoya-menu--compact');
+    return this;
   }
 
   /**
@@ -101,7 +92,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   noShadow() {
-    return this.style('boxShadow', 'none');
+    this.addClass('yoya-menu--no-shadow');
+    return this;
   }
 
   /**
@@ -109,7 +101,8 @@ class VMenu extends Tag {
    * @returns {this}
    */
   bordered() {
-    return this.style('border', '1px solid #e0e0e0');
+    this.addClass('yoya-menu--bordered');
+    return this;
   }
 
   /**
@@ -197,18 +190,8 @@ class VMenuItem extends Tag {
     this.registerStateAttrs(...this.constructor._stateAttrs);
     this._registerStateHandlers();
 
-    this.styles({
-      padding: 'var(--yoya-menu-item-padding, 10px) var(--yoya-menu-item-horizontal-padding, 16px)',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'var(--yoya-menu-item-gap, 10px)',
-      transition: 'background-color 0.2s',
-      borderRadius: 'var(--yoya-menu-item-radius, 4px)',
-      color: 'var(--yoya-menu-item-color, var(--yoya-text))',
-      fontSize: 'var(--yoya-menu-item-font-size, 13px)',
-      background: 'transparent',
-    });
+    // 设置基础 CSS 类
+    this.addClass('yoya-menu-item');
 
     this.saveStateSnapshot('base');
     this._registerHoverInterceptor();
@@ -233,70 +216,26 @@ class VMenuItem extends Tag {
 
   _registerStateHandlers() {
     this.registerStateHandler('disabled', (enabled, host) => {
-      const el = host._boundElement;
       if (enabled) {
-        host.styles({
-          opacity: 'var(--yoya-menu-item-disabled-opacity, 0.5)',
-          cursor: 'var(--yoya-menu-item-disabled-cursor, not-allowed)',
-          pointerEvents: 'none',
-          color: 'var(--yoya-menu-item-disabled-color, var(--yoya-text-secondary))',
-        });
-        if (el) {
-          el.style.opacity = 'var(--yoya-menu-item-disabled-opacity, 0.5)';
-          el.style.cursor = 'var(--yoya-menu-item-disabled-cursor, not-allowed)';
-          el.style.pointerEvents = 'none';
-        }
+        host.addClass('yoya-menu-item--disabled');
       } else {
-        host.style('opacity', '');
-        host.style('cursor', 'pointer');
-        host.style('pointerEvents', '');
-        host.style('color', '');
-        if (el) {
-          el.style.opacity = '';
-          el.style.cursor = 'pointer';
-          el.style.pointerEvents = '';
-          el.style.color = '';
-        }
+        host.removeClass('yoya-menu-item--disabled');
       }
     });
 
     this.registerStateHandler('active', (enabled, host) => {
-      const el = host._boundElement;
       if (enabled) {
-        host.styles({
-          background: 'var(--yoya-menu-item-active-bg, var(--yoya-primary-alpha))',
-          fontWeight: 'var(--yoya-menu-item-active-font-weight, 500)',
-          color: 'var(--yoya-menu-item-active-color, var(--yoya-primary))',
-        });
-        if (el) {
-          el.style.background = 'var(--yoya-menu-item-active-bg, var(--yoya-primary-alpha))';
-          el.style.fontWeight = 'var(--yoya-menu-item-active-font-weight, 500)';
-          el.style.color = 'var(--yoya-menu-item-active-color, var(--yoya-primary))';
-        }
+        host.addClass('yoya-menu-item--active');
       } else {
-        host.style('background', '');
-        host.style('fontWeight', '');
-        host.style('color', '');
-        if (el) {
-          el.style.background = '';
-          el.style.fontWeight = '';
-          el.style.color = '';
-        }
+        host.removeClass('yoya-menu-item--active');
       }
     });
 
     this.registerStateHandler('danger', (enabled, host) => {
-      const el = host._boundElement;
       if (enabled) {
-        host.style('color', 'var(--yoya-menu-item-danger-color, var(--yoya-error))');
-        if (el) {
-          el.style.color = 'var(--yoya-menu-item-danger-color, var(--yoya-error))';
-        }
+        host.addClass('yoya-menu-item--danger');
       } else {
-        host.style('color', '');
-        if (el) {
-          el.style.color = '';
-        }
+        host.removeClass('yoya-menu-item--danger');
       }
     });
 
@@ -315,13 +254,13 @@ class VMenuItem extends Tag {
           submenuContainer._boundElement.style.display = 'flex';
           arrowEl._boundElement.style.transform = 'rotate(90deg)';
           // 展开时高亮父菜单项
-          host.style('background', 'var(--yoya-menu-item-hover-bg, var(--yoya-hover-bg))');
+          host.addClass('yoya-menu-item--expanded');
         } else {
           submenuContainer._boundElement.style.display = 'none';
           arrowEl._boundElement.style.transform = 'rotate(0deg)';
           // 折叠时恢复背景（如果没有 active）
           if (!host.hasState('active')) {
-            host.style('background', 'transparent');
+            host.removeClass('yoya-menu-item--expanded');
           }
         }
       }
@@ -350,17 +289,11 @@ class VMenuItem extends Tag {
 
     this.on('mouseenter', () => {
       if (!self.hasState('disabled')) {
-        self.style('background', 'var(--yoya-menu-item-hover-bg, var(--yoya-hover-bg))');
-        if (self._boundElement) {
-          self._boundElement.style.background = 'var(--yoya-menu-item-hover-bg, var(--yoya-hover-bg))';
-        }
+        self.addClass('yoya-menu-item--hovering');
       }
     }).on('mouseleave', () => {
       if (!self.hasState('disabled') && !self.hasState('active')) {
-        self.style('background', 'transparent');
-        if (self._boundElement) {
-          self._boundElement.style.background = '';
-        }
+        self.removeClass('yoya-menu-item--hovering');
       }
     });
 
@@ -593,8 +526,8 @@ class VMenuItem extends Tag {
     this._shortcutBox = span(shortcutEl => {
       shortcutEl.styles({
         fontSize: '12px',
-        color: '#999',
-        background: '#f5f5f5',
+        color: 'var(--yoya-text-tertiary, #999)',
+        background: 'var(--yoya-bg-secondary, #f5f5f5)',
         padding: '2px 6px',
         borderRadius: '4px',
         pointerEvents: 'none'
@@ -674,12 +607,7 @@ class VMenuDivider extends Tag {
    */
   constructor(setup = null) {
     super('hr', setup);
-    this.styles({
-      border: 'none',
-      height: 'var(--yoya-menu-divider-height, 1px)',
-      background: 'var(--yoya-menu-divider-bg, var(--yoya-border))',
-      margin: 'var(--yoya-menu-divider-margin, 8px) 0',
-    });
+    this.addClass('yoya-menu-divider');
   }
 }
 
@@ -708,10 +636,7 @@ class VMenuGroup extends Tag {
    */
   constructor(setup = null) {
     super('div', setup);
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-    });
+    this.addClass('yoya-menu-group');
   }
 
   /**
@@ -761,15 +686,7 @@ class VMenuGroup extends Tag {
     if (this._label) {
       const newLabelEl = span(label => {
         label.text(this._label);
-        label.styles({
-          display: 'block',
-          padding: 'var(--yoya-menu-group-label-padding, 8px 16px 4px)',
-          fontSize: 'var(--yoya-menu-group-label-font-size, 12px)',
-          color: 'var(--yoya-menu-group-label-color, var(--yoya-text-tertiary))',
-          fontWeight: 'var(--yoya-menu-group-label-font-weight, 500)',
-          textTransform: 'uppercase',
-          letterSpacing: 'var(--yoya-menu-group-label-letter-spacing, 0.5px)',
-        });
+        label.addClass('yoya-menu-group__label');
         label._isLabel = true;
       });
 
@@ -1407,19 +1324,7 @@ class VSidebar extends Tag {
    * @private
    */
   _setupBaseStyles() {
-    this.styles({
-      display: 'flex',
-      flexDirection: 'column',
-      width: this._width,
-      minWidth: this._width,
-      height: '100%',
-      background: 'var(--yoya-sidebar-bg, var(--yoya-card-bg, white))',
-      borderRight: 'var(--yoya-sidebar-border, 1px solid var(--yoya-border, #e0e0e0))',
-      color: 'var(--yoya-sidebar-content-color, var(--yoya-text, #333))',
-      transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      overflow: 'hidden',
-      boxSizing: 'border-box',
-    });
+    this.addClass('yoya-sidebar');
   }
 
   _registerStateHandlers() {
@@ -1428,10 +1333,7 @@ class VSidebar extends Tag {
 
       if (collapsed) {
         // 折叠状态
-        host.styles({
-          width: host._collapsedWidth,
-          minWidth: host._collapsedWidth,
-        });
+        host.addClass('yoya-sidebar--collapsed');
 
         // 隐藏头部和尾部 - 带淡出效果
         if (host._headerEl) {
@@ -1482,10 +1384,7 @@ class VSidebar extends Tag {
         }
       } else {
         // 展开状态
-        host.styles({
-          width: host._width,
-          minWidth: host._width,
-        });
+        host.removeClass('yoya-sidebar--collapsed');
 
         // 显示头部和尾部 - 带淡入效果
         if (host._headerEl) {
@@ -1572,6 +1471,7 @@ class VSidebar extends Tag {
   header(setup) {
     if (!this._headerEl) {
       this._headerEl = div(header => {
+        header.addClass('yoya-sidebar__header');
         header.styles({
           display: 'flex',
           alignItems: 'center',
@@ -1604,6 +1504,7 @@ class VSidebar extends Tag {
   content(setup) {
     if (!this._contentEl) {
       this._contentEl = div(content => {
+        content.addClass('yoya-sidebar__content');
         content.styles({
           flex: 1,
           overflowY: 'auto',
@@ -1655,6 +1556,7 @@ class VSidebar extends Tag {
   footer(setup) {
     if (!this._footerEl) {
       this._footerEl = div(footer => {
+        footer.addClass('yoya-sidebar__footer');
         footer.styles({
           display: 'flex',
           alignItems: 'center',
@@ -1932,13 +1834,13 @@ class VTopNavbar extends Tag {
     // 3. 注册状态处理器
     this._registerStateHandlers();
 
-    // 4. 监听主题变化事件
-    this._setupThemeListener();
-
-    // 5. 执行 setup
+    // 4. 执行 setup（先创建子元素）
     if (setup !== null) {
       this.setup(setup);
     }
+
+    // 5. 监听主题变化事件（子元素创建后再应用主题）
+    this._setupThemeListener();
   }
 
   /**
@@ -1946,26 +1848,12 @@ class VTopNavbar extends Tag {
    * @private
    */
   _setupBaseStyles() {
-    this.styles({
-      display: 'block',
-      width: '100%',
-      height: this._height,
-      background: 'var(--yoya-navbar-bg, white)',
-      borderBottom: 'var(--yoya-navbar-border, 1px solid var(--yoya-border, #e0e0e0))',
-      boxSizing: 'border-box',
-      zIndex: 'var(--yoya-navbar-z-index, 1000)',
-    });
+    // 应用 CSS 类
+    this.addClass('yoya-navbar');
 
     // 创建内部容器
     this._containerEl = div(container => {
-      container.styles({
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '100%',
-        padding: '0 var(--yoya-navbar-padding, 16px)',
-        boxSizing: 'border-box',
-      });
+      container.addClass('yoya-navbar__container');
     });
     this.child(this._containerEl);
   }
@@ -1974,39 +1862,65 @@ class VTopNavbar extends Tag {
     // fixed 状态处理器
     this.registerStateHandler('fixed', (fixed, host) => {
       if (fixed) {
-        host.styles({
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-        });
+        host.addClass('yoya-navbar--fixed');
       } else {
-        host.styles({
-          position: 'static',
-        });
+        host.removeClass('yoya-navbar--fixed');
       }
     });
 
     // bordered 状态处理器
     this.registerStateHandler('bordered', (bordered, host) => {
       if (bordered) {
-        host.style('borderBottom', 'var(--yoya-navbar-border, 1px solid var(--yoya-border, #e0e0e0))');
+        host.addClass('yoya-navbar--bordered');
+        host.removeClass('yoya-navbar--no-border');
       } else {
-        host.style('borderBottom', 'none');
+        host.removeClass('yoya-navbar--bordered');
+        host.addClass('yoya-navbar--no-border');
       }
     });
 
     // themeMode 状态处理器
     this.registerStateHandler('themeMode', (mode, host) => {
-      if (mode === 'dark') {
-        host.styles({
-          background: 'var(--yoya-navbar-bg-dark, var(--yoya-bg-dark, #1a1a1a))',
-          borderBottom: 'var(--yoya-navbar-border-dark, 1px solid var(--yoya-border-dark, #333))',
+      // Islands 主题系统会自动更新 CSS 变量的值，所以只需要设置一次变量引用
+      // 不需要区分 dark/light 模式的变量名
+      // CSS 变量已在 .yoya-navbar 类中定义，主题变化时会自动更新
+
+      // 更新 Logo 颜色（CSS 变量会自动处理）
+      if (host._logoEl) {
+        host._logoEl.style('color', 'var(--yoya-navbar-logo-color, var(--yoya-text, #333))');
+      }
+      // 更新菜单项颜色
+      if (host._menuEl) {
+        host._menuEl._children.forEach(item => {
+          if (item._active) {
+            item.styles({
+              background: 'var(--yoya-navbar-item-active-bg, rgba(37,99,235,0.08))',
+              color: 'var(--yoya-navbar-item-active-color, var(--yoya-primary))',
+            });
+          } else {
+            item.styles({
+              background: 'transparent',
+              color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
+            });
+          }
         });
-      } else {
-        host.styles({
-          background: 'var(--yoya-navbar-bg, white)',
-          borderBottom: 'var(--yoya-navbar-border, 1px solid var(--yoya-border, #e0e0e0))',
+      }
+      // 更新右侧区域按钮颜色
+      if (host._rightEl) {
+        host._rightEl._children.forEach(child => {
+          if (child instanceof VButton) {
+            // VButton 组件，通过 ghost 模式适应暗色主题
+            if (!child.hasState('ghost')) {
+              child.styles({
+                background: 'var(--yoya-button-bg, white)',
+                color: 'var(--yoya-button-text, #333)',
+                borderColor: 'var(--yoya-button-border, #e0e0e0)',
+              });
+            }
+          } else if (child._el && child._el._children) {
+            // 普通 div 元素
+            child.style('color', 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))');
+          }
         });
       }
     });
@@ -2062,16 +1976,7 @@ class VTopNavbar extends Tag {
   logo(content, onClick = null) {
     if (!this._logoEl) {
       this._logoEl = div(logo => {
-        logo.styles({
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: 'var(--yoya-navbar-logo-size, 18px)',
-          fontWeight: '600',
-          color: 'var(--yoya-navbar-logo-color, var(--yoya-text, #333))',
-          cursor: 'pointer',
-          userSelect: 'none',
-        });
+        logo.addClass('yoya-navbar__logo');
       });
     } else {
       this._logoEl.clear();
@@ -2105,42 +2010,21 @@ class VTopNavbar extends Tag {
   item(content, setup = null) {
     if (!this._menuEl) {
       this._menuEl = div(menu => {
-        menu.styles({
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-        });
+        menu.addClass('yoya-navbar__menu');
       });
     }
 
     const menuItem = div(item => {
-      item.styles({
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '8px 12px',
-        borderRadius: 'var(--yoya-navbar-item-radius, 4px)',
-        fontSize: 'var(--yoya-navbar-item-size, 14px)',
-        color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        userSelect: 'none',
-      });
-
+      item.addClass('yoya-navbar__item');
       item.text(content);
 
       item.on('mouseenter', () => {
-        item.styles({
-          background: 'var(--yoya-navbar-item-hover-bg, rgba(0,0,0,0.04))',
-          color: 'var(--yoya-navbar-item-hover-color, var(--yoya-text, #333))',
-        });
+        item.addClass('yoya-navbar__item--hover');
       });
 
       item.on('mouseleave', () => {
         if (!item._active) {
-          item.styles({
-            background: 'transparent',
-            color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
-          });
+          item.removeClass('yoya-navbar__item--hover');
         }
       });
 
@@ -2151,21 +2035,13 @@ class VTopNavbar extends Tag {
           this._menuEl._children.forEach(child => {
             if (child !== item) {
               child._active = false;
-              child.styles({
-                background: 'transparent',
-                color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
-                fontWeight: '400',
-              });
+              child.removeClass('yoya-navbar__item--active');
             }
           });
         }
         // 设置当前项为激活状态
         item._active = true;
-        item.styles({
-          background: 'var(--yoya-navbar-item-active-bg, var(--yoya-primary-alpha, rgba(37,99,235,0.08)))',
-          color: 'var(--yoya-navbar-item-active-color, var(--yoya-primary))',
-          fontWeight: '500',
-        });
+        item.addClass('yoya-navbar__item--active');
 
         if (setup && typeof setup === 'function') {
           setup(item);
@@ -2200,11 +2076,7 @@ class VTopNavbar extends Tag {
   right(setup) {
     if (!this._rightEl) {
       this._rightEl = div(right => {
-        right.styles({
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-        });
+        right.addClass('yoya-navbar__right');
       });
     }
 
@@ -2221,12 +2093,7 @@ class VTopNavbar extends Tag {
       item: (content, setup = null) => this.item(content, setup),
       divider: () => {
         const dividerEl = div(d => {
-          d.styles({
-            width: '1px',
-            height: '20px',
-            background: 'var(--yoya-border, #e0e0e0)',
-            margin: '0 8px',
-          });
+          d.addClass('yoya-navbar__divider');
         });
         rightWrapper._el.child(dividerEl);
         return rightWrapper;

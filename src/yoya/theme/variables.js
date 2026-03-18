@@ -385,6 +385,7 @@ export const bodyVariables = {
   // 背景
   '--yoya-body-bg': 'var(--yoya-bg, white)',
   '--yoya-body-bg-color': 'var(--yoya-body-bg, var(--yoya-bg, white))',
+  '--yoya-body-color': 'var(--yoya-text-primary, var(--yoya-text, #333))',
 
   // 尺寸
   '--yoya-body-min-height': '100vh',
@@ -434,6 +435,55 @@ export const tabsVariables = {
 };
 
 // ============================================
+// Modal 弹出框组件变量
+// ============================================
+
+export const modalVariables = {
+  // 遮罩层
+  '--yoya-modal-mask-bg': 'rgba(0, 0, 0, 0.45)',
+  '--yoya-modal-mask-backdrop-filter': 'blur(4px)',
+
+  // 内容区域
+  '--yoya-modal-bg': 'var(--yoya-bg, white)',
+  '--yoya-modal-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
+  '--yoya-modal-radius': '8px',
+  '--yoya-modal-min-width': '300px',
+  '--yoya-modal-max-width': '90%',
+  '--yoya-modal-max-height': '90vh',
+
+  // 头部
+  '--yoya-modal-header-padding': '16px 20px',
+  '--yoya-modal-header-border': '1px solid var(--yoya-border, #e0e0e0)',
+  '--yoya-modal-header-font-weight': '600',
+  '--yoya-modal-header-font-size': '16px',
+  '--yoya-modal-header-line-height': '1.5',
+  '--yoya-modal-header-color': 'var(--yoya-text, #333)',
+
+  // 内容
+  '--yoya-modal-body-padding': '20px',
+  '--yoya-modal-body-color': 'var(--yoya-text, #333)',
+  '--yoya-modal-body-font-size': '14px',
+  '--yoya-modal-body-line-height': '1.5',
+
+  // 底部
+  '--yoya-modal-footer-padding': '12px 20px',
+  '--yoya-modal-footer-border': '1px solid var(--yoya-border, #e0e0e0)',
+  '--yoya-modal-footer-gap': '8px',
+  '--yoya-modal-footer-justify': 'flex-end',
+
+  // 关闭按钮
+  '--yoya-modal-close-size': '24px',
+  '--yoya-modal-close-color': 'var(--yoya-text-secondary, #999)',
+  '--yoya-modal-close-hover-color': 'var(--yoya-text, #333)',
+  '--yoya-modal-close-hover-bg': 'rgba(0, 0, 0, 0.05)',
+  '--yoya-modal-close-radius': '4px',
+
+  // 动画
+  '--yoya-modal-animation-duration': '0.3s',
+  '--yoya-modal-animation-timing': 'ease',
+};
+
+// ============================================
 // 导出所有变量
 // ============================================
 
@@ -448,6 +498,7 @@ export const allVariables = {
   ...descriptionsVariables,
   ...bodyVariables,
   ...tabsVariables,
+  ...modalVariables,
 };
 
 // ============================================
@@ -484,7 +535,9 @@ export function createDarkTheme() {
     '--yoya-bg': '#1a1a1a',
     '--yoya-bg-secondary': '#2a2a2a',
     '--yoya-text': '#e0e0e0',
+    '--yoya-text-primary': '#e0e0e0',
     '--yoya-text-secondary': '#a0a0a0',
+    '--yoya-text-tertiary': '#888',
     '--yoya-border': '#404040',
     '--yoya-hover-bg': 'rgba(255,255,255,0.05)',
     '--yoya-shadow': '0 4px 12px rgba(0,0,0,0.3)',
@@ -554,6 +607,7 @@ export function createDarkTheme() {
 
     // Body
     '--yoya-body-bg': 'var(--yoya-bg, #1a1a1a)',
+    '--yoya-body-color': 'var(--yoya-text, #e0e0e0)',
 
     // Tabs
     '--yoya-tabs-bg': '#1a1a1a',
@@ -567,6 +621,18 @@ export function createDarkTheme() {
     '--yoya-tabs-close-color': '#858585',
     '--yoya-tabs-close-hover-bg': 'var(--yoya-error-bg, rgba(239, 68, 68, 0.1))',
     '--yoya-tabs-close-hover-color': 'var(--yoya-error, #f87171)',
+
+    // Modal
+    '--yoya-modal-mask-bg': 'rgba(0, 0, 0, 0.65)',
+    '--yoya-modal-bg': '#2a2a2a',
+    '--yoya-modal-shadow': '0 4px 20px rgba(0, 0, 0, 0.4)',
+    '--yoya-modal-header-border': '1px solid #404040',
+    '--yoya-modal-header-color': '#e0e0e0',
+    '--yoya-modal-body-color': '#e0e0e0',
+    '--yoya-modal-footer-border': '1px solid #404040',
+    '--yoya-modal-close-color': '#a0a0a0',
+    '--yoya-modal-close-hover-color': '#e0e0e0',
+    '--yoya-modal-close-hover-bg': 'rgba(255, 255, 255, 0.05)',
 
     // Top Navbar (暗色主题)
     '--yoya-navbar-bg': '#1a1a1a',

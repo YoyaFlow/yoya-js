@@ -615,7 +615,11 @@ import {
   img, video, audio, source,
 
   // 其他
-  br, hr, iframe, canvas
+  br, hr, iframe, canvas,
+
+  // SVG 图标（72+ 个）
+  HomeIcon, UserIcon, SettingsIcon, SearchIcon, BellIcon,
+  // ... 更多图标见 "Icons 图标库" 章节
 } from 'yoya-basic';
 ```
 
@@ -658,10 +662,203 @@ import {
 | 垂直列表 | `vstack` |
 | 居中内容 | `center` |
 | 分割线 | `divider` |
-| 绘制图标 | `svg` + 形状组件 |
+| 绘制图标 | Icons 图标库（`HomeIcon`, `UserIcon` 等 72+ 个图标） |
 | 自定义组件 | 继承 `Tag` 封装新组件 |
 
-### Router 路由组件
+### Icons 图标库
+
+Yoya.Basic 提供 72+ 个 SVG 图标，使用 PascalCase 命名，直接返回 SVG 元素。所有图标都支持主题适配（使用 `currentColor`），可以方便地通过 CSS 修改大小和颜色。
+
+### 基础用法
+
+```javascript
+import { HomeIcon, UserIcon, SettingsIcon, div } from 'yoya-basic';
+
+// 基础用法 - 创建图标（默认 24x24）
+const icon = HomeIcon();
+
+// 设置大小
+const largeIcon = HomeIcon({ width: '32', height: '32' });
+
+// 设置颜色（使用主题变量）
+const themedIcon = HomeIcon({ stroke: 'var(--yoya-text-primary)' });
+
+// 在组件中使用
+div(box => {
+  box.child(HomeIcon());
+  box.text('首页');
+});
+```
+
+### 图标分类
+
+#### 导航类图标（12 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 🏠 | `HomeIcon` | 首页 |
+| 📊 | `DashboardIcon` | 仪表盘 |
+| ☰ | `MenuIcon` | 菜单 |
+| ⌄ | `ChevronDownIcon` | 向下箭头 |
+| ⌃ | `ChevronUpIcon` | 向上箭头 |
+| ‹ | `ChevronLeftIcon` | 向左箭头 |
+| › | `ChevronRightIcon` | 向右箭头 |
+| ← | `ArrowLeftIcon` | 左箭头 |
+| → | `ArrowRightIcon` | 右箭头 |
+| × | `CloseIcon` | 关闭 |
+| ＋ | `PlusIcon` | 添加 |
+| － | `MinusIcon` | 减少 |
+
+#### 用户类图标（6 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 👤 | `UserIcon` | 用户 |
+| 👥 | `UsersIcon` | 用户组 |
+| ⚙️ | `SettingsIcon` | 设置 |
+| 📇 | `ProfileIcon` | 个人资料 |
+| 🚪 | `LoginIcon` | 登录 |
+| 🚪 | `LogoutIcon` | 退出 |
+
+#### 操作类图标（9 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 🔍 | `SearchIcon` | 搜索 |
+| ✏️ | `EditIcon` | 编辑 |
+| 🗑️ | `DeleteIcon` | 删除 |
+| 💾 | `SaveIcon` | 保存 |
+| 📤 | `UploadIcon` | 上传 |
+| 📥 | `DownloadIcon` | 下载 |
+| 📋 | `CopyIcon` | 复制 |
+| ✓ | `CheckIcon` | 确认 |
+| × | `XIcon` | 取消 |
+
+#### 文件类图标（5 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 📄 | `FileIcon` | 文件 |
+| 📁 | `FolderIcon` | 文件夹 |
+| 📄 | `FileTextIcon` | 文本文档 |
+| 🖼️ | `ImageIcon` | 图片 |
+| 🎬 | `VideoIcon` | 视频 |
+
+#### 通知类图标（6 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 🔔 | `BellIcon` | 通知 |
+| ⓘ | `AlertCircleIcon` | 圆形提示 |
+| ⚠️ | `AlertTriangleIcon` | 三角警告 |
+| ℹ️ | `InfoIcon` | 信息 |
+| ✓ | `CheckCircleIcon` | 圆形确认 |
+| ✕ | `XCircleIcon` | 圆形取消 |
+
+#### 通讯类图标（4 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| ✉️ | `MailIcon` | 邮件 |
+| 📞 | `PhoneIcon` | 电话 |
+| 💬 | `MessageSquareIcon` | 方形消息 |
+| 💬 | `MessageCircleIcon` | 圆形消息 |
+
+#### 状态类图标（4 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| ❤️ | `HeartIcon` | 喜欢 |
+| ⭐ | `StarIcon` | 收藏 |
+| 👍 | `ThumbsUpIcon` | 点赞 |
+| 👎 | `ThumbsDownIcon` | 踩 |
+
+#### 时间类图标（3 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 🕐 | `ClockIcon` | 时钟 |
+| 📅 | `CalendarIcon` | 日历 |
+| 📅 | `CalendarEventIcon` | 事件 |
+
+#### 链接类图标（3 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 🔗 | `LinkIcon` | 链接 |
+| 🔗 | `ExternalLinkIcon` | 外链 |
+| 📤 | `ShareIcon` | 分享 |
+
+#### 设备类图标（3 个）
+
+| 图标 | 函数名 | 说明 |
+|------|--------|------|
+| 🖥️ | `MonitorIcon` | 显示器 |
+| 📱 | `SmartphoneIcon` | 手机 |
+| 📱 | `TabletIcon` | 平板 |
+
+#### 其他图标（23 个）
+
+| 图标 | 函数名 | 图标 | 函数名 |
+|------|--------|------|--------|
+| 👁️ | `EyeIcon` | 👁️‍🗨️ | `EyeOffIcon` |
+| 🔒 | `LockIcon` | 🔓 | `UnlockIcon` |
+| 🔑 | `KeyIcon` | 🔄 | `FilterIcon` |
+| 📚 | `LayersIcon` | 📦 | `PackageIcon` |
+| 🛒 | `ShoppingCartIcon` | 💳 | `CreditCardIcon` |
+| 💲 | `DollarSignIcon` | 📈 | `TrendingUpIcon` |
+| 📉 | `TrendingDownIcon` | 📊 | `ActivityIcon` |
+| ⚡ | `ZapIcon` | ❓ | `HelpCircleIcon` |
+| ⛶ | `MaximizeIcon` | ⛶ | `MinimizeIcon` |
+| 🔄 | `RefreshCwIcon` | ⋯ | `MoreHorizontalIcon` |
+| ⋮ | `MoreVerticalIcon` | ⊞ | `GridIcon` |
+| ☰ | `ListIcon` | | |
+
+### 自定义样式
+
+```javascript
+// 修改大小
+SettingsIcon({ width: '32', height: '32' });
+
+// 修改颜色（使用 CSS）
+const icon = HomeIcon();
+icon.style('color', '#ff0000');
+
+// 修改描边宽度
+SearchIcon({ 'stroke-width': '1.5' });
+
+// 使用主题变量
+const icon = BellIcon();
+icon.style('color', 'var(--yoya-text-primary)');
+```
+
+### 在组件中使用
+
+```javascript
+import { vButton, SearchIcon, div } from 'yoya-basic';
+
+// 在按钮中使用
+vButton(btn => {
+  btn.child(SearchIcon({ width: '16', height: '16' }));
+  btn.text('搜索');
+});
+
+// 在菜单项中使用
+vMenuItem(item => {
+  item.icon(UserIcon());
+  item.text('用户资料');
+});
+
+// 在卡片中使用
+vCard(card => {
+  card.vCardHeader(header => {
+    header.text('收藏项');
+    header.child(StarIcon());
+  });
+});
+```
+
+## Router 路由组件
 
 ```javascript
 import { vRouter, vLink, vRouterView } from 'yoya-basic';
