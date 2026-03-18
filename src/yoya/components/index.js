@@ -153,3 +153,31 @@ export {
   vConfirm,
   confirm,
 } from './modal.js';
+
+// Grid 24 栅格系统组件
+export {
+  VRow,
+  VCol,
+  vRow,
+  vCol,
+} from './grid.js';
+
+// UI 基础组件
+export {
+  VAvatar,
+  VAvatarGroup,
+  vAvatar,
+  vAvatarGroup,
+  VBadge,
+  vBadge,
+  VProgress,
+  vProgress,
+  VSkeleton,
+  vSkeleton,
+  VTag,
+  vTag,
+  VAlert,
+  vAlert,
+  VBreadcrumb,
+  vBreadcrumb,
+} from './ui.js';

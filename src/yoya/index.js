@@ -160,6 +160,19 @@ export {
   VModal, vModal,
   VConfirm, vConfirm,
   confirm,
+
+  // Grid 24 栅格系统组件
+  VRow, vRow,
+  VCol, vCol,
+
+  // UI 基础组件
+  VAvatar, VAvatarGroup, vAvatar, vAvatarGroup,
+  VBadge, vBadge,
+  VProgress, vProgress,
+  VSkeleton, vSkeleton,
+  VTag, vTag,
+  VAlert, vAlert,
+  VBreadcrumb, vBreadcrumb,
 } from './components/index.js';
 
 // 导出主题系统
