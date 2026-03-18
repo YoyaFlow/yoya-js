@@ -165,7 +165,7 @@ div(app => {
 - **无需构建** - 纯 ES 模块，直接在浏览器中运行
 - **TypeScript 支持** - 提供完整的类型声明
 - **状态机** - 内置状态管理机制
-- **主题系统** - 支持明/暗主题切换
+- **主题 CSS 系统** - 支持明/暗主题切换，CSS 变量驱动，支持自定义主题
 - **i18n** - 国际化支持
 
 ### AI 友好设计
@@ -260,6 +260,12 @@ npm test
 
 # TypeScript 类型检查
 npm run check
+
+# 构建主题 CSS
+npm run build:theme
+
+# 构建 JS 库 + 主题 CSS
+npm run build
 ```
 
 ---
@@ -457,6 +463,7 @@ UserSelectTable({
 |------|------|
 | [DESIGN.md](./DESIGN.md) | 详细设计文档 |
 | [CLAUDE.md](./CLAUDE.md) | 开发和架构说明 |
+| [THEME_CSS_GUIDE.md](./THEME_CSS_GUIDE.md) | 主题 CSS 使用指南 |
 
 ---
 
