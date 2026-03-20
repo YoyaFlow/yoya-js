@@ -107,7 +107,7 @@ class Tag {
     if (config.class) {
       if (Array.isArray(config.class)) {
         this.className(...config.class);
-      } else {
+      } else if (typeof config.class === 'string') {
         this.className(config.class);
       }
     }
@@ -116,7 +116,7 @@ class Tag {
     if (config.className) {
       if (Array.isArray(config.className)) {
         this.className(...config.className);
-      } else {
+      } else if (typeof config.className === 'string') {
         this.className(config.className);
       }
     }
@@ -236,10 +236,10 @@ class Tag {
         this._el.value = value;
         break;
       case 'checked':
-        this._el.checked = true;
+        this._el.checked = Boolean(value);
         break;
       case 'selected':
-        this._el.selected = true;
+        this._el.selected = Boolean(value);
         break;
       case 'class':
         this._el.className = value;
@@ -580,8 +580,13 @@ class Tag {
    * @returns {this} 返回当前实例支持链式调用
    */
   textContent(content){
-    this.clear()
-    this.text(content)
+    this.clear();
+    this.text(content);
+    // 如果已经渲染过，直接更新真实 DOM
+    if (this._rendered && this._el) {
+      this._el.textContent = String(content);
+    }
+    return this;
   }
 
   /**
@@ -681,8 +686,8 @@ class Tag {
   renderDom() {
     if (this._deleted) return null;
 
-    // 首次渲染时应用事件
-    if (!this._rendered) {
+    // 首次渲染或元素被从 DOM 移除后重新渲染时应用事件
+    if (!this._rendered || !this._el.isConnected) {
       this._applyEventsToEl();
     }
 
