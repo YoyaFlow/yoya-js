@@ -184,6 +184,12 @@ export {
   vStatistic,
 } from './ui.js';
 
+// Tree 树形组件
+export {
+  VTree,
+  vTree,
+} from './tree.js';
+
 // Interaction 交互组件
 export {
   VTooltip,
@@ -194,8 +200,6 @@ export {
   vDropdown,
   VCollapse,
   vCollapse,
-  VTree,
-  vTree,
   VTreeSelect,
   vTreeSelect,
 } from './interaction.js';
