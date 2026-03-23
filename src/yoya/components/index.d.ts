@@ -14,6 +14,7 @@ declare class VCard extends Tag {
   noBorder(): this;
   noShadow(): this;
   bordered(): this;
+  onClick(handler: (e: { event: MouseEvent; target: VCard }) => void): this;
   vCardHeader(setup?: Setup<VCardHeader>): this;
   vCardBody(setup?: Setup<VCardBody>): this;
   vCardFooter(setup?: Setup<VCardFooter>): this;
@@ -235,6 +236,47 @@ declare namespace toast {
   export function clear(): void;
   export function setPosition(position: MessagePosition): void;
 }
+
+// ============================================
+// VTree 树形控件
+// ============================================
+
+interface VTreeNode {
+  key: string;
+  title?: string;
+  label?: string;
+  children?: VTreeNode[];
+  [key: string]: any;
+}
+
+declare class VTree extends Tag {
+  constructor(setup?: Setup<VTree>);
+  data(value: VTreeNode[]): this;
+  checkable(value?: boolean): this | boolean;
+  multiple(value?: boolean): this | boolean;
+  expandedKeys(value?: string[]): this | string[];
+  checkedKeys(value?: string[]): this | string[];
+  selectedKeys(value?: string[]): this | string[];
+  searchable(value?: boolean): this | boolean;
+  onExpand(handler: (e: { event: Event; expandedKeys: string[]; target: VTree }) => void): this;
+  onCheck(handler: (e: { event: Event; checkedKeys: string[]; target: VTree }) => void): this;
+  onSelect(handler: (e: { event: Event; node: VTreeNode; selectedKeys: string[]; target: VTree }) => void): this;
+}
+
+declare function vTree(setup?: Setup<VTree>): VTree;
+
+// ============================================
+// VTreeSelect 树形选择器
+// ============================================
+
+declare class VTreeSelect extends Tag {
+  constructor(setup?: Setup<VTreeSelect>);
+  data(value: VTreeNode[]): this;
+  value(val?: string): this | string;
+  placeholder(value: string): this | string;
+}
+
+declare function vTreeSelect(setup?: Setup<VTreeSelect>): VTreeSelect;
 
 // ============================================
 // VButton 按钮组件
