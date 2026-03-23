@@ -103,6 +103,8 @@ declare class VTreeSelect extends Tag {
   data(value?: VTreeNode[]): this;
   placeholder(value?: string): this | string;
   value(value?: string): this | string;
+  width(value?: number | string): this | number | string;
+  trigger(value?: Tag): this;
 
   // 事件绑定方法
   onChange(handler: (e: VTreeSelectChangeEvent) => void): this;

@@ -702,6 +702,7 @@ class VTreeSelect extends Tag {
     this._visible = false;
     this._onChange = null;
     this._treeEl = null;
+    this._triggerEl = null;  // 自定义触发元素
 
     this.addClass('yoya-tree-select');
     this.style('display', 'inline-block');
@@ -774,14 +775,36 @@ class VTreeSelect extends Tag {
   }
 
   /**
+   * 设置/获取宽度
+   * @param {number|string} [value] - 不传则返回当前值
+   * @returns {this|number|string}
+   */
+  width(value) {
+    if (value === undefined) return this._width;
+    this._width = value;
+    this.style('width', typeof value === 'number' ? `${value}px` : value);
+    return this;
+  }
+
+  /**
+   * 设置自定义触发元素
+   * @param {Tag} [value] - 触发元素
+   * @returns {this}
+   */
+  trigger(value) {
+    this._triggerEl = value;
+    return this;
+  }
+
+  /**
    * 渲染选择器
    * @private
    */
   _renderSelect() {
     this._children = [];
 
-    // 显示框
-    const displayEl = div(display => {
+    // 显示框（支持自定义触发元素）
+    const displayEl = this._triggerEl || div(display => {
       display.addClass('yoya-tree-select__display');
       display.styles({
         padding: '8px 12px',
@@ -794,11 +817,12 @@ class VTreeSelect extends Tag {
 
       const node = this._findNode(this._data, this._value);
       display.text(node ? (typeof node.title === 'string' ? node.title : '已选择') : this._placeholder);
+    });
 
-      display.on('click', (e) => {
-        e.stopPropagation();
-        this._toggleDropdown();
-      });
+    // 绑定点击事件
+    displayEl.on('click', (e) => {
+      e.stopPropagation();
+      this._toggleDropdown();
     });
 
     this._children.push(displayEl);
