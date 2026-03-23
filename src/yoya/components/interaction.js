@@ -868,10 +868,10 @@ class VTree extends Tag {
         paddingLeft: `${level * 20 + 12}px`,
       });
 
-      item.on('click', (e) => {
-        e.stopPropagation();
-        this._handleNodeClick(node);
-      });
+      // 使用 _wrapHandler 包装点击事件
+      item.on('click', this._wrapHandler((context) => {
+        this._handleNodeClick(node, context.event);
+      }));
 
       // 展开/收起图标
       if (hasChildren) {
@@ -882,10 +882,11 @@ class VTree extends Tag {
             marginRight: '8px',
             transition: 'transform 0.2s',
           });
-          icon.on('click', (e) => {
-            e.stopPropagation();
-            this._toggleExpand(node.key);
-          });
+          // 使用 _wrapHandler 包装展开/收起按钮点击事件
+          icon.on('click', this._wrapHandler((context) => {
+            context.event.stopPropagation();
+            this._toggleExpand(node.key, context.event);
+          }));
         }));
       } else {
         item.child(span(icon => {
@@ -905,10 +906,11 @@ class VTree extends Tag {
           cb.type('checkbox');
           cb.prop('checked', isChecked);
           cb.styles({ marginRight: '8px' });
-          cb.onChange((e) => {
-            e.stopPropagation();
-            this._toggleCheck(node.key);
-          });
+          // 使用 _wrapHandler 包装复选框变化事件
+          cb.on('change', this._wrapHandler((context) => {
+            context.event.stopPropagation();
+            this._toggleCheck(node.key, context.event);
+          }));
         });
         // 调试：记录 checkbox 的状态
         console.log('[VTree] created checkbox for node', node.key, 'isChecked:', isChecked, 'hasChangeHandler:', !!checkbox._events?.change);
@@ -927,7 +929,7 @@ class VTree extends Tag {
     return nodeEl;
   }
 
-  _handleNodeClick(node) {
+  _handleNodeClick(node, nativeEvent) {
     // 切换选中状态
     if (this._selectedKeys.includes(node.key)) {
       this._selectedKeys = this._selectedKeys.filter(k => k !== node.key);
@@ -936,7 +938,12 @@ class VTree extends Tag {
     }
 
     if (this._onSelect) {
-      this._onSelect(node);
+      this._onSelect({
+        event: nativeEvent,
+        node: node,
+        selectedKeys: [...this._selectedKeys],
+        target: this
+      });
     }
 
     this._renderTree();
@@ -946,7 +953,7 @@ class VTree extends Tag {
     this.renderDom();
   }
 
-  _toggleExpand(key) {
+  _toggleExpand(key, nativeEvent) {
     const index = this._expandedKeys.indexOf(key);
     if (index > -1) {
       this._expandedKeys.splice(index, 1);
@@ -955,7 +962,11 @@ class VTree extends Tag {
     }
 
     if (this._onExpand) {
-      this._onExpand([...this._expandedKeys]);
+      this._onExpand({
+        event: nativeEvent,
+        expandedKeys: [...this._expandedKeys],
+        target: this
+      });
     }
 
     this._renderTree();
@@ -965,7 +976,7 @@ class VTree extends Tag {
     this.renderDom();
   }
 
-  _toggleCheck(key) {
+  _toggleCheck(key, nativeEvent) {
     const index = this._checkedKeys.indexOf(key);
     if (index > -1) {
       this._checkedKeys.splice(index, 1);
@@ -977,7 +988,11 @@ class VTree extends Tag {
     }
 
     if (this._onCheck) {
-      this._onCheck([...this._checkedKeys]);
+      this._onCheck({
+        event: nativeEvent,
+        checkedKeys: [...this._checkedKeys],
+        target: this
+      });
     }
 
     this._renderTree();
