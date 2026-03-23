@@ -45,6 +45,9 @@ class Tag {
     this._children = [];
     this._props = {};  // DOM properties
 
+    // 新增：记录已绑定到 DOM 的事件类型
+    this._boundEvents = {};
+
     // 状态管理
     this._states = new Set();
     this._stateStyles = {};
@@ -444,10 +447,18 @@ class Tag {
    * el.on('click', (e) => { console.log('clicked', e); });
    */
   on(event, handler) {
+    // 1. 登记事件处理器到虚拟元素
     if (!this._events[event]) {
       this._events[event] = [];
     }
     this._events[event].push(handler);
+
+    // 2. 如果这个事件类型还没有绑定到 DOM，现在绑定
+    if (!this._boundEvents[event] && this._el) {
+      this._bindEventToEl(event);
+      this._boundEvents[event] = true;
+    }
+
     return this;
   }
 
@@ -501,9 +512,11 @@ class Tag {
    * });
    */
   onChangeValue(handler) {
-    const oldValue = this.value?.();
+    // 从 DOM 元素获取当前值作为 oldValue
+    const oldValue = this._el ? (this._el.value || this.value?.()) : undefined;
     this.on('change', this._wrapHandler(handler, (e) => {
-      const newValue = this.value?.() || e.target?.value;
+      // 从事件目标或虚拟元素获取新值
+      const newValue = e.target?.value || this.value?.();
       return { value: newValue, oldValue };
     }));
     return this;
@@ -776,34 +789,31 @@ class Tag {
   }
 
   /**
+   * @deprecated 改用 _bindEventToEl 按需绑定
    * 将事件同步到 DOM 元素（仅在首次渲染时调用）
    * @private
    */
   _applyEventsToEl() {
-    // 全局日志 - 追踪调用
-    if (!window._applyEventsCalls) window._applyEventsCalls = [];
-    window._applyEventsCalls.push({ tag: this._tagName, events: Object.keys(this._events) });
+    // 保留空实现或日志提示
+    // 原有的事件绑定逻辑已移到 _bindEventToEl
+  }
 
-    for (const [event, handlers] of Object.entries(this._events)) {
-      if (handlers.length === 0) continue;
+  /**
+   * 将单个事件类型绑定到 DOM 元素
+   * 每个事件类型只绑定一次，使用统一的委托处理器
+   * @param {string} event - 事件名称
+   * @private
+   */
+  _bindEventToEl(event) {
+    this._el.addEventListener(event, (nativeEvent) => {
+      // 附加虚拟元素引用到原生事件
+      nativeEvent._vnode = this;
 
-      // 检查是否已经绑定过事件（避免重复绑定）
-      if (!this._eventListeners) {
-        this._eventListeners = {};
-      }
-      if (this._eventListeners[event]) {
-        continue;  // 已经绑定过，跳过
-      }
-      this._eventListeners[event] = true;
-
-      // 绑定一个包装处理器，统一分发事件
-      this._el.addEventListener(event, (nativeEvent) => {
-        // 为原生事件对象附加_vnode 属性，指向虚拟元素
-        nativeEvent._vnode = this;
-        // 分发所有处理器，绑定 this 到 DOM 元素
-        handlers.forEach(handler => handler.call(this._el, nativeEvent));
-      });
-    }
+      // 关键：每次触发时动态读取当前 _events
+      // 这样即使 handler 是在绑定监听器之后添加的，也能被调用
+      const handlers = this._events[event] || [];
+      handlers.forEach(handler => handler.call(this._el, nativeEvent));
+    });
   }
 
   /**
