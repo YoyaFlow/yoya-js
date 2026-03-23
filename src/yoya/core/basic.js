@@ -529,7 +529,8 @@ class Tag {
    */
   onInputValue(handler) {
     this.on('input', this._wrapHandler(handler, (e) => {
-      return { value: this.value?.() || e.target?.value };
+      // 优先从事件目标获取值，因为 input 事件触发时 e.target.value 已经是新值
+      return { value: e.target?.value || this.value?.() };
     }));
     return this;
   }

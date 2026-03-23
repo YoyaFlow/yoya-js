@@ -163,6 +163,101 @@ const tests = {
     assert(capturedContext !== null, 'context 不应该为空');
     assertEquals(capturedContext.value, 'changed', 'value 应该是 changed');
     assertEquals(capturedContext.oldValue, 'initial', 'oldValue 应该是 initial');
+  },
+
+  'onMouseEnter 和 onMouseLeave 应该正常工作': () => {
+    const enterHandler = createMockFn();
+    const leaveHandler = createMockFn();
+
+    const el = div('测试');
+    el.onMouseEnter(enterHandler);
+    el.onMouseLeave(leaveHandler);
+    el.bindTo(createContainer());
+
+    el._el.dispatchEvent(new dom.window.MouseEvent('mouseenter'));
+    assertEquals(enterHandler.timesCalled(), 1, 'mouseenter 应该被调用 1 次');
+
+    el._el.dispatchEvent(new dom.window.MouseEvent('mouseleave'));
+    assertEquals(leaveHandler.timesCalled(), 1, 'mouseleave 应该被调用 1 次');
+  },
+
+  'onKey 应该传递 key 和 code': () => {
+    let capturedContext = null;
+    const handler = createMockFn();
+
+    const wrapper = function(context) {
+      handler(context);
+      capturedContext = context;
+    };
+
+    const el = div('测试');
+    el.onKey(wrapper);
+    el.bindTo(createContainer());
+
+    el._el.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' }));
+
+    assertEquals(handler.timesCalled(), 1, 'handler 应该被调用 1 次');
+    assert(capturedContext !== null, 'context 不应该为空');
+    assertEquals(capturedContext.key, 'Enter', 'key 应该是 Enter');
+    assertEquals(capturedContext.code, 'Enter', 'code 应该是 Enter');
+  },
+
+  'onFocus 和 onBlur 应该正常工作': () => {
+    const focusHandler = createMockFn();
+    const blurHandler = createMockFn();
+
+    const el = div('测试');
+    el.onFocus(focusHandler);
+    el.onBlur(blurHandler);
+    el.bindTo(createContainer());
+
+    el._el.dispatchEvent(new dom.window.FocusEvent('focus'));
+    assertEquals(focusHandler.timesCalled(), 1, 'focus 应该被调用 1 次');
+
+    el._el.dispatchEvent(new dom.window.FocusEvent('blur'));
+    assertEquals(blurHandler.timesCalled(), 1, 'blur 应该被调用 1 次');
+  },
+
+  'onInputValue 应该传递 value': () => {
+    let capturedContext = null;
+    const handler = createMockFn();
+
+    const wrapper = function(context) {
+      handler(context);
+      capturedContext = context;
+    };
+
+    const el = input({ value: 'initial' });
+    el.onInputValue(wrapper);
+    el.bindTo(createContainer());
+
+    el._el.value = 'changed';
+    el._el.dispatchEvent(new dom.window.Event('input'));
+
+    assertEquals(handler.timesCalled(), 1, 'handler 应该被调用 1 次');
+    assertEquals(capturedContext.value, 'changed', 'value 应该是 changed');
+  },
+
+  'onToggle 应该传递 value 和 oldValue': () => {
+    let capturedContext = null;
+    const handler = createMockFn();
+
+    const wrapper = function(context) {
+      handler(context);
+      capturedContext = context;
+    };
+
+    const el = input({ type: 'checkbox', checked: false });
+    el.onToggle(wrapper);
+    el.bindTo(createContainer());
+
+    // 模拟 checkbox 状态变化
+    el._el.checked = true;
+    el._el.dispatchEvent(new dom.window.Event('change'));
+
+    assertEquals(handler.timesCalled(), 1, 'handler 应该被调用 1 次');
+    assert(capturedContext !== null, 'context 不应该为空');
+    assertEquals(capturedContext.value, true, 'value 应该是 true');
   }
 };
 
