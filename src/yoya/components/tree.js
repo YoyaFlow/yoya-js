@@ -200,6 +200,232 @@ class VTree extends Tag {
     // TODO: 后续实现
     return this;
   }
+
+  // ============================================
+  // 树形渲染方法
+  // ============================================
+
+  /**
+   * 设置树形数据并渲染
+   * @param {VTreeNode[]} [value] - 不传则返回当前值
+   * @returns {this|VTreeNode[]}
+   */
+  data(value) {
+    if (value === undefined) return this._data;
+    this._data = value;
+    this._renderTree();
+    return this;
+  }
+
+  /**
+   * 渲染整棵树
+   * @private
+   */
+  _renderTree() {
+    this._children = [];
+
+    const listEl = div(list => {
+      list.addClass('yoya-tree__list');
+      list.styles({
+        listStyle: 'none',
+        margin: '0',
+        padding: '0'
+      });
+
+      // 递归渲染节点
+      this._renderNodes(this._data, 0, listEl);
+    });
+
+    this._children.push(listEl);
+    this._rendered = false;
+  }
+
+  /**
+   * 递归渲染节点列表
+   * @param {VTreeNode[]} nodes - 节点数组
+   * @param {number} level - 当前层级
+   * @param {Tag} parentEl - 父容器
+   * @private
+   */
+  _renderNodes(nodes, level, parentEl) {
+    nodes.forEach(node => {
+      const nodeEl = this._renderNode(node, level);
+      parentEl.child(nodeEl);
+    });
+  }
+
+  /**
+   * 渲染单个节点
+   * @param {VTreeNode} node - 节点数据
+   * @param {number} level - 层级
+   * @returns {Tag} 节点元素
+   * @private
+   */
+  _renderNode(node, level) {
+    const hasChildren = node.children && node.children.length > 0;
+    const isExpanded = this._expandedKeys.includes(node.key);
+
+    // 节点容器
+    const nodeEl = div(n => {
+      n.addClass('yoya-tree__node');
+      n.styles({
+        display: 'flex',
+        alignItems: 'center',
+        padding: '6px 12px',
+        cursor: 'pointer'
+      });
+
+      // 悬停效果
+      n.on('mouseenter', () => n.style('background', '#f5f5f5'));
+      n.on('mouseleave', () => n.style('background', ''));
+
+      // 禁用状态
+      if (node.disabled) {
+        n.styles({ opacity: '0.5', cursor: 'not-allowed' });
+      }
+    });
+
+    // 缩进
+    const indent = span(i => {
+      i.addClass('yoya-tree__indent');
+      i.style('width', `${level * 20}px`);
+      i.style('flex-shrink', '0');
+    });
+    nodeEl.child(indent);
+
+    // 展开/收起图标
+    if (hasChildren) {
+      const iconEl = span(icon => {
+        icon.addClass('yoya-tree__icon');
+        icon.style('width', '16px');
+        icon.style('height', '16px');
+        icon.style('flex-shrink', '0');
+        icon.style('marginRight', '4px');
+        icon.style('fontSize', '12px');
+        icon.style('textAlign', 'center');
+        icon.style('userSelect', 'none');
+        icon.text(isExpanded ? '▼' : '▶');
+
+        // 点击展开/收起
+        icon.on('click', (e) => {
+          e.stopPropagation();
+          this._toggleExpand(node);
+        });
+      });
+      nodeEl.child(iconEl);
+    } else {
+      // 叶子节点占位
+      const placeholderEl = span(p => {
+        p.addClass('yoya-tree__placeholder');
+        p.style('width', '16px');
+        p.style('height', '16px');
+        p.style('flex-shrink', '0');
+        p.style('marginRight', '4px');
+      });
+      nodeEl.child(placeholderEl);
+    }
+
+    // 复选框
+    if (this._checkable) {
+      const checkboxEl = input(cb => {
+        cb.type('checkbox');
+        cb.addClass('yoya-tree__checkbox');
+        cb.style('marginRight', '8px');
+        cb.attr('data-node-key', node.key);
+
+        // 勾选状态
+        const isChecked = this._checkedKeys.includes(node.key);
+        if (isChecked) cb.attr('checked', '');
+
+        // 半选状态
+        const isIndeterminate = this._indeterminateKeys.includes(node.key);
+        if (isIndeterminate) cb.attr('indeterminate', '');
+
+        // 点击事件
+        cb.on('click', (e) => {
+          e.stopPropagation();
+          this._toggleCheck(node);
+        });
+      });
+      nodeEl.child(checkboxEl);
+    }
+
+    // 节点标题
+    const titleEl = span(t => {
+      t.addClass('yoya-tree__title');
+      t.style('flex', '1');
+      t.style('overflow', 'hidden');
+      t.style('textOverflow', 'ellipsis');
+      t.style('whiteSpace', 'nowrap');
+
+      // title 支持字符串或 Tag
+      if (typeof node.title === 'string') {
+        t.text(node.title);
+      } else if (node.title) {
+        t.child(node.title);
+      }
+    });
+    nodeEl.child(titleEl);
+
+    return nodeEl;
+  }
+
+  /**
+   * 切换节点展开/收起状态
+   * @param {VTreeNode} node - 节点
+   * @private
+   */
+  _toggleExpand(node) {
+    const index = this._expandedKeys.indexOf(node.key);
+    if (index > -1) {
+      this._expandedKeys.splice(index, 1);
+    } else {
+      this._expandedKeys.push(node.key);
+    }
+
+    // 触发 onExpand 事件
+    if (this._onExpand) {
+      this._onExpand({
+        event: event,
+        expandedKeys: this._expandedKeys,
+        target: this
+      });
+    }
+
+    // 重新渲染
+    this._renderTree();
+  }
+
+  /**
+   * 切换节点勾选状态
+   * @param {VTreeNode} node - 节点
+   * @private
+   */
+  _toggleCheck(node) {
+    const index = this._checkedKeys.indexOf(node.key);
+    if (index > -1) {
+      // 取消勾选
+      this._checkedKeys.splice(index, 1);
+    } else {
+      // 勾选
+      this._checkedKeys.push(node.key);
+    }
+
+    // TODO: 处理级联勾选和半选状态
+
+    // 触发 onCheck 事件
+    if (this._onCheck) {
+      this._onCheck({
+        event: event,
+        node: node,
+        checkedKeys: this._checkedKeys,
+        target: this
+      });
+    }
+
+    // 重新渲染
+    this._renderTree();
+  }
 }
 
 /**
