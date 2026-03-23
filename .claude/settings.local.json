@@ -155,7 +155,19 @@
       "Bash(rm -rf /home/join/code/cctest/.playwright-mcp/*.png)",
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(ls -la dist/yoya.theme*)"
+      "Bash(ls -la dist/yoya.theme*)",
+      "mcp__playwright__browser_resize",
+      "Bash(ls:*)",
+      "mcp__playwright__browser_tabs",
+      "mcp__playwright__browser_hover",
+      "Bash(grep -l localhost:3002 test-*.cjs)",
+      "Bash(xargs -I {} sed -i 's/localhost:3002/localhost:3001/g' {} echo \"Updated test files to use port 3001\")",
+      "Bash(pkill -f \"vite\")",
+      "Bash(pkill -f \"chromium\")",
+      "Bash(pkill -f \"chrome\")",
+      "Bash(pkill -f vite)",
+      "Bash(lsof -ti:3001)",
+      "Bash(xargs kill:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

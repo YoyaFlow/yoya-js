@@ -16,7 +16,7 @@ flex(box => {
 });
 ```
 
-## Grid 网格布局
+## Grid 网格布局（CSS Grid）
 
 ```javascript
 grid(g => {
@@ -27,6 +27,8 @@ grid(g => {
   g.templateColumns('1fr 2fr 1fr');
 });
 ```
+
+**注意**：此 Grid 是基于 CSS Grid Layout 的封装，与 VGrid（24 栅格系统）不同。
 
 ## ResponsiveGrid 响应式网格
 

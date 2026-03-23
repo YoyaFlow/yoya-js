@@ -4,20 +4,12 @@
  */
 
 import { initTheme } from '../../yoya/index.js';
-import { createLightTheme, createDarkTheme } from '../../yoya/theme/islands/index.js';
 import { getPageComponent, preloadAllPages } from './config/routes.js';
 
-// 初始化主题
+// 初始化主题（使用 CSS 主题系统）
 initTheme({
   defaultTheme: 'islands',
   defaultMode: 'auto',
-  themes: new Map([
-    ['islands', {
-      factory: createLightTheme,
-      lightFactory: createLightTheme,
-      darkFactory: createDarkTheme,
-    }],
-  ]),
 });
 
 // 预加载所有页面（可选，提升后续访问速度）

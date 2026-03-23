@@ -21,7 +21,7 @@ import {
  */
 export function appLayout(setup) {
   return vstack(layout => {
-    layout.styles({ minHeight: '100vh', background: 'var(--islands-bg, #f8f9fa)' });
+    layout.styles({ minHeight: '100vh', background: 'var(--yoya-bg, #f8f9fa)' });
 
     // ========== 顶部导航栏 ==========
     layout.child(flex(navbar => {
@@ -30,8 +30,8 @@ export function appLayout(setup) {
       navbar.styles({
         height: '56px',
         padding: '0 20px',
-        background: 'var(--islands-card-bg, white)',
-        borderBottom: '1px solid var(--islands-border, #e0e0e0)',
+        background: 'var(--yoya-card-bg, white)',
+        borderBottom: '1px solid var(--yoya-border, #e0e0e0)',
         position: 'sticky',
         top: '0',
         zIndex: '1000',
@@ -47,7 +47,7 @@ export function appLayout(setup) {
           brand.styles({
             fontSize: '18px',
             fontWeight: '600',
-            color: 'var(--islands-primary, #667eea)',
+            color: 'var(--yoya-primary, #667eea)',
           });
           brand.on('click', () => {
             window.location.href = 'index.html';
@@ -59,14 +59,14 @@ export function appLayout(setup) {
           nav.alignItems('center');
           nav.gap('4px');
           nav.child(vMenuItem('首页', link => {
-            link.styles({ fontSize: '14px', color: 'var(--islands-text-secondary, #666)' });
+            link.styles({ fontSize: '14px', color: 'var(--yoya-text-secondary, #666)' });
             link.on('click', () => window.location.href = 'index.html');
           }));
           nav.child(vMenuItem('|', sep => {
             sep.styles({ fontSize: '12px', color: '#ddd' });
           }));
           nav.child(vMenuItem('文档', link => {
-            link.styles({ fontSize: '14px', color: 'var(--islands-text-secondary, #666)' });
+            link.styles({ fontSize: '14px', color: 'var(--yoya-text-secondary, #666)' });
             link.on('click', () => window.location.href = 'button.html');
           }));
         }));
@@ -103,8 +103,8 @@ export function appLayout(setup) {
       main.child(flex(sidebar => {
         sidebar.styles({
           width: '220px',
-          background: 'var(--islands-card-bg, white)',
-          borderRight: '1px solid var(--islands-border, #e0e0e0)',
+          background: 'var(--yoya-card-bg, white)',
+          borderRight: '1px solid var(--yoya-border, #e0e0e0)',
           overflowY: 'auto',
           padding: '16px 0',
         });
@@ -148,13 +148,13 @@ export function sidebarItem(text, href, active = false, onclick = null) {
       fontSize: '14px',
       padding: '8px 16px',
       color: active
-        ? 'var(--islands-primary, #667eea)'
-        : 'var(--islands-text, #333)',
+        ? 'var(--yoya-primary, #667eea)'
+        : 'var(--yoya-text, #333)',
       background: active
-        ? 'var(--islands-primary-alpha, rgba(102, 126, 234, 0.1))'
+        ? 'var(--yoya-primary-alpha, rgba(102, 126, 234, 0.1))'
         : 'transparent',
       borderRight: active
-        ? '2px solid var(--islands-primary, #667eea)'
+        ? '2px solid var(--yoya-primary, #667eea)'
         : '2px solid transparent',
     });
     item.on('click', (e) => {
@@ -175,7 +175,7 @@ export function sidebarGroup(title, items = []) {
       h.styles({
         fontSize: '12px',
         fontWeight: '600',
-        color: 'var(--islands-text-secondary, #999)',
+        color: 'var(--yoya-text-secondary, #999)',
         padding: '8px 16px 4px',
         textTransform: 'uppercase',
       });
@@ -192,7 +192,7 @@ export function tocItem(text, href, level = 1) {
     item.styles({
       fontSize: level === 1 ? '14px' : '13px',
       padding: '6px 12px',
-      color: 'var(--islands-text-secondary, #666)',
+      color: 'var(--yoya-text-secondary, #666)',
       marginLeft: level === 1 ? '0' : '12px',
     });
     item.on('click', (e) => {
@@ -243,8 +243,8 @@ export function codeDemo(title, demoContent, codeString) {
         inner.child(flex(demo => {
           demo.styles({
             padding: '20px',
-            background: 'var(--islands-doc-example-demo-bg, #f8f9fa)',
-            borderRadius: 'var(--islands-radius-md, 6px)',
+            background: 'var(--yoya-doc-example-demo-bg, #f8f9fa)',
+            borderRadius: 'var(--yoya-radius-md, 6px)',
           });
           demo.child(demoContent);
         }));

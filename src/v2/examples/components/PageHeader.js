@@ -4,6 +4,7 @@
  */
 
 import { vstack, vMenuItem } from '../../../yoya/index.js';
+import '../../../yoya/theme/css/index.js'
 
 /**
  * 页面标题头

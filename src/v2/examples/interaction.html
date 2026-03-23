@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交互组件 - Yoya.Basic V2</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    (async () => {
+      const { getPageComponent, preloadAllPages } = await import('./config/routes.js');
+
+      // 预加载所有页面
+      await preloadAllPages();
+
+      // 获取当前页面组件并渲染
+      const fileName = 'interaction.html';
+      const pageLoader = await getPageComponent(fileName);
+      const createPage = await pageLoader();
+      const page = createPage();
+      page.bindTo('#app');
+    })();
+  </script>
+</body>
+</html>

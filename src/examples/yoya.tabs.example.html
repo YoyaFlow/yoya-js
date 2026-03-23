@@ -55,24 +55,12 @@
       pre,
       code,
       initTheme,
-      createLightTheme,
-      createDarkTheme,
-      allVariables,
-      buttonVariables,
-      menuVariables,
-      codeVariables
     } from '../yoya/index.js';
 
-    // 初始化主题
+    // 初始化主题（CSS 主题系统）
     initTheme({
       defaultTheme: 'islands',
       defaultMode: 'dark',
-      themes: new Map([
-        ['islands', {
-          lightFactory: () => createLightTheme(allVariables, buttonVariables, menuVariables, codeVariables),
-          darkFactory: () => createDarkTheme(allVariables, buttonVariables, menuVariables, codeVariables),
-        }]
-      ])
     });
 
     // 创建示例代码内容

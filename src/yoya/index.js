@@ -173,6 +173,15 @@ export {
   VTag, vTag,
   VAlert, vAlert,
   VBreadcrumb, vBreadcrumb,
+  VStatistic, vStatistic,
+
+  // Interaction 交互组件
+  VTooltip, vTooltip,
+  VPopover, vPopover,
+  VDropdown, vDropdown,
+  VCollapse, vCollapse,
+  VTree, vTree,
+  VTreeSelect, vTreeSelect,
 } from './components/index.js';
 
 // 导出主题系统

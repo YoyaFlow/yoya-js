@@ -1,6 +1,6 @@
 /**
  * Yoya.Components - UI Elements
- * 基础 UI 组件：Avatar, Badge, Progress, Skeleton, Tag, Alert, Breadcrumb
+ * 基础 UI 组件：Avatar, Badge, Progress, Skeleton, Tag, Alert, Breadcrumb, Statistic
  */
 
 import { Tag, div, span, img, p } from '../core/basic.js';
@@ -25,6 +25,7 @@ class VAvatar extends Tag {
     this.registerStateAttrs(...this.constructor._stateAttrs);
     this.initializeStates({ shape: 'circle' });
     this._setupBaseStyles();
+    this._applyDefaultSize();
     this.saveBaseStylesSnapshot();
     this._registerStateHandlers();
 
@@ -40,39 +41,59 @@ class VAvatar extends Tag {
 
   _setupBaseStyles() {
     this.addClass('yoya-avatar');
+    this.addClass('yoya-avatar--circle');
     this.style('display', 'inline-flex');
     this.style('alignItems', 'center');
     this.style('justifyContent', 'center');
     this.style('overflow', 'hidden');
-    this.style('backgroundColor', '#1890ff');
-    this.style('color', '#fff');
+    this.style('backgroundColor', 'var(--yoya-primary)');
+    this.style('color', 'var(--yoya-text-inverse)');
     this.style('fontWeight', '500');
     this.style('textAlign', 'center');
+    this.style('borderRadius', '50%');
+    this.style('flexShrink', '0');
+    this.style('minWidth', 'inherit');
+  }
+
+  _applyDefaultSize() {
+    const sizeMap = {
+      'large': 40,
+      'default': 32,
+      'small': 24
+    };
+    const pixelSize = sizeMap[this._size] || 32;
+    this.style('width', `${pixelSize}px`);
+    this.style('height', `${pixelSize}px`);
+    this.style('fontSize', `${pixelSize * 0.5}px`);
   }
 
   _registerStateHandlers() {
     this.registerStateHandler('shape', (shape, host) => {
       if (shape === 'square') {
+        host.removeClass('yoya-avatar--circle');
+        host.addClass('yoya-avatar--square');
         host.style('borderRadius', '4px');
       } else {
+        host.removeClass('yoya-avatar--square');
+        host.addClass('yoya-avatar--circle');
         host.style('borderRadius', '50%');
       }
     });
-
-    // 初始化时应用 shape 样式
-    const currentShape = this.getState('shape');
-    if (currentShape) {
-      if (currentShape === 'square') {
-        this.style('borderRadius', '4px');
-      } else {
-        this.style('borderRadius', '50%');
-      }
-    }
   }
 
   _ensureContent() {
     if (!this._contentBox) {
-      this._contentBox = span();
+      this._contentBox = span(c => {
+        c.style('display', 'flex');
+        c.style('alignItems', 'center');
+        c.style('justifyContent', 'center');
+        c.style('width', '100%');
+        c.style('height', '100%');
+        c.style('borderRadius', 'inherit');
+        c.style('overflow', 'hidden');
+        c.style('flexShrink', '0');
+        c.style('minWidth', '0');
+      });
       this._children.push(this._contentBox);
     }
 
@@ -113,10 +134,28 @@ class VAvatar extends Tag {
       'small': 24
     };
 
-    const pixelSize = typeof value === 'number' ? value : (sizeMap[value] || 32);
-    this.style('width', `${pixelSize}px`);
-    this.style('height', `${pixelSize}px`);
-    this.style('fontSize', `${pixelSize * 0.5}px`);
+    let pixelSize;
+    if (typeof value === 'number') {
+      // 数字：直接使用，如 vAvatar(a => { a.size(48) })
+      pixelSize = value;
+      this.style('width', `${pixelSize}px`);
+      this.style('height', `${pixelSize}px`);
+    } else if (typeof value === 'string' && /^\d+(\.\d+)?/.test(value)) {
+      // 带单位的字符串：如 '48px', '3rem', '1.5in' 等
+      const match = value.match(/^(\d+(\.\d+)?)(.*)$/);
+      const numValue = parseFloat(match[1]);
+      const unit = match[3] || 'px';
+      pixelSize = numValue;
+      this.style('width', `${numValue}${unit}`);
+      this.style('height', `${numValue}${unit}`);
+    } else {
+      // 预设值：'large', 'default', 'small'
+      pixelSize = sizeMap[value] || 32;
+      this.style('width', `${pixelSize}px`);
+      this.style('height', `${pixelSize}px`);
+    }
+
+    this.style('fontSize', typeof value === 'number' ? `${pixelSize * 0.5}px` : (typeof value === 'string' && /^\d+(\.\d+)?/.test(value) ? `${pixelSize * 0.5}${value.replace(/^[\d.]+/, '') || 'px'}` : `${pixelSize * 0.5}px`));
 
     return this;
   }
@@ -179,7 +218,7 @@ class VAvatarGroup extends Tag {
       this._avatars.push(avatar);
       const index = this._avatars.length;
       avatar.style('marginLeft', index > 1 ? '-8px' : '0');
-      avatar.style('border', '2px solid #fff');
+      avatar.style('border', '2px solid var(--yoya-bg)');
       super.child(avatar);
     }
     return this;
@@ -255,6 +294,7 @@ class VBadge extends Tag {
     const content = this._dot ? '' : (this._text || displayCount);
 
     if (this._target) {
+      // 附着模式：徽章覆盖在目标元素上
       this._children = [];
       super.child(this._target);
 
@@ -267,12 +307,26 @@ class VBadge extends Tag {
       });
       this._children.push(badgeEl);
     } else {
-      // 直接设置文本内容，避免循环调用
+      // 独立模式：直接显示为一个独立的徽标
+      this.setState('standalone', true);
+      this.addClass('yoya-badge--standalone');
+
       if (!this._badgeTextBox) {
-        this._badgeTextBox = span();
+        this._badgeTextBox = span(b => {
+          b.addClass('yoya-badge__overlay');
+          b.styles({
+            position: 'static',
+            transform: 'none',
+            display: 'inline-block'
+          });
+        });
         this._children.push(this._badgeTextBox);
       }
       this._badgeTextBox.text(content);
+
+      if (this._color) {
+        this._badgeTextBox.style('backgroundColor', this._color);
+      }
     }
   }
 
@@ -369,7 +423,7 @@ class VProgress extends Tag {
       b.addClass('yoya-progress__outer');
       b.styles({
         position: 'relative',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: 'var(--yoya-bg-tertiary)',
         borderRadius: '100px',
         fontSize: '0'
       });
@@ -380,13 +434,33 @@ class VProgress extends Tag {
       b.addClass('yoya-progress__inner');
       b.styles({
         position: 'relative',
-        backgroundColor: this._strokeColor,
+        backgroundColor: 'var(--yoya-primary)',
         borderRadius: '100px',
         transition: 'width 0.3s ease'
       });
       b.style('height', `${this._strokeWidth}px`);
+      b.style('width', '0%');
     });
     this._progressBox.child(this._bar);
+
+    if (this._showInfo) {
+      this._ensureInfoEl();
+    }
+  }
+
+  _ensureInfoEl() {
+    if (!this._infoEl) {
+      this._infoEl = span(i => {
+        i.addClass('yoya-progress__text');
+        i.styles({
+          display: 'inline-block',
+          marginLeft: '8px',
+          fontSize: '14px',
+          color: 'var(--yoya-text-secondary)'
+        });
+      });
+      this._children.push(this._infoEl);
+    }
   }
 
   _updatePercent() {
@@ -417,7 +491,10 @@ class VProgress extends Tag {
 
   showInfo(bool) {
     this._showInfo = bool;
-    if (!bool && this._infoEl) {
+    if (bool) {
+      this._ensureInfoEl();
+      this._infoEl.style('display', 'inline-block');
+    } else if (this._infoEl) {
       this._infoEl.style('display', 'none');
     }
     return this;
@@ -480,7 +557,9 @@ class VSkeleton extends Tag {
     this.addClass('yoya-skeleton');
     this.style('display', 'block');
     this.style('padding', '16px');
-    this.style('backgroundColor', '#fff');
+    this.style('backgroundColor', 'var(--yoya-bg)');
+    this.style('width', '100%');
+    this.style('minWidth', '100%');
   }
 
   _registerStateHandlers() {
@@ -501,7 +580,7 @@ class VSkeleton extends Tag {
           width: '48px',
           height: '48px',
           borderRadius: '50%',
-          backgroundColor: '#f5f5f5',
+          backgroundColor: 'var(--yoya-bg-tertiary)',
           marginBottom: '16px'
         });
       });
@@ -514,7 +593,7 @@ class VSkeleton extends Tag {
         t.styles({
           height: '20px',
           width: '60%',
-          backgroundColor: '#f5f5f5',
+          backgroundColor: 'var(--yoya-bg-tertiary)',
           marginBottom: '16px',
           borderRadius: '4px'
         });
@@ -530,7 +609,7 @@ class VSkeleton extends Tag {
           r.styles({
             height: '16px',
             width,
-            backgroundColor: '#f5f5f5',
+            backgroundColor: 'var(--yoya-bg-tertiary)',
             marginBottom: i < this._rows - 1 ? '8px' : '0',
             borderRadius: '4px'
           });
@@ -545,7 +624,7 @@ class VSkeleton extends Tag {
         b.styles({
           height: '32px',
           width: '100px',
-          backgroundColor: '#f5f5f5',
+          backgroundColor: 'var(--yoya-bg-tertiary)',
           marginTop: '16px',
           borderRadius: '4px'
         });
@@ -665,7 +744,7 @@ class VTag extends Tag {
 
     this.registerStateHandler('bordered', (bordered, host) => {
       if (bordered) {
-        host.style('border', '1px solid #d9d9d9');
+        host.style('border', '1px solid var(--yoya-border)');
       } else {
         host.style('border', 'none');
       }
@@ -682,12 +761,12 @@ class VTag extends Tag {
 
   _applyColorStyles(color, host) {
     const colorMap = {
-      'default': { bg: '#f5f5f5', text: '#666', border: '#d9d9d9' },
-      'blue': { bg: '#e6f7ff', text: '#1890ff', border: '#91d5ff' },
-      'green': { bg: '#f6ffed', text: '#52c41a', border: '#b7eb8f' },
-      'red': { bg: '#fff1f0', text: '#ff4d4f', border: '#ffccc7' },
-      'orange': { bg: '#fff7e6', text: '#fa8c16', border: '#ffd591' },
-      'purple': { bg: '#f9f0ff', text: '#722ed1', border: '#d3adf7' }
+      'default': { bg: 'var(--yoya-bg-tertiary)', text: 'var(--yoya-text-secondary)', border: 'var(--yoya-border)' },
+      'blue': { bg: 'var(--yoya-info-bg)', text: 'var(--yoya-info)', border: 'var(--yoya-info)' },
+      'green': { bg: 'var(--yoya-success-bg)', text: 'var(--yoya-success)', border: 'var(--yoya-success)' },
+      'red': { bg: 'var(--yoya-error-bg)', text: 'var(--yoya-error)', border: 'var(--yoya-error)' },
+      'orange': { bg: 'var(--yoya-warning-bg)', text: 'var(--yoya-warning)', border: 'var(--yoya-warning)' },
+      'purple': { bg: 'rgba(114, 46, 209, 0.1)', text: '#a882eb', border: '#a882eb' }
     };
 
     const c = colorMap[color] || colorMap.default;
@@ -853,7 +932,7 @@ class VAlert extends Tag {
     this._closeBtn = span(b => {
       b.addClass('yoya-alert__close');
       b.html('×');
-      b.styles({ cursor: 'pointer', fontSize: '16px', lineHeight: '1' });
+      b.styles({ cursor: 'pointer', fontSize: '16px', lineHeight: '1', color: 'var(--yoya-text-tertiary)' });
       b.on('click', (e) => {
         e.stopPropagation();
         this._handleClose();
@@ -879,6 +958,7 @@ class VAlert extends Tag {
           d.addClass('yoya-alert__description');
           d.style('fontSize', '13px');
           d.style('marginTop', '4px');
+          d.style('color', 'var(--yoya-text-secondary)');
         });
         this._contentBox.child(this._descEl);
       }
@@ -889,12 +969,19 @@ class VAlert extends Tag {
   _updateIcon() {
     const iconMap = {
       'info': 'ℹ️',
-      'success': '✅',
+      'success': '✓',
       'warning': '⚠️',
-      'error': '❌'
+      'error': '✕'
+    };
+    const colorMap = {
+      'info': 'var(--yoya-info)',
+      'success': 'var(--yoya-success)',
+      'warning': 'var(--yoya-warning)',
+      'error': 'var(--yoya-error)'
     };
     if (this._iconBox) {
       this._iconBox.text(iconMap[this._type] || iconMap.info);
+      this._iconBox.style('color', colorMap[this._type] || colorMap.info);
     }
   }
 
@@ -1015,11 +1102,11 @@ class VBreadcrumb extends Tag {
           i.text(item.text);
           if (item.onClick && index < displayItems.length - 1) {
             i.style('cursor', 'pointer');
-            i.style('color', '#1890ff');
+            i.style('color', 'var(--yoya-primary)');
             i.on('click', item.onClick);
           }
           if (index === displayItems.length - 1) {
-            i.style('color', 'rgba(0, 0, 0, 0.85)');
+            i.style('color', 'var(--yoya-text-primary)');
             i.style('cursor', 'default');
           }
         });
@@ -1028,7 +1115,7 @@ class VBreadcrumb extends Tag {
         if (index < displayItems.length - 1) {
           const sep = span(s => {
             s.addClass('yoya-breadcrumb__separator');
-            s.styles({ padding: '0 8px', color: 'rgba(0, 0, 0, 0.45)' });
+            s.styles({ padding: '0 8px', color: 'var(--yoya-text-tertiary)' });
             s.text(this._separator);
           });
           this._itemsContainer.child(sep);
@@ -1057,6 +1144,205 @@ class VBreadcrumb extends Tag {
     this._renderItems();
     return this;
   }
+}
+
+// ============================================
+// VStatistic 统计数值组件
+// ============================================
+
+class VStatistic extends Tag {
+  constructor(setup = null) {
+    super('div', null);
+
+    this._title = '';
+    this._value = 0;
+    this._prefix = '';
+    this._suffix = '';
+    this._precision = undefined;
+    this._separator = ',';
+    this._animated = false;
+    this._duration = 2000;
+    this._valueEl = null;
+
+    this._setupBaseStyles();
+    this._createInternalElements();
+
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  _setupString(setup) {
+    this._value = parseFloat(setup) || 0;
+    this._updateValue();
+  }
+
+  _setupBaseStyles() {
+    this.addClass('yoya-statistic');
+    this.style('display', 'inline-block');
+    this.style('verticalAlign', 'top');
+  }
+
+  _createInternalElements() {
+    this._titleEl = div(t => {
+      t.addClass('yoya-statistic__title');
+      t.styles({
+        fontSize: '14px',
+        color: 'var(--yoya-text-secondary)',
+        marginBottom: '8px'
+      });
+    });
+    this._children.push(this._titleEl);
+
+    this._valueEl = div(v => {
+      v.addClass('yoya-statistic__value');
+      v.styles({
+        fontSize: '24px',
+        fontWeight: '600',
+        color: 'var(--yoya-text-primary)',
+        lineHeight: '1.5',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px'
+      });
+    });
+    this._children.push(this._valueEl);
+  }
+
+  _formatNumber(num) {
+    // 处理精度
+    let formatted = this._precision !== undefined
+      ? num.toFixed(this._precision)
+      : String(num);
+
+    // 处理分隔符
+    if (this._separator) {
+      const parts = formatted.split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, this._separator);
+      formatted = parts.join('.');
+    }
+
+    return formatted;
+  }
+
+  _updateValue() {
+    if (!this._valueEl) return;
+
+    this._valueEl._children = [];
+
+    // 前缀
+    if (this._prefix) {
+      const prefixEl = span(p => {
+        p.addClass('yoya-statistic__prefix');
+        p.text(this._prefix);
+        p.style('flexShrink', '0');
+      });
+      this._valueEl.child(prefixEl);
+    }
+
+    // 数值
+    const valueEl = span(v => {
+      v.addClass('yoya-statistic__number');
+      v.text(this._formatNumber(this._value));
+    });
+    this._valueEl.child(valueEl);
+
+    // 后缀
+    if (this._suffix) {
+      const suffixEl = span(s => {
+        s.addClass('yoya-statistic__suffix');
+        s.text(this._suffix);
+        s.style('marginLeft', '4px');
+      });
+      this._valueEl.child(suffixEl);
+    }
+  }
+
+  _animateValue(from, to) {
+    const startTime = performance.now();
+    const current = { value: from };
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / this._duration, 1);
+
+      // 缓动函数（easeOutExpo）
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+      current.value = from + (to - from) * eased;
+      this._value = current.value;
+
+      // 更新显示
+      const numberEl = this._valueEl._children.find(c => c.hasClass('yoya-statistic__number'));
+      if (numberEl) {
+        numberEl.text(this._formatNumber(current.value));
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }
+
+  title(t) {
+    this._title = t;
+    if (this._titleEl) {
+      this._titleEl.text(t);
+    }
+    return this;
+  }
+
+  value(v) {
+    const oldValue = this._value;
+    this._value = v;
+
+    if (this._animated && this._valueEl && typeof v === 'number') {
+      this._animateValue(oldValue, v);
+    } else {
+      this._updateValue();
+    }
+    return this;
+  }
+
+  prefix(p) {
+    this._prefix = p;
+    this._updateValue();
+    return this;
+  }
+
+  suffix(s) {
+    this._suffix = s;
+    this._updateValue();
+    return this;
+  }
+
+  precision(p) {
+    this._precision = p;
+    this._updateValue();
+    return this;
+  }
+
+  separator(s) {
+    this._separator = s;
+    this._updateValue();
+    return this;
+  }
+
+  animated(bool) {
+    this._animated = bool;
+    return this;
+  }
+
+  duration(ms) {
+    this._duration = ms;
+    return this;
+  }
+}
+
+function vStatistic(setup = null) {
+  return new VStatistic(setup);
 }
 
 // ============================================
@@ -1118,4 +1404,6 @@ export {
   vAlert,
   VBreadcrumb,
   vBreadcrumb,
+  VStatistic,
+  vStatistic,
 };

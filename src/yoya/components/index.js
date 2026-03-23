@@ -180,4 +180,22 @@ export {
   vAlert,
   VBreadcrumb,
   vBreadcrumb,
+  VStatistic,
+  vStatistic,
 } from './ui.js';
+
+// Interaction 交互组件
+export {
+  VTooltip,
+  vTooltip,
+  VPopover,
+  vPopover,
+  VDropdown,
+  vDropdown,
+  VCollapse,
+  vCollapse,
+  VTree,
+  vTree,
+  VTreeSelect,
+  vTreeSelect,
+} from './interaction.js';

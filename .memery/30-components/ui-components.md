@@ -94,13 +94,6 @@ toast.info('消息', 'info', 5000);  // 5 秒
 toast.info('消息', 'info', 0);     // 不自动关闭
 ```
 
-## 相关文件
-
-- `src/yoya/components/card.js` - Card 组件
-- `src/yoya/components/menu.js` - Menu 组件
-- `src/yoya/components/message.js` - Message 组件
-- `src/yoya/components/echart.js` - VEchart 组件
-
 ## VEchart ECharts 图表
 
 ```javascript
@@ -146,3 +139,58 @@ vEchart(chart => {
 - 雷达图 (radar)
 - 散点图 (scatter)
 - 仪表盘 (gauge)
+
+## VStatistic 统计数值
+
+```javascript
+// 基础用法
+vStatistic(s => {
+  s.title('总访问量');
+  s.value(12345);
+});
+
+// 格式化数字
+vStatistic(s => {
+  s.title('销售额');
+  s.value(1234567.89);
+  s.prefix('¥');
+  s.separator(',');  // 千分位分隔符
+  s.precision(2);    // 保留 2 位小数
+});
+
+// 前缀和后缀
+vStatistic(s => {
+  s.title('完成率');
+  s.value(87.5);
+  s.suffix('%');
+});
+
+// 数值动画
+vStatistic(s => {
+  s.title('实时在线');
+  s.value(0);
+  s.animated(true);     // 启用动画
+  s.duration(2000);     // 动画时长 2s
+});
+```
+
+### API 方法
+
+| 方法 | 说明 | 返回值 |
+|------|------|--------|
+| `title(str)` | 设置统计项标题 | this |
+| `value(num)` | 设置统计数值 | this |
+| `prefix(str)` | 设置前缀（如货币符号） | this |
+| `suffix(str)` | 设置后缀（如单位） | this |
+| `separator(str)` | 设置数字分隔符（默认 `,`） | this |
+| `precision(n)` | 设置小数位数 | this |
+| `animated(bool)` | 是否启用数值动画 | this |
+| `duration(ms)` | 动画时长（毫秒） | this |
+
+## 相关文件
+
+- `src/yoya/components/card.js` - Card 组件
+- `src/yoya/components/menu.js` - Menu 组件
+- `src/yoya/components/message.js` - Message 组件
+- `src/yoya/components/echart.js` - VEchart 组件
+- `src/yoya/components/ui.js` - UI 组件（Avatar, Badge, Progress, Skeleton, Tag, Alert, Breadcrumb, Statistic）

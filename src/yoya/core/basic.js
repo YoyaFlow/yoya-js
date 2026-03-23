@@ -43,6 +43,7 @@ class Tag {
     this._classes = new Set();
     this._events = {};
     this._children = [];
+    this._props = {};  // DOM properties
 
     // 状态管理
     this._states = new Set();
@@ -215,6 +216,37 @@ class Tag {
     } else {
       this._attrs[name] = value;
       this._applyAttrToEl(name, value);
+    }
+    return this;
+  }
+
+  /**
+   * 设置/获取 DOM 属性（直接操作 DOM property，而非 HTML attribute）
+   * @param {string} name - 属性名
+   * @param {*} [value] - 属性值（不传则返回当前值）
+   * @returns {this|*} 设置时返回 this，获取时返回属性值
+   * @example
+   * el.prop('checked', true);
+   * el.prop('value', 'test');
+   * const isChecked = el.prop('checked');
+   */
+  prop(name, value) {
+    if (value === undefined) {
+      return this._el ? this._el[name] : this._props[name];
+    }
+
+    if (typeof name === 'object') {
+      for (const [k, v] of Object.entries(name)) {
+        this._props[k] = v;
+        if (this._el) {
+          this._el[k] = v;
+        }
+      }
+    } else {
+      this._props[name] = value;
+      if (this._el) {
+        this._el[name] = value;
+      }
     }
     return this;
   }
@@ -686,9 +718,16 @@ class Tag {
   renderDom() {
     if (this._deleted) return null;
 
-    // 首次渲染或元素被从 DOM 移除后重新渲染时应用事件
-    if (!this._rendered || !this._el.isConnected) {
+    // 全局日志 - 追踪调用
+    if (!window._renderDomCalls) window._renderDomCalls = [];
+    window._renderDomCalls.push({ tag: this._tagName, rendered: this._rendered, connected: this._el?.isConnected, hasListeners: !!this._eventListeners });
+
+    // 首次渲染或元素被从 DOM 移除后重新渲染时应用事件和 props
+    // 或者事件还没有绑定时也应用事件
+    const shouldApplyEvents = !this._rendered || !this._el.isConnected || !this._eventListeners;
+    if (shouldApplyEvents) {
       this._applyEventsToEl();
+      this._applyPropsToEl();
     }
 
     // 智能更新子元素
@@ -741,8 +780,21 @@ class Tag {
    * @private
    */
   _applyEventsToEl() {
+    // 全局日志 - 追踪调用
+    if (!window._applyEventsCalls) window._applyEventsCalls = [];
+    window._applyEventsCalls.push({ tag: this._tagName, events: Object.keys(this._events) });
+
     for (const [event, handlers] of Object.entries(this._events)) {
       if (handlers.length === 0) continue;
+
+      // 检查是否已经绑定过事件（避免重复绑定）
+      if (!this._eventListeners) {
+        this._eventListeners = {};
+      }
+      if (this._eventListeners[event]) {
+        continue;  // 已经绑定过，跳过
+      }
+      this._eventListeners[event] = true;
 
       // 绑定一个包装处理器，统一分发事件
       this._el.addEventListener(event, (nativeEvent) => {
@@ -751,6 +803,20 @@ class Tag {
         // 分发所有处理器，绑定 this 到 DOM 元素
         handlers.forEach(handler => handler.call(this._el, nativeEvent));
       });
+    }
+  }
+
+  /**
+   * 将 DOM properties 应用到 DOM 元素
+   * @private
+   */
+  _applyPropsToEl() {
+    for (const [key, value] of Object.entries(this._props)) {
+      if (value === null || value === undefined) {
+        delete this._el[key];
+      } else {
+        this._el[key] = value;
+      }
     }
   }
 

@@ -1801,7 +1801,7 @@ Tag.prototype.vSidebar = function(setup = null) {
  * });
  */
 class VTopNavbar extends Tag {
-  static _stateAttrs = ['fixed', 'bordered', 'themeMode'];
+  static _stateAttrs = ['fixed', 'bordered'];
 
   /**
    * 创建 VTopNavbar 实例
@@ -1825,7 +1825,6 @@ class VTopNavbar extends Tag {
     this.initializeStates({
       fixed: false,
       bordered: true,
-      themeMode: 'light',
     });
 
     // 2. 设置基础样式
@@ -1838,9 +1837,6 @@ class VTopNavbar extends Tag {
     if (setup !== null) {
       this.setup(setup);
     }
-
-    // 5. 监听主题变化事件（子元素创建后再应用主题）
-    this._setupThemeListener();
   }
 
   /**
@@ -1878,82 +1874,6 @@ class VTopNavbar extends Tag {
         host.addClass('yoya-navbar--no-border');
       }
     });
-
-    // themeMode 状态处理器
-    this.registerStateHandler('themeMode', (mode, host) => {
-      // Islands 主题系统会自动更新 CSS 变量的值，所以只需要设置一次变量引用
-      // 不需要区分 dark/light 模式的变量名
-      // CSS 变量已在 .yoya-navbar 类中定义，主题变化时会自动更新
-
-      // 更新 Logo 颜色（CSS 变量会自动处理）
-      if (host._logoEl) {
-        host._logoEl.style('color', 'var(--yoya-navbar-logo-color, var(--yoya-text, #333))');
-      }
-      // 更新菜单项颜色
-      if (host._menuEl) {
-        host._menuEl._children.forEach(item => {
-          if (item._active) {
-            item.styles({
-              background: 'var(--yoya-navbar-item-active-bg, rgba(37,99,235,0.08))',
-              color: 'var(--yoya-navbar-item-active-color, var(--yoya-primary))',
-            });
-          } else {
-            item.styles({
-              background: 'transparent',
-              color: 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))',
-            });
-          }
-        });
-      }
-      // 更新右侧区域按钮颜色
-      if (host._rightEl) {
-        host._rightEl._children.forEach(child => {
-          if (child instanceof VButton) {
-            // VButton 组件，通过 ghost 模式适应暗色主题
-            if (!child.hasState('ghost')) {
-              child.styles({
-                background: 'var(--yoya-button-bg, white)',
-                color: 'var(--yoya-button-text, #333)',
-                borderColor: 'var(--yoya-button-border, #e0e0e0)',
-              });
-            }
-          } else if (child._el && child._el._children) {
-            // 普通 div 元素
-            child.style('color', 'var(--yoya-navbar-item-color, var(--yoya-text-secondary, #666))');
-          }
-        });
-      }
-    });
-  }
-
-  /**
-   * 设置主题变化监听器
-   * @private
-   */
-  _setupThemeListener() {
-    if (typeof window === 'undefined') return;
-
-    // 监听主题变化事件
-    window.addEventListener('theme-changed', (e) => {
-      const mode = e.detail?.mode || 'light';
-      this.setState('themeMode', mode);
-    });
-
-    // 初始化时获取当前主题模式
-    // 从全局 window._yoyaMode 获取（由 setThemeMode 设置）
-    const getInitialMode = () => {
-      if (typeof window._yoyaMode === 'string') {
-        if (window._yoyaMode === 'auto') {
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        return window._yoyaMode;
-      }
-      // 默认值
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    };
-
-    const initialMode = getInitialMode();
-    this.setState('themeMode', initialMode);
   }
 
   /**
@@ -2084,10 +2004,11 @@ class VTopNavbar extends Tag {
     const rightWrapper = {
       button: (content, onClick = null) => {
         const btn = vButton(content);
-        rightWrapper._el.child(btn);
+        // 先绑定事件，再添加子元素（确保事件在 renderDom 前注册）
         if (onClick) {
           btn.on('click', onClick);
         }
+        rightWrapper._el.child(btn);
         return btn;
       },
       item: (content, setup = null) => this.item(content, setup),

@@ -38,12 +38,12 @@ const productData = [
  */
 function createStatusBadge(status) {
   const config = {
-    active: { bg: 'var(--islands-success-bg)', color: 'var(--islands-success)', text: '激活' },
-    inactive: { bg: 'var(--islands-warning-bg)', color: 'var(--islands-warning)', text: '未激活' },
-    banned: { bg: 'var(--islands-error-bg)', color: 'var(--islands-error)', text: '已禁用' },
-    '在售': { bg: 'var(--islands-success-bg)', color: 'var(--islands-success)', text: '在售' },
-    '缺货': { bg: 'var(--islands-error-bg)', color: 'var(--islands-error)', text: '缺货' },
-    '预售': { bg: 'var(--islands-warning-bg)', color: 'var(--islands-warning)', text: '预售' },
+    active: { bg: 'var(--yoya-success-bg)', color: 'var(--yoya-success)', text: '激活' },
+    inactive: { bg: 'var(--yoya-warning-bg)', color: 'var(--yoya-warning)', text: '未激活' },
+    banned: { bg: 'var(--yoya-error-bg)', color: 'var(--yoya-error)', text: '已禁用' },
+    '在售': { bg: 'var(--yoya-success-bg)', color: 'var(--yoya-success)', text: '在售' },
+    '缺货': { bg: 'var(--yoya-error-bg)', color: 'var(--yoya-error)', text: '缺货' },
+    '预售': { bg: 'var(--yoya-warning-bg)', color: 'var(--yoya-warning)', text: '预售' },
   };
   const c = config[status] || config.active;
 
@@ -129,7 +129,7 @@ function createFullFeaturedTable() {
         alignItems: 'center',
         marginBottom: '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid var(--islands-border)',
+        borderBottom: '1px solid var(--yoya-border)',
       });
 
       toolbar.div(left => {
@@ -310,7 +310,7 @@ function createSortableTable() {
         th.text(label);
         if (field === sortField) {
           th.child(span(s => {
-            s.styles({ marginLeft: '4px', color: 'var(--islands-primary)' });
+            s.styles({ marginLeft: '4px', color: 'var(--yoya-primary)' });
             s.text(sortAsc ? '↑' : '↓');
           }));
         }

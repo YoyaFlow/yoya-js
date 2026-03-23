@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>await import 测试</title>
+</head>
+<body>
+  <h1>await import 测试</h1>
+  <pre id="output"></pre>
+  <script type="module">
+    const output = document.getElementById('output');
+    const log = (msg) => {
+      output.textContent += msg + '\n';
+      console.log(msg);
+    };
+
+    log('1. 开始');
+
+    try {
+      log('2. 导入 routes.js...');
+      const routes = await import('./config/routes.js');
+      log('3. routes.js 成功，keys: ' + Object.keys(routes).length);
+
+      log('4. 调用 preloadAllPages...');
+      const results = await routes.preloadAllPages();
+      log('5. preloadAllPages 完成，results: ' + results.length);
+
+      const failed = results.filter(r => r.status === 'rejected');
+      if (failed.length > 0) {
+        log('失败的加载:');
+        failed.forEach((f, i) => {
+          log(`  ${i + 1}. ${f.reason?.message || 'unknown error'}`);
+        });
+      } else {
+        log('所有页面加载成功');
+      }
+    } catch (e) {
+      log('ERROR: ' + e.message);
+      log('Stack: ' + e.stack);
+    }
+
+    log('完成');
+  </script>
+</body>
+</html>

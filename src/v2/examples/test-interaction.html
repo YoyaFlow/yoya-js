@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试页面</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    (async () => {
+      console.log('脚本开始执行');
+
+      try {
+        console.log('正在导入 routes.js...');
+        const { getPageComponent, preloadAllPages } = await import('./config/routes.js');
+        console.log('routes.js 导入成功');
+
+        console.log('正在预加载页面...');
+        const results = await preloadAllPages();
+        console.log('预加载完成:', results.length, '个页面');
+
+        console.log('正在获取 Interaction 页面...');
+        const pageLoader = await getPageComponent('interaction.html');
+        console.log('pageLoader 类型:', typeof pageLoader);
+
+        console.log('正在加载页面模块...');
+        const module = await pageLoader();
+        console.log('module keys:', Object.keys(module));
+
+        console.log('正在创建页面...');
+        const createPage = module.createInteractionPage;
+        console.log('createInteractionPage 类型:', typeof createPage);
+
+        if (typeof createPage === 'function') {
+          const page = createPage();
+          page.bindTo('#app');
+          console.log('页面渲染完成');
+        } else {
+          console.error('createInteractionPage 不是函数');
+          document.getElementById('app').innerHTML = '<pre>错误：createInteractionPage 不是函数\n\nmodule keys: ' + JSON.stringify(Object.keys(module), null, 2) + '</pre>';
+        }
+      } catch (e) {
+        console.error('错误:', e.message);
+        console.error('堆栈:', e.stack);
+        document.getElementById('app').innerHTML = '<pre>错误：' + e.message + '</pre>';
+      }
+
+      console.log('脚本执行完成');
+    })();
+  </script>
+</body>
+</html>

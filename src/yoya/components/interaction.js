@@ -900,15 +900,19 @@ class VTree extends Tag {
 
       // 复选框
       if (this._checkable) {
-        item.child(input(cb => {
+        const isChecked = this._checkedKeys.includes(node.key);
+        const checkbox = input(cb => {
           cb.type('checkbox');
-          cb.attr('checked', isChecked);
+          cb.prop('checked', isChecked);
           cb.styles({ marginRight: '8px' });
-          cb.on('change', (e) => {
+          cb.onChange((e) => {
             e.stopPropagation();
             this._toggleCheck(node.key);
           });
-        }));
+        });
+        // 调试：记录 checkbox 的状态
+        console.log('[VTree] created checkbox for node', node.key, 'isChecked:', isChecked, 'hasChangeHandler:', !!checkbox._events?.change);
+        item.child(checkbox);
       }
 
       // 节点文本
@@ -937,12 +941,9 @@ class VTree extends Tag {
 
     this._renderTree();
 
-    // 重新渲染
+    // 重新渲染 - 强制重新渲染整个树
     this._rendered = false;
-    if (this._el) {
-      this._el.innerHTML = '';
-      this.renderDom();
-    }
+    this.renderDom();
   }
 
   _toggleExpand(key) {
@@ -959,12 +960,9 @@ class VTree extends Tag {
 
     this._renderTree();
 
-    // 重新渲染
+    // 重新渲染 - 强制重新渲染整个树
     this._rendered = false;
-    if (this._el) {
-      this._el.innerHTML = '';
-      this.renderDom();
-    }
+    this.renderDom();
   }
 
   _toggleCheck(key) {
@@ -984,12 +982,9 @@ class VTree extends Tag {
 
     this._renderTree();
 
-    // 重新渲染
+    // 重新渲染 - 强制重新渲染整个树
     this._rendered = false;
-    if (this._el) {
-      this._el.innerHTML = '';
-      this.renderDom();
-    }
+    this.renderDom();
   }
 
   data(d) {

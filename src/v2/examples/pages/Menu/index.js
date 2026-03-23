@@ -258,7 +258,7 @@ vMenu(m => {
               });
             });
             sidebar.footer(footer => {
-              footer.styles({ fontSize: '12px', color: 'var(--islands-text-secondary, #666)' });
+              footer.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary, #666)' });
               footer.text('© 2024 Yoya.Basic');
             });
           }),

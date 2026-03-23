@@ -133,12 +133,12 @@ vCard(c => {
 
         codeDemo('带边框卡片',
           vCard(c => {
-            c.styles({ border: '1px solid var(--islands-border, #e0e0e0)', boxShadow: 'none' });
+            c.styles({ border: '1px solid var(--yoya-border, #e0e0e0)', boxShadow: 'none' });
             c.vCardBody('带边框的卡片，去除了阴影效果。');
           }),
           `vCard(c => {
   c.styles({
-    border: '1px solid var(--islands-border)',
+    border: '1px solid var(--yoya-border)',
     boxShadow: 'none'
   })
   c.vCardBody('带边框的卡片')

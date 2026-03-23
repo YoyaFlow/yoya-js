@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JetBrains Islands 主题测试</title>
+  <title>Yoya 主题测试</title>
+  <link rel="stylesheet" href="../yoya/theme/css/base.css">
   <style>
     * {
       margin: 0;
@@ -14,8 +15,8 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       padding: 20px;
-      background: var(--islands-bg, #fff);
-      color: var(--islands-text, #2B2D30);
+      background: var(--yoya-bg, #fff);
+      color: var(--yoya-text-primary, #2B2D30);
       transition: background-color 0.3s, color 0.3s;
     }
 
@@ -26,11 +27,11 @@
 
     h1 {
       margin-bottom: 10px;
-      color: var(--islands-text);
+      color: var(--yoya-text);
     }
 
     .subtitle {
-      color: var(--islands-text-secondary);
+      color: var(--yoya-text-secondary);
       margin-bottom: 30px;
     }
 
@@ -39,23 +40,23 @@
       gap: 10px;
       margin-bottom: 30px;
       padding: 20px;
-      background: var(--islands-bg-secondary);
+      background: var(--yoya-bg-secondary);
       border-radius: 8px;
     }
 
     .section {
       margin-bottom: 30px;
       padding: 20px;
-      background: var(--islands-card-bg);
+      background: var(--yoya-card-bg);
       border-radius: 8px;
-      box-shadow: var(--islands-shadow);
-      border: 1px solid var(--islands-border-light);
+      box-shadow: var(--yoya-shadow);
+      border: 1px solid var(--yoya-border-light);
     }
 
     .section h2 {
       margin-bottom: 20px;
       padding-bottom: 10px;
-      border-bottom: 1px solid var(--islands-border);
+      border-bottom: 1px solid var(--yoya-border);
     }
 
     .grid {
@@ -72,7 +73,7 @@
       justify-content: center;
       font-size: 12px;
       font-weight: 500;
-      border: 1px solid var(--islands-border);
+      border: 1px solid var(--yoya-border);
     }
 
     .swatch-light {
@@ -86,27 +87,27 @@
     }
 
     .swatch-primary {
-      background: var(--islands-primary);
+      background: var(--yoya-primary);
       color: white;
     }
 
     .swatch-success {
-      background: var(--islands-success);
+      background: var(--yoya-success);
       color: white;
     }
 
     .swatch-warning {
-      background: var(--islands-warning);
+      background: var(--yoya-warning);
       color: white;
     }
 
     .swatch-error {
-      background: var(--islands-error);
+      background: var(--yoya-error);
       color: white;
     }
 
     .swatch-info {
-      background: var(--islands-info);
+      background: var(--yoya-info);
       color: white;
     }
 
@@ -116,20 +117,20 @@
     }
 
     th {
-      background: var(--islands-bg-secondary);
+      background: var(--yoya-bg-secondary);
       padding: 12px 16px;
       text-align: left;
       font-weight: 600;
-      border-bottom: 2px solid var(--islands-border);
+      border-bottom: 2px solid var(--yoya-border);
     }
 
     td {
       padding: 12px 16px;
-      border-bottom: 1px solid var(--islands-border);
+      border-bottom: 1px solid var(--yoya-border);
     }
 
     tr:hover {
-      background: var(--islands-hover-bg);
+      background: var(--yoya-hover-bg);
     }
 
     .button-group {
@@ -148,52 +149,52 @@
     }
 
     .btn-primary {
-      background: var(--islands-primary);
+      background: var(--yoya-primary);
       color: white;
     }
 
     .btn-primary:hover {
-      background: var(--islands-primary-light);
+      background: var(--yoya-primary-light);
     }
 
     .btn-success {
-      background: var(--islands-success);
+      background: var(--yoya-success);
       color: white;
     }
 
     .btn-warning {
-      background: var(--islands-warning);
+      background: var(--yoya-warning);
       color: white;
     }
 
     .btn-danger {
-      background: var(--islands-error);
+      background: var(--yoya-error);
       color: white;
     }
 
     .btn-default {
-      background: var(--islands-bg);
-      color: var(--islands-text);
-      border: 1px solid var(--islands-border);
+      background: var(--yoya-bg);
+      color: var(--yoya-text);
+      border: 1px solid var(--yoya-border);
     }
 
     .btn-default:hover {
-      background: var(--islands-bg-hover);
+      background: var(--yoya-bg-hover);
     }
 
     input, select {
       padding: 8px 12px;
-      border: 1px solid var(--islands-border);
+      border: 1px solid var(--yoya-border);
       border-radius: 6px;
-      background: var(--islands-bg);
-      color: var(--islands-text);
+      background: var(--yoya-bg);
+      color: var(--yoya-text);
       font-size: 14px;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: var(--islands-primary);
-      box-shadow: 0 0 0 2px var(--islands-primary-alpha);
+      border-color: var(--yoya-primary);
+      box-shadow: 0 0 0 2px var(--yoya-primary-alpha);
     }
 
     .message-container {
@@ -211,51 +212,51 @@
     }
 
     .message-success {
-      background: var(--islands-success-bg);
-      color: var(--islands-success);
-      border: 1px solid var(--islands-success);
+      background: var(--yoya-success-bg);
+      color: var(--yoya-success);
+      border: 1px solid var(--yoya-success);
     }
 
     .message-error {
-      background: var(--islands-error-bg);
-      color: var(--islands-error);
-      border: 1px solid var(--islands-error);
+      background: var(--yoya-error-bg);
+      color: var(--yoya-error);
+      border: 1px solid var(--yoya-error);
     }
 
     .message-warning {
-      background: var(--islands-warning-bg);
-      color: var(--islands-warning);
-      border: 1px solid var(--islands-warning);
+      background: var(--yoya-warning-bg);
+      color: var(--yoya-warning);
+      border: 1px solid var(--yoya-warning);
     }
 
     .message-info {
-      background: var(--islands-info-bg);
-      color: var(--islands-info);
-      border: 1px solid var(--islands-info);
+      background: var(--yoya-info-bg);
+      color: var(--yoya-info);
+      border: 1px solid var(--yoya-info);
     }
 
     .card {
-      background: var(--islands-bg);
-      border: 1px solid var(--islands-border);
+      background: var(--yoya-bg);
+      border: 1px solid var(--yoya-border);
       border-radius: 8px;
       padding: 20px;
-      box-shadow: var(--islands-shadow);
+      box-shadow: var(--yoya-shadow);
     }
 
     .card-header {
       font-weight: 600;
       margin-bottom: 10px;
       padding-bottom: 10px;
-      border-bottom: 1px solid var(--islands-border-light);
+      border-bottom: 1px solid var(--yoya-border-light);
     }
 
     .card-body {
-      color: var(--islands-text-secondary);
+      color: var(--yoya-text-secondary);
     }
 
     .code-block {
-      background: var(--islands-code-bg);
-      color: var(--islands-code-text-color);
+      background: var(--yoya-code-bg);
+      color: var(--yoya-code-text-color);
       padding: 16px;
       border-radius: 8px;
       font-family: 'Fira Code', monospace;
@@ -270,9 +271,9 @@
     <p class="subtitle">测试主题配色在浅色和深色模式下的表现</p>
 
     <div class="theme-controls">
-      <button class="btn-primary" onclick="setTheme('light')">浅色模式</button>
-      <button class="btn-default" onclick="setTheme('dark')">深色模式</button>
-      <button class="btn-default" onclick="setTheme('auto')">跟随系统</button>
+      <button class="btn-primary" data-theme-mode="light">浅色模式</button>
+      <button class="btn-default" data-theme-mode="dark">深色模式</button>
+      <button class="btn-default" data-theme-mode="auto">跟随系统</button>
     </div>
 
     <div class="section">
@@ -383,77 +384,36 @@ hello('Developer');
     </div>
   </div>
 
-  <script>
-    function setTheme(mode) {
-      localStorage.setItem('yoya-mode', mode);
+  <script type="module">
+    import { initTheme, setThemeMode, getThemeMode, getEffectiveThemeMode } from '../yoya/index.js';
 
-      if (mode === 'auto') {
-        const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(darkMode ? 'dark' : 'light');
-      } else {
-        applyTheme(mode);
-      }
+    // 初始化主题（CSS 主题系统）
+    initTheme({
+      defaultTheme: 'islands',
+      defaultMode: 'auto',
+    });
+
+    // 主题控制按钮事件
+    function setupThemeControls() {
+      const buttons = document.querySelectorAll('[data-theme-mode]');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mode = btn.getAttribute('data-theme-mode');
+          setThemeMode(mode);
+        });
+      });
     }
 
-    function applyTheme(mode) {
-      const root = document.documentElement;
+    // 监听主题变化事件
+    window.addEventListener('theme-changed', (e) => {
+      console.log('Theme changed:', e.detail);
+      setupThemeControls();
+    });
 
-      if (mode === 'dark') {
-        // 深色模式颜色
-        root.style.setProperty('--islands-bg', '#19191C');
-        root.style.setProperty('--islands-bg-secondary', '#252528');
-        root.style.setProperty('--islands-bg-tertiary', '#2F2F33');
-        root.style.setProperty('--islands-bg-hover', '#353539');
-        root.style.setProperty('--islands-text', '#E8E8E8');
-        root.style.setProperty('--islands-text-secondary', '#9B9DA3');
-        root.style.setProperty('--islands-primary', '#7B85EE');
-        root.style.setProperty('--islands-primary-light', '#949FF5');
-        root.style.setProperty('--islands-border', '#3E3E42');
-        root.style.setProperty('--islands-border-light', '#4A4A4F');
-        root.style.setProperty('--islands-success', '#5FD471');
-        root.style.setProperty('--islands-warning', '#F5B86A');
-        root.style.setProperty('--islands-error', '#F56A6A');
-        root.style.setProperty('--islands-info', '#5FC4F0');
-        root.style.setProperty('--islands-success-bg', 'rgba(95, 212, 113, 0.15)');
-        root.style.setProperty('--islands-error-bg', 'rgba(245, 106, 106, 0.15)');
-        root.style.setProperty('--islands-warning-bg', 'rgba(245, 184, 106, 0.15)');
-        root.style.setProperty('--islands-info-bg', 'rgba(95, 196, 240, 0.15)');
-        root.style.setProperty('--islands-hover-bg', '#353539');
-        root.style.setProperty('--islands-primary-alpha', 'rgba(123, 133, 238, 0.15)');
-        root.style.setProperty('--islands-shadow', 'rgba(0, 0, 0, 0.3)');
-        root.style.setProperty('--islands-code-bg', '#2d2d2d');
-        root.style.setProperty('--islands-code-text-color', '#d4d4d4');
-      } else {
-        // 浅色模式颜色
-        root.style.setProperty('--islands-bg', '#FFFFFF');
-        root.style.setProperty('--islands-bg-secondary', '#F5F6F7');
-        root.style.setProperty('--islands-bg-tertiary', '#EBECED');
-        root.style.setProperty('--islands-bg-hover', '#E8EAED');
-        root.style.setProperty('--islands-text', '#2B2D30');
-        root.style.setProperty('--islands-text-secondary', '#6B6E75');
-        root.style.setProperty('--islands-primary', '#5A67D6');
-        root.style.setProperty('--islands-primary-light', '#7B85EE');
-        root.style.setProperty('--islands-border', '#D3D3D6');
-        root.style.setProperty('--islands-border-light', '#E5E5E7');
-        root.style.setProperty('--islands-success', '#49B85C');
-        root.style.setProperty('--islands-warning', '#F0A664');
-        root.style.setProperty('--islands-error', '#E05252');
-        root.style.setProperty('--islands-info', '#4FB3E4');
-        root.style.setProperty('--islands-success-bg', 'rgba(73, 184, 92, 0.1)');
-        root.style.setProperty('--islands-error-bg', 'rgba(224, 82, 82, 0.1)');
-        root.style.setProperty('--islands-warning-bg', 'rgba(240, 166, 100, 0.1)');
-        root.style.setProperty('--islands-info-bg', 'rgba(79, 179, 228, 0.1)');
-        root.style.setProperty('--islands-hover-bg', '#E8EAED');
-        root.style.setProperty('--islands-primary-alpha', 'rgba(90, 103, 214, 0.1)');
-        root.style.setProperty('--islands-shadow', 'rgba(30, 32, 35, 0.08)');
-        root.style.setProperty('--islands-code-bg', '#1e1e1e');
-        root.style.setProperty('--islands-code-text-color', '#d4d4d4');
-      }
-    }
-
-    // 初始化主题
-    const savedMode = localStorage.getItem('yoya-mode') || 'light';
-    setTheme(savedMode);
+    // 初始化控制按钮
+    setTimeout(() => {
+      setupThemeControls();
+    }, 100);
   </script>
 </body>
 </html>

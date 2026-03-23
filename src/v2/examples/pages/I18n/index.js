@@ -68,10 +68,10 @@ function createLanguageSwitcher(onChange) {
         const isActive = getLanguage() === code;
         btn.styles({
           padding: '8px 16px',
-          border: isActive ? '2px solid var(--islands-primary)' : '1px solid var(--islands-border)',
+          border: isActive ? '2px solid var(--yoya-primary)' : '1px solid var(--yoya-border)',
           borderRadius: '6px',
-          background: isActive ? 'var(--islands-primary)' : 'var(--islands-bg)',
-          color: isActive ? 'white' : 'var(--islands-text)',
+          background: isActive ? 'var(--yoya-primary)' : 'var(--yoya-bg)',
+          color: isActive ? 'white' : 'var(--yoya-text)',
           cursor: 'pointer',
           fontSize: '14px',
           fontWeight: '500'
@@ -92,11 +92,11 @@ function createLanguageSwitcher(onChange) {
 function createStatusBadge(status) {
   return div(badge => {
     const colorMap = {
-      processing: { bg: 'var(--islands-info-bg)', color: 'var(--islands-info)' },
-      completed: { bg: 'var(--islands-success-bg)', color: 'var(--islands-success)' },
-      pending: { bg: 'var(--islands-warning-bg)', color: 'var(--islands-warning)' },
-      active: { bg: 'var(--islands-primary-alpha)', color: 'var(--islands-primary)' },
-      expired: { bg: 'var(--islands-error-bg)', color: 'var(--islands-error)' }
+      processing: { bg: 'var(--yoya-info-bg)', color: 'var(--yoya-info)' },
+      completed: { bg: 'var(--yoya-success-bg)', color: 'var(--yoya-success)' },
+      pending: { bg: 'var(--yoya-warning-bg)', color: 'var(--yoya-warning)' },
+      active: { bg: 'var(--yoya-primary-alpha)', color: 'var(--yoya-primary)' },
+      expired: { bg: 'var(--yoya-error-bg)', color: 'var(--yoya-error)' }
     };
     const colors = colorMap[status] || colorMap.pending;
 
@@ -124,8 +124,8 @@ function createCustomerLevelBadge(level) {
       borderRadius: '12px',
       fontSize: '12px',
       fontWeight: '500',
-      background: 'var(--islands-primary-alpha)',
-      color: 'var(--islands-primary)'
+      background: 'var(--yoya-primary-alpha)',
+      color: 'var(--yoya-primary)'
     });
     badge.text(''.t(`customerLevel.${level}`));
   });
@@ -158,11 +158,11 @@ function createEditableField(key, type = 'text') {
 function createOrderCard() {
   return div(section => {
     section.styles({
-      background: 'var(--islands-card-bg)',
+      background: 'var(--yoya-card-bg)',
       borderRadius: '8px',
       padding: '20px',
-      boxShadow: 'var(--islands-shadow)',
-      border: '1px solid var(--islands-border-light)'
+      boxShadow: 'var(--yoya-shadow)',
+      border: '1px solid var(--yoya-border-light)'
     });
 
     section.div(title => {
@@ -171,7 +171,7 @@ function createOrderCard() {
         fontWeight: '600',
         marginBottom: '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid var(--islands-border-light)'
+        borderBottom: '1px solid var(--yoya-border-light)'
       });
       title.text(''.t('order.orderInfo'));
     });
@@ -193,7 +193,7 @@ function createOrderCard() {
         gap: '12px',
         marginTop: '20px',
         paddingTop: '16px',
-        borderTop: '1px solid var(--islands-border-light)'
+        borderTop: '1px solid var(--yoya-border-light)'
       });
 
       actions.vButton(btn => {
@@ -217,11 +217,11 @@ function createOrderCard() {
 function createCustomerCard() {
   return div(section => {
     section.styles({
-      background: 'var(--islands-card-bg)',
+      background: 'var(--yoya-card-bg)',
       borderRadius: '8px',
       padding: '20px',
-      boxShadow: 'var(--islands-shadow)',
-      border: '1px solid var(--islands-border-light)'
+      boxShadow: 'var(--yoya-shadow)',
+      border: '1px solid var(--yoya-border-light)'
     });
 
     section.div(title => {
@@ -230,7 +230,7 @@ function createCustomerCard() {
         fontWeight: '600',
         marginBottom: '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid var(--islands-border-light)'
+        borderBottom: '1px solid var(--yoya-border-light)'
       });
       title.text(''.t('order.customerInfo'));
     });
@@ -252,7 +252,7 @@ function createCustomerCard() {
         gap: '12px',
         marginTop: '20px',
         paddingTop: '16px',
-        borderTop: '1px solid var(--islands-border-light)'
+        borderTop: '1px solid var(--yoya-border-light)'
       });
 
       actions.vButton(btn => {
@@ -276,11 +276,11 @@ function createCustomerCard() {
 function createContractCard() {
   return div(section => {
     section.styles({
-      background: 'var(--islands-card-bg)',
+      background: 'var(--yoya-card-bg)',
       borderRadius: '8px',
       padding: '20px',
-      boxShadow: 'var(--islands-shadow)',
-      border: '1px solid var(--islands-border-light)',
+      boxShadow: 'var(--yoya-shadow)',
+      border: '1px solid var(--yoya-border-light)',
       gridColumn: '1 / -1'
     });
 
@@ -290,7 +290,7 @@ function createContractCard() {
         fontWeight: '600',
         marginBottom: '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid var(--islands-border-light)'
+        borderBottom: '1px solid var(--yoya-border-light)'
       });
       title.text(''.t('order.contractInfo'));
     });
@@ -316,8 +316,8 @@ function createContractCard() {
               padding: '2px 8px',
               borderRadius: '4px',
               fontSize: '11px',
-              background: 'var(--islands-warning-bg)',
-              color: 'var(--islands-warning)'
+              background: 'var(--yoya-warning-bg)',
+              color: 'var(--yoya-warning)'
             });
             badge.text(`${''.t('common.warning')} - ${days}天`);
           });
@@ -328,8 +328,8 @@ function createContractCard() {
               padding: '2px 8px',
               borderRadius: '4px',
               fontSize: '11px',
-              background: 'var(--islands-error-bg)',
-              color: 'var(--islands-error)'
+              background: 'var(--yoya-error-bg)',
+              color: 'var(--yoya-error)'
             });
             badge.text(''.t('status.expired'));
           });
@@ -349,7 +349,7 @@ function createContractCard() {
         gap: '12px',
         marginTop: '20px',
         paddingTop: '16px',
-        borderTop: '1px solid var(--islands-border-light)'
+        borderTop: '1px solid var(--yoya-border-light)'
       });
 
       actions.vButton(btn => {
@@ -383,7 +383,7 @@ function createContractCard() {
 function createDemoSection() {
   return div(demo => {
     demo.styles({
-      background: 'var(--islands-bg)',
+      background: 'var(--yoya-bg)',
       borderRadius: '8px',
       padding: '24px',
       marginBottom: '24px'
@@ -434,7 +434,7 @@ function renderDemoContent() {
 
   div(demo => {
     demo.styles({
-      background: 'var(--islands-bg)',
+      background: 'var(--yoya-bg)',
       borderRadius: '8px',
       padding: '24px',
       marginBottom: '24px'
@@ -533,10 +533,10 @@ initI18n({
           example.button(btn => {
             btn.styles({
               padding: '8px 16px',
-              border: '1px solid var(--islands-border)',
+              border: '1px solid var(--yoya-border)',
               borderRadius: '6px',
-              background: getLanguage() === code ? 'var(--islands-primary)' : 'var(--islands-bg)',
-              color: getLanguage() === code ? 'white' : 'var(--islands-text)',
+              background: getLanguage() === code ? 'var(--yoya-primary)' : 'var(--yoya-bg)',
+              color: getLanguage() === code ? 'white' : 'var(--yoya-text)',
               cursor: 'pointer'
             });
             btn.text(code === 'zh-CN' ? '中文' : (code === 'en' ? 'English' : 'Монгол'));
@@ -616,7 +616,7 @@ export function createI18nPage() {
       content.child(DocSection('structure', '语言包结构', [
         div(info => {
           info.styles({
-            background: 'var(--islands-bg-secondary)',
+            background: 'var(--yoya-bg-secondary)',
             borderRadius: '8px',
             padding: '20px',
             marginBottom: '16px'
@@ -629,7 +629,7 @@ export function createI18nPage() {
 
           info.pre(code => {
             code.styles({
-              background: 'var(--islands-bg)',
+              background: 'var(--yoya-bg)',
               borderRadius: '6px',
               padding: '16px',
               overflow: 'auto',

@@ -14,8 +14,8 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: var(--islands-bg, #fff);
-      color: var(--islands-text, #2B2D30);
+      background: var(--yoya-bg, #fff);
+      color: var(--yoya-text, #2B2D30);
       min-height: 100vh;
       padding: 20px;
     }
@@ -31,13 +31,13 @@
       align-items: center;
       margin-bottom: 24px;
       padding-bottom: 16px;
-      border-bottom: 1px solid var(--islands-border);
+      border-bottom: 1px solid var(--yoya-border);
     }
 
     .page-title {
       font-size: 24px;
       font-weight: 600;
-      color: var(--islands-text);
+      color: var(--yoya-text);
     }
 
     .language-switcher {
@@ -48,24 +48,24 @@
 
     .lang-btn {
       padding: 8px 16px;
-      border: 1px solid var(--islands-border);
+      border: 1px solid var(--yoya-border);
       border-radius: 6px;
-      background: var(--islands-bg);
-      color: var(--islands-text);
+      background: var(--yoya-bg);
+      color: var(--yoya-text);
       cursor: pointer;
       font-size: 14px;
       transition: all 0.2s;
     }
 
     .lang-btn:hover {
-      background: var(--islands-bg-hover);
-      border-color: var(--islands-primary);
+      background: var(--yoya-bg-hover);
+      border-color: var(--yoya-primary);
     }
 
     .lang-btn.active {
-      background: var(--islands-primary);
+      background: var(--yoya-primary);
       color: white;
-      border-color: var(--islands-primary);
+      border-color: var(--yoya-primary);
     }
 
     .content {
@@ -75,11 +75,11 @@
     }
 
     .section {
-      background: var(--islands-card-bg);
+      background: var(--yoya-card-bg);
       border-radius: 8px;
       padding: 20px;
-      box-shadow: var(--islands-shadow);
-      border: 1px solid var(--islands-border-light);
+      box-shadow: var(--yoya-shadow);
+      border: 1px solid var(--yoya-border-light);
     }
 
     .section-title {
@@ -87,8 +87,8 @@
       font-weight: 600;
       margin-bottom: 16px;
       padding-bottom: 12px;
-      border-bottom: 1px solid var(--islands-border-light);
-      color: var(--islands-text);
+      border-bottom: 1px solid var(--yoya-border-light);
+      color: var(--yoya-text);
     }
 
     .form-group {
@@ -99,7 +99,7 @@
       display: block;
       font-size: 13px;
       font-weight: 500;
-      color: var(--islands-text-secondary);
+      color: var(--yoya-text-secondary);
       margin-bottom: 6px;
     }
 
@@ -112,18 +112,18 @@
     }
 
     .status-pending {
-      background: var(--islands-warning-bg);
-      color: var(--islands-warning);
+      background: var(--yoya-warning-bg);
+      color: var(--yoya-warning);
     }
 
     .status-completed {
-      background: var(--islands-success-bg);
-      color: var(--islands-success);
+      background: var(--yoya-success-bg);
+      color: var(--yoya-success);
     }
 
     .status-active {
-      background: var(--islands-info-bg);
-      color: var(--islands-info);
+      background: var(--yoya-info-bg);
+      color: var(--yoya-info);
     }
 
     .action-bar {
@@ -131,7 +131,7 @@
       gap: 12px;
       margin-top: 20px;
       padding-top: 16px;
-      border-top: 1px solid var(--islands-border-light);
+      border-top: 1px solid var(--yoya-border-light);
     }
 
     .btn {
@@ -145,22 +145,22 @@
     }
 
     .btn-primary {
-      background: var(--islands-primary);
+      background: var(--yoya-primary);
       color: white;
     }
 
     .btn-primary:hover {
-      background: var(--islands-primary-light);
+      background: var(--yoya-primary-light);
     }
 
     .btn-default {
-      background: var(--islands-bg);
-      color: var(--islands-text);
-      border: 1px solid var(--islands-border);
+      background: var(--yoya-bg);
+      color: var(--yoya-text);
+      border: 1px solid var(--yoya-border);
     }
 
     .btn-default:hover {
-      background: var(--islands-bg-hover);
+      background: var(--yoya-bg-hover);
     }
 
     @media (max-width: 1024px) {
@@ -261,7 +261,7 @@
           alignItems: 'center',
           marginBottom: '24px',
           paddingBottom: '16px',
-          borderBottom: '1px solid var(--islands-border)'
+          borderBottom: '1px solid var(--yoya-border)'
         });
 
         h.div(title => {
@@ -278,10 +278,10 @@
               const langName = t(`language.${code}`);
               btn.styles({
                 padding: '8px 16px',
-                border: '1px solid var(--islands-border)',
+                border: '1px solid var(--yoya-border)',
                 borderRadius: '6px',
-                background: getLanguage() === code ? 'var(--islands-primary)' : 'var(--islands-bg)',
-                color: getLanguage() === code ? 'white' : 'var(--islands-text)',
+                background: getLanguage() === code ? 'var(--yoya-primary)' : 'var(--yoya-bg)',
+                color: getLanguage() === code ? 'white' : 'var(--yoya-text)',
                 cursor: 'pointer',
                 fontSize: '14px'
               });
@@ -299,11 +299,11 @@
       // 订单信息部分
       const orderSection = div(section => {
         section.styles({
-          background: 'var(--islands-card-bg)',
+          background: 'var(--yoya-card-bg)',
           borderRadius: '8px',
           padding: '20px',
-          boxShadow: 'var(--islands-shadow)',
-          border: '1px solid var(--islands-border-light)'
+          boxShadow: 'var(--yoya-shadow)',
+          border: '1px solid var(--yoya-border-light)'
         });
 
         section.div(title => {
@@ -312,7 +312,7 @@
             fontWeight: '600',
             marginBottom: '16px',
             paddingBottom: '12px',
-            borderBottom: '1px solid var(--islands-border-light)'
+            borderBottom: '1px solid var(--yoya-border-light)'
           });
           title.text(t('order.orderInfo'));
         });
@@ -346,8 +346,8 @@
               borderRadius: '12px',
               fontSize: '12px',
               fontWeight: '500',
-              background: 'var(--islands-info-bg)',
-              color: 'var(--islands-info)'
+              background: 'var(--yoya-info-bg)',
+              color: 'var(--yoya-info)'
             });
             s.text(t(`status.${orderData.orderStatus}`));
           }));
@@ -362,7 +362,7 @@
             gap: '12px',
             marginTop: '20px',
             paddingTop: '16px',
-            borderTop: '1px solid var(--islands-border-light)'
+            borderTop: '1px solid var(--yoya-border-light)'
           });
 
           action.button(btn => {
@@ -370,7 +370,7 @@
               padding: '10px 20px',
               border: 'none',
               borderRadius: '6px',
-              background: 'var(--islands-primary)',
+              background: 'var(--yoya-primary)',
               color: 'white',
               cursor: 'pointer',
               fontSize: '14px',
@@ -383,10 +383,10 @@
           action.button(btn => {
             btn.styles({
               padding: '10px 20px',
-              border: '1px solid var(--islands-border)',
+              border: '1px solid var(--yoya-border)',
               borderRadius: '6px',
-              background: 'var(--islands-bg)',
-              color: 'var(--islands-text)',
+              background: 'var(--yoya-bg)',
+              color: 'var(--yoya-text)',
               cursor: 'pointer',
               fontSize: '14px'
             });
@@ -399,11 +399,11 @@
       // 客户信息部分
       const customerSection = div(section => {
         section.styles({
-          background: 'var(--islands-card-bg)',
+          background: 'var(--yoya-card-bg)',
           borderRadius: '8px',
           padding: '20px',
-          boxShadow: 'var(--islands-shadow)',
-          border: '1px solid var(--islands-border-light)'
+          boxShadow: 'var(--yoya-shadow)',
+          border: '1px solid var(--yoya-border-light)'
         });
 
         section.div(title => {
@@ -412,7 +412,7 @@
             fontWeight: '600',
             marginBottom: '16px',
             paddingBottom: '12px',
-            borderBottom: '1px solid var(--islands-border-light)'
+            borderBottom: '1px solid var(--yoya-border-light)'
           });
           title.text(t('order.customerInfo'));
         });
@@ -462,8 +462,8 @@
               borderRadius: '12px',
               fontSize: '12px',
               fontWeight: '500',
-              background: 'var(--islands-primary-alpha)',
-              color: 'var(--islands-primary)'
+              background: 'var(--yoya-primary-alpha)',
+              color: 'var(--yoya-primary)'
             });
             l.text(t(`customerLevel.${orderData.customerLevel}`));
           }));
@@ -473,11 +473,11 @@
       // 合同信息部分
       const contractSection = div(section => {
         section.styles({
-          background: 'var(--islands-card-bg)',
+          background: 'var(--yoya-card-bg)',
           borderRadius: '8px',
           padding: '20px',
-          boxShadow: 'var(--islands-shadow)',
-          border: '1px solid var(--islands-border-light)',
+          boxShadow: 'var(--yoya-shadow)',
+          border: '1px solid var(--yoya-border-light)',
           gridColumn: '1 / -1'
         });
 
@@ -487,7 +487,7 @@
             fontWeight: '600',
             marginBottom: '16px',
             paddingBottom: '12px',
-            borderBottom: '1px solid var(--islands-border-light)'
+            borderBottom: '1px solid var(--yoya-border-light)'
           });
           title.text(t('order.contractInfo'));
         });
@@ -514,8 +514,8 @@
                     padding: '2px 8px',
                     borderRadius: '4px',
                     fontSize: '11px',
-                    background: 'var(--islands-warning-bg)',
-                    color: 'var(--islands-warning)'
+                    background: 'var(--yoya-warning-bg)',
+                    color: 'var(--yoya-warning)'
                   });
                   b.text(t('common.warning'));
                 });

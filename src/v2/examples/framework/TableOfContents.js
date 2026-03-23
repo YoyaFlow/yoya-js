@@ -14,7 +14,7 @@ export function tocItem(text, href, level = 1) {
     item.styles({
       fontSize: level === 1 ? '14px' : '13px',
       padding: '6px 12px',
-      color: 'var(--islands-text-secondary, #666)',
+      color: 'var(--yoya-text-secondary, #666)',
       marginLeft: level === 1 ? '0' : '12px',
       cursor: 'pointer',
     });

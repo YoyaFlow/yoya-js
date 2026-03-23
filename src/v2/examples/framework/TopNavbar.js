@@ -3,12 +3,31 @@
  * 顶部导航栏 - 使用 VTopNavbar
  */
 
-import { vTopNavbar, toast, setThemeMode, getThemeMode, vButton } from '../../../yoya/index.js';
+import { vTopNavbar, toast, setThemeMode, getThemeMode } from '../../../yoya/index.js';
+
+// 主题图标映射
+const icons = { auto: '🔄', light: '☀️', dark: '🌙' };
+
+// 主题切换按钮引用
+let themeButtonRef = null;
+
+// 初始化主题事件监听器（只执行一次）
+function initThemeChangeListener() {
+  if (typeof window === 'undefined') return;
+
+  window.addEventListener('theme-changed', (e) => {
+    const mode = e.detail?.mode || getThemeMode();
+    if (themeButtonRef) {
+      // 更新按钮内容
+      themeButtonRef.textContent(icons[mode]);
+    }
+  });
+}
+
+// 立即初始化监听器
+initThemeChangeListener();
 
 export function TopNavbar() {
-  let themeButton = null;
-  const icons = { auto: '🔄', light: '☀️', dark: '🌙' };
-
   return vTopNavbar(navbar => {
     navbar.height('56px');
 
@@ -22,7 +41,7 @@ export function TopNavbar() {
       window.location.href = 'index.html';
     });
 
-    navbar.item('文档1', () => {
+    navbar.item('文档 1', () => {
       window.location.href = 'button.html';
     });
 
@@ -40,17 +59,8 @@ export function TopNavbar() {
       btn.ghost();
       btn.size('small');
 
-      // 监听主题变化事件，更新按钮图标
-      if (typeof window !== 'undefined') {
-        window.addEventListener('theme-changed', (e) => {
-          const mode = e.detail?.mode || getThemeMode();
-          const rightArea = document.querySelector('.yoya-navbar__right');
-          const button = rightArea?.querySelector('button');
-          if (button) {
-            button.innerHTML = `<span style="display: inline-block;">${icons[mode]}</span>`;
-          }
-        });
-      }
+      // 保存按钮引用用于更新图标（使用按钮实例而非 _boundElement）
+      themeButtonRef = btn;
     });
   });
 }

@@ -43,19 +43,12 @@
   </div>
 
   <script type="module">
-    import { vButton, initTheme, createLightTheme, createDarkTheme } from '../../yoya/index.js';
+    import { vButton, initTheme } from '../../yoya/index.js';
 
-    // 初始化主题
+    // 初始化主题（CSS 主题系统）
     initTheme({
       defaultTheme: 'islands',
-      defaultMode: 'light',
-      themes: new Map([
-        ['islands', {
-          factory: createLightTheme,
-          lightFactory: createLightTheme,
-          darkFactory: createDarkTheme,
-        }],
-      ]),
+      defaultMode: 'auto',
     });
 
     // Test 1: Ghost Warning
