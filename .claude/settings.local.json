@@ -167,7 +167,9 @@
       "Bash(pkill -f \"chrome\")",
       "Bash(pkill -f vite)",
       "Bash(lsof -ti:3001)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(done)",
+      "Bash(npx vitest:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

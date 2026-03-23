@@ -870,6 +870,7 @@ class VTree extends Tag {
 
       // 使用 _wrapHandler 包装点击事件
       item.on('click', this._wrapHandler((context) => {
+        context.event.stopPropagation();
         this._handleNodeClick(node, context.event);
       }));
 
