@@ -62,6 +62,7 @@ declare class VTree extends Tag {
   // 数据配置方法
   data(value?: VTreeNode[]): this | VTreeNode[];
   checkable(value?: boolean): this | boolean;
+  multiple(value?: boolean): this | boolean;  // 向后兼容，始终多选
 
   // 节点状态方法
   expandedKeys(value?: string[]): this | string[];

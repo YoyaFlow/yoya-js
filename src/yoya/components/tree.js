@@ -109,6 +109,17 @@ class VTree extends Tag {
     return this;
   }
 
+  /**
+   * 设置多选模式（始终多选，此方法保留向后兼容）
+   * @param {boolean} [value] - 不传则返回当前值
+   * @returns {this|boolean}
+   */
+  multiple(value) {
+    if (value === undefined) return true;
+    // 始终多选模式，此方法保留向后兼容
+    return this;
+  }
+
   // ============================================
   // 节点状态方法（getter/setter 双重模式）
   // ============================================
