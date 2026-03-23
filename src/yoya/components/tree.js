@@ -180,7 +180,7 @@ class VTree extends Tag {
   }
 
   // ============================================
-  // 操作方法（占位，后续 Task 实现）
+  // 操作方法
   // ============================================
 
   /**
@@ -188,7 +188,8 @@ class VTree extends Tag {
    * @returns {this}
    */
   expandAll() {
-    // TODO: 后续实现
+    this._expandedKeys = this._getAllKeys(this._data);
+    this._renderTree();
     return this;
   }
 
@@ -197,7 +198,37 @@ class VTree extends Tag {
    * @returns {this}
    */
   collapseAll() {
-    // TODO: 后续实现
+    this._expandedKeys = [];
+    this._renderTree();
+    return this;
+  }
+
+  /**
+   * 获取所有节点的 keys
+   * @param {VTreeNode[]} nodes - 节点数组
+   * @param {string[]} [keys=[]] - 累积 keys
+   * @returns {string[]}
+   * @private
+   */
+  _getAllKeys(nodes, keys = []) {
+    nodes.forEach(node => {
+      keys.push(node.key);
+      if (node.children && node.children.length > 0) {
+        this._getAllKeys(node.children, keys);
+      }
+    });
+    return keys;
+  }
+
+  /**
+   * 设置/获取展开的节点 keys
+   * @param {string[]} [value] - keys 数组（不传则返回当前值）
+   * @returns {this|string[]}
+   */
+  expandedKeys(value) {
+    if (value === undefined) return [...this._expandedKeys];
+    this._expandedKeys = value;
+    this._renderTree();
     return this;
   }
 
