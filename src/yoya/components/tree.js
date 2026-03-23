@@ -281,6 +281,11 @@ class VTree extends Tag {
 
     this._children.push(listEl);
     this._rendered = false;
+
+    // 如果已经绑定到 DOM，触发重新渲染
+    if (this._el && this._el.isConnected) {
+      this.renderDom();
+    }
   }
 
   /**
@@ -428,6 +433,24 @@ class VTree extends Tag {
       }
     });
     nodeEl.child(titleEl);
+
+    // 渲染子节点（仅当有子节点且展开时）
+    if (hasChildren && isExpanded) {
+      const childListEl = div(childList => {
+        childList.addClass('yoya-tree__list');
+        childList.styles({
+          listStyle: 'none',
+          margin: '0',
+          padding: '0',
+          paddingLeft: '20px'
+        });
+      });
+
+      // 递归渲染子节点
+      this._renderNodes(node.children, level + 1, childListEl);
+
+      nodeEl.child(childListEl);
+    }
 
     return nodeEl;
   }
