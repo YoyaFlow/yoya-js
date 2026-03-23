@@ -666,7 +666,213 @@ function vTree(setup = null) {
 }
 
 // ============================================
+// VTreeSelect 树形选择器
+// ============================================
+
+/**
+ * VTreeSelect 树形选择器
+ * 下拉框 + 树形选择器的组合组件
+ * @class
+ * @extends Tag
+ */
+class VTreeSelect extends Tag {
+  /**
+   * 创建 VTreeSelect 实例
+   * @param {Function} [setup=null] - 初始化函数
+   */
+  constructor(setup = null) {
+    super('div', null);
+
+    this._data = [];
+    this._value = '';
+    this._placeholder = '请选择';
+    this._visible = false;
+    this._onChange = null;
+    this._treeEl = null;
+
+    this.addClass('yoya-tree-select');
+    this.style('display', 'inline-block');
+    this.style('position', 'relative');
+
+    if (setup !== null) {
+      this.setup(setup);
+    }
+  }
+
+  /**
+   * 设置初始化配置
+   * @param {Function|Object} setup
+   * @returns {this}
+   */
+  setup(setup) {
+    if (typeof setup === 'function') {
+      setup(this);
+    } else if (typeof setup === 'object' && setup !== null) {
+      if (setup.data) this.data(setup.data);
+      if (setup.placeholder) this.placeholder(setup.placeholder);
+      if (setup.value) this.value(setup.value);
+    }
+    return this;
+  }
+
+  /**
+   * 设置树形数据
+   * @param {VTreeNode[]} value
+   * @returns {this}
+   */
+  data(value) {
+    this._data = value;
+    this._renderSelect();
+    return this;
+  }
+
+  /**
+   * 设置/获取占位符
+   * @param {string} [value]
+   * @returns {this|string}
+   */
+  placeholder(value) {
+    if (value === undefined) return this._placeholder;
+    this._placeholder = value;
+    this._renderSelect();
+    return this;
+  }
+
+  /**
+   * 设置/获取选中值
+   * @param {string} [value]
+   * @returns {this|string}
+   */
+  value(value) {
+    if (value === undefined) return this._value;
+    this._value = value;
+    this._renderSelect();
+    return this;
+  }
+
+  /**
+   * 选择变化事件
+   * @param {Function} handler
+   * @returns {this}
+   */
+  onChange(handler) {
+    this._onChange = handler;
+    return this;
+  }
+
+  /**
+   * 渲染选择器
+   * @private
+   */
+  _renderSelect() {
+    this._children = [];
+
+    // 显示框
+    const displayEl = div(display => {
+      display.addClass('yoya-tree-select__display');
+      display.styles({
+        padding: '8px 12px',
+        border: '1px solid #ddd',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        backgroundColor: '#fff',
+        minWidth: '200px'
+      });
+
+      const node = this._findNode(this._data, this._value);
+      display.text(node ? (typeof node.title === 'string' ? node.title : '已选择') : this._placeholder);
+
+      display.on('click', (e) => {
+        e.stopPropagation();
+        this._toggleDropdown();
+      });
+
+      this._children.push(displayEl);
+    });
+
+    // 下拉面板（初始隐藏）
+    if (this._visible) {
+      const dropdownEl = div(dropdown => {
+        dropdown.addClass('yoya-tree-select__dropdown');
+        dropdown.styles({
+          position: 'absolute',
+          top: '100%',
+          left: '0',
+          right: '0',
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: '4px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          zIndex: '1000',
+          marginTop: '4px',
+          maxHeight: '300px',
+          overflow: 'auto'
+        });
+
+        this._treeEl = vTree(t => {
+          t.data(this._data);
+          t.selectedKeys([this._value]);
+          t.onSelect((e) => {
+            this._value = e.node.key;
+            this._visible = false;
+            this._renderSelect();
+
+            if (this._onChange) {
+              this._onChange({
+                event: e.event,
+                value: this._value,
+                node: e.node,
+                target: this
+              });
+            }
+          });
+        });
+
+        dropdown.child(this._treeEl);
+        this._children.push(dropdownEl);
+      });
+    }
+  }
+
+  /**
+   * 查找节点
+   * @param {VTreeNode[]} nodes - 节点数组
+   * @param {string} key - 节点 key
+   * @returns {VTreeNode|null}
+   * @private
+   */
+  _findNode(nodes, key) {
+    for (const node of nodes) {
+      if (node.key === key) return node;
+      if (node.children) {
+        const found = this._findNode(node.children, key);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 切换下拉面板显示
+   * @private
+   */
+  _toggleDropdown() {
+    this._visible = !this._visible;
+    this._renderSelect();
+  }
+}
+
+/**
+ * 创建 VTreeSelect 实例
+ * @param {Function} [setup=null]
+ * @returns {VTreeSelect}
+ */
+function vTreeSelect(setup = null) {
+  return new VTreeSelect(setup);
+}
+
+// ============================================
 // 导出
 // ============================================
 
-export { VTree, vTree };
+export { VTree, vTree, VTreeSelect, vTreeSelect };
