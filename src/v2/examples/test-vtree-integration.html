@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>VTree Integration Test</title>
+  <script type="module">
+    import { vTree, vTreeSelect, div, h2, flex } from '../yoya/index.js';
+
+    const treeData = [
+      {
+        key: '1',
+        title: '节点 1',
+        children: [
+          { key: '1-1', title: '节点 1-1' },
+          { key: '1-2', title: '节点 1-2', children: [
+            { key: '1-2-1', title: '节点 1-2-1' },
+            { key: '1-2-2', title: '节点 1-2-2' }
+          ]}
+        ]
+      },
+      {
+        key: '2',
+        title: '节点 2',
+        children: [
+          { key: '2-1', title: '节点 2-1' }
+        ]
+      },
+      {
+        key: '3',
+        title: '节点 3（禁用）',
+        disabled: true
+      }
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // 测试 VTree
+      const treeContainer = div();
+      const tree = vTree(t => {
+        t.data(treeData);
+        t.checkable(true);
+        t.onSelect((e) => {
+          console.log('[VTree onSelect]', e);
+        });
+        t.onCheck((e) => {
+          console.log('[VTree onCheck]', e);
+        });
+        t.onExpand((e) => {
+          console.log('[VTree onExpand]', e);
+        });
+      });
+      treeContainer.child(tree);
+
+      // 测试 VTreeSelect
+      const treeSelectContainer = div(ts => {
+        ts.style('marginTop', '40px');
+      });
+      const treeSelect = vTreeSelect(ts => {
+        ts.data(treeData);
+        ts.placeholder('请选择节点');
+        ts.onChange((e) => {
+          console.log('[VTreeSelect onChange]', e);
+        });
+      });
+      treeSelectContainer.child(treeSelect);
+
+      // 添加到页面
+      const app = document.getElementById('app');
+      app.appendChild(treeContainer.renderDom());
+      app.appendChild(treeSelectContainer.renderDom());
+
+      // 输出测试说明
+      console.log('=== VTree Integration Test ===');
+      console.log('1. 点击节点 - 应该触发 onSelect 事件');
+      console.log('2. 点击复选框 - 应该触发 onCheck 事件，支持级联勾选');
+      console.log('3. 点击展开图标 - 应该触发 onExpand 事件');
+      console.log('4. 点击 VTreeSelect - 应该展开下拉面板');
+      console.log('5. 选择下拉面板中的节点 - 应该触发 onChange 事件');
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #app {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>VTree 集成测试</h1>
+  <p>打开浏览器控制台查看日志输出</p>
+  <div id="app"></div>
+</body>
+</html>

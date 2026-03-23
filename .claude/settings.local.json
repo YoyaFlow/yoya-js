@@ -169,7 +169,11 @@
       "Bash(lsof -ti:3001)",
       "Bash(xargs kill:*)",
       "Bash(done)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(git reset:*)",
+      "Bash(sed -n '754,760p' /home/join/code/cctest/src/yoya/components/interaction.js)",
+      "Bash(sed -n '1055,1070p' /home/join/code/cctest/src/yoya/components/interaction.js)",
+      "Bash(sed -n '1250,1265p' /home/join/code/cctest/src/yoya/components/interaction.js)"
     ]
   },
   "enableAllProjectMcpServers": true,
