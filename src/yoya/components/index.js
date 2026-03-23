@@ -188,6 +188,8 @@ export {
 export {
   VTree,
   vTree,
+  VTreeSelect,
+  vTreeSelect,
 } from './tree.js';
 
 // Interaction 交互组件
@@ -200,6 +202,4 @@ export {
   vDropdown,
   VCollapse,
   vCollapse,
-  VTreeSelect,
-  vTreeSelect,
 } from './interaction.js';

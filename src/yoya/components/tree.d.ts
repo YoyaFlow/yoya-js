@@ -81,7 +81,36 @@ declare class VTree extends Tag {
 declare function vTree(setup?: Setup<VTree>): VTree;
 
 // ============================================
+// VTreeSelect 树形选择器
+// ============================================
+
+/**
+ * VTreeSelect 选择变化事件对象
+ */
+export interface VTreeSelectChangeEvent {
+  event: Event;
+  value: string;
+  node: VTreeNode;
+  target: VTreeSelect;
+}
+
+declare class VTreeSelect extends Tag {
+  constructor(setup?: Setup<VTreeSelect>);
+  setup(setup: Setup<VTreeSelect> | Record<string, any>): this;
+
+  // 数据配置方法
+  data(value?: VTreeNode[]): this;
+  placeholder(value?: string): this | string;
+  value(value?: string): this | string;
+
+  // 事件绑定方法
+  onChange(handler: (e: VTreeSelectChangeEvent) => void): this;
+}
+
+declare function vTreeSelect(setup?: Setup<VTreeSelect>): VTreeSelect;
+
+// ============================================
 // 导出
 // ============================================
 
-export { VTree, vTree };
+export { VTree, vTree, VTreeSelect, vTreeSelect };
