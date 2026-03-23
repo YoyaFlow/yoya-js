@@ -204,12 +204,11 @@ test('VTree 应该支持 onCheck 事件（复选框）', () => {
 
   tree.bindTo(document.body);
 
-  // 模拟点击第一个复选框 - 使用 change 事件而不是 click
+  // 模拟点击第一个复选框 - 使用 click 事件
   const firstCheckbox = tree._el.querySelector('input[type="checkbox"]');
   if (firstCheckbox) {
-    firstCheckbox.checked = true; // 先改变状态
-    const changeEvent = new dom.window.Event('change', { bubbles: true });
-    firstCheckbox.dispatchEvent(changeEvent);
+    const clickEvent = new dom.window.Event('click', { bubbles: true });
+    firstCheckbox.dispatchEvent(clickEvent);
   }
 
   assert(checkedKeys !== null, '期望有勾选的 keys');
@@ -231,8 +230,8 @@ test('VTree 应该支持 onExpand 事件', () => {
 
   tree.bindTo(document.body);
 
-  // 模拟点击展开图标（第一个有子节点的节点）
-  const expandIcon = tree._el.querySelector('.yoya-tree__node span');
+  // 模拟点击展开图标（使用 yoya-tree__icon 类）
+  const expandIcon = tree._el.querySelector('.yoya-tree__icon');
   if (expandIcon) {
     expandIcon.click();
   }
@@ -337,9 +336,8 @@ test('VTree onCheck 应该传递统一事件对象', () => {
 
   const checkbox = tree._el.querySelector('input[type="checkbox"]');
   if (checkbox) {
-    checkbox.checked = true;
-    const changeEvent = new dom.window.Event('change', { bubbles: true });
-    checkbox.dispatchEvent(changeEvent);
+    const clickEvent = new dom.window.Event('click', { bubbles: true });
+    checkbox.dispatchEvent(clickEvent);
   }
 
   assert(eventObj !== null, '期望接收到事件对象');

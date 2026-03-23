@@ -360,7 +360,7 @@ class VTree extends Tag {
         // 点击展开/收起（阻止冒泡）
         icon.on('click', (e) => {
           e.stopPropagation();
-          this._toggleExpand(node);
+          this._toggleExpand(node, e);
         });
       });
       nodeEl.child(iconEl);
@@ -395,7 +395,7 @@ class VTree extends Tag {
         // 点击事件（阻止冒泡到节点）
         cb.on('click', (e) => {
           e.stopPropagation();
-          this._toggleCheck(node);
+          this._toggleCheck(node, e);
         });
       });
       nodeEl.child(checkboxEl);
@@ -424,9 +424,10 @@ class VTree extends Tag {
   /**
    * 切换节点展开/收起状态
    * @param {VTreeNode} node - 节点
+   * @param {Event} nativeEvent - 原生事件对象
    * @private
    */
-  _toggleExpand(node) {
+  _toggleExpand(node, nativeEvent) {
     const index = this._expandedKeys.indexOf(node.key);
     if (index > -1) {
       this._expandedKeys.splice(index, 1);
@@ -437,7 +438,7 @@ class VTree extends Tag {
     // 触发 onExpand 事件
     if (this._onExpand) {
       this._onExpand({
-        event: event,
+        event: nativeEvent || event,
         expandedKeys: [...this._expandedKeys],
         target: this
       });
@@ -530,9 +531,10 @@ class VTree extends Tag {
   /**
    * 切换勾选状态
    * @param {VTreeNode} node - 节点
+   * @param {Event} nativeEvent - 原生事件对象
    * @private
    */
-  _toggleCheck(node) {
+  _toggleCheck(node, nativeEvent) {
     const index = this._checkedKeys.indexOf(node.key);
 
     if (index > -1) {
@@ -551,7 +553,7 @@ class VTree extends Tag {
     // 触发 onCheck 事件
     if (this._onCheck) {
       this._onCheck({
-        event: event,
+        event: nativeEvent || event,
         node: node,
         checkedKeys: [...this._checkedKeys],
         target: this
