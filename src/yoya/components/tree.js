@@ -82,18 +82,21 @@ class VTree extends Tag {
     return this;
   }
 
-  // data 方法（占位，后续实现）
+  // ============================================
+  // 数据配置方法
+  // ============================================
+
   /**
    * 设置树形数据
-   * @param {VTreeNode[]} value - 数据数组
-   * @returns {this}
+   * @param {VTreeNode[]} [value] - 不传则返回当前值
+   * @returns {this|VTreeNode[]}
    */
   data(value) {
+    if (value === undefined) return this._data;
     this._data = value;
     return this;
   }
 
-  // checkable 方法（占位，后续实现）
   /**
    * 设置是否显示复选框
    * @param {boolean} [value] - 不传则返回当前值
@@ -102,6 +105,99 @@ class VTree extends Tag {
   checkable(value) {
     if (value === undefined) return this._checkable;
     this._checkable = value;
+    return this;
+  }
+
+  // ============================================
+  // 节点状态方法（getter/setter 双重模式）
+  // ============================================
+
+  /**
+   * 设置/获取展开的节点 keys
+   * @param {string[]} [value] - 不传则返回当前值
+   * @returns {this|string[]}
+   */
+  expandedKeys(value) {
+    if (value === undefined) return [...this._expandedKeys];
+    this._expandedKeys = value;
+    return this;
+  }
+
+  /**
+   * 设置/获取勾选的节点 keys
+   * @param {string[]} [value] - 不传则返回当前值
+   * @returns {this|string[]}
+   */
+  checkedKeys(value) {
+    if (value === undefined) return [...this._checkedKeys];
+    this._checkedKeys = value;
+    return this;
+  }
+
+  /**
+   * 设置/获取选中的节点 keys
+   * @param {string[]} [value] - 不传则返回当前值
+   * @returns {this|string[]}
+   */
+  selectedKeys(value) {
+    if (value === undefined) return [...this._selectedKeys];
+    this._selectedKeys = value;
+    return this;
+  }
+
+  // ============================================
+  // 事件绑定方法
+  // ============================================
+
+  /**
+   * 节点选中事件
+   * @param {Function} handler - 事件处理函数
+   * @returns {this}
+   */
+  onSelect(handler) {
+    this._onSelect = handler;
+    return this;
+  }
+
+  /**
+   * 节点勾选事件
+   * @param {Function} handler - 事件处理函数
+   * @returns {this}
+   */
+  onCheck(handler) {
+    this._onCheck = handler;
+    return this;
+  }
+
+  /**
+   * 节点展开事件
+   * @param {Function} handler - 事件处理函数
+   * @returns {this}
+   */
+  onExpand(handler) {
+    this._onExpand = handler;
+    return this;
+  }
+
+  // ============================================
+  // 操作方法（占位，后续 Task 实现）
+  // ============================================
+
+  /**
+   * 展开所有节点
+   * @returns {this}
+   */
+  expandAll() {
+    // TODO: 后续实现
+    return this;
+  }
+
+  /**
+   * 收起所有节点
+   * @returns {this}
+   */
+  collapseAll() {
+    // TODO: 后续实现
     return this;
   }
 }
