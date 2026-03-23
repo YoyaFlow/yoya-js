@@ -105,6 +105,7 @@ class VTree extends Tag {
   checkable(value) {
     if (value === undefined) return this._checkable;
     this._checkable = value;
+    this._renderTree();
     return this;
   }
 
@@ -506,6 +507,152 @@ class VTree extends Tag {
 
     // 重新渲染
     this._renderTree();
+  }
+
+  // ============================================
+  // 复选框相关方法
+  // ============================================
+
+  /**
+   * 设置/获取勾选的节点 keys
+   * @param {string[]} [value] - keys 数组（不传则返回当前值）
+   * @returns {this|string[]}
+   */
+  checkedKeys(value) {
+    if (value === undefined) return [...this._checkedKeys];
+    this._checkedKeys = value;
+    // 重新计算半选状态
+    this._calculateIndeterminate(this._data);
+    this._renderTree();
+    return this;
+  }
+
+  /**
+   * 切换勾选状态
+   * @param {VTreeNode} node - 节点
+   * @private
+   */
+  _toggleCheck(node) {
+    const index = this._checkedKeys.indexOf(node.key);
+
+    if (index > -1) {
+      // 取消勾选：取消自身和所有子节点
+      this._checkedKeys = this._checkedKeys.filter(k => k !== node.key);
+      this._uncheckChildren(node);
+    } else {
+      // 勾选：勾选自身和所有子节点
+      this._checkedKeys.push(node.key);
+      this._checkChildren(node);
+    }
+
+    // 更新父节点的半选状态
+    this._updateParentIndeterminate(node.key);
+
+    // 触发 onCheck 事件
+    if (this._onCheck) {
+      this._onCheck({
+        event: event,
+        node: node,
+        checkedKeys: [...this._checkedKeys],
+        target: this
+      });
+    }
+
+    // 重新渲染
+    this._renderTree();
+  }
+
+  /**
+   * 取消子节点勾选
+   * @param {VTreeNode} node - 父节点
+   * @private
+   */
+  _uncheckChildren(node) {
+    if (node.children) {
+      node.children.forEach(child => {
+        this._checkedKeys = this._checkedKeys.filter(k => k !== child.key);
+        this._uncheckChildren(child);
+      });
+    }
+  }
+
+  /**
+   * 勾选子节点
+   * @param {VTreeNode} node - 父节点
+   * @private
+   */
+  _checkChildren(node) {
+    if (node.children) {
+      node.children.forEach(child => {
+        if (!this._checkedKeys.includes(child.key)) {
+          this._checkedKeys.push(child.key);
+        }
+        this._checkChildren(child);
+      });
+    }
+  }
+
+  /**
+   * 查找节点
+   * @param {VTreeNode[]} nodes - 节点数组
+   * @param {string} key - 节点 key
+   * @returns {VTreeNode|null}
+   * @private
+   */
+  _findNode(nodes, key) {
+    for (const node of nodes) {
+      if (node.key === key) return node;
+      if (node.children) {
+        const found = this._findNode(node.children, key);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 更新父节点半选状态
+   * @param {string} key - 子节点 key
+   * @private
+   */
+  _updateParentIndeterminate(key) {
+    // 重新计算所有半选状态
+    this._calculateIndeterminate(this._data);
+  }
+
+  /**
+   * 计算半选状态
+   * @param {VTreeNode[]} nodes - 节点数组
+   * @private
+   */
+  _calculateIndeterminate(nodes) {
+    this._indeterminateKeys = [];
+    this._collectIndeterminate(nodes);
+  }
+
+  /**
+   * 收集半选状态
+   * @param {VTreeNode[]} nodes - 节点数组
+   * @private
+   */
+  _collectIndeterminate(nodes) {
+    nodes.forEach(node => {
+      if (node.children && node.children.length > 0) {
+        const childCheckedCount = node.children.filter(c =>
+          this._checkedKeys.includes(c.key)
+        ).length;
+
+        if (childCheckedCount > 0 && childCheckedCount < node.children.length) {
+          if (!this._indeterminateKeys.includes(node.key)) {
+            this._indeterminateKeys.push(node.key);
+          }
+        } else {
+          this._indeterminateKeys = this._indeterminateKeys.filter(k => k !== node.key);
+        }
+
+        this._collectIndeterminate(node.children);
+      }
+    });
   }
 }
 
