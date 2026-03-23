@@ -325,7 +325,8 @@ class VTree extends Tag {
         padding: '6px 12px',
         cursor: isDisabled ? 'not-allowed' : 'pointer',
         backgroundColor: isSelected ? '#e6f7ff' : 'transparent',
-        borderRadius: '4px'
+        borderRadius: '4px',
+        flexWrap: 'wrap'
       });
 
       // 悬停效果（非禁用且可选中）
@@ -436,9 +437,20 @@ class VTree extends Tag {
 
     // 渲染子节点（仅当有子节点且展开时）
     if (hasChildren && isExpanded) {
-      const childListEl = div(childList => {
-        childList.addClass('yoya-tree__list');
+      const childListContainer = div(childList => {
+        childList.addClass('yoya-tree__list-container');
         childList.styles({
+          display: 'block',
+          width: '100%',
+          paddingLeft: '0',
+          marginTop: '0',
+          marginBottom: '0'
+        });
+      });
+
+      const childListEl = div(list => {
+        list.addClass('yoya-tree__list');
+        list.styles({
           listStyle: 'none',
           margin: '0',
           padding: '0',
@@ -449,7 +461,8 @@ class VTree extends Tag {
       // 递归渲染子节点
       this._renderNodes(node.children, level + 1, childListEl);
 
-      nodeEl.child(childListEl);
+      childListContainer.child(childListEl);
+      nodeEl.child(childListContainer);
     }
 
     return nodeEl;
