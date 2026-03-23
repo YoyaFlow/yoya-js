@@ -264,6 +264,9 @@ class VTree extends Tag {
   _renderNode(node, level) {
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = this._expandedKeys.includes(node.key);
+    const isDisabled = node.disabled === true;
+    const isSelected = this._selectedKeys.includes(node.key);
+    const isCheckable = this._checkable || node.checkable;
 
     // 节点容器
     const nodeEl = div(n => {
@@ -272,26 +275,42 @@ class VTree extends Tag {
         display: 'flex',
         alignItems: 'center',
         padding: '6px 12px',
-        cursor: 'pointer'
+        cursor: isDisabled ? 'not-allowed' : 'pointer',
+        backgroundColor: isSelected ? '#e6f7ff' : 'transparent',
+        borderRadius: '4px'
       });
 
-      // 悬停效果
-      n.on('mouseenter', () => n.style('background', '#f5f5f5'));
-      n.on('mouseleave', () => n.style('background', ''));
+      // 悬停效果（非禁用且可选中）
+      if (!isDisabled && node.selectable !== false) {
+        n.on('mouseenter', () => {
+          if (!isSelected) n.style('background', '#f5f5f5');
+        });
+        n.on('mouseleave', () => {
+          if (!isSelected) n.style('background', 'transparent');
+        });
+      }
 
       // 禁用状态
-      if (node.disabled) {
+      if (isDisabled) {
         n.styles({ opacity: '0.5', cursor: 'not-allowed' });
+      }
+
+      // 点击事件 - 选中节点
+      if (!isDisabled && node.selectable !== false) {
+        n.on('click', (e) => {
+          e.stopPropagation();
+          this._handleNodeClick(node, e);
+        });
       }
     });
 
     // 缩进
-    const indent = span(i => {
+    const indentEl = span(i => {
       i.addClass('yoya-tree__indent');
       i.style('width', `${level * 20}px`);
       i.style('flex-shrink', '0');
     });
-    nodeEl.child(indent);
+    nodeEl.child(indentEl);
 
     // 展开/收起图标
     if (hasChildren) {
@@ -306,7 +325,7 @@ class VTree extends Tag {
         icon.style('userSelect', 'none');
         icon.text(isExpanded ? '▼' : '▶');
 
-        // 点击展开/收起
+        // 点击展开/收起（阻止冒泡）
         icon.on('click', (e) => {
           e.stopPropagation();
           this._toggleExpand(node);
@@ -326,7 +345,7 @@ class VTree extends Tag {
     }
 
     // 复选框
-    if (this._checkable) {
+    if (isCheckable) {
       const checkboxEl = input(cb => {
         cb.type('checkbox');
         cb.addClass('yoya-tree__checkbox');
@@ -339,9 +358,9 @@ class VTree extends Tag {
 
         // 半选状态
         const isIndeterminate = this._indeterminateKeys.includes(node.key);
-        if (isIndeterminate) cb.attr('indeterminate', '');
+        if (isIndeterminate) cb.prop('indeterminate', true);
 
-        // 点击事件
+        // 点击事件（阻止冒泡到节点）
         cb.on('click', (e) => {
           e.stopPropagation();
           this._toggleCheck(node);
@@ -387,7 +406,7 @@ class VTree extends Tag {
     if (this._onExpand) {
       this._onExpand({
         event: event,
-        expandedKeys: this._expandedKeys,
+        expandedKeys: [...this._expandedKeys],
         target: this
       });
     }
@@ -418,7 +437,38 @@ class VTree extends Tag {
       this._onCheck({
         event: event,
         node: node,
-        checkedKeys: this._checkedKeys,
+        checkedKeys: [...this._checkedKeys],
+        target: this
+      });
+    }
+
+    // 重新渲染
+    this._renderTree();
+  }
+
+  /**
+   * 处理节点点击
+   * @param {VTreeNode} node - 被点击的节点
+   * @param {Event} nativeEvent - 原生事件对象
+   * @private
+   */
+  _handleNodeClick(node, nativeEvent) {
+    const index = this._selectedKeys.indexOf(node.key);
+
+    if (index > -1) {
+      // 取消选中
+      this._selectedKeys = this._selectedKeys.filter(k => k !== node.key);
+    } else {
+      // 选中
+      this._selectedKeys = [node.key];
+    }
+
+    // 触发 onSelect 事件
+    if (this._onSelect) {
+      this._onSelect({
+        event: nativeEvent,
+        node: node,
+        selectedKeys: [...this._selectedKeys],
         target: this
       });
     }
