@@ -263,10 +263,10 @@ class VTree extends Tag {
         margin: '0',
         padding: '0'
       });
-
-      // 递归渲染节点
-      this._renderNodes(this._data, 0, listEl);
     });
+
+    // 在 listEl 创建后递归渲染节点
+    this._renderNodes(this._data, 0, listEl);
 
     this._children.push(listEl);
     this._rendered = false;
@@ -786,9 +786,9 @@ class VTreeSelect extends Tag {
         e.stopPropagation();
         this._toggleDropdown();
       });
-
-      this._children.push(displayEl);
     });
+
+    this._children.push(displayEl);
 
     // 下拉面板（初始隐藏）
     if (this._visible) {
@@ -808,29 +808,29 @@ class VTreeSelect extends Tag {
           maxHeight: '300px',
           overflow: 'auto'
         });
-
-        this._treeEl = vTree(t => {
-          t.data(this._data);
-          t.selectedKeys([this._value]);
-          t.onSelect((e) => {
-            this._value = e.node.key;
-            this._visible = false;
-            this._renderSelect();
-
-            if (this._onChange) {
-              this._onChange({
-                event: e.event,
-                value: this._value,
-                node: e.node,
-                target: this
-              });
-            }
-          });
-        });
-
-        dropdown.child(this._treeEl);
-        this._children.push(dropdownEl);
       });
+
+      this._treeEl = vTree(t => {
+        t.data(this._data);
+        t.selectedKeys([this._value]);
+        t.onSelect((e) => {
+          this._value = e.node.key;
+          this._visible = false;
+          this._renderSelect();
+
+          if (this._onChange) {
+            this._onChange({
+              event: e.event,
+              value: this._value,
+              node: e.node,
+              target: this
+            });
+          }
+        });
+      });
+
+      dropdownEl.child(this._treeEl);
+      this._children.push(dropdownEl);
     }
   }
 
