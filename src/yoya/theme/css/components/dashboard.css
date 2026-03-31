@@ -1,0 +1,514 @@
+/**
+ * Yoya.Theme - Dashboard Components Styles
+ * 大屏看板组件样式
+ */
+
+/* ============================================
+   VNumberScroll 数字滚动动画组件
+   ============================================ */
+.yoya-number-scroll {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: Monaco, Consolas, "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.yoya-number-scroll__prefix,
+.yoya-number-scroll__suffix {
+  font-size: inherit;
+  color: inherit;
+}
+
+.yoya-number-scroll__value {
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ============================================
+   VTrend 趋势指示器组件
+   ============================================ */
+.yoya-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.yoya-trend__icon {
+  font-size: inherit;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.yoya-trend__value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   VGauge 仪表盘组件
+   ============================================ */
+.yoya-gauge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.yoya-gauge svg {
+  display: block;
+}
+
+/* ============================================
+   VCircularProgress 环形进度条组件
+   ============================================ */
+.yoya-circular-progress {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.yoya-circular-progress svg {
+  display: block;
+}
+
+.yoya-circular-progress__value {
+  position: absolute;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* ============================================
+   VIndicator 指标卡组件
+   ============================================ */
+.yoya-indicator {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: var(--yoya-bg);
+  border-radius: var(--yoya-radius-lg);
+  border: 1px solid var(--yoya-border-light);
+  gap: 12px;
+  min-width: 200px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.yoya-indicator:hover {
+  box-shadow: var(--yoya-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.yoya-indicator__icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.yoya-indicator__title {
+  font-size: 14px;
+  color: var(--yoya-text-secondary);
+}
+
+.yoya-indicator__value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--yoya-text-primary);
+  font-family: Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.yoya-indicator__trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ============================================
+   VTimeSeries 时间序列卡片组件
+   ============================================ */
+.yoya-time-series {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: var(--yoya-bg);
+  border-radius: var(--yoya-radius-lg);
+  border: 1px solid var(--yoya-border-light);
+  overflow: hidden;
+}
+
+.yoya-time-series__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yoya-text-primary);
+  margin-bottom: 12px;
+}
+
+.yoya-time-series__container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.yoya-time-series__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--yoya-radius-md);
+  transition: background-color 0.2s ease;
+}
+
+.yoya-time-series__item:hover {
+  background-color: var(--yoya-bg-hover);
+}
+
+.yoya-time-series__time {
+  font-size: 13px;
+  color: var(--yoya-text-secondary);
+}
+
+.yoya-time-series__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yoya-text-primary);
+  font-family: Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   VRankList 排行榜组件
+   ============================================ */
+.yoya-rank-list {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: var(--yoya-bg);
+  border-radius: var(--yoya-radius-lg);
+  border: 1px solid var(--yoya-border-light);
+  overflow: hidden;
+}
+
+.yoya-rank-list__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yoya-text-primary);
+  margin-bottom: 12px;
+}
+
+.yoya-rank-list__container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.yoya-rank-list__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--yoya-radius-md);
+  transition: background-color 0.2s ease;
+}
+
+.yoya-rank-list__item:hover {
+  background-color: var(--yoya-bg-hover);
+}
+
+.yoya-rank-list__rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.yoya-rank-list__name {
+  flex: 1;
+  font-size: 14px;
+  color: var(--yoya-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.yoya-rank-list__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yoya-text-primary);
+  font-family: Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   VDashboardGrid 看板栅格布局组件
+   ============================================ */
+.yoya-dashboard-grid {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  background: var(--yoya-bg-secondary);
+  border-radius: var(--yoya-radius-lg);
+}
+
+/* ============================================
+   VBorder 装饰边框组件
+   ============================================ */
+.yoya-border {
+  position: relative;
+  display: inline-block;
+}
+
+.yoya-border__content {
+  position: relative;
+  z-index: 1;
+}
+
+.yoya-border__gradient {
+  pointer-events: none;
+}
+
+.yoya-border__glow {
+  pointer-events: none;
+}
+
+.yoya-border__corner {
+  pointer-events: none;
+}
+
+/* ============================================
+   VDivider 分割线组件
+   ============================================ */
+.yoya-divider {
+  display: flex;
+  align-items: center;
+}
+
+.yoya-divider__line {
+  border: none;
+}
+
+.yoya-divider__text {
+  white-space: nowrap;
+  padding: 0 8px;
+}
+
+/* ============================================
+   VCorner 角标装饰组件
+   ============================================ */
+.yoya-corner {
+  position: relative;
+  display: inline-block;
+}
+
+.yoya-corner__piece {
+  pointer-events: none;
+}
+
+/* ============================================
+   VTitleBar 标题栏组件
+   ============================================ */
+.yoya-title-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.yoya-title-bar__icon {
+  line-height: 1;
+}
+
+.yoya-title-bar__title {
+  font-weight: 600;
+}
+
+.yoya-title-bar__subtitle {
+  font-size: 12px;
+  color: var(--yoya-text-secondary);
+}
+
+.yoya-title-bar__bracket {
+  pointer-events: none;
+}
+
+.yoya-title-bar__line {
+  pointer-events: none;
+}
+
+/* ============================================
+   VPanel 装饰面板组件
+   ============================================ */
+.yoya-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.yoya-panel__header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--yoya-border-light);
+}
+
+.yoya-panel__title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.yoya-panel__content {
+  flex: 1;
+}
+
+.yoya-panel__gradient {
+  pointer-events: none;
+}
+
+.yoya-panel__tech-corner {
+  pointer-events: none;
+}
+
+/* ============================================
+   VGlowBox 发光盒子组件
+   ============================================ */
+.yoya-glow-box {
+  position: relative;
+}
+
+/* ============================================
+   VTechBorder 科技风边框组件
+   ============================================ */
+.yoya-tech-border {
+  position: relative;
+}
+
+.yoya-tech-border__content {
+  position: relative;
+  z-index: 1;
+}
+
+.yoya-tech-border__line {
+  pointer-events: none;
+}
+
+.yoya-tech-border__corner {
+  pointer-events: none;
+}
+
+/* ============================================
+   动画关键帧
+   ============================================ */
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.8;
+    box-shadow: 0 0 10px currentColor, inset 0 0 5px currentColor;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 20px currentColor, inset 0 0 10px currentColor;
+  }
+}
+
+@keyframes cornerPulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(90, 139, 247, 0.3), inset 0 0 8px rgba(90, 139, 247, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(90, 139, 247, 0.5), inset 0 0 15px rgba(90, 139, 247, 0.2);
+  }
+}
+
+@keyframes techLineFlow {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+/* ============================================
+   Dark Mode 深色模式适配
+   ============================================ */
+[data-theme="islands-dark"],
+[data-theme="dark"] {
+  .yoya-indicator {
+    border-color: var(--yoya-border);
+  }
+
+  .yoya-indicator:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .yoya-time-series,
+  .yoya-rank-list {
+    border-color: var(--yoya-border);
+  }
+
+  .yoya-time-series__item:hover,
+  .yoya-rank-list__item:hover {
+    background-color: var(--yoya-bg-hover);
+  }
+
+  .yoya-dashboard-grid {
+    background-color: var(--yoya-bg-tertiary);
+  }
+
+  .yoya-panel__header {
+    border-bottom-color: var(--yoya-border);
+    background-color: var(--yoya-bg-secondary);
+  }
+
+  .yoya-glow-box {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  }
+}
+
+/* ============================================
+   响应式适配
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-indicator {
+    min-width: 100%;
+  }
+
+  .yoya-indicator__value {
+    font-size: 24px;
+  }
+
+  .yoya-number-scroll {
+    font-size: 0.9em;
+  }
+
+  .yoya-dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .yoya-title-bar {
+    justify-content: center !important;
+  }
+
+  .yoya-title-bar__line {
+    width: 30px !important;
+  }
+}

@@ -46,7 +46,9 @@ export const menuConfig = [
       { label: 'Detail 详情', page: 'Detail', file: 'detail.html' },
       { label: 'Field 字段', page: 'Field', file: 'field.html' },
       { label: 'Table 表格', page: 'Table', file: 'table.html' },
+      { label: 'VTree 树形控件', page: 'VTree', file: 'vtree.html' },
       { label: 'Echarts 图表', page: 'Echart', file: 'echart.html' },
+      { label: 'Dashboard 大屏看板', page: 'Dashboard', file: 'dashboard.html' },
     ],
   },
   {

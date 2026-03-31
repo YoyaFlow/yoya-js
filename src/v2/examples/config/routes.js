@@ -30,6 +30,8 @@ export const routes = {
   'UIComponents': () => import('../pages/UIComponents/index.js').then(m => m.createUIComponentsPage),
   'Statistic': () => import('../pages/Statistic/index.js').then(m => m.createStatisticPage),
   'Interaction': () => import('../pages/Interaction/index.js').then(m => m.createInteractionPage),
+  'VTree': () => import('../pages/VTree/index.js').then(m => m.createVTreePage),
+  'Dashboard': () => import('../pages/Dashboard/index.js').then(m => m.createDashboardPage),
 };
 
 /**
@@ -63,6 +65,8 @@ export async function getPageComponent(fileName) {
     'ui-components.html': 'UIComponents',
     'statistic.html': 'Statistic',
     'interaction.html': 'Interaction',
+    'vtree.html': 'VTree',
+    'dashboard.html': 'Dashboard',
   };
 
   const pageName = pageMap[fileName];

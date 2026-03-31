@@ -1,0 +1,167 @@
+/**
+ * Yoya.Theme - VVerticalProgress 纵向进度条样式
+ */
+
+.yoya-vertical-progress {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.yoya-vertical-progress__label {
+  font-size: 12px;
+  color: var(--yoya-text-secondary);
+  text-align: center;
+  font-weight: 500;
+}
+
+.yoya-vertical-progress__container {
+  position: relative;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: visible;
+}
+
+.yoya-vertical-progress__track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--yoya-border);
+  border-radius: 4px;
+}
+
+.yoya-vertical-progress__fill {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--yoya-primary);
+  border-radius: 4px;
+  transition: height 0.3s ease, background-color 0.3s ease;
+}
+
+.yoya-vertical-progress__warning-line,
+.yoya-vertical-progress__alarm-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  opacity: 0.7;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.yoya-vertical-progress__warning-line {
+  background: var(--yoya-warning);
+  box-shadow: 0 0 4px var(--yoya-warning);
+}
+
+.yoya-vertical-progress__alarm-line {
+  background: var(--yoya-danger);
+  box-shadow: 0 0 4px var(--yoya-danger);
+}
+
+.yoya-vertical-progress__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yoya-text-primary);
+  font-family: Monaco, Consolas, monospace;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* 阈值标签 */
+.yoya-vertical-progress__threshold-label {
+  position: absolute;
+  right: -50px;
+  font-size: 10px;
+  color: var(--yoya-text-secondary);
+  white-space: nowrap;
+}
+
+/* 动画效果 */
+@keyframes warningPulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 8px var(--yoya-warning);
+  }
+}
+
+@keyframes alarmPulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 12px var(--yoya-danger);
+  }
+}
+
+.yoya-vertical-progress--warning .yoya-vertical-progress__warning-line {
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+.yoya-vertical-progress--alarm .yoya-vertical-progress__alarm-line,
+.yoya-vertical-progress--alarm .yoya-vertical-progress__fill {
+  animation: alarmPulse 1s ease-in-out infinite;
+}
+
+/* 带刻度的进度条 */
+.yoya-vertical-progress--with-scale .yoya-vertical-progress__container {
+  padding-left: 10px;
+}
+
+.yoya-vertical-progress__scale {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(
+    to bottom,
+    var(--yoya-border) 0%,
+    var(--yoya-border) 100%
+  );
+}
+
+.yoya-vertical-progress__scale-mark {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 1px;
+  background: var(--yoya-border);
+}
+
+.yoya-vertical-progress__scale-label {
+  position: absolute;
+  left: 8px;
+  font-size: 9px;
+  color: var(--yoya-text-secondary);
+}
+
+/* 深色模式适配 */
+[data-theme="islands-dark"],
+[data-theme="dark"] {
+  .yoya-vertical-progress__container {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .yoya-vertical-progress__track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .yoya-vertical-progress__label {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .yoya-vertical-progress__value {
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
