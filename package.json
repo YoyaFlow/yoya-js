@@ -50,7 +50,9 @@
     "build:theme": "rollup -c rollup.theme.config.js",
     "build:echart": "rollup -c rollup.echart.config.js",
     "docs": "jsdoc -c jsdoc.conf.json",
-    "docs:clean": "rm -rf docs && jsdoc -c jsdoc.conf.json"
+    "docs:clean": "rm -rf docs && jsdoc -c jsdoc.conf.json",
+    "build:v2": "rollup -c rollup.v2-examples.config.js",
+    "deploy": "npm run build && npm run build:v2"
   },
   "keywords": [
     "html",
@@ -63,6 +65,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-terser": "^1.0.0",
     "cssnano": "^7.1.3",
     "jsdoc": "^4.0.5",
