@@ -810,6 +810,7 @@ class VRouterViews extends Tag {
           borderBottom: '1px solid var(--yoya-border)',
           background: 'var(--yoya-bg-secondary)',
           padding: '0 4px',
+          position: 'relative', // 为下拉菜单提供定位参考
         });
 
         // 左侧标签容器
