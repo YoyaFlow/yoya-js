@@ -1443,7 +1443,22 @@ class VRouterViews extends Tag {
     if (!this._dropdown) return;
 
     this._updateDropdown();
+
+    // 将下拉菜单附加到 body 并使用 fixed 定位，避免被父容器 overflow 裁剪
+    const headerRect = this._viewsHeader._el.getBoundingClientRect();
+    this._dropdown.styles({
+      position: 'fixed',
+      top: (headerRect.bottom + 4) + 'px',
+      right: (window.innerWidth - headerRect.right + 4) + 'px',
+      marginTop: '0',
+      zIndex: 9999,
+    });
     this._dropdown.style('display', 'block');
+
+    // 附加到 body
+    if (!this._dropdown._el.parentNode || this._dropdown._el.parentNode !== document.body) {
+      document.body.appendChild(this._dropdown._el);
+    }
 
     // 点击外部关闭
     const closeHandler = () => {
@@ -1462,6 +1477,11 @@ class VRouterViews extends Tag {
   _hideDropdown() {
     if (!this._dropdown) return;
     this._dropdown.style('display', 'none');
+
+    // 将下拉菜单移回原位置
+    if (this._dropdown._el.parentNode === document.body) {
+      this._viewsHeader._el.appendChild(this._dropdown._el);
+    }
   }
 
   /**
