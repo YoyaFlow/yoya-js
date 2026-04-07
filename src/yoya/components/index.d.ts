@@ -590,6 +590,24 @@ declare class VRouterView extends Tag {
 declare function vRouterView(router: VRouter, setup?: Setup<VRouterView>): VRouterView;
 
 // ============================================
+// VRouterViews 多路由视图容器
+// ============================================
+
+declare class VRouterViews extends Tag {
+  constructor(router: VRouter, setup?: Setup<VRouterViews>);
+  addView(name: string, options?: { title?: string; icon?: string; closable?: boolean; defaultRoute?: string }): this;
+  setActiveView(name: string): this;
+  removeView(name: string): this;
+  updateViewTitle(name: string, title: string): this;
+  getActiveViewName(): string | null;
+  getActiveView(): object | null;
+  getViews(): object[];
+  onChange(fn: (name: string, view: object) => void): this;
+}
+
+declare function vRouterViews(router: VRouter, setup?: Setup<VRouterViews>): VRouterViews;
+
+// ============================================
 // 导出
 // ============================================
 

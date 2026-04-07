@@ -627,10 +627,18 @@ class Tag {
    */
   textContent(content){
     this.clear();
-    this.text(content);
-    // 如果已经渲染过，直接更新真实 DOM
+    // 如果已经渲染过，直接更新真实 DOM，不通过 text() 方法添加
     if (this._rendered && this._el) {
       this._el.textContent = String(content);
+      // 同时更新虚拟 Text 节点
+      const textTag = new Text(content);
+      textTag._textNode = this._el.firstChild;
+      textTag._el = this._el.firstChild;
+      textTag._boundElement = this._el.firstChild;
+      this._children.push(textTag);
+    } else {
+      // 未渲染时，使用 text() 方法
+      this.text(content);
     }
     return this;
   }
@@ -752,7 +760,7 @@ class Tag {
     const childrenToAdd = [];
 
     for (const child of this._children) {
-      if (child._deleted) continue;
+      if (!child || child._deleted) continue;
 
       const childEl = child.renderDom();
       if (!childEl) continue;

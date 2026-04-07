@@ -64,8 +64,7 @@ class VBorder extends Tag {
     });
     this._children.push(this._contentEl);
 
-    // 根据类型创建装饰
-    this._createDecoration();
+    // 注意：装饰元素在 setup 之后创建，以确保属性正确应用
   }
 
   _createDecoration() {
@@ -241,6 +240,9 @@ class VBorder extends Tag {
    */
   glowIntensity(intensity) {
     this._glowIntensity = intensity;
+    if (this._type === 'glow') {
+      this._recreateDecoration();
+    }
     return this;
   }
 
@@ -251,7 +253,21 @@ class VBorder extends Tag {
    */
   animated(animated) {
     this._animated = animated;
+    if (this._type === 'glow') {
+      this._recreateDecoration();
+    }
     return this;
+  }
+
+  /**
+   * 重新创建装饰
+   * @private
+   */
+  _recreateDecoration() {
+    // 清除现有的装饰元素（保留内容元素）
+    this._children = [this._contentEl];
+    // 重新创建装饰
+    this._createDecoration();
   }
 }
 
@@ -558,6 +574,9 @@ class VCorner extends Tag {
         top: isTop ? '0' : 'auto',
         bottom: isTop ? 'auto' : '0',
       });
+      if (this._animated) {
+        s.style('animation', 'cornerPulse 2s ease-in-out infinite');
+      }
     });
     container.child(square);
   }
@@ -658,8 +677,14 @@ class VCorner extends Tag {
   }
 
   _recreateCorners() {
-    // 清除现有角标
+    // 清除现有角标（虚拟和真实 DOM）
     this._children = [];
+    // 清空真实 DOM 中的子元素
+    if (this._el) {
+      this._el.innerHTML = '';
+      // 重新应用基础样式类
+      this._el.classList.add('yoya-corner');
+    }
     // 重新创建
     this._createCorners();
   }
@@ -1195,15 +1220,19 @@ class VGlowBox extends Tag {
     if (setup !== null) {
       this.setup(setup);
     }
+
+    // Setup 完成后应用发光样式
+    this._applyGlowStyles();
+    if (this._animated) {
+      this._applyAnimation();
+    }
   }
 
   _setupBaseStyles() {
     this.addClass('yoya-glow-box');
-    this._applyGlowStyles();
-
-    if (this._animated) {
-      this._applyAnimation();
-    }
+    this.styles({
+      position: 'relative',
+    });
   }
 
   _applyGlowStyles() {
@@ -1282,6 +1311,11 @@ class VGlowBox extends Tag {
 
   animated(animated) {
     this._animated = animated;
+    if (animated) {
+      this._applyAnimation();
+    } else {
+      this.style('animation', '');
+    }
     return this;
   }
 
