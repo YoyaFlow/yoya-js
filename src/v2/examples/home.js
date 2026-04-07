@@ -17,6 +17,9 @@ import '../../yoya/core/theme.js';
 // 页面组件加载器缓存
 const pageLoaders = {};
 
+// 全局 router 实例，供 Sidebar 使用
+let routerInstance = null;
+
 /**
  * 从 AppShell 包装的页面中提取纯内容
  * @param {Function} pageCreator - 页面创建函数（返回 AppShell）
@@ -57,9 +60,6 @@ function extractContentFromAppShell(pageCreator) {
   return contentContainer;
 }
 
-/**
- * 创建 VRouterViews 内容
- */
 function createVRouterViewsContent() {
   // 创建主容器
   const container = div(c => {
@@ -68,6 +68,7 @@ function createVRouterViewsContent() {
 
   // 先创建 vRouter 实例（不绑定到 DOM）
   const router = vRouter(r => {
+    routerInstance = r; // 保存 router 实例供 Sidebar 使用
     r.default('/home');
 
     // 根据 demoRoutes 注册路由
@@ -150,14 +151,19 @@ function createVRouterViewsContent() {
   return container;
 }
 
+// 先创建 VRouterViews 内容（会设置 routerInstance）
+const vRouterViewsContent = createVRouterViewsContent();
+
 // 使用 AppShell 布局，内容区使用 VRouterViews
 const app = AppShell({
   currentPage: 'home.html',
   tocItems: [
     { text: 'VRouterViews 演示', href: '#', level: 1 },
   ],
+  useVRouterViews: true, // 启用 VRouterViews 模式
+  vRouterInstance: routerInstance, // 传递 router 实例给 Sidebar
   content: (content) => {
-    content.child(createVRouterViewsContent());
+    content.child(vRouterViewsContent);
   },
 });
 

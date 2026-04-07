@@ -11,8 +11,10 @@ import { menuConfig } from '../config/menuConfig.js';
  * @param {string} currentPage - 当前页面文件名（如 'button.html'）
  * @param {boolean} collapsible - 是否可折叠
  * @param {boolean} dark - 是否深色模式
+ * @param {boolean} useVRouterViews - 是否使用 VRouterViews 模式（点击菜单切换视图而不是跳转）
+ * @param {Object} vRouterInstance - VRouter 实例（用于 VRouterViews 模式下导航）
  */
-export function Sidebar({ currentPage = '', collapsible = true, dark = false }) {
+export function Sidebar({ currentPage = '', collapsible = true, dark = false, useVRouterViews = false, vRouterInstance = null }) {
   return vSidebar(sidebar => {
     sidebar.width('220px');
     sidebar.collapsedWidth('64px');
@@ -59,7 +61,11 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
 
         // 分组菜单项
         group.items.forEach(menuItem => {
-          const isActive = menuItem.file === currentPage;
+          // 在 VRouterViews 模式下，根据视图名称判断是否激活
+          const isActive = useVRouterViews
+            ? (vRouterInstance && vRouterInstance.currentPath() === '/' + menuItem.page.toLowerCase())
+            : menuItem.file === currentPage;
+
           content.item(menuItem.label, item => {
             item.styles({
               fontSize: '14px',
@@ -77,7 +83,14 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
             });
             if (isActive) item.active();
             item.onClick(() => {
-              window.location.href = menuItem.file;
+              if (useVRouterViews && vRouterInstance) {
+                // VRouterViews 模式：切换到对应视图
+                const routePath = '/' + menuItem.page.toLowerCase();
+                vRouterInstance.navigate(routePath);
+              } else {
+                // 传统模式：跳转到独立页面
+                window.location.href = menuItem.file;
+              }
             });
           });
         });
