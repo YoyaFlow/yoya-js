@@ -883,7 +883,7 @@ class VRouterViews extends Tag {
           top: '100%',
           right: '4px',
           marginTop: '4px',
-          backgroundColor: 'var(--yoya-bg)',
+          backgroundColor: 'var(--yoya-bg-elevated)',
           border: '1px solid var(--yoya-border)',
           borderRadius: '6px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -1336,8 +1336,11 @@ class VRouterViews extends Tag {
           justifyContent: 'space-between',
           padding: '8px 12px',
           cursor: 'pointer',
-          background: isActive ? 'var(--yoya-bg-hover)' : 'transparent',
+          background: isActive ? 'var(--yoya-bg-selected)' : 'transparent',
           fontSize: '13px',
+          color: 'var(--yoya-text-primary)',
+          borderRadius: '4px',
+          margin: '2px 4px',
         });
         item.on('click', () => {
           this.setActiveView(name);
@@ -1347,7 +1350,7 @@ class VRouterViews extends Tag {
           item.style('background', 'var(--yoya-bg-hover)');
         });
         item.on('mouseleave', () => {
-          item.style('background', isActive ? 'var(--yoya-bg-hover)' : 'transparent');
+          item.style('background', isActive ? 'var(--yoya-bg-selected)' : 'transparent');
         });
 
         // 左侧：图标 + 标题
@@ -1368,7 +1371,9 @@ class VRouterViews extends Tag {
           left.child(span(title => {
             title.text(viewData.title);
             if (isActive) {
-              title.styles({ fontWeight: '500' });
+              title.styles({ fontWeight: '500', color: 'var(--yoya-primary)' });
+            } else {
+              title.style('color', 'var(--yoya-text-primary)');
             }
           }));
         }));
@@ -1384,7 +1389,7 @@ class VRouterViews extends Tag {
               height: '18px',
               borderRadius: '3px',
               fontSize: '14px',
-              color: 'var(--yoya-text-secondary)',
+              color: 'var(--yoya-text-tertiary)',
               cursor: 'pointer',
             });
             close.html('×');
@@ -1399,7 +1404,7 @@ class VRouterViews extends Tag {
             });
             close.on('mouseleave', () => {
               close.style('background', 'transparent');
-              close.style('color', 'var(--yoya-text-secondary)');
+              close.style('color', 'var(--yoya-text-tertiary)');
             });
           }));
         }
@@ -1412,7 +1417,7 @@ class VRouterViews extends Tag {
         empty.styles({
           padding: '16px 12px',
           textAlign: 'center',
-          color: 'var(--yoya-text-secondary)',
+          color: 'var(--yoya-text-tertiary)',
           fontSize: '13px',
         });
         empty.text('暂无打开的页面');
