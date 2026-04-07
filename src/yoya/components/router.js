@@ -699,6 +699,7 @@ class VRouterViews extends Tag {
     this._autoAddView = false; // 是否自动添加新视图
     this._maxViews = 10; // 最大视图数量
     this._viewDropdown = null; // 下拉菜单元素
+    this._resizeObserver = null; // 用于检测宽度变化的 ResizeObserver
 
     // 将路由器的 _view 设置为 this，阻止 VRouter 直接渲染组件
     // FRouterViews 会自己处理组件渲染到各个视图的 _contentDiv
@@ -730,6 +731,154 @@ class VRouterViews extends Tag {
   _render(component) {
     // 空实现，不渲染任何内容
     // 组件渲染由 setActiveView 方法处理
+  }
+
+  /**
+   * 初始化响应式标题管理（根据宽度自动隐藏标题）
+   * @private
+   */
+  _initResponsiveTitle() {
+    // 使用 ResizeObserver 检测标签容器宽度变化
+    const observeTabsWidth = () => {
+      if (!this._tabsContainer || !this._tabsContainer._el) {
+        setTimeout(observeTabsWidth, 100);
+        return;
+      }
+
+      this._resizeObserver = new ResizeObserver(() => {
+        this._updateTitleVisibility();
+      });
+
+      this._resizeObserver.observe(this._tabsContainer._el);
+
+      // 同时观察每个视图标签的宽度变化
+      this._observeAllTabs();
+    };
+
+    // 等待 DOM 渲染后开始观察
+    setTimeout(observeTabsWidth, 200);
+  }
+
+  /**
+   * 观察所有视图标签的宽度变化
+   * @private
+   */
+  _observeAllTabs() {
+    if (!this._tabResizeObserver) {
+      this._tabResizeObserver = new ResizeObserver(() => {
+        this._updateTitleVisibility();
+      });
+    }
+
+    // 观察所有已存在的标签
+    for (const viewData of this._views.values()) {
+      if (viewData.el && viewData.el._el) {
+        this._tabResizeObserver.observe(viewData.el._el);
+      }
+    }
+  }
+
+  /**
+   * 更新所有标签标题的可见性
+   * @private
+   */
+  _updateTitleVisibility() {
+    const tabs = Array.from(this._views.values())
+      .map(v => v.el)
+      .filter(el => el && el._el);
+
+    if (tabs.length === 0) return;
+
+    // 获取容器可用宽度
+    const containerWidth = this._tabsContainer._el.offsetWidth;
+
+    // 计算所有标签完整显示时需要的总宽度（使用 scrollWidth）
+    const tabElements = tabs.map(el => {
+      const viewData = Array.from(this._views.values()).find(v => v.el === el);
+      return {
+        el,
+        viewData,
+        offsetWidth: el._el.offsetWidth,
+        scrollWidth: el._el.scrollWidth, // 内容完整显示时的宽度
+        isActive: el._classes?.has('yoya-router-views__tab--active')
+      };
+    });
+
+    // 计算完整显示所有标签需要的宽度
+    const totalFullWidth = tabElements.reduce((sum, tab) => sum + tab.scrollWidth, 0);
+
+    // 如果所有标签完整显示会超出容器，则需要隐藏部分标签的 title
+    const needsHide = totalFullWidth > containerWidth;
+
+    // 按优先级排序：非激活标签优先隐藏，激活标签最后隐藏
+    const sortedTabs = [...tabElements].sort((a, b) => {
+      if (a.isActive && !b.isActive) return 1;
+      if (!a.isActive && b.isActive) return -1;
+      return 0;
+    });
+
+    // 计算紧凑模式下的宽度（仅图标）
+    const compactWidths = sortedTabs.map(tab => {
+      const iconEl = tab.el._el.querySelector('.yoya-router-views__tab-icon');
+      const closeEl = tab.el._el.querySelector('.yoya-router-views__tab-close');
+      const iconWidth = iconEl ? iconEl.offsetWidth : 20;
+      const closeWidth = closeEl && tab.el._classes?.has('yoya-router-views__tab--unclosable') ? 0 : 22;
+      const padding = 16; // 两侧 padding
+      return iconWidth + closeWidth + padding;
+    });
+
+    // 计算所有标签都用紧凑模式时的总宽度
+    const totalCompactWidth = compactWidths.reduce((sum, w) => sum + w, 0);
+
+    // 如果紧凑模式也超出容器，则全部隐藏 title
+    // 否则，部分隐藏 title
+    if (needsHide) {
+      // 计算需要隐藏的宽度
+      const widthToSave = totalFullWidth - containerWidth;
+
+      // 按优先级顺序隐藏标签（非激活标签优先，激活标签最后）
+      let savedWidth = 0;
+      const hideSet = new Set(); // 存储需要隐藏的 sortedTabs 索引
+
+      for (let i = 0; i < sortedTabs.length; i++) {
+        if (savedWidth >= widthToSave) break;
+
+        const tab = sortedTabs[i];
+        const saving = tab.scrollWidth - compactWidths[i];
+
+        if (saving > 0) {
+          hideSet.add(i);
+          savedWidth += saving;
+        }
+      }
+
+      // 应用隐藏状态
+      for (let i = 0; i < sortedTabs.length; i++) {
+        const tab = sortedTabs[i];
+        const { viewData } = tab;
+
+        if (!viewData || !viewData._titleEl || !viewData._titleEl._el) continue;
+
+        if (hideSet.has(i)) {
+          // 需要隐藏
+          viewData._titleEl._el.style.display = 'none';
+          tab.el.addClass('yoya-router-views__tab--compact');
+        } else {
+          // 不需要隐藏
+          viewData._titleEl._el.style.display = '';
+          tab.el.removeClass('yoya-router-views__tab--compact');
+        }
+      }
+    } else {
+      // 不需要隐藏，全部显示
+      for (const tab of tabElements) {
+        const { viewData } = tab;
+        if (!viewData || !viewData._titleEl || !viewData._titleEl._el) continue;
+
+        viewData._titleEl._el.style.display = '';
+        tab.el.removeClass('yoya-router-views__tab--compact');
+      }
+    }
   }
 
   /**
@@ -966,6 +1115,11 @@ class VRouterViews extends Tag {
     const contentEl = this._createViewContent(viewData);
     this._contentContainer.child(contentEl);
     viewData.contentEl = contentEl;
+
+    // 观察新标签的宽度变化
+    if (this._tabResizeObserver && viewEl._el) {
+      this._tabResizeObserver.observe(viewEl._el);
+    }
 
     // 更新计数
     this._updateCount();
@@ -1505,6 +1659,9 @@ class VRouterViews extends Tag {
     if (!this._initialized) {
       this._ensureDom();
       this._initialized = true;
+
+      // DOM 渲染后初始化响应式标题管理
+      this._initResponsiveTitle();
     }
 
     return super.renderDom();

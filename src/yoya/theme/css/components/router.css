@@ -1,0 +1,301 @@
+/**
+ * Yoya.Theme - Router Component Styles
+ * 路由组件样式（包括 VRouterView 和 VRouterViews）
+ */
+
+/* ============================================
+   VRouterView - 单个路由视图容器
+   ============================================ */
+.yoya-router-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: auto;
+  background: var(--yoya-bg);
+}
+
+/* ============================================
+   VRouterViews - 多路由视图容器（类似 Tabs）
+   ============================================ */
+.yoya-router-views {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--yoya-bg);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* ============================================
+   视图栏容器
+   ============================================ */
+.yoya-router-views__header {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--yoya-border);
+  background: var(--yoya-bg-secondary);
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
+  margin-bottom: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
+}
+
+/* 左侧标签容器 */
+.yoya-router-views__tabs {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
+}
+
+.yoya-router-views__tabs::-webkit-scrollbar {
+  height: 3px;
+}
+
+.yoya-router-views__tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.yoya-router-views__tabs::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 2px;
+}
+
+.yoya-router-views__tabs::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
+}
+
+/* 右侧按钮区 */
+.yoya-router-views__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+/* 视图数量标签 */
+.yoya-router-views__count {
+  font-size: 12px;
+  color: var(--yoya-text-secondary);
+  padding: 2px 6px;
+}
+
+/* 下拉菜单按钮 */
+.yoya-router-views__menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--yoya-text-secondary);
+  transition: all 0.15s ease;
+}
+
+.yoya-router-views__menu-btn:hover {
+  background: var(--yoya-bg-hover);
+  color: var(--yoya-text-primary);
+}
+
+/* 下拉菜单 */
+.yoya-router-views__dropdown {
+  position: absolute;
+  top: 100%;
+  right: 4px;
+  margin-top: 4px;
+  background-color: var(--yoya-bg);
+  border: 1px solid var(--yoya-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  display: none;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* ============================================
+   单个视图标签样式
+   ============================================ */
+.yoya-router-views__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  padding-right: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--yoya-text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--yoya-transition-fast, 0.15s ease);
+  user-select: none;
+  white-space: nowrap;
+  position: relative;
+  min-width: 0;
+  flex-shrink: 0;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  margin-top: 0;
+}
+
+.yoya-router-views__tab:hover {
+  background: var(--yoya-bg-hover);
+}
+
+/* 视图标签激活状态 */
+.yoya-router-views__tab--active {
+  color: var(--yoya-text-primary);
+  background: var(--yoya-bg);
+  border-bottom-color: var(--yoya-primary);
+  font-weight: 500;
+}
+
+/* ============================================
+   视图图标
+   ============================================ */
+.yoya-router-views__tab-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+/* ============================================
+   视图标签标题
+   ============================================ */
+.yoya-router-views__tab-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0;
+  transition: opacity 0.15s ease, width 0.15s ease;
+}
+
+/* 标题隐藏状态 */
+.yoya-router-views__tab-title--hidden {
+  display: none;
+}
+
+/* 标签宽度紧凑模式 */
+.yoya-router-views__tab--compact {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.yoya-router-views__tab--compact .yoya-router-views__tab-title {
+  display: none;
+}
+
+/* ============================================
+   关闭按钮
+   ============================================ */
+.yoya-router-views__tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--yoya-text-secondary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* 鼠标悬停标签时显示关闭按钮（包括非激活标签） */
+.yoya-router-views__tab:hover .yoya-router-views__tab-close {
+  opacity: 0.7;
+  visibility: visible;
+}
+
+/* 激活标签的关闭按钮也响应 hover */
+.yoya-router-views__tab--active:hover .yoya-router-views__tab-close {
+  opacity: 0.7;
+  visibility: visible;
+}
+
+.yoya-router-views__tab-close:hover {
+  opacity: 1;
+  background: var(--yoya-error-bg);
+  color: var(--yoya-error);
+}
+
+/* 视图标签不可关闭时隐藏关闭按钮 */
+.yoya-router-views__tab--unclosable .yoya-router-views__tab-close {
+  display: none !important;
+}
+
+/* ============================================
+   内容容器
+   ============================================ */
+.yoya-router-views__content-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+}
+
+/* ============================================
+   单个视图内容
+   ============================================ */
+.yoya-router-views__content {
+  display: none;
+  flex: 1;
+  overflow: auto;
+  background: var(--yoya-bg);
+}
+
+.yoya-router-views__content--active {
+  display: block;
+}
+
+/* ============================================
+   closable 状态 - 显示关闭按钮
+   ============================================ */
+.yoya-router-views--closable .yoya-router-views__tab-close {
+  display: none;
+}
+
+.yoya-router-views--closable .yoya-router-views__tab:hover .yoya-router-views__tab-close {
+  display: flex;
+}
+
+/* ============================================
+   compact 紧凑模式
+   ============================================ */
+.yoya-router-views--compact .yoya-router-views__tab {
+  padding: 4px 8px;
+  padding-right: 6px;
+  font-size: 12px;
+}
+
+/* ============================================
+   responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .yoya-router-views__tab {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
