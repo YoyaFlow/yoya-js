@@ -3,24 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>交互组件 - Yoya.Basic V2</title>
+  <title>VInteraction 交互组件 - Yoya.Basic V2</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+  <link rel="stylesheet" href="./styles/common.css">
+  <!-- 统一主题 CSS -->
+  <link rel="stylesheet" href="../../../yoya/theme/css/base.css">
+  <link rel="stylesheet" href="../../../yoya/theme/css/components/index.css">
 </head>
 <body>
   <div id="app"></div>
-  <script type="module">
-    (async () => {
-      const { getPageComponent, preloadAllPages } = await import('./config/routes.js');
-
-      // 预加载所有页面
-      await preloadAllPages();
-
-      // 获取当前页面组件并渲染
-      const fileName = 'interaction.html';
-      const pageLoader = await getPageComponent(fileName);
-      const createPage = await pageLoader();
-      const page = createPage();
-      page.bindTo('#app');
-    })();
-  </script>
+  <script type="module" src="../index.js"></script>
 </body>
 </html>

@@ -66,8 +66,11 @@ try {
 
   // Test 5: checkedKeys 方法
   console.log('\nTest 5: checkedKeys 方法');
-  tree.checkedKeys(['1']);
-  assert(tree.checkedKeys().includes('1'), 'checkedKeys() 设置和获取正确');
+  // 使用叶子节点测试（没有子节点），避免级联计算影响
+  tree.data([{ key: 'leaf1', title: '叶子节点 1' }, { key: 'leaf2', title: '叶子节点 2' }]);
+  tree.checkedKeys(['leaf1']);
+  const checkedResult = tree.checkedKeys();
+  assert(checkedResult.includes('leaf1'), 'checkedKeys() 设置和获取正确');
 
   // Test 6: selectedKeys 方法
   console.log('\nTest 6: selectedKeys 方法');

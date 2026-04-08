@@ -21,6 +21,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   overflow: hidden;
   background: var(--yoya-bg);
   border-top-left-radius: 0;
@@ -36,40 +37,31 @@
   gap: 0;
   border-bottom: 1px solid var(--yoya-border);
   background: var(--yoya-bg-secondary);
-  overflow-x: auto;
+  overflow-x: visible;
   overflow-y: hidden;
   flex-shrink: 0;
   margin-bottom: 0;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
+  flex-wrap: nowrap;
 }
 
 /* 左侧标签容器 */
 .yoya-router-views__tabs {
   display: flex;
   align-items: center;
-  flex: 1;
+  gap: 4px;
+  flex: 1 1 auto;
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
+  min-width: 0;
+  flex-wrap: nowrap;
+  /* 隐藏滚动条但允许滚动 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  scroll-behavior: smooth;
 }
 
 .yoya-router-views__tabs::-webkit-scrollbar {
-  height: 3px;
-}
-
-.yoya-router-views__tabs::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.yoya-router-views__tabs::-webkit-scrollbar-thumb {
-  background: rgba(128, 128, 128, 0.3);
-  border-radius: 2px;
-}
-
-.yoya-router-views__tabs::-webkit-scrollbar-thumb:hover {
-  background: rgba(128, 128, 128, 0.5);
+  display: none; /* Chrome/Safari */
 }
 
 /* 右侧按钮区 */
@@ -146,7 +138,7 @@
   user-select: none;
   white-space: nowrap;
   position: relative;
-  min-width: 0;
+  min-width: max-content;
   flex-shrink: 0;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
@@ -180,12 +172,10 @@
    视图标签标题
    ============================================ */
 .yoya-router-views__tab-title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
+  min-width: auto;
+  white-space: nowrap;
   letter-spacing: 0;
-  transition: opacity 0.15s ease, width 0.15s ease;
 }
 
 /* 标题隐藏状态 */

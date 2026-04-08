@@ -305,93 +305,102 @@ export function createIconsPage() {
 
   return AppShell({
     currentPage: 'icons.html',
-    tocItems,
+    tocItems: tocItems,
     content: (content) => {
-      // 页面标题
-      content.child(PageHeader({
-        title: 'Icons 图标库',
-        description: `共 ${iconCategories.reduce((sum, cat) => sum + cat.icons.length, 0)} 个 SVG 图标，使用 PascalCase 命名，直接返回 SVG 元素。点击图标可复制使用代码。`,
-      }));
+      // 主内容容器（带滚动）
+      content.child(div(mainContent => {
+        mainContent.styles({
+          flex: 1,
+          minWidth: 0,
+          overflowY: 'auto',
+          paddingRight: '20px',
+        });
 
-      // 概述
-      content.child(DocSection('overview', '概述', [
-        vCard(card => {
-          card.vCardBody(body => {
-            body.styles({ padding: '20px' });
+        // 页面标题
+        mainContent.child(PageHeader({
+          title: 'Icons 图标库',
+          description: `共 ${iconCategories.reduce((sum, cat) => sum + cat.icons.length, 0)} 个 SVG 图标，使用 PascalCase 命名，直接返回 SVG 元素。点击图标可复制使用代码。`,
+        }));
 
-            // 使用说明
-            body.div(info => {
-              info.styles({
-                display: 'flex',
-                gap: '16px',
-                flexWrap: 'wrap',
-              });
+        // 概述
+        mainContent.child(DocSection('overview', '概述', [
+          vCard(card => {
+            card.vCardBody(body => {
+              body.styles({ padding: '20px' });
 
-              info.div(item => {
-                item.styles({ textAlign: 'center' });
-                item.h3(h => {
-                  h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
-                  h.text('72+');
+              // 使用说明
+              body.div(info => {
+                info.styles({
+                  display: 'flex',
+                  gap: '16px',
+                  flexWrap: 'wrap',
                 });
-                item.p(p => {
-                  p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
-                  p.text('个图标');
-                });
-              });
 
-              info.div(item => {
-                item.styles({ textAlign: 'center' });
-                item.h3(h => {
-                  h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
-                  h.text('SVG');
+                info.div(item => {
+                  item.styles({ textAlign: 'center' });
+                  item.h3(h => {
+                    h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
+                    h.text('72+');
+                  });
+                  item.p(p => {
+                    p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
+                    p.text('个图标');
+                  });
                 });
-                item.p(p => {
-                  p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
-                  p.text('矢量格式');
-                });
-              });
 
-              info.div(item => {
-                item.styles({ textAlign: 'center' });
-                item.h3(h => {
-                  h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
-                  h.text('currentColor');
+                info.div(item => {
+                  item.styles({ textAlign: 'center' });
+                  item.h3(h => {
+                    h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
+                    h.text('SVG');
+                  });
+                  item.p(p => {
+                    p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
+                    p.text('矢量格式');
+                  });
                 });
-                item.p(p => {
-                  p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
-                  p.text('主题适配');
-                });
-              });
 
-              info.div(item => {
-                item.styles({ textAlign: 'center' });
-                item.h3(h => {
-                  h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
-                  h.text('12px');
+                info.div(item => {
+                  item.styles({ textAlign: 'center' });
+                  item.h3(h => {
+                    h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
+                    h.text('currentColor');
+                  });
+                  item.p(p => {
+                    p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
+                    p.text('主题适配');
+                  });
                 });
-                item.p(p => {
-                  p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
-                  p.text('最小字号');
+
+                info.div(item => {
+                  item.styles({ textAlign: 'center' });
+                  item.h3(h => {
+                    h.styles({ fontSize: '24px', margin: '0 0 8px 0' });
+                    h.text('12px');
+                  });
+                  item.p(p => {
+                    p.styles({ color: 'var(--yoya-text-secondary)', margin: 0, fontSize: '13px' });
+                    p.text('最小字号');
+                  });
                 });
               });
             });
-          });
-        }),
-      ]));
+          }),
+        ]));
 
-      // 使用方式
-      content.child(DocSection('usage', '使用方式', [
-        div(usage => {
-          usage.styles({ marginBottom: '24px' });
+        // 使用方式
+        mainContent.child(DocSection('usage', '使用方式', [
+          div(usage => {
+            usage.styles({ marginBottom: '24px' });
 
-          usage.h3(title => {
-            title.styles({ fontSize: '16px', marginBottom: '12px' });
-            title.text('导入和使用');
-          });
+            usage.h3(title => {
+              title.styles({ fontSize: '16px', marginBottom: '12px' });
+              title.text('导入和使用');
+            });
 
-          // 使用 vCode 组件
-          usage.child(vCode(c => {
-            c.content(`// 从 @yoya/basic 导入图标
+            // 使用 vCode 组件
+            usage.child(vCode(c => {
+              c.content(`// 从 @yoya/basic 导入图标
 import { HomeIcon, UserIcon, SettingsIcon, div } from '@yoya/basic';
 
 // 基础用法 - 创建图标（默认 24x24）
@@ -415,18 +424,18 @@ div(box => {
   box.child(homeIcon);
   box.text('首页');
 });`);
-            c.showLineNumbers(true);
-            c.showCopyButton(true);
-          }));
+              c.showLineNumbers(true);
+              c.showCopyButton(true);
+            }));
 
-          usage.h3(title => {
-            title.styles({ fontSize: '16px', margin: '24px 0 12px 0' });
-            title.text('自定义样式');
-          });
+            usage.h3(title => {
+              title.styles({ fontSize: '16px', margin: '24px 0 12px 0' });
+              title.text('自定义样式');
+            });
 
-          // 使用 vCode 组件
-          usage.child(vCode(c => {
-            c.content(`// 修改大小
+            // 使用 vCode 组件
+            usage.child(vCode(c => {
+              c.content(`// 修改大小
 SettingsIcon({ width: '32', height: '32' });
 
 // 修改颜色（使用 CSS）
@@ -439,46 +448,47 @@ SearchIcon({ 'stroke-width': '1.5' });
 // 使用主题变量
 const icon = BellIcon();
 icon.style('color', 'var(--yoya-text-primary)');`);
-            c.showLineNumbers(true);
-            c.showCopyButton(true);
-          }));
-        }),
-      ]));
-
-      // 按分类展示所有图标
-      for (const category of iconCategories) {
-        const iconNames = category.icons.map(i => i.name);
-
-        content.child(DocSection(category.id, category.title, [
-          p(desc => {
-            desc.styles({
-              marginBottom: '16px',
-              color: 'var(--yoya-text-secondary)',
-            });
-            desc.text(category.description);
-          }),
-
-          createIconGrid(category.icons),
-
-          // 简化代码演示（只有代码块，没有演示区域）
-          vCard(codeCard => {
-            codeCard.styles({ marginTop: '16px' });
-            codeCard.vCardHeader(h => {
-              h.text('使用示例');
-            });
-            codeCard.vCardBody(body => {
-              body.child(vCode(c => {
-                c.content(createUsageExample(iconNames));
-                c.showLineNumbers(true);
-                c.showCopyButton(true);
-                c.onCopy(() => {
-                  toast.success('代码已复制');
-                });
-              }));
-            });
+              c.showLineNumbers(true);
+              c.showCopyButton(true);
+            }));
           }),
         ]));
-      }
+
+        // 按分类展示所有图标
+        for (const category of iconCategories) {
+          const iconNames = category.icons.map(i => i.name);
+
+          mainContent.child(DocSection(category.id, category.title, [
+            p(desc => {
+              desc.styles({
+                marginBottom: '16px',
+                color: 'var(--yoya-text-secondary)',
+              });
+              desc.text(category.description);
+            }),
+
+            createIconGrid(category.icons),
+
+            // 简化代码演示（只有代码块，没有演示区域）
+            vCard(codeCard => {
+              codeCard.styles({ marginTop: '16px' });
+              codeCard.vCardHeader(h => {
+                h.text('使用示例');
+              });
+              codeCard.vCardBody(body => {
+                body.child(vCode(c => {
+                  c.content(createUsageExample(iconNames));
+                  c.showLineNumbers(true);
+                  c.showCopyButton(true);
+                  c.onCopy(() => {
+                    toast.success('代码已复制');
+                  });
+                }));
+              });
+            }),
+          ]));
+        }
+      }));
     },
   });
 }

@@ -1,0 +1,164 @@
+/**
+ * VTree 树形组件样式
+ */
+
+.yoya-tree {
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--yoya-text-primary, #333);
+  line-height: 1.5;
+}
+
+.yoya-tree__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 树节点 */
+.yoya-tree__node {
+  position: relative;
+}
+
+.yoya-tree__node-content {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.yoya-tree__node-content:hover {
+  background-color: var(--yoya-bg-hover, #f5f5f5);
+}
+
+/* 选中状态下不显示 hover 背景 */
+.yoya-tree__node-content.yoya-tree__node-content--selected:hover {
+  background-color: var(--yoya-bg-selected, #e6f7ff);
+}
+
+.yoya-tree__node-content.yoya-tree__node-content--selected {
+  background-color: var(--yoya-bg-selected, #e6f7ff);
+}
+
+/* 选中状态下提高图标和标题的可读性 */
+.yoya-tree__node-content.yoya-tree__node-content--selected .yoya-tree__icon {
+  color: var(--yoya-text-primary);
+}
+
+.yoya-tree__node-content.yoya-tree__node-content--selected .yoya-tree__title {
+  color: var(--yoya-text-primary);
+  font-weight: 500;
+}
+
+/* 展开/收起图标 */
+.yoya-tree__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  font-size: 10px;
+  color: var(--yoya-text-secondary, #666);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+  border-radius: 4px;
+}
+
+.yoya-tree__icon:hover {
+  color: var(--yoya-primary, #667eea);
+  background-color: var(--yoya-bg-hover, rgba(0, 0, 0, 0.05));
+}
+
+/* 叶子节点占位符 */
+.yoya-tree__placeholder {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+
+/* 节点标题 */
+.yoya-tree__title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--yoya-text-primary, #333);
+}
+
+/* 复选框 */
+.yoya-tree__checkbox {
+  margin-right: 8px;
+  cursor: pointer;
+  accent-color: var(--yoya-primary, #667eea);
+}
+
+.yoya-tree__checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 子节点容器 */
+.yoya-tree__subnodes {
+  display: block;
+}
+
+.yoya-tree__subnodes[style*="display: none"] {
+  display: none !important;
+}
+
+/* 禁用状态 */
+.yoya-tree__node--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.yoya-tree__node--disabled .yoya-tree__node-content {
+  cursor: not-allowed;
+}
+
+.yoya-tree__node--disabled .yoya-tree__title {
+  color: var(--yoya-text-disabled, #999);
+}
+
+/* 缩进 - 通过 JS 动态设置 padding-left */
+
+/* 树形选择器 */
+.yoya-tree-select {
+  position: relative;
+  display: inline-block;
+}
+
+.yoya-tree-select__display {
+  padding: 8px 12px;
+  border: 1px solid var(--yoya-border, #ddd);
+  border-radius: 4px;
+  background-color: var(--yoya-bg, #fff);
+  cursor: pointer;
+  min-width: 200px;
+  transition: border-color 0.2s ease;
+}
+
+.yoya-tree-select__display:hover {
+  border-color: var(--yoya-primary, #667eea);
+}
+
+.yoya-tree-select__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: var(--yoya-bg, #fff);
+  border: 1px solid var(--yoya-border, #ddd);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+}

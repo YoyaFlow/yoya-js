@@ -115,14 +115,15 @@
   --yoya-transition-normal: 0.2s ease;
   --yoya-transition-slow: 0.3s ease;
 
-  /* ============================================
-     其他
-     ============================================ */
+   /* ============================================
+      其他
+      ============================================ */
   --yoya-overlay: rgba(30, 32, 35, 0.5);
   --yoya-scrim: rgba(0, 0, 0, 0.32);
   --yoya-backdrop: rgba(255, 255, 255, 0.8);
   --yoya-selection: rgba(30, 64, 175, 0.15);
   --yoya-selection-inactive: rgba(30, 64, 175, 0.08);
+  --yoya-bg-selected: var(--yoya-primary-alpha);
 
   /* ============================================
      Modal 弹出框
@@ -227,12 +228,13 @@
   --yoya-shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.4);
   --yoya-shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.35);
 
-  /* 其他 */
-  --yoya-overlay: rgba(0, 0, 0, 0.6);
-  --yoya-scrim: rgba(0, 0, 0, 0.5);
-  --yoya-backdrop: rgba(26, 26, 26, 0.8);
-  --yoya-selection: rgba(90, 139, 247, 0.2);
-  --yoya-selection-inactive: rgba(90, 139, 247, 0.1);
+     /* 其他 */
+    --yoya-overlay: rgba(0, 0, 0, 0.6);
+    --yoya-scrim: rgba(0, 0, 0, 0.5);
+    --yoya-backdrop: rgba(26, 26, 26, 0.8);
+    --yoya-selection: rgba(90, 139, 247, 0.2);
+    --yoya-selection-inactive: rgba(90, 139, 247, 0.1);
+    --yoya-bg-selected: var(--yoya-primary-alpha);
 
   /* Modal 弹出框 */
   --yoya-modal-mask-bg: rgba(0, 0, 0, 0.65);

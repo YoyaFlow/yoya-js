@@ -12,10 +12,34 @@ import { CodeDemo } from '../../components/CodeDemo.js';
 import { DocSection } from '../../components/DocSection.js';
 import { PageHeader } from '../../components/PageHeader.js';
 
-// 导入语言包
-import zhCN from '../../i18n/zh-CN.json' assert { type: 'json' };
-import en from '../../i18n/en.json' assert { type: 'json' };
-import mn from '../../i18n/mn.json' assert { type: 'json' };
+// 语言包数据（内联避免浏览器 import assert 兼容性问题）
+const zhCN = {
+  common: { save: '保存', cancel: '取消', edit: '编辑', delete: '删除', download: '下载', view: '查看', warning: '警告' },
+  order: { orderInfo: '订单信息', customerInfo: '客户信息', contractInfo: '合同信息', orderNumber: '订单编号', orderDate: '订单日期', orderStatus: '订单状态', orderAmount: '订单金额', customerName: '客户姓名', customerEmail: '客户邮箱', customerCompany: '客户公司', customerLevel: '客户等级', contractNumber: '合同编号', contractName: '合同名称', contractType: '合同类型', signDate: '签订日期', effectiveDate: '生效日期', expiryDate: '到期日期', partyA: '甲方', partyB: '乙方', agentName: '经办人', department: '部门', title: '订单管理' },
+  status: { pending: '待处理', processing: '处理中', completed: '已完成', active: '生效中', expired: '已过期' },
+  contractType: { purchase: '采购合同', sales: '销售合同', service: '服务合同' },
+  customerLevel: { vip: 'VIP 客户', regular: '普通客户', new: '新客户' },
+  form: { fieldRequired: '{field} 不能为空' },
+  message: { saveSuccess: '保存成功', deleteSuccess: '删除成功', deleteConfirm: '确定要删除吗？' }
+};
+const en = {
+  common: { save: 'Save', cancel: 'Cancel', edit: 'Edit', delete: 'Delete', download: 'Download', view: 'View', warning: 'Warning' },
+  order: { orderInfo: 'Order Information', customerInfo: 'Customer Information', contractInfo: 'Contract Information', orderNumber: 'Order Number', orderDate: 'Order Date', orderStatus: 'Order Status', orderAmount: 'Order Amount', customerName: 'Customer Name', customerEmail: 'Customer Email', customerCompany: 'Customer Company', customerLevel: 'Customer Level', contractNumber: 'Contract Number', contractName: 'Contract Name', contractType: 'Contract Type', signDate: 'Sign Date', effectiveDate: 'Effective Date', expiryDate: 'Expiry Date', partyA: 'Party A', partyB: 'Party B', agentName: 'Agent', department: 'Department', title: 'Order Management' },
+  status: { pending: 'Pending', processing: 'Processing', completed: 'Completed', active: 'Active', expired: 'Expired' },
+  contractType: { purchase: 'Purchase Contract', sales: 'Sales Contract', service: 'Service Contract' },
+  customerLevel: { vip: 'VIP Customer', regular: 'Regular Customer', new: 'New Customer' },
+  form: { fieldRequired: '{field} is required' },
+  message: { saveSuccess: 'Saved successfully', deleteSuccess: 'Deleted successfully', deleteConfirm: 'Are you sure you want to delete?' }
+};
+const mn = {
+  common: { save: 'Хадгалах', cancel: 'Болих', edit: 'Засах', delete: 'Устгах', download: 'Татаж авах', view: 'Үзэх', warning: 'Анхааруулга' },
+  order: { orderInfo: 'Захиалгын мэдээлэл', customerInfo: 'Харилцагчийн мэдээлэл', contractInfo: 'Гэрээний мэдээлэл', orderNumber: 'Захиалгын дугаар', orderDate: 'Захиалгын огноо', orderStatus: 'Захиалгын төлөв', orderAmount: 'Захиалгын дүн', customerName: 'Харилцагчийн нэр', customerEmail: 'Имэйл', customerCompany: 'Компани', customerLevel: 'Харилцагчийн түвшин', contractNumber: 'Гэрээний дугаар', contractName: 'Гэрээний нэр', contractType: 'Гэрээний төрөл', signDate: 'Байгуулсан огноо', effectiveDate: 'Хэрэгжиж эхэлсэн огноо', expiryDate: 'Дуусах хугацаа', partyA: 'Захиалагч', partyB: 'Гүйцэтгэгч', agentName: 'Хариуцагч', department: 'Хэлтэс', title: 'Захиалгын удирдлага' },
+  status: { pending: 'Хүлээгдэж буй', processing: 'Боловсруулж буй', completed: 'Дууссан', active: 'Идэвхтэй', expired: 'Хугацаа дууссан' },
+  contractType: { purchase: 'Худалдан авах гэрээ', sales: 'Борлуулах гэрээ', service: 'Үйлчилгээний гэрээ' },
+  customerLevel: { vip: 'VIP харилцагч', regular: 'Енгийн харилцагч', new: 'Шинэ харилцагч' },
+  form: { fieldRequired: '{field} заавал бөглөнө үү' },
+  message: { saveSuccess: 'Амжилттай хадгаллаа', deleteSuccess: 'Амжилттай устгалаа', deleteConfirm: 'Та устгахдаа итгэлтэй байна уу?'}
+};
 
 // 初始化 i18n
 initI18n({
@@ -423,14 +447,19 @@ function createDemoSection() {
   });
 }
 
+// 全局组件引用，用于语言切换时重新渲染
+let demoContentComponent = null;
+let codeExamplesComponent = null;
+
 /**
  * 渲染演示内容（支持语言切换后重新渲染）
  */
 function renderDemoContent() {
-  const demoContainer = document.getElementById('i18n-demo-content');
-  if (!demoContainer) return;
-
-  demoContainer.innerHTML = '';
+  // 使用组件方法更新内容，而不是直接操作 DOM
+  if (demoContentComponent) {
+    // 清空子元素并重新添加
+    demoContentComponent._children = [];
+  }
 
   div(demo => {
     demo.styles({
@@ -471,7 +500,13 @@ function renderDemoContent() {
       content.child(createContractCard());
     });
 
-    demo.bindTo(demoContainer);
+    // 如果已有组件引用，直接绑定到现有元素
+    if (demoContentComponent) {
+      demo.bindTo(demoContentComponent._el);
+    } else {
+      // 首次渲染，保存组件引用
+      demoContentComponent = demo;
+    }
   });
 }
 
@@ -561,7 +596,7 @@ const lang = getLanguage();  // "zh-CN"
 
 // 监听语言切换事件
 window.addEventListener('language-changed', (e) => {
-  console.log('语言切换为:', e.detail.language);
+  // 语言已切换：e.detail.language
 });`
     ),
   ]);
@@ -571,13 +606,22 @@ window.addEventListener('language-changed', (e) => {
  * 更新代码示例（语言切换后）
  */
 function updateCodeExamples() {
-  const examples = document.getElementById('i18n-code-examples');
-  if (!examples) return;
+  // 使用组件方法更新内容，而不是直接操作 DOM
+  if (codeExamplesComponent) {
+    // 清空子元素并重新添加
+    codeExamplesComponent._children = [];
+  }
 
-  examples.innerHTML = '';
   div(wrapper => {
     wrapper.child(createCodeExamples());
-    wrapper.bindTo(examples);
+
+    // 如果已有组件引用，直接绑定到现有元素
+    if (codeExamplesComponent) {
+      wrapper.bindTo(codeExamplesComponent._el);
+    } else {
+      // 首次渲染，保存组件引用
+      codeExamplesComponent = wrapper;
+    }
   });
 }
 
@@ -603,12 +647,16 @@ export function createI18nPage() {
       // 演示界面
       content.div(section => {
         section.id('i18n-demo-content');
+        // 保存组件引用用于语言切换时重新渲染
+        demoContentComponent = section;
         section.child(createDemoSection());
       });
 
       // 代码示例
       content.div(id => {
         id.id('i18n-code-examples');
+        // 保存组件引用用于语言切换时重新渲染
+        codeExamplesComponent = id;
         id.child(createCodeExamples());
       });
 

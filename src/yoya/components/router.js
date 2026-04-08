@@ -710,6 +710,8 @@ class VRouterViews extends Tag {
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
+      minHeight: 0,
+      overflow: 'hidden',
     });
 
     this.addClass('yoya-router-views');
@@ -734,151 +736,94 @@ class VRouterViews extends Tag {
   }
 
   /**
-   * 初始化响应式标题管理（根据宽度自动隐藏标题）
+   * 初始化响应式标题管理
+   * 注意：不再根据宽度隐藏标题，标签栏支持横向滚动
    * @private
    */
   _initResponsiveTitle() {
-    // 使用 ResizeObserver 检测标签容器宽度变化
-    const observeTabsWidth = () => {
-      if (!this._tabsContainer || !this._tabsContainer._el) {
-        setTimeout(observeTabsWidth, 100);
-        return;
-      }
-
-      this._resizeObserver = new ResizeObserver(() => {
-        this._updateTitleVisibility();
-      });
-
-      this._resizeObserver.observe(this._tabsContainer._el);
-
-      // 同时观察每个视图标签的宽度变化
-      this._observeAllTabs();
-    };
-
-    // 等待 DOM 渲染后开始观察
-    setTimeout(observeTabsWidth, 200);
+    // 不再使用 ResizeObserver 隐藏标题
+    // 标签栏容器本身支持 overflow-x: auto，可以横向滚动
   }
 
   /**
    * 观察所有视图标签的宽度变化
+   * 注意：不再需要观察，标签栏支持横向滚动
    * @private
    */
   _observeAllTabs() {
-    if (!this._tabResizeObserver) {
-      this._tabResizeObserver = new ResizeObserver(() => {
-        this._updateTitleVisibility();
-      });
-    }
+    // 空实现，不再需要观察标签宽度变化
+  }
 
-    // 观察所有已存在的标签
-    for (const viewData of this._views.values()) {
-      if (viewData.el && viewData.el._el) {
-        this._tabResizeObserver.observe(viewData.el._el);
-      }
-    }
+  /**
+   * 初始化拖拽滚动功能
+   * @param {HTMLElement} element - 要绑定拖拽滚动的元素
+   * @private
+   */
+  _initDragToScroll(element) {
+    if (!element) return;
+
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    element.addEventListener('mousedown', (e) => {
+      isDown = true;
+      element.style.cursor = 'grabbing';
+      // 使用 getBoundingClientRect 获取元素位置
+      const rect = element.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      scrollLeft = element.scrollLeft;
+      e.preventDefault();
+    });
+
+    element.addEventListener('mouseleave', () => {
+      isDown = false;
+      element.style.cursor = 'grab';
+    });
+
+    element.addEventListener('mouseup', () => {
+      isDown = false;
+      element.style.cursor = 'grab';
+    });
+
+    element.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const rect = element.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const walk = (x - startX) * 2; // 滚动速度 multiplier
+      element.scrollLeft = scrollLeft - walk;
+    });
+
+    // 触摸设备支持
+    element.addEventListener('touchstart', (e) => {
+      isDown = true;
+      const rect = element.getBoundingClientRect();
+      startX = e.touches[0].clientX - rect.left;
+      scrollLeft = element.scrollLeft;
+    }, { passive: true });
+
+    element.addEventListener('touchend', () => {
+      isDown = false;
+    });
+
+    element.addEventListener('touchmove', (e) => {
+      if (!isDown) return;
+      const rect = element.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      const walk = (x - startX) * 2;
+      element.scrollLeft = scrollLeft - walk;
+    }, { passive: false });
   }
 
   /**
    * 更新所有标签标题的可见性
+   * 注意：不再隐藏标题文字，而是让标签栏支持横向滚动
    * @private
    */
   _updateTitleVisibility() {
-    const tabs = Array.from(this._views.values())
-      .map(v => v.el)
-      .filter(el => el && el._el);
-
-    if (tabs.length === 0) return;
-
-    // 获取容器可用宽度
-    const containerWidth = this._tabsContainer._el.offsetWidth;
-
-    // 计算所有标签完整显示时需要的总宽度（使用 scrollWidth）
-    const tabElements = tabs.map(el => {
-      const viewData = Array.from(this._views.values()).find(v => v.el === el);
-      return {
-        el,
-        viewData,
-        offsetWidth: el._el.offsetWidth,
-        scrollWidth: el._el.scrollWidth, // 内容完整显示时的宽度
-        isActive: el._classes?.has('yoya-router-views__tab--active')
-      };
-    });
-
-    // 计算完整显示所有标签需要的宽度
-    const totalFullWidth = tabElements.reduce((sum, tab) => sum + tab.scrollWidth, 0);
-
-    // 如果所有标签完整显示会超出容器，则需要隐藏部分标签的 title
-    const needsHide = totalFullWidth > containerWidth;
-
-    // 按优先级排序：非激活标签优先隐藏，激活标签最后隐藏
-    const sortedTabs = [...tabElements].sort((a, b) => {
-      if (a.isActive && !b.isActive) return 1;
-      if (!a.isActive && b.isActive) return -1;
-      return 0;
-    });
-
-    // 计算紧凑模式下的宽度（仅图标）
-    const compactWidths = sortedTabs.map(tab => {
-      const iconEl = tab.el._el.querySelector('.yoya-router-views__tab-icon');
-      const closeEl = tab.el._el.querySelector('.yoya-router-views__tab-close');
-      const iconWidth = iconEl ? iconEl.offsetWidth : 20;
-      const closeWidth = closeEl && tab.el._classes?.has('yoya-router-views__tab--unclosable') ? 0 : 22;
-      const padding = 16; // 两侧 padding
-      return iconWidth + closeWidth + padding;
-    });
-
-    // 计算所有标签都用紧凑模式时的总宽度
-    const totalCompactWidth = compactWidths.reduce((sum, w) => sum + w, 0);
-
-    // 如果紧凑模式也超出容器，则全部隐藏 title
-    // 否则，部分隐藏 title
-    if (needsHide) {
-      // 计算需要隐藏的宽度
-      const widthToSave = totalFullWidth - containerWidth;
-
-      // 按优先级顺序隐藏标签（非激活标签优先，激活标签最后）
-      let savedWidth = 0;
-      const hideSet = new Set(); // 存储需要隐藏的 sortedTabs 索引
-
-      for (let i = 0; i < sortedTabs.length; i++) {
-        if (savedWidth >= widthToSave) break;
-
-        const tab = sortedTabs[i];
-        const saving = tab.scrollWidth - compactWidths[i];
-
-        if (saving > 0) {
-          hideSet.add(i);
-          savedWidth += saving;
-        }
-      }
-
-      // 应用隐藏状态
-      for (let i = 0; i < sortedTabs.length; i++) {
-        const tab = sortedTabs[i];
-        const { viewData } = tab;
-
-        if (!viewData || !viewData._titleEl || !viewData._titleEl._el) continue;
-
-        if (hideSet.has(i)) {
-          // 需要隐藏
-          viewData._titleEl._el.style.display = 'none';
-          tab.el.addClass('yoya-router-views__tab--compact');
-        } else {
-          // 不需要隐藏
-          viewData._titleEl._el.style.display = '';
-          tab.el.removeClass('yoya-router-views__tab--compact');
-        }
-      }
-    } else {
-      // 不需要隐藏，全部显示
-      for (const tab of tabElements) {
-        const { viewData } = tab;
-        if (!viewData || !viewData._titleEl || !viewData._titleEl._el) continue;
-
-        viewData._titleEl._el.style.display = '';
-        tab.el.removeClass('yoya-router-views__tab--compact');
-      }
-    }
+    // 不再根据宽度隐藏标题文字
+    // 标签栏容器支持横向滚动，所有标题始终显示
   }
 
   /**
@@ -971,6 +916,19 @@ class VRouterViews extends Tag {
             flex: 1,
             overflowX: 'auto',
             overflowY: 'hidden',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            scrollBehavior: 'smooth',
+            cursor: 'grab',
+            userSelect: 'none',
+          });
+          // 隐藏滚动条并绑定拖拽滚动事件
+          tabs.on('renderDom', () => {
+            if (tabs._el) {
+              tabs._el.style.scrollbarWidth = 'none';
+              tabs._el.style.msOverflowStyle = 'none';
+              this._initDragToScroll(tabs._el);
+            }
           });
           this._tabsContainer = tabs;
         }));
@@ -1053,7 +1011,7 @@ class VRouterViews extends Tag {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
+          overflow: 'auto',
         });
       });
 
@@ -1213,6 +1171,7 @@ class VRouterViews extends Tag {
         flex: 1,
         flexDirection: 'column',
         overflow: 'hidden',
+        minHeight: 0,
       });
 
       // 创建内容容器
@@ -1221,6 +1180,7 @@ class VRouterViews extends Tag {
           flex: 1,
           overflow: 'auto',
           height: '100%',
+          minHeight: 0,
         });
       });
 

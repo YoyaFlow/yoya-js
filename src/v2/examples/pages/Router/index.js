@@ -892,13 +892,13 @@ export function createRouterPage() {
 
     // 全局前置守卫
     r.beforeEach((to, from) => {
-      console.log('[全局前置守卫]', `从 ${from?.path} 到 ${to?.path}`);
+      // 路由守卫：从 ${from?.path} 到 ${to?.path}
       return true;
     });
 
     // 全局后置钩子
     r.afterEach((to, from) => {
-      console.log('[全局后置钩子]', `已从 ${from?.path} 导航到 ${to?.path}`);
+      // 后钩子：已从 ${from?.path} 导航到 ${to?.path}
     });
 
     // 定义路由
@@ -1349,7 +1349,7 @@ r.afterEach((to, from) => {
                   });
 
                   views.onChange((viewName) => {
-                    console.log('切换到视图:', viewName);
+                    // 切换到视图：viewName
                   });
                 });
               });
@@ -1373,7 +1373,7 @@ r.afterEach((to, from) => {
               // 动态路由 - 匹配任意路径，根据路径返回不同的组件
               router.route('/*', { component: (params) => {
                 const pathStr = params?.path || 'unknown';
-                console.log('[通配符路由 _dispatchRoute] params:', params, 'path:', pathStr);
+                // 通配符路由：pathStr
 
                 // 根据路径返回不同的演示组件
                 if (pathStr === 'products') {
@@ -1414,7 +1414,7 @@ r.afterEach((to, from) => {
                   });
 
                   views.onChange((viewName, viewData) => {
-                    console.log('[VRouterViews] 视图切换:', viewName, '->', viewData?.defaultRoute);
+                    // VRouterViews 视图切换：viewName -> viewData?.defaultRoute
                   });
 
                   // 设置最大视图数量
@@ -1422,7 +1422,7 @@ r.afterEach((to, from) => {
 
                   // 监听路由器变化，手动更新视图内容
                   router.afterEach((to, from) => {
-                    console.log('[router.afterEach] to:', to, 'path:', to?.path);
+                    // 路由器后置钩子：to.path
                   });
                 });
               });

@@ -36,7 +36,7 @@ export function createDynamicLoaderPage() {
             {
               onLoad: (api, loader) => {
                 if (api.render) {
-                  loader._el.innerHTML = '';
+                  // 使用组件方法清空并添加子元素
                   loader._children = [];
                   loader.child(api.render());
                 }
@@ -70,7 +70,7 @@ export function createDynamicLoaderPage() {
                 }),
                 onLoad: (api, loader) => {
                   if (api.render) {
-                    loader._el.innerHTML = '';
+                    // 使用组件方法清空并添加子元素
                     loader._children = [];
                     loader.child(api.render());
                   }
@@ -95,16 +95,19 @@ export function createDynamicLoaderPage() {
         CodeDemo('手动控制加载',
           vstack(s => {
             s.gap('16px');
+            // 保存容器组件引用
+            let loaderContainer = null;
             s.div(s => {
               s.id('loader-container');
+              loaderContainer = s;
             });
             s.child(flex(btns => {
               btns.gap('12px');
               btns.child(vButton('加载组件').type('primary')
                 .on('click', async () => {
-                  const container = document.getElementById('loader-container');
-                  if (container) {
-                    container.innerHTML = '';
+                  // 使用组件方法清空容器
+                  if (loaderContainer) {
+                    loaderContainer._children = [];
                   }
 
                   const loader = vDynamicLoader(
@@ -117,7 +120,7 @@ export function createDynamicLoaderPage() {
                       }),
                       onLoad: (api, loader) => {
                         if (api.render) {
-                          loader._el.innerHTML = '';
+                          // 使用组件方法清空并添加子元素
                           loader._children = [];
                           loader.child(api.render());
                         }
@@ -129,9 +132,9 @@ export function createDynamicLoaderPage() {
                 }));
               btns.child(vButton('清除').ghost()
                 .on('click', () => {
-                  const container = document.getElementById('loader-container');
-                  if (container) {
-                    container.innerHTML = '';
+                  // 使用组件方法清空容器
+                  if (loaderContainer) {
+                    loaderContainer._children = [];
                   }
                 }));
             }));

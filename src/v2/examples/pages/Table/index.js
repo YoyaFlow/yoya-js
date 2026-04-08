@@ -328,7 +328,8 @@ function createSortableTable() {
 
     // 渲染表格
     function renderTable() {
-      wrapper.innerHTML = '';
+      // 使用组件方法清空容器
+      wrapper._children = [];
 
       wrapper.child(vTable(t => {
         t.bordered();

@@ -6,7 +6,13 @@ export default defineConfig({
       name: 'chromium',
       use: {
         executablePath: '/usr/bin/chromium',
-        headless: false,
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu'
+        ]
       },
     },
   ],
@@ -17,4 +23,5 @@ export default defineConfig({
     reuseExistingServer: true,
   },
   reporter: 'list',
+  timeout: 30000,
 });

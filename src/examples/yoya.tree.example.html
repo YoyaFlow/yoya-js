@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VTree 组件演示</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .demo-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .demo-card-header {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+      padding: 16px 20px;
+      border-bottom: 1px solid #dcdfe6;
+    }
+
+    .demo-card-header h3 {
+      color: #303133;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .demo-card-header p {
+      color: #909399;
+      font-size: 0.85rem;
+    }
+
+    .demo-card-body {
+      padding: 20px;
+      min-height: 250px;
+    }
+
+    .demo-card-body.full-height {
+      min-height: 400px;
+    }
+
+    /* 操作按钮区域 */
+    .action-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #ebeef5;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn.primary {
+      background: #409EFF;
+      color: white;
+    }
+
+    .action-btn.primary:hover {
+      background: #66b1ff;
+    }
+
+    .action-btn.success {
+      background: #67C23A;
+      color: white;
+    }
+
+    .action-btn.success:hover {
+      background: #85ce61;
+    }
+
+    .action-btn.warning {
+      background: #E6A23C;
+      color: white;
+    }
+
+    .action-btn.warning:hover {
+      background: #ebb563;
+    }
+
+    .action-btn.danger {
+      background: #F56C6C;
+      color: white;
+    }
+
+    .action-btn.danger:hover {
+      background: #f78989;
+    }
+
+    .action-btn.secondary {
+      background: #f5f7fa;
+      color: #606266;
+      border: 1px solid #dcdfe6;
+    }
+
+    .action-btn.secondary:hover {
+      background: #eef1f6;
+    }
+
+    /* 状态显示区域 */
+    .state-display {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .state-display h4 {
+      color: #606266;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .state-content {
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 0.85rem;
+      color: #303133;
+      background: white;
+      border: 1px solid #ebeef5;
+      border-radius: 6px;
+      padding: 12px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .state-content pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* 日志区域 */
+    .log-container {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+
+    .log-container h4 {
+      color: #d4d4d4;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .clear-log-btn {
+      background: transparent;
+      border: 1px solid #555;
+      color: #aaa;
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .clear-log-btn:hover {
+      background: #333;
+      color: white;
+    }
+
+    .log-content {
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 0.8rem;
+      color: #3c3c3c;
+      background: #f8f8f8;
+      border-radius: 6px;
+      padding: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .log-entry {
+      margin-bottom: 6px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border-left: 3px solid #409EFF;
+    }
+
+    .log-entry.select {
+      border-left-color: #67C23A;
+      background: rgba(103, 194, 58, 0.1);
+    }
+
+    .log-entry.check {
+      border-left-color: #E6A23C;
+      background: rgba(230, 162, 60, 0.1);
+    }
+
+    .log-entry.expand {
+      border-left-color: #409EFF;
+      background: rgba(64, 158, 255, 0.1);
+    }
+
+    .log-time {
+      color: #909399;
+      font-size: 0.75rem;
+      margin-right: 8px;
+    }
+
+    /* VTree 样式覆盖 */
+    .yoya-tree {
+      font-size: 14px;
+    }
+
+    .yoya-tree__node {
+      padding: 8px 12px !important;
+      margin: 2px 0;
+      border-radius: 6px;
+    }
+
+    .yoya-tree__node:hover {
+      background: #f5f7fa !important;
+    }
+
+    .yoya-tree__node-content {
+      transition: background-color 0.2s ease;
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>VTree 组件演示</h1>
+      <p>基于虚拟元素架构的树形组件 - 支持节点展开/选中/复选框级联勾选</p>
+    </div>
+
+    <div class="demo-grid">
+      <!-- 基础树演示 -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <h3>🌲 基础树</h3>
+          <p>支持节点展开/收起、选中</p>
+        </div>
+        <div class="demo-card-body">
+          <div id="basic-tree"></div>
+        </div>
+      </div>
+
+      <!-- 复选框树演示 -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <h3>✅ 复选框树</h3>
+          <p>支持级联勾选和半选状态</p>
+        </div>
+        <div class="demo-card-body">
+          <div class="action-bar">
+            <button class="action-btn success" onclick="expandAll()">展开全部</button>
+            <button class="action-btn warning" onclick="collapseAll()">收起全部</button>
+            <button class="action-btn primary" onclick="checkAll()">全选</button>
+            <button class="action-btn danger" onclick="uncheckAll()">取消全选</button>
+          </div>
+          <div id="checkable-tree"></div>
+          <div class="state-display">
+            <h4>当前勾选的节点：</h4>
+            <div class="state-content">
+              <pre id="checked-state">[]</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VTreeSelect 演示 -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <h3>📋 树形选择器</h3>
+          <p>下拉框 + 树形选择器</p>
+        </div>
+        <div class="demo-card-body">
+          <div id="tree-select"></div>
+          <div class="state-display">
+            <h4>当前选中值：</h4>
+            <div class="state-content">
+              <pre id="select-value">未选择</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 大数据树演示 -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <h3>📊 大数据树</h3>
+          <p>展示大量节点的性能</p>
+        </div>
+        <div class="demo-card-body full-height">
+          <div class="action-bar">
+            <button class="action-btn primary" onclick="loadLargeData()">加载 1000 节点</button>
+            <button class="action-btn secondary" onclick="loadSmallData()">恢复示例数据</button>
+          </div>
+          <div id="large-tree" style="max-height: 350px; overflow-y: auto;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 日志区域 -->
+    <div class="log-container">
+      <h4>
+        <span>📝 事件日志</span>
+        <button class="clear-log-btn" onclick="clearLog()">清空日志</button>
+      </h4>
+      <div class="log-content" id="log-content">
+        <div style="color: #909399; text-align: center;">暂无事件</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { vTree, vTreeSelect } from '../yoya/index.js';
+
+    // 示例数据
+    const treeData = [
+      {
+        key: '1',
+        title: '导航一',
+        children: [
+          {
+            key: '1-1',
+            title: '选项 1-1',
+            children: [
+              { key: '1-1-1', title: '子选项 1-1-1' },
+              { key: '1-1-2', title: '子选项 1-1-2' },
+              { key: '1-1-3', title: '子选项 1-1-3' }
+            ]
+          },
+          {
+            key: '1-2',
+            title: '选项 1-2',
+            children: [
+              { key: '1-2-1', title: '子选项 1-2-1' },
+              { key: '1-2-2', title: '子选项 1-2-2' }
+            ]
+          },
+          { key: '1-3', title: '选项 1-3' }
+        ]
+      },
+      {
+        key: '2',
+        title: '导航二',
+        children: [
+          { key: '2-1', title: '选项 2-1' },
+          {
+            key: '2-2',
+            title: '选项 2-2',
+            children: [
+              { key: '2-2-1', title: '子选项 2-2-1' },
+              { key: '2-2-2', title: '子选项 2-2-2' }
+            ]
+          }
+        ]
+      },
+      {
+        key: '3',
+        title: '导航三（禁用）',
+        disabled: true,
+        children: [
+          { key: '3-1', title: '选项 3-1' }
+        ]
+      },
+      { key: '4', title: '导航四' }
+    ];
+
+    // 日志数组
+    let logs = [];
+
+    // 添加日志
+    window.addLog = function(type, message) {
+      const now = new Date();
+      const time = now.toLocaleTimeString('zh-CN', { hour12: false }) +
+                   '.' + String(now.getMilliseconds()).padStart(3, '0');
+
+      logs.unshift({ type, message, time });
+      if (logs.length > 50) logs.pop();
+
+      renderLog();
+    };
+
+    // 渲染日志
+    function renderLog() {
+      const container = document.getElementById('log-content');
+      if (logs.length === 0) {
+        container.innerHTML = '<div style="color: #909399; text-align: center;">暂无事件</div>';
+        return;
+      }
+
+      container.innerHTML = logs.map(log => `
+        <div class="log-entry ${log.type}">
+          <span class="log-time">${log.time}</span>
+          <span>${log.message}</span>
+        </div>
+      `).join('');
+    }
+
+    // 清空日志
+    window.clearLog = function() {
+      logs = [];
+      renderLog();
+    };
+
+    // 基础树
+    const basicTree = vTree(t => {
+      t.data(treeData);
+      t.expandedKeys(['1', '2']);
+      t.onSelect((e) => {
+        addLog('select', `选中节点：${e.node.title} (key: ${e.key})`);
+        console.log('[VTree onSelect]', e);
+      });
+    });
+    document.getElementById('basic-tree').appendChild(basicTree.renderDom());
+
+    // 复选框树
+    let checkableTree;
+    function initCheckableTree() {
+      checkableTree = vTree(t => {
+        t.data(treeData);
+        t.checkable(true);
+        t.expandedKeys(['1']);
+        t.onSelect((e) => {
+          addLog('select', `选中节点：${e.node.title}`);
+          console.log('[VTree onSelect]', e);
+        });
+        t.onCheck((e) => {
+          const status = e.checked ? '勾选' : '取消勾选';
+          addLog('check', `${status}节点：${e.node.title}，共 ${e.checkedKeys.length} 项`);
+          document.getElementById('checked-state').textContent = JSON.stringify(e.checkedKeys, null, 2);
+          console.log('[VTree onCheck]', e);
+        });
+        t.onExpand((e) => {
+          const status = e.expandedKeys.includes(e.node.key) ? '展开' : '收起';
+          addLog('expand', `${status}节点：${e.node.title}`);
+          console.log('[VTree onExpand]', e);
+        });
+      });
+    }
+    initCheckableTree();
+    document.getElementById('checkable-tree').appendChild(checkableTree.renderDom());
+
+    // 操作函数
+    window.expandAll = function() {
+      checkableTree.expandAll();
+      addLog('expand', '展开全部节点');
+    };
+
+    window.collapseAll = function() {
+      checkableTree.collapseAll();
+      addLog('expand', '收起全部节点');
+    };
+
+    window.checkAll = function() {
+      const allKeys = getAllKeys(treeData);
+      checkableTree.checkedKeys(allKeys);
+      addLog('check', `全选 ${allKeys.length} 项`);
+    };
+
+    window.uncheckAll = function() {
+      checkableTree.checkedKeys([]);
+      addLog('check', '取消全选');
+    };
+
+    function getAllKeys(nodes) {
+      const keys = [];
+      const traverse = (list) => {
+        list.forEach(node => {
+          keys.push(node.key);
+          if (node.children) traverse(node.children);
+        });
+      };
+      traverse(nodes);
+      return keys;
+    }
+
+    // VTreeSelect
+    const treeSelect = vTreeSelect(ts => {
+      ts.data(treeData);
+      ts.placeholder('请选择节点...');
+      ts.width('100%');
+      ts.onChange((e) => {
+        addLog('select', `选择器选中：${e.node.title}`);
+        document.getElementById('select-value').textContent = JSON.stringify({
+          key: e.value,
+          title: e.node.title
+        }, null, 2);
+        console.log('[VTreeSelect onChange]', e);
+      });
+    });
+    document.getElementById('tree-select').appendChild(treeSelect.renderDom());
+
+    // 大数据树
+    let largeTree = null;
+    function generateLargeData(count = 1000) {
+      const data = [];
+      const level1Count = Math.floor(Math.sqrt(count));
+      const level2Count = Math.floor(count / level1Count);
+
+      for (let i = 1; i <= level1Count; i++) {
+        const level1 = {
+          key: `l1-${i}`,
+          title: `一级节点 ${i}`,
+          children: []
+        };
+
+        for (let j = 1; j <= level2Count && data.length + level1.children.length < count; j++) {
+          level1.children.push({
+            key: `l1-${i}-l2-${j}`,
+            title: `二级节点 ${i}-${j}`
+          });
+        }
+
+        data.push(level1);
+      }
+
+      return data;
+    }
+
+    window.loadLargeData = function() {
+      const largeData = generateLargeData(1000);
+      if (!largeTree) {
+        largeTree = vTree(t => {
+          t.data(largeData);
+          t.checkable(true);
+          t.onSelect((e) => {
+            addLog('select', `大数据树选中：${e.node.title}`);
+          });
+          t.onCheck((e) => {
+            addLog('check', `大数据树勾选：${e.node.title}`);
+          });
+        });
+        const container = document.getElementById('large-tree');
+        container.innerHTML = '';
+        container.appendChild(largeTree.renderDom());
+      } else {
+        largeTree.data(largeData);
+      }
+      addLog('expand', `加载 ${largeData.length} 个一级节点，共 1000 个节点`);
+    };
+
+    window.loadSmallData = function() {
+      if (largeTree) {
+        largeTree.data(treeData);
+        addLog('expand', '恢复示例数据');
+      }
+    };
+
+    // 初始化日志
+    addLog('expand', '演示页面加载完成');
+  </script>
+</body>
+</html>

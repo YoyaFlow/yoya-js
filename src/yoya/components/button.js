@@ -193,6 +193,21 @@ class VButton extends Tag {
     this._ensureContentEl();
     if (this._contentEl) {
       this._contentEl.html(this._content);
+      // 如果已经渲染，同步更新真实 DOM
+      if (this._contentEl._el) {
+        this._contentEl._el.textContent = this._content;
+      }
+    }
+    // 如果按钮已经渲染到真实 DOM，直接更新按钮的文本
+    if (this._el && !this._contentEl?._el) {
+      this._el.textContent = this._content;
+    }
+    // 额外确保：如果 _contentEl 已渲染且连接到 DOM，强制更新真实 span 的 textContent
+    if (this._el && this._contentEl?._el && this._el.isConnected) {
+      const contentSpan = this._el.querySelector('span');
+      if (contentSpan) {
+        contentSpan.textContent = this._content;
+      }
     }
     return this;
   }
