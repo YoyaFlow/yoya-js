@@ -1,6 +1,6 @@
 # yoya-layout
 
-Yoya.Basic 布局组件使用技能。当用户需要使用 Flex、Grid、Stack 等布局组件时触发此技能。
+YoyaJS 布局组件使用技能。当用户需要使用 Flex、Grid、Stack 等布局组件时触发此技能。
 
 ## 触发条件
 

@@ -1,6 +1,6 @@
 # yoya-svg
 
-Yoya.Basic SVG 组件使用技能。当用户需要创建 SVG 图形、使用 SVG 组件时触发此技能。
+YoyaJS SVG 组件使用技能。当用户需要创建 SVG 图形、使用 SVG 组件时触发此技能。
 
 ## 触发条件
 

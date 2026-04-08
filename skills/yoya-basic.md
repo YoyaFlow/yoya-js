@@ -1,17 +1,17 @@
 # yoya-basic
 
-Yoya.Basic HTML DSL 库的使用技能。当用户询问如何使用 Yoya.Basic 库、创建页面、使用组件或编写 DSL 代码时触发此技能。
+YoyaJS HTML DSL 库的使用技能。当用户询问如何使用 YoyaJS 库、创建页面、使用组件或编写 DSL 代码时触发此技能。
 
 ## 触发条件
 
-- 用户询问如何使用 Yoya.Basic 库
+- 用户询问如何使用 YoyaJS 库
 - 用户需要创建 HTML 页面或组件
 - 用户需要了解某个组件的用法
 - 用户需要示例代码
 
 ## 库概述
 
-Yoya.Basic 是一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。特点：
+YoyaJS 是一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。特点：
 - 纯 ES 模块，无需构建工具
 - 浏览器原生运行
 - 声明式语法，链式调用

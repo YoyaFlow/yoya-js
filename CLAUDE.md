@@ -38,7 +38,7 @@
 
 ## 项目概述
 
-Yoya.Basic 是一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。它运行在纯浏览器环境中，不依赖构建工具，使用 ESM 模块和可选的 TypeScript 类型声明。
+YoyaJS 是一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。它运行在纯浏览器环境中，不依赖构建工具，使用 ESM 模块和可选的 TypeScript 类型声明。
 
 ## 构建与开发
 
@@ -79,9 +79,9 @@ Vite 开发服务器提供以下功能：
     │       ├── layout.js     # 布局组件（Flex, Grid, Stack 等）
     │       └── svg.js        # SVG 组件（Svg, Circle, Path 等）
     └── examples/             # 示例代码
-        ├── yoya.example.html         # 入口导航页面（默认）
-        ├── yoya.basic.example.html   # 完整演示页面 HTML
-        ├── yoya.basic.example.js     # 完整演示页面 JS
+        ├── yoya.example.html         # 入口导航页面
+        ├── yoya.example.html         # 完整演示页面 HTML
+        ├── yoya.example.js           # 完整演示页面 JS
         ├── yoya.svg.example.html     # SVG 演示页面 HTML
         └── yoya.svg.example.js       # SVG 演示页面 JS
 ```
@@ -986,9 +986,9 @@ class Card extends Tag {
 
 ## 技能
 
-- `yoya-build` - 构建 yoya.basic.js 库
+- `yoya-build` - 构建 yoya.js 库
 - `yoya-add-element` - 添加新的 HTML 元素类和工厂函数
-- `yoya-check-types` - 检查 yoya.basic.d.ts 类型定义
+- `yoya-check-types` - 检查 yoya.d.ts 类型定义
 - `skill-creator` - 创建新的 Claude Code 技能（slash commands）
 - `v2-router-test` - 测试 V2 VRouter 路由演示页面
 - `/simplify` - 审查代码复用性和质量

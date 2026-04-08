@@ -1,6 +1,6 @@
 # Yoya.Echart - ECharts 集成组件
 
-用于在 Yoya.Basic 中使用 ECharts 图表库的集成组件。
+用于在 YoyaJS 中使用 ECharts 图表库的集成组件。
 
 ## 安装
 

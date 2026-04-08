@@ -1,5 +1,5 @@
 {
-  "name": "yoya-basic",
+  "name": "yoyajs",
   "version": "1.0.0",
   "description": "浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法",
   "type": "module",
