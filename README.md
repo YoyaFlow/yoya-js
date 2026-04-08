@@ -169,6 +169,118 @@ YoyaJS 与 HTMX **设计理念相同，实现路径不同**：
 
 两者可在同一项目中配合使用：HTMX 处理简单交互（点击加载、表单提交），YoyaJS 构建复杂组件（动态表单、数据可视化）。
 
+---
+
+## 💭 关于"大型项目"的思考
+
+### 常见质疑
+
+> "这个项目对大型 SPA 不友好，没有状态管理、没有虚拟 DOM、没有复杂路由"
+
+### 我们的回应
+
+**1. 大型项目真的需要那些"标准特性"吗？**
+
+| "必需品" | 实际使用情况 |
+|---------|-------------|
+| **状态管理 (Redux/Vuex)** | 80% 项目只用到了 `globalThis.appState = {}` |
+| **虚拟 DOM** | 大部分页面是表单/表格，更新频率远低于阈值 |
+| **复杂路由** | 后台系统 90% 是列表 - 详情 - 表单，固定模式 |
+| **构建工具链** | ESM 原生支持后，很多项目零构建也能跑 |
+| **组件生命周期** | `onMounted` + `onUnmounted` 就够了，需要 12 个钩子吗？ |
+
+**2. 大型项目的真实需求是什么？**
+
+真正卡住大型项目的是：
+
+- ✅ **代码组织** — 目录结构、模块拆分、命名规范
+- ✅ **类型安全** — TypeScript 能解决大部分问题
+- ✅ **测试覆盖** — 单元测试 + E2E
+- ✅ **性能瓶颈** — 接口响应、大数据渲染、图片加载
+- ✅ **团队协作** — Code Review、文档、接口约定
+
+而不是：
+- ❌ 有没有 Vuex
+- ❌ 有没有虚拟 DOM
+- ❌ 有没有 JSX
+
+**3. Yoya 的实际能力**
+
+| 真实需求 | Yoya 的方案 |
+|---------|-----------|
+| **代码可维护** | DSL 结构清晰，函数式组织 |
+| **类型安全** | TypeScript 声明完整 (`.d.ts`) |
+| **组件复用** | 工厂函数 + Class 继承 |
+| **状态管理** | `StateMachine` 状态机 + 状态属性系统 + 拦截器 |
+| **性能** | 直接 DOM 操作，无虚拟 DOM 开销 |
+| **测试** | 纯函数易测试，已有 Playwright E2E |
+
+**4. 被忽视的真相**
+
+- **虚拟 DOM 不是为性能，是为框架** — React 需要它来支持 JSX 和不可变状态，直接 DOM 操作在很多场景更快
+- **状态管理不是必须用第三方库** — Yoya 内置 `StateMachine`，支持状态注册、处理器、拦截器、状态快照
+- **"大型项目"的定义被框架绑架了** — 10 万行代码的项目，用原生 JS 写的也不少，决定复杂度的是业务，不是技术栈
+
+**5. Yoya 的状态管理能力**
+
+```javascript
+// 组件级状态管理
+class VButton extends Tag {
+  constructor(setup) {
+    super('button');
+    // 注册状态属性（支持 boolean/string/number 类型）
+    this.registerStateAttrs('disabled', 'loading', { size: 'string' });
+    // 注册状态处理器
+    this.state.registerHandler('disabled', (val) => {
+      this.attr('disabled', val);
+      this.state('disabled', val ? 'disabled' : '');
+    });
+    this.state.registerHandler('loading', (val) => {
+      val ? this.addClass('is-loading') : this.removeClass('is-loading');
+    });
+  }
+  // 状态访问
+  state(name, value) { /* ... */ }
+}
+
+// 状态拦截器
+button.state.registerInterceptor((stateName, value) => {
+  if (stateName === 'disabled' && value === true) {
+    console.log('Button disabled');
+  }
+  return { stateName, value };
+});
+
+// 状态快照与恢复
+button.state.saveSnapshot();  // 保存当前状态
+button.state('disabled', true);
+button.state.restoreSnapshot(); // 恢复到快照
+
+// 全局状态共享
+globalThis.appState = { user: null, token: null };
+const store = reactive(globalThis.appState);
+```
+
+### 我们的立场
+
+**Yoya 走的是另一条路：基于 Web 标准、零依赖、直接 DOM 操作。**
+
+这条路被框架热潮掩盖了，但它是可行的。适合：
+
+- ✅ 需要长期维护的内网/私有化项目
+- ✅ 全栈开发者快速构建后台系统
+- ✅ 微前端架构中的子应用
+- ✅ AI 生成 UI 代码的直接执行环境
+- ✅ SSR 页面的局部动态增强
+- ✅ **数据可视化大屏** — 直接操作 DOM，无虚拟 DOM 开销，性能更高
+- ✅ **复杂状态管理场景** — 内置 StateMachine，支持状态拦截器、快照、类型定义
+
+唯一不适合：
+
+- ❌ **必须依赖 React/Vue 生态的特定组件** — 如 Ant Design、Element UI 等
+
+**选择 Yoya，不是因为它"功能少"，而是因为它选择了另一条技术路径。**
+
 ## 开发
 
 ```bash

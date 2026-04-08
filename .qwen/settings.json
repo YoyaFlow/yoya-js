@@ -24,7 +24,9 @@
       "Bash(rm *)",
       "Bash(head *)",
       "Bash(echo *)",
-      "Bash(ls *)"
+      "Bash(ls *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   },
   "$version": 3
