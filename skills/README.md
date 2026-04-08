@@ -1,6 +1,6 @@
-# Yoya.Basic 技能索引
+# YoyaJS 技能索引
 
-本目录包含 Yoya.Basic HTML DSL 库的使用技能文档。
+本目录包含 YoyaJS HTML DSL 库的使用技能文档。
 
 ## 可用技能
 

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic - Dashboard Decoration Components</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <!-- 定义 CSS 变量 -->
+  <style>
+    :root {
+      --yoya-primary: #667eea;
+      --yoya-primary-light: #764ba2;
+      --yoya-bg: #ffffff;
+      --yoya-bg-secondary: #f7f8fa;
+      --yoya-border: #e0e0e0;
+      --yoya-border-light: #e5e5e7;
+      --yoya-text-primary: #1a1c1f;
+      --yoya-text-secondary: #4a4d55;
+      --yoya-radius-md: 6px;
+      --yoya-radius-lg: 8px;
+      --yoya-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--yoya-bg-secondary);
+      color: var(--yoya-text-primary);
+      padding: 24px;
+    }
+    .demo-section { margin-bottom: 32px; }
+    .demo-title { 
+      font-size: 18px; 
+      font-weight: 600; 
+      margin-bottom: 16px; 
+      color: var(--yoya-text-primary);
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--yoya-primary);
+    }
+    .demo-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  </style>
+  <link rel="stylesheet" href="../../yoya/theme/css/components/dashboard.css">
+</head>
+<body>
+  <div style="padding: 24px 32px;">
+    <h1 style="font-size: 24px; margin-bottom: 8px;">🎨 大屏装饰组件演示</h1>
+    <p style="color: var(--yoya-text-secondary); margin-bottom: 24px;">边框、分割线、角标、标题栏等美化组件</p>
+    
+    <!-- 1. VBorder 装饰边框 -->
+    <div class="demo-section">
+      <div class="demo-title">VBorder 装饰边框</div>
+      <div class="demo-row">
+        <!-- 普通边框 -->
+        <div id="border1"></div>
+        <!-- 渐变边框 -->
+        <div id="border2"></div>
+        <!-- 发光边框 -->
+        <div id="border3"></div>
+        <!-- 角标边框 -->
+        <div id="border4"></div>
+      </div>
+    </div>
+
+    <!-- 2. VDivider 分割线 -->
+    <div class="demo-section">
+      <div class="demo-title">VDivider 分割线</div>
+      <div style="display: flex; flex-direction: column; gap: 20px; max-width: 600px;">
+        <div id="divider1"></div>
+        <div id="divider2"></div>
+        <div id="divider3"></div>
+        <div id="divider4"></div>
+        <div id="divider5"></div>
+      </div>
+    </div>
+
+    <!-- 3. VCorner 角标装饰 -->
+    <div class="demo-section">
+      <div class="demo-title">VCorner 角标装饰</div>
+      <div class="demo-row">
+        <div id="corner1"></div>
+        <div id="corner2"></div>
+        <div id="corner3"></div>
+      </div>
+    </div>
+
+    <!-- 4. VTitleBar 标题栏 -->
+    <div class="demo-section">
+      <div class="demo-title">VTitleBar 标题栏</div>
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div id="titlebar1"></div>
+        <div id="titlebar2"></div>
+        <div id="titlebar3"></div>
+        <div id="titlebar4"></div>
+      </div>
+    </div>
+
+    <!-- 5. VPanel 装饰面板 -->
+    <div class="demo-section">
+      <div class="demo-title">VPanel 装饰面板</div>
+      <div class="demo-row">
+        <div id="panel1" style="flex: 1; min-width: 250px;"></div>
+        <div id="panel2" style="flex: 1; min-width: 250px;"></div>
+        <div id="panel3" style="flex: 1; min-width: 250px;"></div>
+      </div>
+    </div>
+
+    <!-- 6. VGlowBox 发光盒子 -->
+    <div class="demo-section">
+      <div class="demo-title">VGlowBox 发光盒子</div>
+      <div class="demo-row">
+        <div id="glowbox1"></div>
+        <div id="glowbox2"></div>
+        <div id="glowbox3"></div>
+      </div>
+    </div>
+
+    <!-- 7. VTechBorder 科技风边框 - 实际使用场景 -->
+    <div class="demo-section">
+      <div class="demo-title">VTechBorder 科技风边框 - 实际使用场景</div>
+      <div class="demo-row">
+        <!-- 场景 1: 服务器状态监控卡片 -->
+        <div id="techborder1" style="flex: 1; min-width: 280px;"></div>
+        <!-- 场景 2: 实时告警信息面板 -->
+        <div id="techborder2" style="flex: 1; min-width: 280px;"></div>
+      </div>
+    </div>
+
+    <!-- 8. 综合示例 -->
+    <div class="demo-section">
+      <div class="demo-title">综合示例 - 数据看板卡片</div>
+      <div id="dashboard-card" style="max-width: 800px;"></div>
+    </div>
+  </div>
+  <script type="module" src="./yoya.dashboard.decoration.js"></script>
+</body></html>

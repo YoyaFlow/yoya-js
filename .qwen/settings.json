@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(localhost)",
+      "Bash(npm run *)",
+      "Bash(npm test)",
+      "Bash(curl *)",
+      "Bash(cat)",
+      "Bash(html)",
+      "Bash(theme)",
+      "Bash(import *)",
+      "Bash(inittheme)",
+      "Bash(settimeout)",
+      "Bash(console.log)",
+      "Bash(const *)",
+      "Bash(setthememode)",
+      "Bash(})",
+      "Bash(btn.bindto)",
+      "Bash(window.testbtn *)",
+      "Bash(}, *)",
+      "Bash(eof)",
+      "Bash(node *)",
+      "Bash(npx *)",
+      "Bash(rm *)",
+      "Bash(head *)",
+      "Bash(echo *)",
+      "Bash(ls *)"
+    ]
+  },
+  "$version": 3
+}

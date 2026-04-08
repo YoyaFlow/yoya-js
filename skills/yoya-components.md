@@ -1,6 +1,6 @@
 # yoya-components
 
-Yoya.Basic UI 组件使用技能。当用户需要使用 Card、Menu、Message、Code 等 UI 组件时触发此技能。
+YoyaJS UI 组件使用技能。当用户需要使用 Card、Menu、Message、Code 等 UI 组件时触发此技能。
 
 ## 触发条件
 

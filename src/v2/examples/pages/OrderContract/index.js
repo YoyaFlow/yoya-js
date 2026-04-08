@@ -141,10 +141,10 @@ export function createLanguageSwitcher(onChange) {
         const isActive = currentLang === code;
         btn.styles({
           padding: '8px 16px',
-          border: isActive ? '1px solid var(--islands-primary)' : '1px solid var(--islands-border)',
+          border: isActive ? '1px solid var(--yoya-primary)' : '1px solid var(--yoya-border)',
           borderRadius: '6px',
-          background: isActive ? 'var(--islands-primary)' : 'var(--islands-bg)',
-          color: isActive ? 'white' : 'var(--islands-text)',
+          background: isActive ? 'var(--yoya-primary)' : 'var(--yoya-bg)',
+          color: isActive ? 'white' : 'var(--yoya-text)',
           cursor: 'pointer',
           fontSize: '14px',
           transition: 'all 0.2s'
@@ -164,14 +164,14 @@ export function createLanguageSwitcher(onChange) {
  */
 function createStatusBadge(statusKey) {
   const statusStyles = {
-    pending: { bg: 'var(--islands-warning-bg)', color: 'var(--islands-warning)' },
-    processing: { bg: 'var(--islands-info-bg)', color: 'var(--islands-info)' },
-    completed: { bg: 'var(--islands-success-bg)', color: 'var(--islands-success)' },
-    active: { bg: 'var(--islands-primary-alpha)', color: 'var(--islands-primary)' },
-    expired: { bg: 'var(--islands-error-bg)', color: 'var(--islands-error)' },
-    paid: { bg: 'var(--islands-success-bg)', color: 'var(--islands-success)' },
-    unpaid: { bg: 'var(--islands-warning-bg)', color: 'var(--islands-warning)' },
-    shipped: { bg: 'var(--islands-info-bg)', color: 'var(--islands-info)' }
+    pending: { bg: 'var(--yoya-warning-bg)', color: 'var(--yoya-warning)' },
+    processing: { bg: 'var(--yoya-info-bg)', color: 'var(--yoya-info)' },
+    completed: { bg: 'var(--yoya-success-bg)', color: 'var(--yoya-success)' },
+    active: { bg: 'var(--yoya-primary-alpha)', color: 'var(--yoya-primary)' },
+    expired: { bg: 'var(--yoya-error-bg)', color: 'var(--yoya-error)' },
+    paid: { bg: 'var(--yoya-success-bg)', color: 'var(--yoya-success)' },
+    unpaid: { bg: 'var(--yoya-warning-bg)', color: 'var(--yoya-warning)' },
+    shipped: { bg: 'var(--yoya-info-bg)', color: 'var(--yoya-info)' }
   };
 
   const style = statusStyles[statusKey] || statusStyles.pending;
@@ -225,11 +225,11 @@ function createEditableField(dataKey, label, options = {}) {
 export function createOrderCard() {
   return div(section => {
     section.styles({
-      background: 'var(--islands-card-bg)',
+      background: 'var(--yoya-card-bg)',
       borderRadius: '8px',
       padding: '20px',
-      boxShadow: 'var(--islands-shadow)',
-      border: '1px solid var(--islands-border-light)'
+      boxShadow: 'var(--yoya-shadow)',
+      border: '1px solid var(--yoya-border-light)'
     });
 
     // 标题
@@ -239,7 +239,7 @@ export function createOrderCard() {
         fontWeight: '600',
         marginBottom: '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid var(--islands-border-light)'
+        borderBottom: '1px solid var(--yoya-border-light)'
       });
       title.text(t('order.orderInfo'));
     });
@@ -261,12 +261,12 @@ export function createOrderCard() {
 
     // 物流信息
     section.div(shipping => {
-      shipping.styles({ marginTop: '16px', padding: '12px', background: 'var(--islands-bg-secondary)', borderRadius: '6px' });
+      shipping.styles({ marginTop: '16px', padding: '12px', background: 'var(--yoya-bg-secondary)', borderRadius: '6px' });
 
       shipping.div(row => {
         row.styles({ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' });
         row.span(label => {
-          label.styles({ color: 'var(--islands-text-secondary)', fontSize: '13px' });
+          label.styles({ color: 'var(--yoya-text-secondary)', fontSize: '13px' });
           label.text(t('order.trackingNumber'));
         });
         row.span(value => {
@@ -278,7 +278,7 @@ export function createOrderCard() {
       shipping.div(row => {
         row.styles({ display: 'flex', justifyContent: 'space-between' });
         row.span(label => {
-          label.styles({ color: 'var(--islands-text-secondary)', fontSize: '13px' });
+          label.styles({ color: 'var(--yoya-text-secondary)', fontSize: '13px' });
           label.text(t('order.shippingAddress'));
         });
         row.span(value => {
@@ -295,7 +295,7 @@ export function createOrderCard() {
         gap: '12px',
         marginTop: '20px',
         paddingTop: '16px',
-        borderTop: '1px solid var(--islands-border-light)'
+        borderTop: '1px solid var(--yoya-border-light)'
       });
 
       actions.vButton(btn => {
@@ -319,11 +319,11 @@ export function createOrderCard() {
 export function createCustomerCard() {
   return div(section => {
     section.styles({
-      background: 'var(--islands-card-bg)',
+      background: 'var(--yoya-card-bg)',
       borderRadius: '8px',
       padding: '20px',
-      boxShadow: 'var(--islands-shadow)',
-      border: '1px solid var(--islands-border-light)'
+      boxShadow: 'var(--yoya-shadow)',
+      border: '1px solid var(--yoya-border-light)'
     });
 
     // 标题
@@ -333,7 +333,7 @@ export function createCustomerCard() {
         fontWeight: '600',
         marginBottom: '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid var(--islands-border-light)'
+        borderBottom: '1px solid var(--yoya-border-light)'
       });
       title.text(t('order.customerInfo'));
     });
@@ -354,8 +354,8 @@ export function createCustomerCard() {
           borderRadius: '12px',
           fontSize: '12px',
           fontWeight: '500',
-          background: 'var(--islands-primary-alpha)',
-          color: 'var(--islands-primary)'
+          background: 'var(--yoya-primary-alpha)',
+          color: 'var(--yoya-primary)'
         });
         l.text(t(`customerLevel.${orderData.customerLevel}`));
       }));
@@ -368,7 +368,7 @@ export function createCustomerCard() {
         gap: '12px',
         marginTop: '20px',
         paddingTop: '16px',
-        borderTop: '1px solid var(--islands-border-light)'
+        borderTop: '1px solid var(--yoya-border-light)'
       });
 
       actions.vButton(btn => {
@@ -392,11 +392,11 @@ export function createCustomerCard() {
 export function createContractCard() {
   return div(section => {
     section.styles({
-      background: 'var(--islands-card-bg)',
+      background: 'var(--yoya-card-bg)',
       borderRadius: '8px',
       padding: '20px',
-      boxShadow: 'var(--islands-shadow)',
-      border: '1px solid var(--islands-border-light)',
+      boxShadow: 'var(--yoya-shadow)',
+      border: '1px solid var(--yoya-border-light)',
       gridColumn: '1 / -1'
     });
 
@@ -407,7 +407,7 @@ export function createContractCard() {
         fontWeight: '600',
         marginBottom: '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid var(--islands-border-light)'
+        borderBottom: '1px solid var(--yoya-border-light)'
       });
       title.text(t('order.contractInfo'));
     });
@@ -435,8 +435,8 @@ export function createContractCard() {
               padding: '2px 8px',
               borderRadius: '4px',
               fontSize: '11px',
-              background: 'var(--islands-warning-bg)',
-              color: 'var(--islands-warning)'
+              background: 'var(--yoya-warning-bg)',
+              color: 'var(--yoya-warning)'
             });
             badge.text(`${t('common.warning')} - ${days}${t('order.daysLeft') || '天'}`);
           });
@@ -447,8 +447,8 @@ export function createContractCard() {
               padding: '2px 8px',
               borderRadius: '4px',
               fontSize: '11px',
-              background: 'var(--islands-error-bg)',
-              color: 'var(--islands-error)'
+              background: 'var(--yoya-error-bg)',
+              color: 'var(--yoya-error)'
             });
             badge.text(t('status.expired'));
           });
@@ -466,15 +466,15 @@ export function createContractCard() {
       remark.styles({
         marginTop: '16px',
         padding: '12px',
-        background: 'var(--islands-bg-secondary)',
+        background: 'var(--yoya-bg-secondary)',
         borderRadius: '6px'
       });
       remark.div(label => {
-        label.styles({ color: 'var(--islands-text-secondary)', fontSize: '13px', marginBottom: '6px' });
+        label.styles({ color: 'var(--yoya-text-secondary)', fontSize: '13px', marginBottom: '6px' });
         label.text(t('common.remark'));
       });
       remark.div(content => {
-        content.styles({ color: 'var(--islands-text)', fontSize: '14px' });
+        content.styles({ color: 'var(--yoya-text)', fontSize: '14px' });
         content.text(orderData.remark || t('common.noData'));
       });
     });
@@ -486,7 +486,7 @@ export function createContractCard() {
         gap: '12px',
         marginTop: '20px',
         paddingTop: '16px',
-        borderTop: '1px solid var(--islands-border-light)'
+        borderTop: '1px solid var(--yoya-border-light)'
       });
 
       actions.vButton(btn => {
@@ -525,7 +525,7 @@ export function createOrderContractPage() {
         alignItems: 'center',
         marginBottom: '24px',
         paddingBottom: '16px',
-        borderBottom: '1px solid var(--islands-border)'
+        borderBottom: '1px solid var(--yoya-border)'
       });
 
       header.div(title => {

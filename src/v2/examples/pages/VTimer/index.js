@@ -26,7 +26,7 @@ function createDatePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '100px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '100px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('日期：');
         });
         row.child(vTimer(t => {
@@ -42,7 +42,7 @@ function createDatePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '100px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '100px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('月份：');
         });
         row.child(vTimer(t => {
@@ -58,7 +58,7 @@ function createDatePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '100px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '100px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('周：');
         });
         row.child(vTimer(t => {
@@ -74,7 +74,7 @@ function createDatePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '100px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '100px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('时间：');
         });
         row.child(vTimer(t => {
@@ -102,7 +102,7 @@ function createDateTimePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('日期时间：');
         });
         row.child(vTimer(t => {
@@ -118,7 +118,7 @@ function createDateTimePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('限制范围：');
         });
         row.child(vTimer(t => {
@@ -148,7 +148,7 @@ function createDateRangePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('日期范围：');
         });
         row.child(vTimer2(t2 => {
@@ -167,7 +167,7 @@ function createDateRangePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('月份范围：');
         });
         row.child(vTimer2(t2 => {
@@ -186,7 +186,7 @@ function createDateRangePickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('时间范围：');
         });
         row.child(vTimer2(t2 => {
@@ -217,7 +217,7 @@ function createValidationPickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('必填日期：');
         });
         row.child(vTimer(t => {
@@ -239,7 +239,7 @@ function createValidationPickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('禁用状态：');
         });
         row.child(vTimer(t => {
@@ -253,7 +253,7 @@ function createValidationPickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('只读状态：');
         });
         row.child(vTimer(t => {
@@ -267,7 +267,7 @@ function createValidationPickers() {
       content.div(row => {
         row.styles({ display: 'flex', alignItems: 'center', gap: '12px' });
         row.span(label => {
-          label.styles({ width: '120px', fontSize: '14px', color: 'var(--islands-text-secondary)' });
+          label.styles({ width: '120px', fontSize: '14px', color: 'var(--yoya-text-secondary)' });
           label.text('错误状态：');
         });
         row.child(vTimer(t => {
@@ -292,10 +292,10 @@ function createScenarios() {
       // 请假申请表单
       content.div(form => {
         form.styles({
-          border: '1px solid var(--islands-border)',
+          border: '1px solid var(--yoya-border)',
           borderRadius: '8px',
           padding: '16px',
-          background: 'var(--islands-bg-secondary)'
+          background: 'var(--yoya-bg-secondary)'
         });
 
         form.div(title => {
@@ -306,7 +306,7 @@ function createScenarios() {
         form.div(field => {
           field.styles({ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' });
           field.span(label => {
-            label.styles({ width: '80px', fontSize: '13px', color: 'var(--islands-text-secondary)' });
+            label.styles({ width: '80px', fontSize: '13px', color: 'var(--yoya-text-secondary)' });
             label.text('开始时间：');
           });
           field.child(vTimer(t => {
@@ -319,7 +319,7 @@ function createScenarios() {
         form.div(field => {
           field.styles({ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' });
           field.span(label => {
-            label.styles({ width: '80px', fontSize: '13px', color: 'var(--islands-text-secondary)' });
+            label.styles({ width: '80px', fontSize: '13px', color: 'var(--yoya-text-secondary)' });
             label.text('结束时间：');
           });
           field.child(vTimer(t => {
@@ -345,10 +345,10 @@ function createScenarios() {
       // 会议预定表单
       content.div(form => {
         form.styles({
-          border: '1px solid var(--islands-border)',
+          border: '1px solid var(--yoya-border)',
           borderRadius: '8px',
           padding: '16px',
-          background: 'var(--islands-bg-secondary)'
+          background: 'var(--yoya-bg-secondary)'
         });
 
         form.div(title => {
@@ -359,7 +359,7 @@ function createScenarios() {
         form.div(field => {
           field.styles({ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' });
           field.span(label => {
-            label.styles({ width: '80px', fontSize: '13px', color: 'var(--islands-text-secondary)' });
+            label.styles({ width: '80px', fontSize: '13px', color: 'var(--yoya-text-secondary)' });
             label.text('会议日期：');
           });
           field.child(vTimer(t => {
@@ -372,7 +372,7 @@ function createScenarios() {
         form.div(field => {
           field.styles({ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' });
           field.span(label => {
-            label.styles({ width: '80px', fontSize: '13px', color: 'var(--islands-text-secondary)' });
+            label.styles({ width: '80px', fontSize: '13px', color: 'var(--yoya-text-secondary)' });
             label.text('开始时间：');
           });
           field.child(vTimer(t => {

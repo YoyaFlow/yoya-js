@@ -27,6 +27,11 @@ export const routes = {
   'VPager': () => import('../pages/Pager/index.js').then(m => m.createVPagerPage),
   'Icons': () => import('../pages/Icons/index.js').then(m => m.createIconsPage),
   'Modal': () => import('../pages/Modal/index.js').then(m => m.createModalPage),
+  'UIComponents': () => import('../pages/UIComponents/index.js').then(m => m.createUIComponentsPage),
+  'Statistic': () => import('../pages/Statistic/index.js').then(m => m.createStatisticPage),
+  'Interaction': () => import('../pages/Interaction/index.js').then(m => m.createInteractionPage),
+  'VTree': () => import('../pages/VTree/index.js').then(m => m.createVTreePage),
+  'Dashboard': () => import('../pages/Dashboard/index.js').then(m => m.createDashboardPage),
 };
 
 /**
@@ -56,6 +61,12 @@ export async function getPageComponent(fileName) {
     'tabs.html': 'Tabs',
     'pager.html': 'VPager',
     'icons.html': 'Icons',
+    'modal.html': 'Modal',
+    'ui-components.html': 'UIComponents',
+    'statistic.html': 'Statistic',
+    'interaction.html': 'Interaction',
+    'vtree.html': 'VTree',
+    'dashboard.html': 'Dashboard',
   };
 
   const pageName = pageMap[fileName];

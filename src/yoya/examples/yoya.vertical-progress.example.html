@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VVerticalProgress - 纵向进度条组件</title>
+  <link rel="stylesheet" href="../../yoya/theme/css/components/vertical-progress.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      padding: 24px;
+      margin: 0;
+    }
+    .demo-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .demo-subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 32px;
+    }
+    .demo-section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .demo-header {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #667eea;
+    }
+    .demo-grid {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .demo-item {
+      text-align: center;
+    }
+    .demo-item-label {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #666;
+    }
+    /* 工业场景样式 */
+    .industrial-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      padding: 24px;
+      background: #1a1a2e;
+      border-radius: 12px;
+    }
+    .industrial-card {
+      background: #16213e;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .industrial-card h4 {
+      color: #fff;
+      font-size: 14px;
+      margin: 0 0 16px 0;
+    }
+    .industrial-value {
+      color: #00f5ff;
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .industrial-status {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+    .status-normal {
+      background: rgba(82, 196, 26, 0.2);
+      color: #52c41a;
+    }
+    .status-warning {
+      background: rgba(250, 173, 20, 0.2);
+      color: #faad14;
+    }
+    .status-alarm {
+      background: rgba(255, 77, 79, 0.2);
+      color: #ff4d4f;
+    }
+  </style>
+</head>
+<body>
+  <div style="padding: 24px 32px; margin-bottom: 32px;">
+    <h1 class="demo-title">📊 VVerticalProgress 纵向进度条</h1>
+    <p class="demo-subtitle">适用于工业场景的料位、重量等纵向进度指示，支持预警、报警双阈值</p>
+  </div>
+
+  <!-- 基础示例 -->
+  <div class="demo-section">
+    <div class="demo-header">🔹 基础用法 - 百分比显示</div>
+    <div class="demo-grid">
+      <div class="demo-item" id="example1"></div>
+      <div class="demo-item" id="example2"></div>
+      <div class="demo-item" id="example3"></div>
+      <div class="demo-item" id="example4"></div>
+    </div>
+  </div>
+
+  <!-- 绝对值显示 -->
+  <div class="demo-section">
+    <div class="demo-header">🔹 绝对值显示 - 带单位</div>
+    <div class="demo-grid">
+      <div class="demo-item" id="example-weight"></div>
+      <div class="demo-item" id="example-height"></div>
+      <div class="demo-item" id="example-pressure"></div>
+    </div>
+  </div>
+
+  <!-- 工业场景 - 石子煤排渣箱 -->
+  <div class="demo-section">
+    <div class="demo-header">🏭 工业场景 - 石子煤排渣箱监控系统</div>
+    <div class="industrial-container">
+      <div class="industrial-card">
+        <h4>排渣箱 #1</h4>
+        <div id="tank1"></div>
+        <div class="industrial-value" id="value1">--</div>
+        <span class="industrial-status status-normal" id="status1">正常</span>
+      </div>
+      <div class="industrial-card">
+        <h4>排渣箱 #2</h4>
+        <div id="tank2"></div>
+        <div class="industrial-value" id="value2">--</div>
+        <span class="industrial-status status-normal" id="status2">正常</span>
+      </div>
+      <div class="industrial-card">
+        <h4>排渣箱 #3</h4>
+        <div id="tank3"></div>
+        <div class="industrial-value" id="value3">--</div>
+        <span class="industrial-status status-normal" id="status3">正常</span>
+      </div>
+      <div class="industrial-card">
+        <h4>排渣箱 #4</h4>
+        <div id="tank4"></div>
+        <div class="industrial-value" id="value4">--</div>
+        <span class="industrial-status status-normal" id="status4">正常</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 不同阈值配置 -->
+  <div class="demo-section">
+    <div class="demo-header">⚙️ 不同阈值配置对比</div>
+    <div class="demo-grid">
+      <div class="demo-item" id="threshold-strict"></div>
+      <div class="demo-item" id="threshold-normal"></div>
+      <div class="demo-item" id="threshold-loose"></div>
+    </div>
+  </div>
+
+  <!-- 动态模拟 -->
+  <div class="demo-section">
+    <div class="demo-header">🔄 动态数据模拟</div>
+    <div style="display: flex; gap: 24px; justify-content: center; align-items: flex-end;">
+      <div id="dynamic1"></div>
+      <div id="dynamic2"></div>
+      <div id="dynamic3"></div>
+    </div>
+    <div style="text-align: center; margin-top: 24px;">
+      <button id="btn-simulate" style="padding: 12px 24px; font-size: 14px; background: #667eea; color: #fff; border: none; border-radius: 6px; cursor: pointer;">
+        🔄 模拟数据变化
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { vVerticalProgress } from '../../yoya/index.js';
+
+    // ============================================
+    // 基础示例
+    // ============================================
+
+    // 正常状态
+    vVerticalProgress(p => {
+      p.label('正常状态');
+      p.value(45);
+      p.warning(70);
+      p.alarm(90);
+      p.height(180);
+      p.width(50);
+    }).bindTo('#example1');
+
+    // 预警状态
+    vVerticalProgress(p => {
+      p.label('预警状态');
+      p.value(75);
+      p.warning(70);
+      p.alarm(90);
+      p.height(180);
+      p.width(50);
+    }).bindTo('#example2');
+
+    // 报警状态
+    vVerticalProgress(p => {
+      p.label('报警状态');
+      p.value(95);
+      p.warning(70);
+      p.alarm(90);
+      p.height(180);
+      p.width(50);
+    }).bindTo('#example3');
+
+    // 自定义颜色
+    vVerticalProgress(p => {
+      p.label('自定义颜色');
+      p.value(60);
+      p.warning(70);
+      p.alarm(90);
+      p.colors('#1890ff', '#faad14', '#ff4d4f');
+      p.height(180);
+      p.width(50);
+    }).bindTo('#example4');
+
+    // ============================================
+    // 绝对值显示
+    // ============================================
+
+    // 重量显示
+    vVerticalProgress(p => {
+      p.label('当前重量');
+      p.name('石子煤重量');
+      p.min(0);
+      p.max(1000);
+      p.value(680);
+      p.unit('kg');
+      p.warning(700);
+      p.alarm(900);
+      p.thresholdMode('absolute');
+      p.displayMode('absolute');
+      p.height(200);
+      p.width(60);
+    }).bindTo('#example-weight');
+
+    // 料位高度
+    vVerticalProgress(p => {
+      p.label('料位高度');
+      p.min(0);
+      p.max(500);
+      p.value(320);
+      p.unit('mm');
+      p.warning(350);
+      p.alarm(450);
+      p.thresholdMode('absolute');
+      p.displayMode('absolute');
+      p.height(200);
+      p.width(60);
+    }).bindTo('#example-height');
+
+    // 压力显示
+    vVerticalProgress(p => {
+      p.label('管道压力');
+      p.min(0);
+      p.max(100);
+      p.value(45);
+      p.unit('bar');
+      p.warning(70);
+      p.alarm(85);
+      p.thresholdMode('absolute');
+      p.displayMode('absolute');
+      p.height(200);
+      p.width(60);
+    }).bindTo('#example-pressure');
+
+    // ============================================
+    // 工业场景 - 石子煤排渣箱
+    // ============================================
+
+    const tanks = [
+      { id: 'tank1', valueId: 'value1', statusId: 'status1', min: 0, max: 2000, warning: 1400, alarm: 1800, value: 850 },
+      { id: 'tank2', valueId: 'value2', statusId: 'status2', min: 0, max: 2000, warning: 1400, alarm: 1800, value: 1520 },
+      { id: 'tank3', valueId: 'value3', statusId: 'status3', min: 0, max: 2000, warning: 1400, alarm: 1800, value: 1890 },
+      { id: 'tank4', valueId: 'value4', statusId: 'status4', min: 0, max: 2000, warning: 1400, alarm: 1800, value: 450 },
+    ];
+
+    const progressComponents = [];
+
+    tanks.forEach(tank => {
+      const progress = vVerticalProgress(p => {
+        p.min(tank.min);
+        p.max(tank.max);
+        p.value(tank.value);
+        p.warning(tank.warning);
+        p.alarm(tank.alarm);
+        p.thresholdMode('absolute');
+        p.displayMode('percent');
+        p.showValue(false);
+        p.height(150);
+        p.width(50);
+      });
+      progress.bindTo(`#${tank.id}`);
+      progressComponents.push({ ...tank, progress });
+
+      // 更新数值和状态
+      const updateDisplay = () => {
+        const percent = progress.getPercent().toFixed(1);
+        const status = progress.getStatus();
+        document.getElementById(tank.valueId).textContent = `${tank.value} kg (${percent}%)`;
+
+        const statusEl = document.getElementById(tank.statusId);
+        statusEl.textContent = status === 'normal' ? '正常' : status === 'warning' ? '预警' : '报警';
+        statusEl.className = `industrial-status status-${status}`;
+      };
+      updateDisplay();
+    });
+
+    // ============================================
+    // 不同阈值配置
+    // ============================================
+
+    // 严格阈值
+    vVerticalProgress(p => {
+      p.label('严格阈值');
+      p.value(55);
+      p.warning(50);
+      p.alarm(70);
+      p.height(180);
+      p.width(50);
+    }).bindTo('#threshold-strict');
+
+    // 标准阈值
+    vVerticalProgress(p => {
+      p.label('标准阈值');
+      p.value(55);
+      p.warning(70);
+      p.alarm(90);
+      p.height(180);
+      p.width(50);
+    }).bindTo('#threshold-normal');
+
+    // 宽松阈值
+    vVerticalProgress(p => {
+      p.label('宽松阈值');
+      p.value(55);
+      p.warning(85);
+      p.alarm(95);
+      p.height(180);
+      p.width(50);
+    }).bindTo('#threshold-loose');
+
+    // ============================================
+    // 动态模拟
+    // ============================================
+
+    const dynamicConfigs = [
+      { id: 'dynamic1', label: '进料口 #1', baseValue: 40, variance: 30 },
+      { id: 'dynamic2', label: '进料口 #2', baseValue: 60, variance: 25 },
+      { id: 'dynamic3', label: '进料口 #3', baseValue: 75, variance: 20 },
+    ];
+
+    const dynamicProgresses = [];
+
+    dynamicConfigs.forEach(config => {
+      const progress = vVerticalProgress(p => {
+        p.label(config.label);
+        p.value(config.baseValue);
+        p.warning(70);
+        p.alarm(90);
+        p.height(200);
+        p.width(55);
+      });
+      progress.bindTo(`#${config.id}`);
+      dynamicProgresses.push({ ...config, progress });
+    });
+
+    // 模拟数据变化
+    function simulateData() {
+      dynamicProgresses.forEach(dp => {
+        const newValue = Math.max(0, Math.min(100, dp.baseValue + (Math.random() - 0.5) * dp.variance * 2));
+        dp.progress.value(newValue.toFixed(1));
+      });
+
+      // 同时更新排渣箱数据
+      tanks.forEach(tank => {
+        const change = (Math.random() - 0.5) * 200;
+        tank.value = Math.max(0, Math.min(tank.max, tank.value + change));
+        const progress = progressComponents.find(pc => pc.id === tank.id).progress;
+        progress.value(tank.value);
+
+        // 更新显示
+        const percent = progress.getPercent().toFixed(1);
+        const status = progress.getStatus();
+        document.getElementById(tank.valueId).textContent = `${Math.round(tank.value)} kg (${percent}%)`;
+
+        const statusEl = document.getElementById(tank.statusId);
+        statusEl.textContent = status === 'normal' ? '正常' : status === 'warning' ? '预警' : '报警';
+        statusEl.className = `industrial-status status-${status}`;
+      });
+    }
+
+    document.getElementById('btn-simulate').addEventListener('click', simulateData);
+
+    console.log('VVerticalProgress 示例页面加载完成');
+  </script>
+</body>
+</html>

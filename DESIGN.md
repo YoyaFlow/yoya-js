@@ -1,8 +1,8 @@
-# Yoya.Basic 开发文档
+# YoyaJS 开发文档
 
 ## 一、项目定位
 
-Yoya.Basic 是一个运行在浏览器原生环境下的 HTML DSL 基础库。
+YoyaJS 是一个运行在浏览器原生环境下的 HTML DSL 基础库。
 
 ### 1.1 目标
 - 提供类似 Kotlin HTML DSL 的声明式语法
@@ -244,7 +244,7 @@ Dl.prototype.dd = function(setup = null) {
 ### 4.1 基础用法
 
 ```javascript
-import { div, button, input } from './yoya.basic.js';
+import { div, button, input } from './yoya.js';
 
 // setupFunction（优先）
 div(box => {
@@ -522,8 +522,8 @@ destroy() {
 ```
 /home/join/code/cctest/
 ├── DESIGN.md              # 开发文档（本文件）
-├── yoya.basic.js          # 基础元素库实现
-├── yoya.basic.d.ts        # TypeScript 类型声明
+├── yoya.js          # 基础元素库实现
+├── yoya.d.ts        # TypeScript 类型声明
 └── examples/
     └── demo.html          # 使用示例
 ```
@@ -584,32 +584,32 @@ destroy() {
 开发过程中可以使用以下技能指令：
 
 ### 9.1 yoya-build
-**描述**：构建 yoya.basic.js 库
+**描述**：构建 yoya.js 库
 
-**指令**：构建 yoya.basic.js 库，确保 ESM 格式正确，可以在浏览器环境直接使用。
+**指令**：构建 yoya.js 库，确保 ESM 格式正确，可以在浏览器环境直接使用。
 
 ### 9.2 yoya-add-element
 **描述**：添加新的 HTML 元素类
 
-**指令**：在 yoya.basic.js 中添加新的 HTML 元素类和对应的工厂函数，遵循现有代码规范。
+**指令**：在 yoya.js 中添加新的 HTML 元素类和对应的工厂函数，遵循现有代码规范。
 
 ### 9.3 yoya-check-types
 **描述**：检查 TypeScript 类型定义
 
-**指令**：检查 yoya.basic.d.ts 类型定义文件是否完整，确保所有导出的类和函数都有正确的类型声明。
+**指令**：检查 yoya.d.ts 类型定义文件是否完整，确保所有导出的类和函数都有正确的类型声明。
 
 ### 9.4 yoya-simplify (内置技能)
 **描述**：审查代码变更，优化复用性和质量
 
-**指令**：使用 `/simplify` 技能审查 yoya.basic.js 的代码，确保没有重复代码，符合设计原则。
+**指令**：使用 `/simplify` 技能审查 yoya.js 的代码，确保没有重复代码，符合设计原则。
 
 ---
 
 ## 十、开发流程
 
 1. **阅读 DESIGN.md**：开发前先阅读本文档
-2. **实现代码**：按照设计文档实现 yoya.basic.js
-3. **类型声明**：同步编写 yoya.basic.d.ts
+2. **实现代码**：按照设计文档实现 yoya.js
+3. **类型声明**：同步编写 yoya.d.ts
 4. **代码审查**：使用 /simplify 技能审查代码质量
 5. **测试验证**：创建示例 HTML 文件验证功能
 6. **文档更新**：更新本文档中的 API 说明

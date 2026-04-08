@@ -1,15 +1,15 @@
 # yoyajs
 
-在其他项目中使用 Yoya.Basic 库。当用户需要在项目中集成、导入或使用 Yoya.Basic HTML DSL 库时触发此技能。
+在其他项目中使用 YoyaJS 库。当用户需要在项目中集成、导入或使用 YoyaJS HTML DSL 库时触发此技能。
 
 ## 触发条件
 
 当用户要求：
-- 在新项目中使用 Yoya.Basic 库
-- 导入 Yoya.Basic 组件或元素
-- 查询 Yoya.Basic API 用法
-- 创建基于 Yoya.Basic 的页面或组件
-- 将 Yoya.Basic 集成到现有项目
+- 在新项目中使用 YoyaJS 库
+- 导入 YoyaJS 组件或元素
+- 查询 YoyaJS API 用法
+- 创建基于 YoyaJS 的页面或组件
+- 将 YoyaJS 集成到现有项目
 
 ## 核心原则：组件优先
 
@@ -75,9 +75,9 @@ div(d => {
 });
 ```
 
-## Yoya.Basic 库概述
+## YoyaJS 库概述
 
-Yoya.Basic 是一个**浏览器原生**的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。
+YoyaJS 是一个**浏览器原生**的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。
 
 **核心特点：**
 - 🌿 **零依赖** —— 无需 npm、无需构建工具，纯 ES 模块
@@ -1307,7 +1307,7 @@ MicroPage().bindTo('#micro-container');
 ## 注意事项
 
 1. **组件优先原则** —— 优先使用 vBody、UI 组件、布局组件，最后才考虑基础元素
-2. Yoya.Basic 运行在浏览器环境，不需要 Node.js 构建
+2. YoyaJS 运行在浏览器环境，不需要 Node.js 构建
 3. 使用 ES 模块语法（import/export）
 4. 所有组件都支持链式调用
 5. setup 支持三种方式：字符串、对象、函数

@@ -13,8 +13,8 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: var(--islands-bg, #fff);
-      color: var(--islands-text, #2B2D30);
+      background: var(--yoya-bg, #fff);
+      color: var(--yoya-text, #2B2D30);
       min-height: 100vh;
     }
 
@@ -31,13 +31,13 @@
       align-items: center;
       margin-bottom: 24px;
       padding-bottom: 16px;
-      border-bottom: 1px solid var(--islands-border);
+      border-bottom: 1px solid var(--yoya-border);
     }
 
     .page-title {
       font-size: 24px;
       font-weight: 600;
-      color: var(--islands-text);
+      color: var(--yoya-text);
     }
 
     .language-switcher {
@@ -48,24 +48,24 @@
 
     .lang-btn {
       padding: 8px 16px;
-      border: 1px solid var(--islands-border);
+      border: 1px solid var(--yoya-border);
       border-radius: 6px;
-      background: var(--islands-bg);
-      color: var(--islands-text);
+      background: var(--yoya-bg);
+      color: var(--yoya-text);
       cursor: pointer;
       font-size: 14px;
       transition: all 0.2s;
     }
 
     .lang-btn:hover {
-      background: var(--islands-bg-hover);
-      border-color: var(--islands-primary);
+      background: var(--yoya-bg-hover);
+      border-color: var(--yoya-primary);
     }
 
     .lang-btn.active {
-      background: var(--islands-primary);
+      background: var(--yoya-primary);
       color: white;
-      border-color: var(--islands-primary);
+      border-color: var(--yoya-primary);
     }
 
     /* 内容网格 */
@@ -81,11 +81,11 @@
 
     /* 卡片样式 */
     .card {
-      background: var(--islands-card-bg);
+      background: var(--yoya-card-bg);
       border-radius: 8px;
       padding: 20px;
-      box-shadow: var(--islands-shadow);
-      border: 1px solid var(--islands-border-light);
+      box-shadow: var(--yoya-shadow);
+      border: 1px solid var(--yoya-border-light);
     }
 
     .card-title {
@@ -93,8 +93,8 @@
       font-weight: 600;
       margin-bottom: 16px;
       padding-bottom: 12px;
-      border-bottom: 1px solid var(--islands-border-light);
-      color: var(--islands-text);
+      border-bottom: 1px solid var(--yoya-border-light);
+      color: var(--yoya-text);
     }
 
     /* 状态徽章 */
@@ -106,14 +106,14 @@
       font-weight: 500;
     }
 
-    .status-pending { background: var(--islands-warning-bg); color: var(--islands-warning); }
-    .status-processing { background: var(--islands-info-bg); color: var(--islands-info); }
-    .status-completed { background: var(--islands-success-bg); color: var(--islands-success); }
-    .status-active { background: var(--islands-primary-alpha); color: var(--islands-primary); }
-    .status-expired { background: var(--islands-error-bg); color: var(--islands-error); }
-    .status-paid { background: var(--islands-success-bg); color: var(--islands-success); }
-    .status-unpaid { background: var(--islands-warning-bg); color: var(--islands-warning); }
-    .status-shipped { background: var(--islands-info-bg); color: var(--islands-info); }
+    .status-pending { background: var(--yoya-warning-bg); color: var(--yoya-warning); }
+    .status-processing { background: var(--yoya-info-bg); color: var(--yoya-info); }
+    .status-completed { background: var(--yoya-success-bg); color: var(--yoya-success); }
+    .status-active { background: var(--yoya-primary-alpha); color: var(--yoya-primary); }
+    .status-expired { background: var(--yoya-error-bg); color: var(--yoya-error); }
+    .status-paid { background: var(--yoya-success-bg); color: var(--yoya-success); }
+    .status-unpaid { background: var(--yoya-warning-bg); color: var(--yoya-warning); }
+    .status-shipped { background: var(--yoya-info-bg); color: var(--yoya-info); }
 
     /* 客户等级徽章 */
     .level-badge {
@@ -122,8 +122,8 @@
       border-radius: 12px;
       font-size: 12px;
       font-weight: 500;
-      background: var(--islands-primary-alpha);
-      color: var(--islands-primary);
+      background: var(--yoya-primary-alpha);
+      color: var(--yoya-primary);
     }
 
     /* 操作栏 */
@@ -132,7 +132,7 @@
       gap: 12px;
       margin-top: 20px;
       padding-top: 16px;
-      border-top: 1px solid var(--islands-border-light);
+      border-top: 1px solid var(--yoya-border-light);
     }
 
     /* 信息行 */
@@ -140,7 +140,7 @@
       display: flex;
       justify-content: space-between;
       padding: 8px 0;
-      border-bottom: 1px solid var(--islands-border-light);
+      border-bottom: 1px solid var(--yoya-border-light);
     }
 
     .info-row:last-child {
@@ -148,7 +148,7 @@
     }
 
     .info-label {
-      color: var(--islands-text-secondary);
+      color: var(--yoya-text-secondary);
       font-size: 13px;
     }
 
@@ -161,7 +161,7 @@
     .shipping-box {
       margin-top: 16px;
       padding: 12px;
-      background: var(--islands-bg-secondary);
+      background: var(--yoya-bg-secondary);
       border-radius: 6px;
     }
 
@@ -169,18 +169,18 @@
     .remark-box {
       margin-top: 16px;
       padding: 12px;
-      background: var(--islands-bg-secondary);
+      background: var(--yoya-bg-secondary);
       border-radius: 6px;
     }
 
     .remark-label {
-      color: var(--islands-text-secondary);
+      color: var(--yoya-text-secondary);
       font-size: 13px;
       margin-bottom: 6px;
     }
 
     .remark-content {
-      color: var(--islands-text);
+      color: var(--yoya-text);
       font-size: 14px;
     }
 
@@ -191,8 +191,8 @@
       padding: 2px 8px;
       border-radius: 4px;
       font-size: 11px;
-      background: var(--islands-warning-bg);
-      color: var(--islands-warning);
+      background: var(--yoya-warning-bg);
+      color: var(--yoya-warning);
     }
 
     .expired-badge {
@@ -201,8 +201,8 @@
       padding: 2px 8px;
       border-radius: 4px;
       font-size: 11px;
-      background: var(--islands-error-bg);
-      color: var(--islands-error);
+      background: var(--yoya-error-bg);
+      color: var(--yoya-error);
     }
 
     /* 响应式 */
@@ -321,10 +321,10 @@
             const isActive = getLanguage() === code;
             btn.styles({
               padding: '8px 16px',
-              border: isActive ? '1px solid var(--islands-primary)' : '1px solid var(--islands-border)',
+              border: isActive ? '1px solid var(--yoya-primary)' : '1px solid var(--yoya-border)',
               borderRadius: '6px',
-              background: isActive ? 'var(--islands-primary)' : 'var(--islands-bg)',
-              color: isActive ? 'white' : 'var(--islands-text)',
+              background: isActive ? 'var(--yoya-primary)' : 'var(--yoya-bg)',
+              color: isActive ? 'white' : 'var(--yoya-text)',
               cursor: 'pointer',
               fontSize: '14px'
             });
@@ -347,8 +347,8 @@
           borderRadius: '12px',
           fontSize: '12px',
           fontWeight: '500',
-          background: `var(--islands-${status}-bg)`,
-          color: `var(--islands-${status})`
+          background: `var(--yoya-${status}-bg)`,
+          color: `var(--yoya-${status})`
         });
         badge.text(t(`status.${status}`));
       });
@@ -377,11 +377,11 @@
     function createOrderCard() {
       return div(section => {
         section.styles({
-          background: 'var(--islands-card-bg)',
+          background: 'var(--yoya-card-bg)',
           borderRadius: '8px',
           padding: '20px',
-          boxShadow: 'var(--islands-shadow)',
-          border: '1px solid var(--islands-border-light)'
+          boxShadow: 'var(--yoya-shadow)',
+          border: '1px solid var(--yoya-border-light)'
         });
 
         section.div(title => {
@@ -390,7 +390,7 @@
             fontWeight: '600',
             marginBottom: '16px',
             paddingBottom: '12px',
-            borderBottom: '1px solid var(--islands-border-light)'
+            borderBottom: '1px solid var(--yoya-border-light)'
           });
           title.text(t('order.orderInfo'));
         });
@@ -413,14 +413,14 @@
           shipping.styles({
             marginTop: '16px',
             padding: '12px',
-            background: 'var(--islands-bg-secondary)',
+            background: 'var(--yoya-bg-secondary)',
             borderRadius: '6px'
           });
 
           shipping.div(row => {
             row.styles({ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' });
             row.span(label => {
-              label.styles({ color: 'var(--islands-text-secondary)', fontSize: '13px' });
+              label.styles({ color: 'var(--yoya-text-secondary)', fontSize: '13px' });
               label.text(t('order.trackingNumber'));
             });
             row.span(value => {
@@ -432,7 +432,7 @@
           shipping.div(row => {
             row.styles({ display: 'flex', justifyContent: 'space-between' });
             row.span(label => {
-              label.styles({ color: 'var(--islands-text-secondary)', fontSize: '13px' });
+              label.styles({ color: 'var(--yoya-text-secondary)', fontSize: '13px' });
               label.text(t('order.shippingAddress'));
             });
             row.span(value => {
@@ -449,7 +449,7 @@
             gap: '12px',
             marginTop: '20px',
             paddingTop: '16px',
-            borderTop: '1px solid var(--islands-border-light)'
+            borderTop: '1px solid var(--yoya-border-light)'
           });
 
           actions.vButton(btn => {
@@ -469,11 +469,11 @@
     function createCustomerCard() {
       return div(section => {
         section.styles({
-          background: 'var(--islands-card-bg)',
+          background: 'var(--yoya-card-bg)',
           borderRadius: '8px',
           padding: '20px',
-          boxShadow: 'var(--islands-shadow)',
-          border: '1px solid var(--islands-border-light)'
+          boxShadow: 'var(--yoya-shadow)',
+          border: '1px solid var(--yoya-border-light)'
         });
 
         section.div(title => {
@@ -482,7 +482,7 @@
             fontWeight: '600',
             marginBottom: '16px',
             paddingBottom: '12px',
-            borderBottom: '1px solid var(--islands-border-light)'
+            borderBottom: '1px solid var(--yoya-border-light)'
           });
           title.text(t('order.customerInfo'));
         });
@@ -503,8 +503,8 @@
               borderRadius: '12px',
               fontSize: '12px',
               fontWeight: '500',
-              background: 'var(--islands-primary-alpha)',
-              color: 'var(--islands-primary)'
+              background: 'var(--yoya-primary-alpha)',
+              color: 'var(--yoya-primary)'
             });
             l.text(t(`customerLevel.${orderData.customerLevel}`));
           }));
@@ -516,7 +516,7 @@
             gap: '12px',
             marginTop: '20px',
             paddingTop: '16px',
-            borderTop: '1px solid var(--islands-border-light)'
+            borderTop: '1px solid var(--yoya-border-light)'
           });
 
           actions.vButton(btn => {
@@ -536,11 +536,11 @@
     function createContractCard() {
       return div(section => {
         section.styles({
-          background: 'var(--islands-card-bg)',
+          background: 'var(--yoya-card-bg)',
           borderRadius: '8px',
           padding: '20px',
-          boxShadow: 'var(--islands-shadow)',
-          border: '1px solid var(--islands-border-light)',
+          boxShadow: 'var(--yoya-shadow)',
+          border: '1px solid var(--yoya-border-light)',
           gridColumn: '1 / -1'
         });
 
@@ -550,7 +550,7 @@
             fontWeight: '600',
             marginBottom: '16px',
             paddingBottom: '12px',
-            borderBottom: '1px solid var(--islands-border-light)'
+            borderBottom: '1px solid var(--yoya-border-light)'
           });
           title.text(t('order.contractInfo'));
         });
@@ -577,8 +577,8 @@
                   padding: '2px 8px',
                   borderRadius: '4px',
                   fontSize: '11px',
-                  background: 'var(--islands-warning-bg)',
-                  color: 'var(--islands-warning)'
+                  background: 'var(--yoya-warning-bg)',
+                  color: 'var(--yoya-warning)'
                 });
                 badge.text(`${t('common.warning')} - ${days}天`);
               });
@@ -589,8 +589,8 @@
                   padding: '2px 8px',
                   borderRadius: '4px',
                   fontSize: '11px',
-                  background: 'var(--islands-error-bg)',
-                  color: 'var(--islands-error)'
+                  background: 'var(--yoya-error-bg)',
+                  color: 'var(--yoya-error)'
                 });
                 badge.text(t('status.expired'));
               });
@@ -608,15 +608,15 @@
           remark.styles({
             marginTop: '16px',
             padding: '12px',
-            background: 'var(--islands-bg-secondary)',
+            background: 'var(--yoya-bg-secondary)',
             borderRadius: '6px'
           });
           remark.div(label => {
-            label.styles({ color: 'var(--islands-text-secondary)', fontSize: '13px', marginBottom: '6px' });
+            label.styles({ color: 'var(--yoya-text-secondary)', fontSize: '13px', marginBottom: '6px' });
             label.text(t('common.remark'));
           });
           remark.div(content => {
-            content.styles({ color: 'var(--islands-text)', fontSize: '14px' });
+            content.styles({ color: 'var(--yoya-text)', fontSize: '14px' });
             content.text(orderData.remark || t('message.noData'));
           });
         });
@@ -628,7 +628,7 @@
             gap: '12px',
             marginTop: '20px',
             paddingTop: '16px',
-            borderTop: '1px solid var(--islands-border-light)'
+            borderTop: '1px solid var(--yoya-border-light)'
           });
 
           actions.vButton(btn => {
@@ -663,7 +663,7 @@
             alignItems: 'center',
             marginBottom: '24px',
             paddingBottom: '16px',
-            borderBottom: '1px solid var(--islands-border)'
+            borderBottom: '1px solid var(--yoya-border)'
           });
 
           header.div(title => {

@@ -5,14 +5,36 @@
 
 import { vSidebar, vMenuItem, toast } from '../../../yoya/index.js';
 import { menuConfig } from '../config/menuConfig.js';
+import { demoRoutes } from '../config/routes.v2.js';
+
+/**
+ * 根据页面名称查找路由路径
+ * @param {string} pageName - 页面名称（如 'UIComponents'）
+ * @returns {string|null} 路由路径（如 '/ui-components'）
+ */
+function findRoutePathByPageName(pageName) {
+  for (const category of demoRoutes) {
+    for (const item of category.items) {
+      // 将路由配置中的 name 转为大写进行比较（如 'ui-components' -> 'uicomponents'）
+      const normalizedName = item.name.replace(/-/g, '').toLowerCase();
+      if (normalizedName === pageName.toLowerCase()) {
+        return item.route;
+      }
+    }
+  }
+  return '/' + pageName.toLowerCase();
+}
 
 /**
  * Sidebar 主组件
  * @param {string} currentPage - 当前页面文件名（如 'button.html'）
  * @param {boolean} collapsible - 是否可折叠
  * @param {boolean} dark - 是否深色模式
+ * @param {boolean} useVRouterViews - 是否使用 VRouterViews 模式（点击菜单切换视图而不是跳转）
+ * @param {Object} vRouterInstance - VRouter 实例（用于 VRouterViews 模式下导航）
+ * @param {Function} onNavigate - VRouterViews 模式下的导航回调，接收 (routePath) 参数
  */
-export function Sidebar({ currentPage = '', collapsible = true, dark = false }) {
+export function Sidebar({ currentPage = '', collapsible = true, dark = false, useVRouterViews = false, vRouterInstance = null, onNavigate = null }) {
   return vSidebar(sidebar => {
     sidebar.width('220px');
     sidebar.collapsedWidth('64px');
@@ -35,7 +57,7 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
           whiteSpace: 'nowrap',
           overflow: 'hidden',
         });
-        span.text('🏝️ Yoya.Basic');
+        span.text('🏝️ Yoya.JS');
       });
       // if (collapsible) {
       //   sidebar.showToggleBtn();
@@ -59,7 +81,11 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
 
         // 分组菜单项
         group.items.forEach(menuItem => {
-          const isActive = menuItem.file === currentPage;
+          // 在 VRouterViews 模式下，根据路由路径判断是否激活
+          const isActive = useVRouterViews
+            ? (vRouterInstance && vRouterInstance.currentPath() === findRoutePathByPageName(menuItem.page))
+            : menuItem.file === currentPage;
+
           content.item(menuItem.label, item => {
             item.styles({
               fontSize: '14px',
@@ -77,7 +103,19 @@ export function Sidebar({ currentPage = '', collapsible = true, dark = false }) 
             });
             if (isActive) item.active();
             item.onClick(() => {
-              window.location.href = menuItem.file;
+              if (useVRouterViews && vRouterInstance) {
+                // VRouterViews 模式：切换到对应视图
+                const routePath = findRoutePathByPageName(menuItem.page);
+                // 使用回调函数添加视图（如果未存在），然后导航
+                if (typeof onNavigate === 'function') {
+                  onNavigate(routePath);
+                } else {
+                  vRouterInstance.navigate(routePath);
+                }
+              } else {
+                // 传统模式：跳转到独立页面
+                window.location.href = menuItem.file;
+              }
             });
           });
         });

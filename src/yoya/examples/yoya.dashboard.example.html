@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoya.Basic - Dashboard Components</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <!-- 定义 CSS 变量 -->
+  <style>
+    :root {
+      --yoya-primary: #667eea;
+      --yoya-primary-light: #764ba2;
+      --yoya-bg: #ffffff;
+      --yoya-bg-secondary: #f7f8fa;
+      --yoya-border: #e0e0e0;
+      --yoya-border-light: #e5e5e7;
+      --yoya-text-primary: #1a1c1f;
+      --yoya-text-secondary: #4a4d55;
+      --yoya-radius-md: 6px;
+      --yoya-radius-lg: 8px;
+      --yoya-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--yoya-bg-secondary);
+      color: var(--yoya-text-primary);
+      padding: 24px;
+    }
+    .section { margin-bottom: 32px; }
+    .section-title { 
+      font-size: 18px; 
+      font-weight: 600; 
+      margin-bottom: 16px; 
+      color: var(--yoya-text-primary);
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--yoya-primary);
+    }
+  </style>
+  <link rel="stylesheet" href="../../yoya/theme/css/components/dashboard.css">
+</head>
+<body>
+  <div style="padding: 24px 32px;">
+    <h1 style="font-size: 24px; margin-bottom: 8px;">📊 大屏看板组件演示</h1>
+    <p style="color: var(--yoya-text-secondary); margin-bottom: 24px;">展示数字滚动、趋势指示器、仪表盘、指标卡等组件</p>
+    
+    <div id="actionBar" style="margin-bottom: 24px;"></div>
+
+    <!-- 1. 指标卡 -->
+    <div class="section">
+      <div class="section-title">关键指标卡</div>
+      <div id="indicators"></div>
+    </div>
+
+    <!-- 2. 数字滚动 -->
+    <div class="section">
+      <div class="section-title">数字滚动动画 & 趋势指示器</div>
+      <div id="numberScroll" style="display: flex; align-items: flex-end; gap: 40px;"></div>
+    </div>
+
+    <!-- 3. 仪表盘 -->
+    <div class="section">
+      <div class="section-title">仪表盘</div>
+      <div id="gauge" style="display: flex; gap: 40px;"></div>
+    </div>
+
+    <!-- 4. 环形进度条 -->
+    <div class="section">
+      <div class="section-title">环形进度条</div>
+      <div id="circularProgress"></div>
+    </div>
+
+    <!-- 5. 时间序列 & 排行榜 -->
+    <div class="section">
+      <div class="section-title">时间序列 & 排行榜</div>
+      <div style="display: flex; gap: 20px;">
+        <div id="timeSeries" style="flex: 1;"></div>
+        <div id="rankList" style="flex: 1;"></div>
+      </div>
+    </div>
+
+    <!-- 6. 栅格布局 -->
+    <div class="section">
+      <div class="section-title">看板栅格布局</div>
+      <div id="dashboardGrid"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./yoya.dashboard.example.js"></script>
+</body>
+</html>

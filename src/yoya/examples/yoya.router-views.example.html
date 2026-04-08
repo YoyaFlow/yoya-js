@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VRouterViews 多路由视图容器 - Yoya.Basic</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔀</text></svg>">
+  <!-- 定义 CSS 变量 -->
+  <style>
+    :root {
+      --yoya-primary: #667eea;
+      --yoya-primary-light: #764ba2;
+      --yoya-bg: #ffffff;
+      --yoya-bg-secondary: #f7f8fa;
+      --yoya-bg-hover: #f0f1f3;
+      --yoya-border: #e0e0e0;
+      --yoya-border-light: #e5e5e7;
+      --yoya-text-primary: #1a1c1f;
+      --yoya-text-secondary: #4a4d55;
+      --yoya-radius-md: 6px;
+      --yoya-radius-lg: 8px;
+      --yoya-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--yoya-bg-secondary);
+      color: var(--yoya-text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height: 100%;"></div>
+  <script type="module" src="./yoya.router-views.example.js"></script>
+</body>
+</html>

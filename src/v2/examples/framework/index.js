@@ -5,4 +5,4 @@
 export { AppShell } from './AppShell.js';
 export { TopNavbar } from './TopNavbar.js';
 export { Sidebar } from './Sidebar.js';
-export { TableOfContents, tocItem } from './TableOfContents.js';
+export { pageTOC, updateTOCItems, cleanupTOC, tocItem } from './TOC.js';

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VStatistic 统计数值组件 - Yoya.Basic 示例</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 40px 20px;
+      background: var(--yoya-bg, #f5f5f5);
+      margin: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin-bottom: 32px;
+      color: var(--yoya-text-primary, #333);
+    }
+    .section {
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--yoya-text-primary, #333);
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VStatistic 统计数值组件示例</h1>
+
+    <!-- 基础用法 -->
+    <div class="section">
+      <div class="section-title">基础用法</div>
+      <div id="basic-demo" class="demo-grid"></div>
+    </div>
+
+    <!-- 格式化数字 -->
+    <div class="section">
+      <div class="section-title">格式化数字（千分位、精度）</div>
+      <div id="format-demo" class="demo-grid"></div>
+    </div>
+
+    <!-- 前缀和后缀 -->
+    <div class="section">
+      <div class="section-title">前缀和后缀</div>
+      <div id="prefix-suffix-demo" class="demo-grid"></div>
+    </div>
+
+    <!-- 数值动画 -->
+    <div class="section">
+      <div class="section-title">数值动画</div>
+      <div id="animation-demo" class="demo-grid"></div>
+      <div style="margin-top: 16px;">
+        <button id="animate-btn" style="padding: 8px 16px; cursor: pointer;">触发动画</button>
+      </div>
+    </div>
+
+    <!-- 综合示例：数据卡片 -->
+    <div class="section">
+      <div class="section-title">综合示例：数据看板</div>
+      <div id="dashboard-demo"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { vStatistic, div, flex, vBox } from '../yoya/index.js';
+
+    // 1. 基础用法
+    const basicDemo = document.getElementById('basic-demo');
+    const basicStats = [
+      { title: '总访问量', value: 12345 },
+      { title: '销售额', value: 98765 },
+      { title: '订单量', value: 1234 },
+      { title: '用户数', value: 5678 }
+    ];
+
+    basicStats.forEach(item => {
+      const stat = vStatistic(s => {
+        s.title(item.title);
+        s.value(item.value);
+      });
+      basicDemo.appendChild(stat.renderDom());
+    });
+
+    // 2. 格式化数字
+    const formatDemo = document.getElementById('format-demo');
+
+    // 千分位分隔符
+    const thousandStat = vStatistic(s => {
+      s.title('人口数量');
+      s.value(1412000000);
+      s.separator(',');
+    });
+    formatDemo.appendChild(thousandStat.renderDom());
+
+    // 保留小数位
+    const precisionStat = vStatistic(s => {
+      s.title('GDP 增长率');
+      s.value(5.234567);
+      s.precision(2);
+      s.separator(',');
+    });
+    formatDemo.appendChild(precisionStat.renderDom());
+
+    // 自定义分隔符（空格）
+    const spaceSepStat = vStatistic(s => {
+      s.title('距离（米）');
+      s.value(1234567);
+      s.separator(' ');
+    });
+    formatDemo.appendChild(spaceSepStat.renderDom());
+
+    // 3. 前缀和后缀
+    const prefixSuffixDemo = document.getElementById('prefix-suffix-demo');
+
+    const currencyStat = vStatistic(s => {
+      s.title('月收入');
+      s.value(125000);
+      s.prefix('¥');
+      s.separator(',');
+    });
+    prefixSuffixDemo.appendChild(currencyStat.renderDom());
+
+    const percentStat = vStatistic(s => {
+      s.title('完成率');
+      s.value(87.5);
+      s.suffix('%');
+      s.precision(1);
+    });
+    prefixSuffixDemo.appendChild(percentStat.renderDom());
+
+    const unitStat = vStatistic(s => {
+      s.title('文件数量');
+      s.value(1234);
+      s.suffix(' 个');
+      s.separator(',');
+    });
+    prefixSuffixDemo.appendChild(unitStat.renderDom());
+
+    // 4. 数值动画
+    const animationDemo = document.getElementById('animation-demo');
+
+    const animatedStat = vStatistic(s => {
+      s.title('实时在线');
+      s.value(0);
+      s.animated(true);
+      s.duration(2000);
+      s.suffix('人');
+    });
+    animationDemo.appendChild(animatedStat.renderDom());
+
+    document.getElementById('animate-btn').onclick = () => {
+      animatedStat.value(Math.floor(Math.random() * 10000) + 1000);
+    };
+
+    // 5. 综合示例：数据看板卡片
+    const dashboardDemo = document.getElementById('dashboard-demo');
+
+    const dashboard = flex(f => {
+      f.gap('24px');
+      f.flexWrap('wrap');
+
+      // 卡片 1
+      f.child(vBox(b => {
+        b.style('flex', '1');
+        b.style('minWidth', '200px');
+        b.style('padding', '20px');
+        b.style('background', '#fff');
+        b.style('borderRadius', '8px');
+        b.style('boxShadow', '0 1px 3px rgba(0,0,0,0.1)');
+        b.child(vStatistic(s => {
+          s.title('📊 总销售额');
+          s.value(1234567.89);
+          s.prefix('¥');
+          s.precision(2);
+          s.separator(',');
+        }));
+      }));
+
+      // 卡片 2
+      f.child(vBox(b => {
+        b.style('flex', '1');
+        b.style('minWidth', '200px');
+        b.style('padding', '20px');
+        b.style('background', '#fff');
+        b.style('borderRadius', '8px');
+        b.style('boxShadow', '0 1px 3px rgba(0,0,0,0.1)');
+        b.child(vStatistic(s => {
+          s.title('👥 新增用户');
+          s.value(2850);
+          s.suffix('人');
+          s.separator(',');
+        }));
+      }));
+
+      // 卡片 3
+      f.child(vBox(b => {
+        b.style('flex', '1');
+        b.style('minWidth', '200px');
+        b.style('padding', '20px');
+        b.style('background', '#fff');
+        b.style('borderRadius', '8px');
+        b.style('boxShadow', '0 1px 3px rgba(0,0,0,0.1)');
+        b.child(vStatistic(s => {
+          s.title('📦 订单总数');
+          s.value(15678);
+          s.suffix('单');
+          s.separator(',');
+        }));
+      }));
+
+      // 卡片 4
+      f.child(vBox(b => {
+        b.style('flex', '1');
+        b.style('minWidth', '200px');
+        b.style('padding', '20px');
+        b.style('background', '#fff');
+        b.style('borderRadius', '8px');
+        b.style('boxShadow', '0 1px 3px rgba(0,0,0,0.1)');
+        b.child(vStatistic(s => {
+          s.title('⭐ 好评率');
+          s.value(98.5);
+          s.suffix('%');
+          s.precision(1);
+        }));
+      }));
+    });
+
+    dashboardDemo.appendChild(dashboard.renderDom());
+  </script>
+</body>
+</html>

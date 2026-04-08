@@ -38,7 +38,7 @@
 
 ## 项目概述
 
-Yoya.Basic 是一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。它运行在纯浏览器环境中，不依赖构建工具，使用 ESM 模块和可选的 TypeScript 类型声明。
+YoyaJS 是一个浏览器原生的 HTML DSL 库，提供类似 Kotlin HTML DSL 的声明式语法。它运行在纯浏览器环境中，不依赖构建工具，使用 ESM 模块和可选的 TypeScript 类型声明。
 
 ## 构建与开发
 
@@ -79,9 +79,9 @@ Vite 开发服务器提供以下功能：
     │       ├── layout.js     # 布局组件（Flex, Grid, Stack 等）
     │       └── svg.js        # SVG 组件（Svg, Circle, Path 等）
     └── examples/             # 示例代码
-        ├── yoya.example.html         # 入口导航页面（默认）
-        ├── yoya.basic.example.html   # 完整演示页面 HTML
-        ├── yoya.basic.example.js     # 完整演示页面 JS
+        ├── yoya.example.html         # 入口导航页面
+        ├── yoya.example.html         # 完整演示页面 HTML
+        ├── yoya.example.js           # 完整演示页面 JS
         ├── yoya.svg.example.html     # SVG 演示页面 HTML
         └── yoya.svg.example.js       # SVG 演示页面 JS
 ```
@@ -928,6 +928,19 @@ class MenuItem {
 - 只在 `renderDom()` 中使用 `this._boundElement || document.createElement()` 获取根元素
 - 渲染时使用 `this._applyAttrs()`, `this._applyStyles()`, `this._applyChildren()` 等方法
 
+**完整设计原则**：
+详细的设计原则请参考 `docs/complex-component-design-principles.md`，包含以下核心原则：
+1. 创建过程一致性原则 - 单一元素与复杂元素的创建过程一致
+2. 虚拟元素操作面板原则 - 组件只操作虚拟元素，不直接操作 DOM
+3. _children 基石原则 - _children 不应清空重建，使用标记删除
+4. 状态集中存储原则 - 容器组件集中存储状态，子组件作为展示层
+5. 回调解耦原则 - 子组件通过回调函数上报状态变更，不持有父组件引用
+6. 统一事件结构原则 - 所有回调函数使用统一的事件对象格式
+7. 生命周期阶段清晰原则 - 创建、初始化、渲染、同步、销毁五个阶段
+8. 子元素缓存原则 - 固定子元素结构使用属性缓存容器引用
+9. 容器 - 展示分离原则 - 容器负责状态管理，展示负责 UI 渲染
+10. 职责单一原则 - 每个组件只负责一个明确的职责
+
 **子元素缓存原则**：
 - 适用于复杂组件中固定子元素结构（如 Card 的 CardHeader/CardBody/CardFooter、菜单的图标/文本/快捷键、Logo 区域等）
 - 对于固定子元素结构，应使用 `this._xxxBox` 属性缓存容器引用
@@ -973,9 +986,9 @@ class Card extends Tag {
 
 ## 技能
 
-- `yoya-build` - 构建 yoya.basic.js 库
+- `yoya-build` - 构建 yoya.js 库
 - `yoya-add-element` - 添加新的 HTML 元素类和工厂函数
-- `yoya-check-types` - 检查 yoya.basic.d.ts 类型定义
+- `yoya-check-types` - 检查 yoya.d.ts 类型定义
 - `skill-creator` - 创建新的 Claude Code 技能（slash commands）
 - `v2-router-test` - 测试 V2 VRouter 路由演示页面
 - `/simplify` - 审查代码复用性和质量

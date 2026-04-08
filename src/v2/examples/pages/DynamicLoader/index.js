@@ -9,6 +9,9 @@ import { DocSection } from '../../components/DocSection.js';
 import { PageHeader } from '../../components/PageHeader.js';
 import { ApiTable } from '../../components/ApiTable.js';
 
+// 使用 v2 的 form 组件作为演示
+import { createFormPage } from '../Form/index.js';
+
 /**
  * 创建 DynamicLoader 演示页面
  */
@@ -32,11 +35,10 @@ export function createDynamicLoaderPage() {
       content.child(DocSection('basic', '基础用法', [
         CodeDemo('懒加载组件',
           vDynamicLoader(
-            () => import('../../../../v1/widgets/form.js'),
+            () => import('./form-loader-demo.js'),
             {
               onLoad: (api, loader) => {
-                if (api.render) {
-                  loader._el.innerHTML = '';
+                if (api && api.render) {
                   loader._children = [];
                   loader.child(api.render());
                 }
@@ -61,7 +63,7 @@ export function createDynamicLoaderPage() {
           vstack(s => {
             s.gap('16px');
             s.child(vDynamicLoader(
-              () => import('../../../../v1/widgets/form.js'),
+              () => import('./form-loader-demo.js'),
               {
                 loadingContent: div('加载中...'),
                 errorContent: div(c => {
@@ -69,8 +71,7 @@ export function createDynamicLoaderPage() {
                   c.text('加载失败，请重试');
                 }),
                 onLoad: (api, loader) => {
-                  if (api.render) {
-                    loader._el.innerHTML = '';
+                  if (api && api.render) {
                     loader._children = [];
                     loader.child(api.render());
                   }
@@ -95,20 +96,23 @@ export function createDynamicLoaderPage() {
         CodeDemo('手动控制加载',
           vstack(s => {
             s.gap('16px');
+            // 保存容器组件引用
+            let loaderContainer = null;
             s.div(s => {
               s.id('loader-container');
+              loaderContainer = s;
             });
             s.child(flex(btns => {
               btns.gap('12px');
               btns.child(vButton('加载组件').type('primary')
                 .on('click', async () => {
-                  const container = document.getElementById('loader-container');
-                  if (container) {
-                    container.innerHTML = '';
+                  // 使用组件方法清空容器
+                  if (loaderContainer) {
+                    loaderContainer._children = [];
                   }
 
                   const loader = vDynamicLoader(
-                    () => import('../../../../v1/widgets/form.js'),
+                    () => import('./form-loader-demo.js'),
                     {
                       loadingContent: div('正在加载表单组件...'),
                       errorContent: div(c => {
@@ -116,8 +120,7 @@ export function createDynamicLoaderPage() {
                         c.text('加载失败，请重试');
                       }),
                       onLoad: (api, loader) => {
-                        if (api.render) {
-                          loader._el.innerHTML = '';
+                        if (api && api.render) {
                           loader._children = [];
                           loader.child(api.render());
                         }
@@ -129,9 +132,9 @@ export function createDynamicLoaderPage() {
                 }));
               btns.child(vButton('清除').ghost()
                 .on('click', () => {
-                  const container = document.getElementById('loader-container');
-                  if (container) {
-                    container.innerHTML = '';
+                  // 使用组件方法清空容器
+                  if (loaderContainer) {
+                    loaderContainer._children = [];
                   }
                 }));
             }));

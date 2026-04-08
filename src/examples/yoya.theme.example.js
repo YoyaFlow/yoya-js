@@ -7,10 +7,8 @@ import {
   vMenu, vMenuItem, vMenuDivider,
   select, option, label, input,
   toast,
-  // 主题相关
-  initTheme, applyTheme, switchTheme, getCurrentThemeId,
-  registerTheme, getTheme,
-  createLightTheme, createDarkTheme,
+  // 主题相关 - 使用 CSS 主题系统
+  initTheme, switchTheme, getCurrentThemeId, getThemeMode, setThemeMode, getEffectiveThemeMode,
   // i18n 相关
   initI18n, setLanguage, getLanguage, t, registerLanguage,
 } from '../yoya/index.js';
@@ -19,12 +17,8 @@ import {
 let rootVirtualTree = null;
 
 // ============================================
-// 注册主题
+// 初始化主题（CSS 主题系统）
 // ============================================
-
-// 注册 Islands 主题
-registerTheme('islands:light', createLightTheme);
-registerTheme('islands:dark', createDarkTheme);
 
 // ============================================
 // 注册语言包
@@ -205,15 +199,12 @@ initI18n({
   autoLoad: true,
 });
 
-// 初始化主题
+// 初始化主题（CSS 主题系统）
 initTheme({
-  defaultTheme: 'islands:light',
-  themes: new Map([
-    ['islands:light', createLightTheme],
-    ['islands:dark', createDarkTheme],
-  ]),
-  onLoaded: (theme) => {
-    console.log('Theme loaded:', theme?.name);
+  defaultTheme: 'islands',
+  defaultMode: 'auto',
+  onLoaded: () => {
+    console.log('Theme loaded');
     renderApp();
   },
 });
@@ -234,16 +225,16 @@ function renderApp() {
     rootVirtualTree = div(root => {
       root.styles({
       minHeight: '100vh',
-      background: 'var(--islands-bg)',
-      color: 'var(--islands-text)',
+      background: 'var(--yoya-bg)',
+      color: 'var(--yoya-text)',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     });
 
     // 头部
     root.div(header => {
       header.styles({
-        background: 'var(--islands-bg-secondary)',
-        borderBottom: '1px solid var(--islands-border)',
+        background: 'var(--yoya-bg-secondary)',
+        borderBottom: '1px solid var(--yoya-border)',
         padding: '12px 20px',
         display: 'flex',
         alignItems: 'center',
@@ -254,11 +245,11 @@ function renderApp() {
       // 标题
       header.div(title => {
         title.h1(h => {
-          h.styles({ fontSize: '18px', margin: '0', color: 'var(--islands-text)' });
+          h.styles({ fontSize: '18px', margin: '0', color: 'var(--yoya-text)' });
           h.text(t('common.title'));
         });
         title.p(p => {
-          p.styles({ fontSize: '12px', margin: '4px 0 0', color: 'var(--islands-text-secondary)' });
+          p.styles({ fontSize: '12px', margin: '4px 0 0', color: 'var(--yoya-text-secondary)' });
           p.text(t('common.subtitle'));
         });
       });
@@ -271,23 +262,23 @@ function renderApp() {
         controls.div(themeSelect => {
           themeSelect.styles({ display: 'flex', alignItems: 'center', gap: '6px' });
           themeSelect.label(l => {
-            l.styles({ fontSize: '12px', color: 'var(--islands-text-secondary)' });
+            l.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)' });
             l.text(t('theme.select'));
           });
           themeSelect.select(sel => {
             sel.styles({ padding: '4px 8px', fontSize: '12px', borderRadius: '4px' });
             sel.id('theme-selector');
             sel.option(o => {
-              o.value('islands:light');
+              o.value('islands-light');
               o.text(t('theme.light'));
             });
             sel.option(o => {
-              o.value('islands:dark');
+              o.value('islands-dark');
               o.text(t('theme.dark'));
             });
             // 设置当前值
             setTimeout(() => {
-              const current = getCurrentThemeId() || 'islands:light';
+              const current = getCurrentThemeId() || 'islands-light';
               sel._boundElement && (sel._boundElement.value = current);
             }, 0);
             sel.on('change', (e) => {
@@ -306,7 +297,7 @@ function renderApp() {
         controls.div(langSelect => {
           langSelect.styles({ display: 'flex', alignItems: 'center', gap: '6px' });
           langSelect.label(l => {
-            l.styles({ fontSize: '12px', color: 'var(--islands-text-secondary)' });
+            l.styles({ fontSize: '12px', color: 'var(--yoya-text-secondary)' });
             l.text(t('language.select'));
           });
           langSelect.select(sel => {
@@ -349,9 +340,9 @@ function renderApp() {
 
       // 欢迎卡片
       content.div(welcomeCard => {
-        welcomeCard.styles({ background: 'var(--islands-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
+        welcomeCard.styles({ background: 'var(--yoya-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
         welcomeCard.cardHeader(h => {
-          h.styles({ borderBottom: '1px solid var(--islands-border)' });
+          h.styles({ borderBottom: '1px solid var(--yoya-border)' });
           h.text(t('card.welcome'));
         });
         welcomeCard.cardBody(b => {
@@ -364,9 +355,9 @@ function renderApp() {
 
       // 功能特性卡片
       content.div(featuresCard => {
-        featuresCard.styles({ background: 'var(--islands-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
+        featuresCard.styles({ background: 'var(--yoya-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
         featuresCard.cardHeader(h => {
-          h.styles({ borderBottom: '1px solid var(--islands-border)' });
+          h.styles({ borderBottom: '1px solid var(--yoya-border)' });
           h.text(t('card.features'));
         });
         featuresCard.cardBody(b => {
@@ -382,9 +373,9 @@ function renderApp() {
 
       // 菜单演示卡片
       content.div(menuCard => {
-        menuCard.styles({ background: 'var(--islands-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
+        menuCard.styles({ background: 'var(--yoya-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
         menuCard.cardHeader(h => {
-          h.styles({ borderBottom: '1px solid var(--islands-border)' });
+          h.styles({ borderBottom: '1px solid var(--yoya-border)' });
           h.text(t('menu.file'));
         });
         menuCard.cardBody(b => {
@@ -418,9 +409,9 @@ function renderApp() {
 
       // i18n 演示卡片
       content.div(i18nCard => {
-        i18nCard.styles({ background: 'var(--islands-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
+        i18nCard.styles({ background: 'var(--yoya-bg-secondary)', borderRadius: '8px', overflow: 'hidden' });
         i18nCard.cardHeader(h => {
-          h.styles({ borderBottom: '1px solid var(--islands-border)' });
+          h.styles({ borderBottom: '1px solid var(--yoya-border)' });
           h.text('i18n 翻译演示');
         });
         i18nCard.cardBody(b => {
@@ -431,7 +422,7 @@ function renderApp() {
             d.p(p => {
               p.text('基础翻译：');
               p.span(s => {
-                s.styles({ color: 'var(--islands-primary)', fontWeight: '500' });
+                s.styles({ color: 'var(--yoya-primary)', fontWeight: '500' });
                 s.text(t('common.ok', '确定'));
               });
             });
@@ -440,8 +431,8 @@ function renderApp() {
             d.p(p => {
               p.text('带参数：');
               p.span(s => {
-                s.styles({ color: 'var(--islands-primary)', fontWeight: '500' });
-                s.text(t('theme.current', '当前主题：{theme}', { theme: getCurrentThemeId() || 'islands:light' }));
+                s.styles({ color: 'var(--yoya-primary)', fontWeight: '500' });
+                s.text(t('theme.current', '当前主题：{theme}', { theme: getCurrentThemeId() || 'islands-light' }));
               });
             });
 
@@ -449,7 +440,7 @@ function renderApp() {
             d.p(p => {
               p.text('String 扩展：');
               p.span(s => {
-                s.styles({ color: 'var(--islands-primary)', fontWeight: '500' });
+                s.styles({ color: 'var(--yoya-primary)', fontWeight: '500' });
                 const lang = getLanguage();
                 s.text('当前语言'.t('language.current', { language: lang }));
               });
@@ -462,11 +453,11 @@ function renderApp() {
     // 底部
     root.div(footer => {
       footer.styles({
-        borderTop: '1px solid var(--islands-border)',
+        borderTop: '1px solid var(--yoya-border)',
         padding: '12px 20px',
         textAlign: 'center',
         fontSize: '12px',
-        color: 'var(--islands-text-secondary)',
+        color: 'var(--yoya-text-secondary)',
       });
       footer.text('Yoya.Basic - Theme & I18n Demo © 2024');
     });

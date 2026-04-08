@@ -149,6 +149,7 @@ export {
   VRoute, vRoute,
   VLink, vLink,
   VRouterView, vRouterView,
+  VRouterViews, vRouterViews,
 
   // Tabs 组件
   VTabs, vTabs,
@@ -160,6 +161,49 @@ export {
   VModal, vModal,
   VConfirm, vConfirm,
   confirm,
+
+  // Grid 24 栅格系统组件
+  VRow, vRow,
+  VCol, vCol,
+
+  // UI 基础组件
+  VAvatar, VAvatarGroup, vAvatar, vAvatarGroup,
+  VBadge, vBadge,
+  VProgress, vProgress,
+  VSkeleton, vSkeleton,
+  VTag, vTag,
+  VAlert, vAlert,
+  VBreadcrumb, vBreadcrumb,
+  VStatistic, vStatistic,
+
+  // Interaction 交互组件
+  VTooltip, vTooltip,
+  VPopover, vPopover,
+  VDropdown, vDropdown,
+  VCollapse, vCollapse,
+  VTree, vTree,
+  VTreeSelect, vTreeSelect,
+
+  // Dashboard 大屏看板组件（数据展示）
+  VNumberScroll, vNumberScroll,
+  VTrend, vTrend,
+  VGauge, vGauge,
+  VCircularProgress, vCircularProgress,
+  VIndicator, vIndicator,
+  VTimeSeries, vTimeSeries,
+  VRankList, vRankList,
+  VDashboardGrid, vDashboardGrid,
+  // Dashboard 装饰组件
+  VBorder, vBorder,
+  VDivider, vDivider,
+  VCorner, vCorner,
+  VTitleBar, vTitleBar,
+  VPanel, vPanel,
+  VGlowBox, vGlowBox,
+  VTechBorder, vTechBorder,
+
+  // VerticalProgress 纵向进度条组件
+  VVerticalProgress, vVerticalProgress,
 } from './components/index.js';
 
 // 导出主题系统

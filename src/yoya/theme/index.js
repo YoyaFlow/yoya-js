@@ -166,6 +166,7 @@ function saveModeToStorage(mode) {
 
 /**
  * 派发主题变化事件
+ * @param {string} effectiveMode - 实际生效的模式 (light|dark)
  */
 function dispatchThemeChanged(effectiveMode) {
   if (typeof window === 'undefined') return;
@@ -174,7 +175,7 @@ function dispatchThemeChanged(effectiveMode) {
     detail: {
       themeId: currentThemeId,
       mode: effectiveMode,
-      currentMode
+      currentMode  // 传递当前模式 (auto|light|dark) 用于按钮图标显示
     }
   }));
 }
@@ -213,6 +214,9 @@ export function initTheme(options = {}) {
   if (currentMode === 'auto') {
     setupAutoThemeListener();
   }
+
+  // 派发主题初始化事件（用于更新 UI 按钮图标）
+  dispatchThemeChanged(effectiveMode);
 
   // 调用回调
   if (typeof onLoaded === 'function') {

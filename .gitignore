@@ -46,3 +46,9 @@ test-input-callback.html
 
 # JSDoc 文档输出
 docs/
+
+# 临时截图和测试文件
+*.png
+.playwright-mcp/
+src/examples/*.test.html
+src/examples/*.test.js

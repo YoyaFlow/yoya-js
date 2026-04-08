@@ -43,6 +43,10 @@ class Tag {
     this._classes = new Set();
     this._events = {};
     this._children = [];
+    this._props = {};  // DOM properties
+
+    // 新增：记录已绑定到 DOM 的事件类型
+    this._boundEvents = {};
 
     // 状态管理
     this._states = new Set();
@@ -107,7 +111,7 @@ class Tag {
     if (config.class) {
       if (Array.isArray(config.class)) {
         this.className(...config.class);
-      } else {
+      } else if (typeof config.class === 'string') {
         this.className(config.class);
       }
     }
@@ -116,7 +120,7 @@ class Tag {
     if (config.className) {
       if (Array.isArray(config.className)) {
         this.className(...config.className);
-      } else {
+      } else if (typeof config.className === 'string') {
         this.className(config.className);
       }
     }
@@ -220,6 +224,37 @@ class Tag {
   }
 
   /**
+   * 设置/获取 DOM 属性（直接操作 DOM property，而非 HTML attribute）
+   * @param {string} name - 属性名
+   * @param {*} [value] - 属性值（不传则返回当前值）
+   * @returns {this|*} 设置时返回 this，获取时返回属性值
+   * @example
+   * el.prop('checked', true);
+   * el.prop('value', 'test');
+   * const isChecked = el.prop('checked');
+   */
+  prop(name, value) {
+    if (value === undefined) {
+      return this._el ? this._el[name] : this._props[name];
+    }
+
+    if (typeof name === 'object') {
+      for (const [k, v] of Object.entries(name)) {
+        this._props[k] = v;
+        if (this._el) {
+          this._el[k] = v;
+        }
+      }
+    } else {
+      this._props[name] = value;
+      if (this._el) {
+        this._el[name] = value;
+      }
+    }
+    return this;
+  }
+
+  /**
    * 将属性应用到 DOM 元素
    * @private
    * @param {string} name - 属性名
@@ -236,10 +271,10 @@ class Tag {
         this._el.value = value;
         break;
       case 'checked':
-        this._el.checked = true;
+        this._el.checked = Boolean(value);
         break;
       case 'selected':
-        this._el.selected = true;
+        this._el.selected = Boolean(value);
         break;
       case 'class':
         this._el.className = value;
@@ -412,10 +447,18 @@ class Tag {
    * el.on('click', (e) => { console.log('clicked', e); });
    */
   on(event, handler) {
+    // 1. 登记事件处理器到虚拟元素
     if (!this._events[event]) {
       this._events[event] = [];
     }
     this._events[event].push(handler);
+
+    // 2. 如果这个事件类型还没有绑定到 DOM，现在绑定
+    if (!this._boundEvents[event] && this._el) {
+      this._bindEventToEl(event);
+      this._boundEvents[event] = true;
+    }
+
     return this;
   }
 
@@ -469,9 +512,11 @@ class Tag {
    * });
    */
   onChangeValue(handler) {
-    const oldValue = this.value?.();
+    // 从 DOM 元素获取当前值作为 oldValue
+    const oldValue = this._el ? (this._el.value || this.value?.()) : undefined;
     this.on('change', this._wrapHandler(handler, (e) => {
-      const newValue = this.value?.() || e.target?.value;
+      // 从事件目标或虚拟元素获取新值
+      const newValue = e.target?.value || this.value?.();
       return { value: newValue, oldValue };
     }));
     return this;
@@ -484,7 +529,8 @@ class Tag {
    */
   onInputValue(handler) {
     this.on('input', this._wrapHandler(handler, (e) => {
-      return { value: this.value?.() || e.target?.value };
+      // 优先从事件目标获取值，因为 input 事件触发时 e.target.value 已经是新值
+      return { value: e.target?.value || this.value?.() };
     }));
     return this;
   }
@@ -580,8 +626,21 @@ class Tag {
    * @returns {this} 返回当前实例支持链式调用
    */
   textContent(content){
-    this.clear()
-    this.text(content)
+    this.clear();
+    // 如果已经渲染过，直接更新真实 DOM，不通过 text() 方法添加
+    if (this._rendered && this._el) {
+      this._el.textContent = String(content);
+      // 同时更新虚拟 Text 节点
+      const textTag = new Text(content);
+      textTag._textNode = this._el.firstChild;
+      textTag._el = this._el.firstChild;
+      textTag._boundElement = this._el.firstChild;
+      this._children.push(textTag);
+    } else {
+      // 未渲染时，使用 text() 方法
+      this.text(content);
+    }
+    return this;
   }
 
   /**
@@ -681,9 +740,16 @@ class Tag {
   renderDom() {
     if (this._deleted) return null;
 
-    // 首次渲染时应用事件
-    if (!this._rendered) {
+    // 全局日志 - 追踪调用
+    if (!window._renderDomCalls) window._renderDomCalls = [];
+    window._renderDomCalls.push({ tag: this._tagName, rendered: this._rendered, connected: this._el?.isConnected, hasListeners: !!this._eventListeners });
+
+    // 首次渲染或元素被从 DOM 移除后重新渲染时应用事件和 props
+    // 或者事件还没有绑定时也应用事件
+    const shouldApplyEvents = !this._rendered || !this._el.isConnected || !this._eventListeners;
+    if (shouldApplyEvents) {
       this._applyEventsToEl();
+      this._applyPropsToEl();
     }
 
     // 智能更新子元素
@@ -694,7 +760,7 @@ class Tag {
     const childrenToAdd = [];
 
     for (const child of this._children) {
-      if (child._deleted) continue;
+      if (!child || child._deleted) continue;
 
       const childEl = child.renderDom();
       if (!childEl) continue;
@@ -732,20 +798,44 @@ class Tag {
   }
 
   /**
+   * @deprecated 改用 _bindEventToEl 按需绑定
    * 将事件同步到 DOM 元素（仅在首次渲染时调用）
    * @private
    */
   _applyEventsToEl() {
-    for (const [event, handlers] of Object.entries(this._events)) {
-      if (handlers.length === 0) continue;
+    // 保留空实现或日志提示
+    // 原有的事件绑定逻辑已移到 _bindEventToEl
+  }
 
-      // 绑定一个包装处理器，统一分发事件
-      this._el.addEventListener(event, (nativeEvent) => {
-        // 为原生事件对象附加_vnode 属性，指向虚拟元素
-        nativeEvent._vnode = this;
-        // 分发所有处理器，绑定 this 到 DOM 元素
-        handlers.forEach(handler => handler.call(this._el, nativeEvent));
-      });
+  /**
+   * 将单个事件类型绑定到 DOM 元素
+   * 每个事件类型只绑定一次，使用统一的委托处理器
+   * @param {string} event - 事件名称
+   * @private
+   */
+  _bindEventToEl(event) {
+    this._el.addEventListener(event, (nativeEvent) => {
+      // 附加虚拟元素引用到原生事件
+      nativeEvent._vnode = this;
+
+      // 关键：每次触发时动态读取当前 _events
+      // 这样即使 handler 是在绑定监听器之后添加的，也能被调用
+      const handlers = this._events[event] || [];
+      handlers.forEach(handler => handler.call(this._el, nativeEvent));
+    });
+  }
+
+  /**
+   * 将 DOM properties 应用到 DOM 元素
+   * @private
+   */
+  _applyPropsToEl() {
+    for (const [key, value] of Object.entries(this._props)) {
+      if (value === null || value === undefined) {
+        delete this._el[key];
+      } else {
+        this._el[key] = value;
+      }
     }
   }
 

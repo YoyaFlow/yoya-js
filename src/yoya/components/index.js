@@ -131,6 +131,8 @@ export {
   vLink,
   VRouterView,
   vRouterView,
+  VRouterViews,
+  vRouterViews,
 } from './router.js';
 
 // Tabs 标签页组件
@@ -153,3 +155,97 @@ export {
   vConfirm,
   confirm,
 } from './modal.js';
+
+// Grid 24 栅格系统组件
+export {
+  VRow,
+  VCol,
+  vRow,
+  vCol,
+} from './grid.js';
+
+// UI 基础组件
+export {
+  VAvatar,
+  VAvatarGroup,
+  vAvatar,
+  vAvatarGroup,
+  VBadge,
+  vBadge,
+  VProgress,
+  vProgress,
+  VSkeleton,
+  vSkeleton,
+  VTag,
+  vTag,
+  VAlert,
+  vAlert,
+  VBreadcrumb,
+  vBreadcrumb,
+  VStatistic,
+  vStatistic,
+} from './ui.js';
+
+// Tree 树形组件
+export {
+  VTree,
+  vTree,
+  VTreeSelect,
+  vTreeSelect,
+} from './tree.js';
+
+// Interaction 交互组件
+export {
+  VTooltip,
+  vTooltip,
+  VPopover,
+  vPopover,
+  VDropdown,
+  vDropdown,
+  VCollapse,
+  vCollapse,
+} from './interaction.js';
+
+// Dashboard 大屏看板组件
+export {
+  VNumberScroll,
+  vNumberScroll,
+  VTrend,
+  vTrend,
+  VGauge,
+  vGauge,
+  VCircularProgress,
+  vCircularProgress,
+  VIndicator,
+  vIndicator,
+  VTimeSeries,
+  vTimeSeries,
+  VRankList,
+  vRankList,
+  VDashboardGrid,
+  vDashboardGrid,
+} from './dashboard.js';
+
+// Dashboard 装饰组件
+export {
+  VBorder,
+  vBorder,
+  VDivider,
+  vDivider,
+  VCorner,
+  vCorner,
+  VTitleBar,
+  vTitleBar,
+  VPanel,
+  vPanel,
+  VGlowBox,
+  vGlowBox,
+  VTechBorder,
+  vTechBorder,
+} from './dashboard-decoration.js';
+
+// VerticalProgress 纵向进度条组件
+export {
+  VVerticalProgress,
+  vVerticalProgress,
+} from './vertical-progress.js';
