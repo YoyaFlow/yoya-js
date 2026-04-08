@@ -9,6 +9,9 @@ import { DocSection } from '../../components/DocSection.js';
 import { PageHeader } from '../../components/PageHeader.js';
 import { ApiTable } from '../../components/ApiTable.js';
 
+// 使用 v2 的 form 组件作为演示
+import { createFormPage } from '../Form/index.js';
+
 /**
  * 创建 DynamicLoader 演示页面
  */
@@ -32,11 +35,10 @@ export function createDynamicLoaderPage() {
       content.child(DocSection('basic', '基础用法', [
         CodeDemo('懒加载组件',
           vDynamicLoader(
-            () => import('../../../../v1/widgets/form.js'),
+            () => import('./form-loader-demo.js'),
             {
               onLoad: (api, loader) => {
-                if (api.render) {
-                  // 使用组件方法清空并添加子元素
+                if (api && api.render) {
                   loader._children = [];
                   loader.child(api.render());
                 }
@@ -61,7 +63,7 @@ export function createDynamicLoaderPage() {
           vstack(s => {
             s.gap('16px');
             s.child(vDynamicLoader(
-              () => import('../../../../v1/widgets/form.js'),
+              () => import('./form-loader-demo.js'),
               {
                 loadingContent: div('加载中...'),
                 errorContent: div(c => {
@@ -69,8 +71,7 @@ export function createDynamicLoaderPage() {
                   c.text('加载失败，请重试');
                 }),
                 onLoad: (api, loader) => {
-                  if (api.render) {
-                    // 使用组件方法清空并添加子元素
+                  if (api && api.render) {
                     loader._children = [];
                     loader.child(api.render());
                   }
@@ -111,7 +112,7 @@ export function createDynamicLoaderPage() {
                   }
 
                   const loader = vDynamicLoader(
-                    () => import('../../../../v1/widgets/form.js'),
+                    () => import('./form-loader-demo.js'),
                     {
                       loadingContent: div('正在加载表单组件...'),
                       errorContent: div(c => {
@@ -119,8 +120,7 @@ export function createDynamicLoaderPage() {
                         c.text('加载失败，请重试');
                       }),
                       onLoad: (api, loader) => {
-                        if (api.render) {
-                          // 使用组件方法清空并添加子元素
+                        if (api && api.render) {
                           loader._children = [];
                           loader.child(api.render());
                         }

@@ -23,7 +23,8 @@
       "Bash(npx *)",
       "Bash(rm *)",
       "Bash(head *)",
-      "Bash(echo *)"
+      "Bash(echo *)",
+      "Bash(ls *)"
     ]
   },
   "$version": 3

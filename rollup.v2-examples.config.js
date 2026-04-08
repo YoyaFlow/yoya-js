@@ -113,9 +113,8 @@ function processDirectory(inputDir, outputDir, distPrefix) {
       mkdirSync(outputPath, { recursive: true });
       processDirectory(inputPath, outputPath, distPrefix + '../');
     } else if (entry.endsWith('.html')) {
-      // 根目录的 HTML 文件使用 ./ 前缀，子目录使用 ../ 前缀
-      const relativePrefix = inputDir === 'src/v2/examples' ? '' : distPrefix;
-      processHtmlFile(inputPath, outputPath, relativePrefix);
+      // 所有 HTML 文件都使用 distPrefix 前缀（根目录和子目录都需要）
+      processHtmlFile(inputPath, outputPath, distPrefix);
     } else if (entry.endsWith('.js') && !entry.includes('.test.') && !entry.endsWith('.json')) {
       // 复制 JS 文件并替换导入路径
       processJsFile(inputPath, outputPath, distPrefix);
@@ -171,35 +170,19 @@ function processJsFile(inputPath, outputPath, distPrefix) {
 function processHtmlFile(inputPath, outputPath, distPrefix) {
   let content = readFileSync(inputPath, 'utf-8');
 
-  // 替换 index.js 引用为对应的页面 JS 文件
-  const htmlFileName = basename(inputPath);
-  const jsFileName = htmlFileName.replace('.html', '.js');
-
-  // 检查是否存在对应的 JS 入口文件
-  const jsEntryPath = join(dirname(inputPath), jsFileName);
-  if (jsFileName !== 'index.js' && existsSync(jsEntryPath)) {
-    // 有独立 JS 文件的页面
-    content = content.replace(
-      /<script\s+type="module"\s+src="\.\/index\.js"\s*><\/script>/g,
-      `<script type="module" src="${distPrefix}${jsFileName}"></script>`
-    );
-  } else {
-    // 使用统一入口的页面
-    content = content.replace(
-      /<script\s+type="module"\s+src="\.\/index\.js"\s*><\/script>/g,
-      `<script type="module" src="${distPrefix}index.js"></script>`
-    );
-  }
+  // 替换 JS 文件引用
+  // 匹配 src="./xxx.js" 并替换为 src="${distPrefix}xxx.js"
+  content = content.replace(
+    /<script\s+type="module"\s+src="\.\/([^"']+)\.js"\s*><\/script>/g,
+    (match, fileName) => {
+      return `<script type="module" src="${distPrefix}${fileName}.js"></script>`;
+    }
+  );
 
   // 替换 common.css 引用为 dist 目录下的路径
-  // 根目录 HTML 使用 ./styles/common.css
-  // 子目录 HTML 使用 ../styles/common.css
+  // 匹配 href="./styles/common.css" 或 href="../styles/common.css" 等
   content = content.replace(
-    /href="(\.\/)*styles\/common\.css"/g,
-    `href="${distPrefix}styles/common.css"`
-  );
-  content = content.replace(
-    /href="(\.\.\/)+styles\/common\.css"/g,
+    /href="(\.\/|\.\.\/)+styles\/common\.css"/g,
     `href="${distPrefix}styles/common.css"`
   );
 
