@@ -29,7 +29,7 @@ export const menuConfig = [
       { label: 'Menu 菜单', page: 'Menu', file: 'menu.html' },
       { label: 'Router 路由', page: 'Router', file: 'router.html' },
       { label: 'Tabs 标签页', page: 'Tabs', file: 'tabs.html' },
-      { label: 'Pager 分页', page: 'VPager', file: 'pager.html' },
+      { label: 'Pager 分页', page: 'pager', file: 'pager.html' },
     ],
   },
   {

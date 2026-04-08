@@ -9,19 +9,28 @@ import { demoRoutes } from '../config/routes.v2.js';
 
 /**
  * 根据页面名称查找路由路径
- * @param {string} pageName - 页面名称（如 'UIComponents'）
+ * @param {string} pageName - 页面名称（如 'UIComponents', 'pager'）
  * @returns {string|null} 路由路径（如 '/ui-components'）
  */
 function findRoutePathByPageName(pageName) {
+  // 尝试直接匹配（如 'pager' -> 'pager'）
+  let normalizedPageName = pageName.toLowerCase();
+  
+  // 如果以 V 开头，尝试去掉 V 前缀（如 'VPager' -> 'pager'）
+  if (normalizedPageName.startsWith('v')) {
+    normalizedPageName = normalizedPageName.slice(1);
+  }
+  
   for (const category of demoRoutes) {
     for (const item of category.items) {
-      // 将路由配置中的 name 转为大写进行比较（如 'ui-components' -> 'uicomponents'）
+      // 将路由配置中的 name 转为不带连字符的小写（如 'ui-components' -> 'uicomponents'）
       const normalizedName = item.name.replace(/-/g, '').toLowerCase();
-      if (normalizedName === pageName.toLowerCase()) {
+      if (normalizedName === normalizedPageName) {
         return item.route;
       }
     }
   }
+  // 如果找不到，返回基于原始名称的路径
   return '/' + pageName.toLowerCase();
 }
 
