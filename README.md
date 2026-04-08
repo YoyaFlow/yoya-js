@@ -221,46 +221,6 @@ YoyaJS 与 HTMX **设计理念相同，实现路径不同**：
 - **状态管理不是必须用第三方库** — Yoya 内置 `StateMachine`，支持状态注册、处理器、拦截器、状态快照
 - **"大型项目"的定义被框架绑架了** — 10 万行代码的项目，用原生 JS 写的也不少，决定复杂度的是业务，不是技术栈
 
-**5. Yoya 的状态管理能力**
-
-```javascript
-// 组件级状态管理
-class VButton extends Tag {
-  constructor(setup) {
-    super('button');
-    // 注册状态属性（支持 boolean/string/number 类型）
-    this.registerStateAttrs('disabled', 'loading', { size: 'string' });
-    // 注册状态处理器
-    this.state.registerHandler('disabled', (val) => {
-      this.attr('disabled', val);
-      this.state('disabled', val ? 'disabled' : '');
-    });
-    this.state.registerHandler('loading', (val) => {
-      val ? this.addClass('is-loading') : this.removeClass('is-loading');
-    });
-  }
-  // 状态访问
-  state(name, value) { /* ... */ }
-}
-
-// 状态拦截器
-button.state.registerInterceptor((stateName, value) => {
-  if (stateName === 'disabled' && value === true) {
-    console.log('Button disabled');
-  }
-  return { stateName, value };
-});
-
-// 状态快照与恢复
-button.state.saveSnapshot();  // 保存当前状态
-button.state('disabled', true);
-button.state.restoreSnapshot(); // 恢复到快照
-
-// 全局状态共享
-globalThis.appState = { user: null, token: null };
-const store = reactive(globalThis.appState);
-```
-
 ### 我们的立场
 
 **Yoya 走的是另一条路：基于 Web 标准、零依赖、直接 DOM 操作。**
