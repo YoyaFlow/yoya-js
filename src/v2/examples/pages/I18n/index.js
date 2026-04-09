@@ -109,7 +109,7 @@ function createLanguageSwitcher(onChange, autoRefresh = true) {
           if (autoRefresh) {
             setTimeout(() => {
               window.location.reload();
-            }, 300);
+            }, 500);
           }
           onChange && onChange(code);
         });
