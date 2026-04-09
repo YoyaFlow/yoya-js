@@ -204,6 +204,9 @@ export {
 
   // VerticalProgress 纵向进度条组件
   VVerticalProgress, vVerticalProgress,
+
+  // ThemeSwitch 主题切换按钮组件
+  ThemeSwitch, themeSwitch,
 } from './components/index.js';
 
 // 导出主题系统

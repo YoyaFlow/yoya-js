@@ -249,3 +249,9 @@ export {
   VVerticalProgress,
   vVerticalProgress,
 } from './vertical-progress.js';
+
+// ThemeSwitch 主题切换按钮组件
+export {
+  ThemeSwitch,
+  themeSwitch,
+} from './ThemeSwitch.js';

@@ -361,6 +361,7 @@ export const COMPONENT_CSS_FILES = {
   box: 'css/components/box.css',
   field: 'css/components/field.css',
   index: 'css/components/index.css',
+  'theme-switch': 'css/components/theme-switch.css',
 };
 
 /**

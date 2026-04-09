@@ -33,6 +33,7 @@
 
 import { Tag, span, div, button } from '../core/basic.js';
 import { VButton, vButton } from './button.js';
+import { themeSwitch } from './ThemeSwitch.js';
 
 // ============================================
 // VMenu 菜单
@@ -2018,6 +2019,11 @@ class VTopNavbar extends Tag {
         });
         rightWrapper._el.child(dividerEl);
         return rightWrapper;
+      },
+      themeSwitch: (tsSetup = null) => {
+        const ts = themeSwitch(tsSetup);
+        rightWrapper._el.child(ts);
+        return ts;
       },
       _el: this._rightEl,
     };

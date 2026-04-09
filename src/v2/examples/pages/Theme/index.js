@@ -7,7 +7,8 @@ import {
   flex, grid, responsiveGrid, vstack, hstack,
   vCard, vCardHeader, vCardBody,
   vButton, toast, setThemeMode, getThemeMode, switchTheme,
-  div, span, h3, vDropdownMenu, vMenu, vCode, vDetail
+  div, span, h3, vDropdownMenu, vMenu, vCode, vDetail,
+  themeSwitch
 } from '../../../../yoya/index.js';
 import { AppShell } from '../../framework/AppShell.js';
 import { DocSection } from '../../components/DocSection.js';
@@ -39,57 +40,56 @@ export function createThemePage() {
         vCard(card => {
           card.vCardHeader('切换主题模式');
           card.vCardBody(body => {
-            body.child(hstack(actions => {
-              actions.gap('12px');
-              actions.style('alignItems', 'flex-start');
-              actions.style('flexWrap', 'wrap');
+            body.child(vstack(section => {
+              section.gap('16px');
 
-              // 浅色按钮
-              actions.child(vButton(btn => {
-                btn.text('☀️ 浅色');
-                btn.type('primary');
-                btn.onClick(() => {
-                  setThemeMode('light');
-                  toast.success('已切换到浅色主题');
-                });
-              }));
+              // ThemeSwitch 组件
+              section.child(div(switchContainer => {
+                switchContainer.style('display', 'flex');
+                switchContainer.style('alignItems', 'center');
+                switchContainer.style('gap', '16px');
+                switchContainer.style('flexWrap', 'wrap');
 
-              // 深色按钮
-              actions.child(vButton(btn => {
-                btn.text('🌙 深色');
-                btn.type('primary');
-                btn.onClick(() => {
-                  setThemeMode('dark');
-                  toast.success('已切换到深色主题');
-                });
-              }));
-
-              // 自动按钮
-              actions.child(vButton(btn => {
-                btn.text('🔄 自动');
-                btn.type('default');
-                btn.onClick(() => {
-                  setThemeMode('auto');
-                  toast.info('已切换到自动模式（跟随系统）');
-                });
-              }));
-
-              // 当前模式显示
-              actions.child(div(info => {
-                info.style('padding', '8px 16px');
-                info.style('background', 'var(--yoya-bg-secondary)');
-                info.style('borderRadius', '4px');
-                info.style('fontSize', '13px');
-                info.style('color', 'var(--yoya-text-secondary)');
-                info.child(span(s => {
-                  s.text('当前模式：');
+                // 三段式主题切换按钮
+                switchContainer.child(themeSwitch(ts => {
+                  ts.size('medium');
+                  ts.onChange((mode) => {
+                    toast.success(`已切换到${mode === 'light' ? '浅色' : mode === 'dark' ? '深色' : '自动'}模式`);
+                    // 更新显示
+                    setTimeout(() => {
+                      const modeDisplay = document.getElementById('current-mode-display');
+                      if (modeDisplay) {
+                        modeDisplay.textContent = mode;
+                      }
+                    }, 100);
+                  });
                 }));
-                info.child(span(mode => {
-                  mode.id('current-mode-display');
-                  mode.style('fontWeight', '600');
-                  mode.style('color', 'var(--yoya-primary)');
-                  mode.text(getThemeMode());
+
+                // 当前模式显示
+                switchContainer.child(div(info => {
+                  info.style('padding', '8px 16px');
+                  info.style('background', 'var(--yoya-bg-secondary)');
+                  info.style('borderRadius', '4px');
+                  info.style('fontSize', '13px');
+                  info.style('color', 'var(--yoya-text-secondary)');
+                  info.child(span(s => {
+                    s.text('当前模式：');
+                  }));
+                  info.child(span(mode => {
+                    mode.id('current-mode-display');
+                    mode.style('fontWeight', '600');
+                    mode.style('color', 'var(--yoya-primary)');
+                    mode.text(getThemeMode());
+                  }));
                 }));
+              }));
+
+              // 说明文字
+              section.child(div(note => {
+                note.style('fontSize', '13px');
+                note.style('color', 'var(--yoya-text-tertiary)');
+                note.style('marginTop', '8px');
+                note.text('☀️ 浅色模式 | 🔄 自动模式（跟随系统） | 🌙 深色模式');
               }));
             }));
           });
