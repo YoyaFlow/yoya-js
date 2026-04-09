@@ -76,8 +76,10 @@ let orderData = {
 
 /**
  * 创建语言切换器组件
+ * @param {Function} onChange - 切换后的回调函数
+ * @param {boolean} autoRefresh - 是否自动刷新页面（默认 true）
  */
-function createLanguageSwitcher(onChange) {
+function createLanguageSwitcher(onChange, autoRefresh = true) {
   return div(lang => {
     lang.styles({ display: 'flex', gap: '8px', alignItems: 'center' });
 
@@ -103,6 +105,12 @@ function createLanguageSwitcher(onChange) {
         btn.text(name);
         btn.on('click', () => {
           setLanguage(code);
+          // 语言切换后自动刷新页面
+          if (autoRefresh) {
+            setTimeout(() => {
+              window.location.reload();
+            }, 300);
+          }
           onChange && onChange(code);
         });
       });
@@ -429,7 +437,7 @@ function createDemoSection() {
       header.child(createLanguageSwitcher(() => {
         renderDemoContent();
         toast.success(''.t('message.saveSuccess'));
-      }));
+      }, false));
     });
 
     // 内容区域
@@ -482,10 +490,11 @@ function renderDemoContent() {
         h2.text(''.t('order.title'));
       });
 
+      // 演示区域内的语言切换器：禁用自动刷新，使用回调刷新局部
       header.child(createLanguageSwitcher(() => {
         renderDemoContent();
         toast.success(''.t('message.saveSuccess'));
-      }));
+      }, false));
     });
 
     demo.div(content => {
