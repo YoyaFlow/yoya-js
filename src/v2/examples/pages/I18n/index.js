@@ -436,6 +436,8 @@ function createDemoSection() {
 
       header.child(createLanguageSwitcher(() => {
         renderDemoContent();
+        // 同时更新代码示例区域
+        setTimeout(() => updateCodeExamples(), 50);
         toast.success(''.t('message.saveSuccess'));
       }, false));
     });
@@ -463,60 +465,26 @@ let codeExamplesComponent = null;
  * 渲染演示内容（支持语言切换后重新渲染）
  */
 function renderDemoContent() {
-  // 使用组件方法更新内容，而不是直接操作 DOM
-  if (demoContentComponent) {
-    // 清空子元素并重新添加
-    demoContentComponent._children = [];
-  }
+  if (!demoContentComponent) return;
 
-  div(demo => {
-    demo.styles({
-      background: 'var(--yoya-bg)',
-      borderRadius: '8px',
-      padding: '24px',
-      marginBottom: '24px'
-    });
+  // 创建新的演示区域
+  const newDemo = createDemoSection();
 
-    demo.div(header => {
-      header.styles({
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '24px'
-      });
+  // 清空容器
+  demoContentComponent._children = [];
 
-      header.h2(h2 => {
-        h2.styles({ fontSize: '18px', fontWeight: '600', margin: 0 });
-        h2.text(''.t('order.title'));
-      });
+  // 添加新内容
+  demoContentComponent.child(newDemo);
 
-      // 演示区域内的语言切换器：禁用自动刷新，使用回调刷新局部
-      header.child(createLanguageSwitcher(() => {
-        renderDemoContent();
-        toast.success(''.t('message.saveSuccess'));
-      }, false));
-    });
-
-    demo.div(content => {
-      content.styles({
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '24px'
-      });
-
-      content.child(createOrderCard());
-      content.child(createCustomerCard());
-      content.child(createContractCard());
-    });
-
-    // 如果已有组件引用，直接绑定到现有元素
-    if (demoContentComponent) {
-      demo.bindTo(demoContentComponent._el);
-    } else {
-      // 首次渲染，保存组件引用
-      demoContentComponent = demo;
+  // 如果已经有 DOM 元素，更新真实 DOM
+  if (demoContentComponent._el) {
+    // 重新渲染子元素
+    const rendered = newDemo.renderDom();
+    if (rendered) {
+      demoContentComponent._el.innerHTML = '';
+      demoContentComponent._el.appendChild(rendered);
     }
-  });
+  }
 }
 
 /**
@@ -615,23 +583,26 @@ window.addEventListener('language-changed', (e) => {
  * 更新代码示例（语言切换后）
  */
 function updateCodeExamples() {
-  // 使用组件方法更新内容，而不是直接操作 DOM
-  if (codeExamplesComponent) {
-    // 清空子元素并重新添加
-    codeExamplesComponent._children = [];
-  }
+  if (!codeExamplesComponent) return;
 
-  div(wrapper => {
-    wrapper.child(createCodeExamples());
+  // 创建新的代码示例
+  const newCodeExamples = createCodeExamples();
 
-    // 如果已有组件引用，直接绑定到现有元素
-    if (codeExamplesComponent) {
-      wrapper.bindTo(codeExamplesComponent._el);
-    } else {
-      // 首次渲染，保存组件引用
-      codeExamplesComponent = wrapper;
+  // 清空容器
+  codeExamplesComponent._children = [];
+
+  // 添加新内容
+  codeExamplesComponent.child(newCodeExamples);
+
+  // 如果已经有 DOM 元素，更新真实 DOM
+  if (codeExamplesComponent._el) {
+    // 重新渲染子元素
+    const rendered = newCodeExamples.renderDom();
+    if (rendered) {
+      codeExamplesComponent._el.innerHTML = '';
+      codeExamplesComponent._el.appendChild(rendered);
     }
-  });
+  }
 }
 
 /**
@@ -653,7 +624,7 @@ export function createI18nPage() {
         description: '多语言国际化支持，包含完整的语言包和语言切换功能',
       }));
 
-      // 演示界面
+      // 演示界面 - 初始渲染使用 createDemoSection
       content.div(section => {
         section.id('i18n-demo-content');
         // 保存组件引用用于语言切换时重新渲染
@@ -661,7 +632,7 @@ export function createI18nPage() {
         section.child(createDemoSection());
       });
 
-      // 代码示例
+      // 代码示例 - 初始渲染使用 createCodeExamples
       content.div(id => {
         id.id('i18n-code-examples');
         // 保存组件引用用于语言切换时重新渲染

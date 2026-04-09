@@ -842,6 +842,48 @@ class VRouterViews extends Tag {
         this._handleRouteChange(to, from);
       });
     }
+
+    // 监听语言切换事件，重新渲染所有视图
+    if (typeof window !== 'undefined') {
+      this._handleLanguageChange = () => {
+        this._rerenderAllViews();
+      };
+      window.addEventListener('language-changed', this._handleLanguageChange);
+    }
+  }
+
+  /**
+   * 重新渲染所有视图内容（语言切换时）
+   * @private
+   */
+  _rerenderAllViews() {
+    // 重新渲染当前激活的视图
+    if (this._activeView && this._activeView._contentDiv) {
+      const viewData = this._activeView;
+      const currentPath = viewData.defaultRoute;
+
+      // 在 _routes Map 中查找匹配的路由
+      let matchedRoute = null;
+      let matchResult = null;
+
+      for (const [pattern, route] of this._router._routes.entries()) {
+        matchResult = matchRoute(pattern, currentPath);
+        if (matchResult) {
+          matchedRoute = route;
+          break;
+        }
+      }
+
+      if (matchedRoute && matchedRoute.component) {
+        // 清空旧内容
+        viewData._contentDiv._children = [];
+        if (viewData._contentDiv._el) {
+          viewData._contentDiv._el.innerHTML = '';
+        }
+        const component = matchedRoute.component(matchResult.params || {});
+        viewData._contentDiv.child(component);
+      }
+    }
   }
 
   /**
@@ -1611,6 +1653,17 @@ class VRouterViews extends Tag {
   setMaxViews(max) {
     this._maxViews = max;
     return this;
+  }
+
+  /**
+   * 销毁组件，清理事件监听器
+   */
+  destroy() {
+    // 移除语言切换事件监听
+    if (this._handleLanguageChange && typeof window !== 'undefined') {
+      window.removeEventListener('language-changed', this._handleLanguageChange);
+    }
+    super.destroy();
   }
 
   renderDom() {
