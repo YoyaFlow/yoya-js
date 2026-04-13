@@ -190,14 +190,20 @@ class VDraggable extends Tag {
 
       isDragging = true;
 
-      // 获取元素当前位置
+      // 确保元素使用绝对定位
+      element.style.position = 'absolute';
+
+      // 获取元素当前位置（优先使用 offsetLeft/offsetTop，如果没有则使用 getBoundingClientRect）
       const rect = element.getBoundingClientRect();
-      startLeft = rect.left;
-      startTop = rect.top;
+      const parentRect = element.offsetParent?.getBoundingClientRect() || { left: 0, top: 0 };
+
+      // 使用相对于父容器的位置
+      startLeft = element.offsetLeft || (rect.left - parentRect.left);
+      startTop = element.offsetTop || (rect.top - parentRect.top);
 
       // 记录鼠标相对于元素左上角的偏移
-      startX = e.clientX - startLeft;
-      startY = e.clientY - startTop;
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
 
       // 设置 dragging 状态
       this.setState('dragging', true);
@@ -225,6 +231,11 @@ class VDraggable extends Tag {
       // 计算新位置（鼠标位置减去偏移量）
       let newLeft = e.clientX - startX;
       let newTop = e.clientY - startY;
+
+      // 调整为相对于父容器的位置
+      const parentRect = element.offsetParent?.getBoundingClientRect() || { left: 0, top: 0 };
+      newLeft = newLeft - parentRect.left;
+      newTop = newTop - parentRect.top;
 
       // 应用约束
       if (constraint === 'horizontal') {
