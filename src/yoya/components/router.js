@@ -692,14 +692,16 @@ class VRouterViews extends Tag {
     super('div', null);
 
     this._router = router;
-    this._views = new Map(); // 视图名称 -> 视图配置
-    this._activeView = null; // 当前激活的视图名称
-    this._viewsHeader = null; // 视图标签栏
-    this._contentContainer = null; // 内容容器
-    this._autoAddView = false; // 是否自动添加新视图
-    this._maxViews = 10; // 最大视图数量
-    this._viewDropdown = null; // 下拉菜单元素
-    this._resizeObserver = null; // 用于检测宽度变化的 ResizeObserver
+    this._views = new Map();
+    this._activeView = null;
+    this._viewsHeader = null;
+    this._contentContainer = null;
+    this._autoAddView = false;
+    this._maxViews = 10;
+    this._viewDropdown = null;
+    this._resizeObserver = null;
+    this._namespace = null;
+    this._isRestoring = true;
 
     // 将路由器的 _view 设置为 this，阻止 VRouter 直接渲染组件
     // FRouterViews 会自己处理组件渲染到各个视图的 _contentDiv
@@ -722,6 +724,9 @@ class VRouterViews extends Tag {
 
     // 监听路由变化，自动切换或添加视图
     this._initRouterListener();
+
+    // 恢复之前保存的状态（页面刷新后）
+    this._restoreState();
   }
 
   /**
@@ -850,6 +855,166 @@ class VRouterViews extends Tag {
       };
       window.addEventListener('language-changed', this._handleLanguageChange);
     }
+  }
+
+  /**
+   * 获取存储键名
+   * @private
+   */
+  _getStorageKey() {
+    // 使用当前页面的 pathname 作为键名的一部分，不同页面独立存储
+    const pagePath = window.location.pathname.replace(/\//g, '-').replace(/^-/, '') || 'root';
+    // 如果设置了命名空间，使用命名空间作为键名（同一页面多实例场景）
+    if (this._namespace) {
+      return `yoya-router-views-state-${this._namespace}`;
+    }
+    return `yoya-router-views-state-${pagePath}`;
+  }
+
+  /**
+   * 设置命名空间
+   * @param {string} ns - 命名空间名称
+   * @returns {VRouterViews} this
+   */
+  namespace(ns) {
+    this._namespace = ns;
+    return this;
+  }
+
+  /**
+   * 保存状态到 localStorage
+   * @private
+   */
+  _saveState() {
+    // 在恢复状态过程中不保存，避免覆盖已保存的状态
+    if (this._isRestoring) return;
+
+    if (typeof window === 'undefined' || !window.localStorage) return;
+
+    const views = [];
+    for (const [name, viewData] of this._views.entries()) {
+      views.push({
+        name: viewData.name,
+        title: viewData.title,
+        icon: viewData.icon,
+        closable: viewData.closable,
+        defaultRoute: viewData.defaultRoute,
+        showTitle: viewData.showTitle,
+        _initialized: viewData._initialized,
+      });
+    }
+
+    const state = {
+      views,
+      activeViewName: this._activeView?.name,
+      timestamp: Date.now(),
+    };
+
+    try {
+      window.localStorage.setItem(this._getStorageKey(), JSON.stringify(state));
+    } catch (e) {
+      console.warn('[VRouterViews] 保存状态失败:', e);
+    }
+  }
+
+  /**
+   * 恢复状态到 localStorage
+   * @private
+   */
+  _restoreState() {
+    this._isRestoring = true; // 开始恢复，阻止保存状态
+
+    if (typeof window === 'undefined' || !window.localStorage) {
+      this._isRestoring = false;
+      return;
+    }
+
+    try {
+      const storageKey = this._getStorageKey();
+      const savedState = window.localStorage.getItem(storageKey);
+
+      if (!savedState) {
+        this._isRestoring = false;
+        return;
+      }
+
+      const state = JSON.parse(savedState);
+
+      // 检查状态是否在 7 天内（过期清除）
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      if (Date.now() - state.timestamp > sevenDays) {
+        console.log('[VRouterViews _restoreState] 状态已过期，清除');
+        window.localStorage.removeItem(storageKey);
+        this._isRestoring = false;
+        return;
+      }
+
+      if (!state.views || !Array.isArray(state.views)) {
+        this._isRestoring = false;
+        return;
+      }
+
+      // 恢复视图
+      let restoredActiveView = null;
+
+      for (const viewConfig of state.views) {
+        // 跳过首页（首页已经自动添加）
+        if (viewConfig.name === 'home') {
+          continue;
+        }
+
+        // 检查路由是否存在
+        const routeExists = this._router._routes.has(viewConfig.defaultRoute);
+        if (!routeExists) {
+          continue;
+        }
+
+        // 添加视图
+        this.addView(viewConfig.name, {
+          title: viewConfig.title,
+          icon: viewConfig.icon,
+          closable: viewConfig.closable,
+          defaultRoute: viewConfig.defaultRoute,
+          showTitle: viewConfig.showTitle,
+        });
+
+        // 标记为已初始化（避免重复导航）
+        const viewData = this._views.get(viewConfig.name);
+        if (viewData) {
+          viewData._initialized = viewConfig._initialized;
+        }
+
+        // 记录需要激活的视图
+        if (viewConfig.name === state.activeViewName) {
+          restoredActiveView = viewConfig.name;
+        }
+      }
+
+      // 恢复完成，允许保存状态
+      this._isRestoring = false;
+
+      // 激活恢复的视图
+      if (restoredActiveView && this._views.has(restoredActiveView)) {
+        // 延迟激活，确保 DOM 已经准备好
+        // 注意：不传入 fromRouteChange，让 setActiveView 正常执行导航逻辑
+        // 因为这是从 localStorage 恢复的状态，不是从路由变化触发的
+        setTimeout(() => {
+          this.setActiveView(restoredActiveView);
+        }, 100);
+      }
+    } catch (e) {
+      console.warn('[VRouterViews] 恢复状态失败:', e);
+      this._isRestoring = false;
+    }
+  }
+
+  /**
+   * 清除保存的状态
+   * @private
+   */
+  _clearState() {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    window.localStorage.removeItem(this._getStorageKey());
   }
 
   /**
@@ -1130,13 +1295,24 @@ class VRouterViews extends Tag {
     // 更新右侧按钮区的显示/隐藏
     this._updateActionsVisibility();
 
-    // 如果是第一个视图，激活它
-    if (this._views.size === 1) {
-      this.setActiveView(name);
+    // 如果是第一个视图且当前没有激活的视图，且当前 hash 是根路径，激活它
+    // 这样可以防止嵌套的 VRouterViews 演示区域在父 VRouterViews 已经导航后覆盖 hash
+    if (this._views.size === 1 && !this._activeView) {
+      const currentHashPath = getCurrentHashPath();
+      // 只有当当前 hash 是根路径或默认路径时，才激活第一个视图
+      // 这样可以防止嵌套的 VRouterViews 演示区域覆盖父实例的 hash
+      if (currentHashPath === '/' || currentHashPath === this._router._defaultPath) {
+        if (currentHashPath !== viewData.defaultRoute) {
+          this.setActiveView(name);
+        }
+      }
     } else if (this._autoAddView) {
       // 如果启用了自动添加视图，添加新视图后激活它
       this.setActiveView(name);
     }
+
+    // 保存状态
+    this._saveState();
 
     return this;
   }
@@ -1296,19 +1472,29 @@ class VRouterViews extends Tag {
     // 导航到视图的默认路由（如果是首次激活）
     if (!viewData._initialized && !fromRouteChange) {
       viewData._initialized = true;
-      this._router.navigate(viewData.defaultRoute, { replace: true });
+      // 检查当前 hash 是否已经等于 defaultRoute，避免不必要的导航
+      const currentHashPath = getCurrentHashPath();
+      if (currentHashPath !== viewData.defaultRoute) {
+        this._router.navigate(viewData.defaultRoute, { replace: true });
+      }
     } else if (fromRouteChange) {
       // 如果是从路由变化触发的，不需要再次导航
     } else {
       // 视图已经初始化过，需要重新导航到该视图的默认路由
       // 这样才能触发 _handleRouteChange 和视图内容更新
-      this._router.navigate(viewData.defaultRoute, { replace: false });
+      const currentHashPath = getCurrentHashPath();
+      if (currentHashPath !== viewData.defaultRoute) {
+        this._router.navigate(viewData.defaultRoute, { replace: false });
+      }
     }
 
     // 派发事件
     if (this._onChange) {
       this._onChange(name, viewData);
     }
+
+    // 保存状态
+    this._saveState();
 
     return this;
   }
@@ -1354,6 +1540,9 @@ class VRouterViews extends Tag {
         this._activeView = null;
       }
     }
+
+    // 保存状态
+    this._saveState();
 
     return this;
   }
