@@ -117,8 +117,8 @@ class VDragSortList extends Tag {
    * 渲染列表项
    */
   _renderItems() {
-    // 清空现有的子元素（除了占位符）
-    this._children = this._children.filter(child => child === this._placeholderEl);
+    // 完全清空子元素
+    this._children = [];
 
     // 重新渲染所有项
     this._items.forEach((item, index) => {
@@ -184,11 +184,13 @@ class VDragSortList extends Tag {
       // 拖拽结束
       d.onDragEnd((e) => {
         this.setState('dragging', false);
-        this._hidePlaceholder();
 
-        // 如果需要重排
+        // 如果需要重排（先检查，再隐藏占位符）
         if (this._placeholderIndex !== -1 && this._placeholderIndex !== this._dragIndex) {
           this._reorderItems(this._dragIndex, this._placeholderIndex);
+        } else {
+          // 不需要重排，只需隐藏占位符
+          this._hidePlaceholder();
         }
 
         this._dragIndex = -1;
@@ -211,6 +213,8 @@ class VDragSortList extends Tag {
         p.style('borderRadius', '4px');
         p.style('margin', '8px 0');
       });
+      // 预先渲染占位符元素
+      this._placeholderEl.renderDom();
     }
 
     this._placeholderIndex = index;
@@ -226,27 +230,39 @@ class VDragSortList extends Tag {
 
     // 重新排列子元素顺序
     const newChildren = [];
+    let placeholderAdded = false;
+
     for (let i = 0; i < this._items.length; i++) {
-      if (i === index && i !== this._dragIndex) {
+      // 在目标位置添加占位符（除了被拖拽的项的位置）
+      if (i === index && i !== this._dragIndex && !placeholderAdded) {
         newChildren.push(this._placeholderEl);
+        placeholderAdded = true;
+        continue;
       }
-      if (i !== index && i !== this._dragIndex) {
-        // 找到对应的 draggable item
-        const item = this._items[i];
-        const existingChild = this._children.find(child =>
-          child !== this._placeholderEl &&
-          child._dragData?.itemId === item[this._itemKey]
-        );
-        if (existingChild) {
-          newChildren.push(existingChild);
-        }
+
+      // 找到对应的 draggable item
+      const item = this._items[i];
+      const existingChild = this._children.find(child =>
+        child !== this._placeholderEl &&
+        child._dragData?.itemId === item[this._itemKey]
+      );
+      if (existingChild) {
+        newChildren.push(existingChild);
       }
     }
-    if (index === this._items.length - 1 && this._dragIndex !== index) {
+
+    // 如果占位符应该在末尾且尚未添加
+    if (index === this._items.length - 1 && !placeholderAdded) {
       newChildren.push(this._placeholderEl);
     }
 
     this._children = newChildren;
+
+    // 触发 DOM 更新
+    const element = this.renderDom();
+    if (element) {
+      // renderDom 会智能更新子元素
+    }
   }
 
   /**
@@ -254,6 +270,10 @@ class VDragSortList extends Tag {
    */
   _hidePlaceholder() {
     this._placeholderIndex = -1;
+    // 移除占位符
+    if (this._placeholderEl) {
+      this._children = this._children.filter(child => child !== this._placeholderEl);
+    }
     this._renderItems();
   }
 
@@ -266,8 +286,9 @@ class VDragSortList extends Tag {
     const element = this.renderDom();
     if (!element) return -1;
 
+    // 获取所有列表项（排除占位符）
     const children = Array.from(element.children).filter(
-      el => el !== this._placeholderEl && !el.hasAttribute('draggable') === false
+      el => el !== this._placeholderEl && el.classList.contains('sort-item')
     );
 
     for (let i = 0; i < children.length; i++) {
@@ -303,7 +324,14 @@ class VDragSortList extends Tag {
       });
     }
 
+    // 移除占位符并重新渲染
+    if (this._placeholderEl) {
+      this._children = this._children.filter(child => child !== this._placeholderEl);
+    }
     this._renderItems();
+
+    // 触发 DOM 更新
+    this.renderDom();
   }
 
   /**
