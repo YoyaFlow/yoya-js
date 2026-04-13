@@ -104,7 +104,7 @@ vCard(c => {
   c.cardHeader('你的标题');
   c.cardBody('你的内容');
   c.cardFooter(btn => {
-    btn.button('操作').onclick(() => toast.success('操作成功'));
+    btn.button('操作').onClick(() => toast.success('操作成功'));
   });
 }).bindTo('#app');
 ```

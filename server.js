@@ -54,16 +54,23 @@ const server = http.createServer((req, res) => {
     req.url = '/yoya.example.html';
   }
 
-  // 构建文件路径 - 支持两个目录：examples 和 yoya
+  // 构建文件路径
   let filePath;
   const urlParts = req.url.split('?')[0]; // 移除查询参数
 
-  // 如果是导入 yoya 库的文件
-  if (urlParts.includes('/yoya/')) {
+  // 处理 /v2-examples/ 请求（打包后的演示页面和资源）
+  // 所有 /v2-examples/xxx 请求都从 dist/v2-examples/xxx 提供
+  if (urlParts.startsWith('/v2-examples/')) {
+    filePath = path.join(__dirname, 'dist', urlParts);
+  // 处理 /yoya/ 请求（从 src 目录提供）
+  } else if (urlParts.includes('/yoya/')) {
+    filePath = path.join(__dirname, 'src', urlParts);
+  } else if (urlParts.startsWith('/v2/')) {
     filePath = path.join(__dirname, 'src', urlParts);
   } else if (urlParts.startsWith('/examples/')) {
-    // 如果是 examples 目录的文件
     filePath = path.join(__dirname, 'src', urlParts);
+  } else if (urlParts.startsWith('/dist/')) {
+    filePath = path.join(__dirname, 'dist', urlParts);
   } else {
     // 默认从 examples 目录提供（不带前缀）
     filePath = path.join(__dirname, 'src', 'examples', urlParts);

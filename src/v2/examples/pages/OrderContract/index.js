@@ -150,7 +150,7 @@ export function createLanguageSwitcher(onChange) {
           transition: 'all 0.2s'
         });
         btn.text(name);
-        btn.onclick(() => {
+        btn.onClick(() => {
           setLanguage(code);
           onChange && onChange(code);
         });

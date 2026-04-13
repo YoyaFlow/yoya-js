@@ -125,38 +125,54 @@ function processDirectory(inputDir, outputDir, distPrefix) {
 function processJsFile(inputPath, outputPath, distPrefix) {
   let content = readFileSync(inputPath, 'utf-8');
 
-  // 计算到 yoya.esm.min.js 的路径
-  const yoyaPath = distPrefix + 'yoya.esm.min.js';
-  const echartPath = distPrefix + 'yoya.echart.esm.min.js';
+  // 根据文件所在目录动态计算 yoya 库的相对路径
+  // 根目录文件使用 './yoya.esm.min.js'
+  // 子目录文件使用 '../yoya.esm.min.js'
+  const outputDir = dirname(outputPath);
+  const relDepth = outputDir.replace('dist/v2-examples', '').split('/').filter(Boolean).length;
+  const relPrefix = relDepth > 0 ? '../'.repeat(relDepth) : './';
 
-  // 替换所有 yoya/index.js 导入
+  const yoyaPath = `${relPrefix}yoya.esm.min.js`;
+  const echartPath = `${relPrefix}yoya.echart.esm.min.js`;
+
+  // 替换所有 yoya/index.js 导入（支持相对路径和绝对路径）
   content = content.replace(
-    /from\s+['"](\.\.\/)*(yoya\/index\.js|yoya\/components\/index\.js)['"]/g,
+    /from\s+['"]((\.\.\/)*|(\/))((yoya\/index\.js)|(yoya\/components\/index\.js))['"]/g,
     `from '${yoyaPath}'`
   );
 
-  // 替换所有 yoya/yoya.echart.js 导入
+  // 替换所有 yoya/yoya.echart.js 导入（支持相对路径和绝对路径）
   content = content.replace(
-    /from\s+['"](\.\.\/)*(yoya\/yoya\.echart\.js)['"]/g,
+    /from\s+['"]((\.\.\/)*|(\/))(yoya\/yoya\.echart\.js)['"]/g,
     `from '${echartPath}'`
   );
 
-  // 替换动态 import - yoya
+  // 替换动态 import - yoya（支持相对路径和绝对路径）
   content = content.replace(
-    /import\(['"](\.\.\/)*(yoya\/index\.js|yoya\/components\/index\.js)['"]\)/g,
+    /import\(['"]((\.\.\/)*|(\/))((yoya\/index\.js)|(yoya\/components\/index\.js))['"]\)/g,
     `import('${yoyaPath}')`
   );
 
-  // 替换动态 import - echart
+  // 替换动态 import - echart（支持相对路径和绝对路径）
   content = content.replace(
-    /import\(['"](\.\.\/)*(yoya\/yoya\.echart\.js)['"]\)/g,
+    /import\(['"]((\.\.\/)*|(\/))(yoya\/yoya\.echart\.js)['"]\)/g,
     `import('${echartPath}')`
   );
 
-  // 替换裸模块 'echarts' 导入为 CDN URL（用于 home.js 等文件）
+  // 注意：裸模块 'echarts' 不替换，由 HTML 中的 Import map 处理
+  // Import map 会将 'echarts' 解析为 ./echarts.min.js
+
+  // 替换 /v2/examples/ 绝对路径为相对路径
+  // 例如：/v2/examples/config/routes.v2.js -> ./config/routes.v2.js (根目录) 或 ../config/routes.v2.js (子目录)
   content = content.replace(
-    /from\s+['"]echarts['"]/g,
-    `from 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js'`
+    /from\s+['"]\/v2\/examples\//g,
+    `from '${relPrefix}`
+  );
+
+  // 替换动态 import 中的 /v2/examples/ 绝对路径
+  content = content.replace(
+    /import\(['"]\/v2\/examples\//g,
+    `import('${relPrefix}`
   );
 
   // 注意：动态 import 的 pages 路径不需要修改
@@ -170,38 +186,52 @@ function processJsFile(inputPath, outputPath, distPrefix) {
 function processHtmlFile(inputPath, outputPath, distPrefix) {
   let content = readFileSync(inputPath, 'utf-8');
 
-  // 替换 JS 文件引用
-  // 匹配 src="./xxx.js" 并替换为 src="${distPrefix}xxx.js"
+  // 替换 JS 文件引用为相对路径（./xxx.js）
   content = content.replace(
-    /<script\s+type="module"\s+src="\.\/([^"']+)\.js"\s*><\/script>/g,
-    (match, fileName) => {
-      return `<script type="module" src="${distPrefix}${fileName}.js"></script>`;
+    /<script\s+type="module"\s+src="(\.\/|\.\.\/)*([^"']+)\.js"\s*><\/script>/g,
+    (match, prefix, fileName) => {
+      return `<script type="module" src="./${fileName}.js"></script>`;
     }
   );
 
-  // 替换 common.css 引用为 dist 目录下的路径
-  // 匹配 href="./styles/common.css" 或 href="../styles/common.css" 等
+  // 替换 common.css 引用为相对路径
   content = content.replace(
     /href="(\.\/|\.\.\/)+styles\/common\.css"/g,
-    `href="${distPrefix}styles/common.css"`
+    `href="./styles/common.css"`
   );
 
-  // 替换多个 CSS 引用为单一的 yoya.theme.css（非压缩版本）
-  // 支持两种模式：
-  // 1. <!-- 统一主题 CSS --> 注释后的多个 CSS 链接
-  // 2. 直接的 ../../../yoya/theme/css/base.css 引用
+  // 替换 yoya.theme.css 引用为相对路径
   const cssBlockPattern = /<!-- 统一主题 CSS -->[\s\S]*?<link\s+rel="stylesheet"\s+href="[^"]*base\.css"[^>]*>(?:\s*<link\s+rel="stylesheet"\s+href="[^"]*\.css"[^>]*>)*/;
-  const baseCssPattern = /<link\s+rel="stylesheet"\s+href="(\.\.\/)*(\.\.\/)*(\.\.\/)*yoya\/theme\/css\/base\.css"[^>]*>(?:\s*<link\s+rel="stylesheet"\s+href="[^"]*yoya\/theme\/css\/[^"]*"[^>]*>)*/;
+  const baseCssPattern = /<link\s+rel="stylesheet"\s+href="(\.\.\/)*yoya\/theme\/css\/base\.css"[^>]*>(?:\s*<link\s+rel="stylesheet"\s+href="[^"]*yoya\/theme\/css\/[^"]*"[^>]*>)*/;
+  const themeCssPattern = /href="(\.\/|\.\.\/)+yoya\.theme\.css"/;
 
   content = content.replace(
     cssBlockPattern,
-    `<!-- 统一主题 CSS -->\n  <link rel="stylesheet" href="${distPrefix}yoya.theme.css">`
+    `<!-- 统一主题 CSS -->\n  <link rel="stylesheet" href="./yoya.theme.css">`
   );
 
-  // 处理没有注释的纯 base.css 引用
   content = content.replace(
     baseCssPattern,
-    `<link rel="stylesheet" href="${distPrefix}yoya.theme.css">`
+    `<link rel="stylesheet" href="./yoya.theme.css">`
+  );
+
+  content = content.replace(
+    themeCssPattern,
+    `href="./yoya.theme.css"`
+  );
+
+  // 替换 Import map 中的 echarts CDN 引用为本地路径
+  content = content.replace(
+    /"echarts":\s*"[^"]+"/g,
+    `"echarts": "./echarts.min.js"`
+  );
+
+  // 在 Import map 后添加 echarts 脚本加载（UMD 格式，直接设置 window.echarts）
+  content = content.replace(
+    /<\/script>\n  <style>/g,
+    `</script>
+  <script src="./echarts.min.js"></script>
+  <style>`
   );
 
   mkdirSync(dirname(outputPath), { recursive: true });
@@ -256,6 +286,14 @@ function copyAssetsPlugin() {
           cpSync(src, dest, { force: true });
           console.log(`[LIB] Copied ${src} -> ${dest}`);
         }
+      }
+
+      // 复制 echarts 库文件到 dist/v2-examples/
+      const echartSrc = 'dist/echarts.min.js';
+      const echartDest = 'dist/v2-examples/echarts.min.js';
+      if (existsSync(echartSrc)) {
+        cpSync(echartSrc, echartDest, { force: true });
+        console.log(`[ECHARTS] Copied ${echartSrc} -> ${echartDest}`);
       }
 
       // 复制 theme/css 目录到 dist/v2-examples/css（用于 HTML 中的相对路径引用）

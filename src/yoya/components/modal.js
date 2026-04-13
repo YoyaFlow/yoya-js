@@ -12,15 +12,15 @@
  *     c.p('这里是弹出框内容');
  *   });
  *   m.footer(f => {
- *     f.button('确定', b => b.onclick(() => {
+ *     f.button('确定', b => b.onClick(() => {
  *       toast.success('已确认');
  *       modal.hide();
  *     }));
- *     f.button('取消', b => b.onclick(() => modal.hide()));
+ *     f.button('取消', b => b.onClick(() => modal.hide()));
  *   });
  * });
  *
- * vButton('打开弹出框', b => b.onclick(() => modal.show()));
+ * vButton('打开弹出框', b => b.onClick(() => modal.show()));
  */
 
 import { Tag, div, button, p, h1, h2, h3 } from '../core/basic.js';

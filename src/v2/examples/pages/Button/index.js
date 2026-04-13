@@ -50,15 +50,15 @@ vButton('成功').type('success')`
           flex(row => {
             row.gap('12px');
             row.child(vButton('对象配置', {
-              onclick: () => toast('对象方式'),
+              onClick: () => toast('对象方式'),
             }));
             row.child(vButton('点击按钮', {
-              onclick: () => toast('点击按钮'),
+              onClick: () => toast('点击按钮'),
             }));
           }),
           `// ✅ 推荐：简单配置用对象
 vButton('对象配置', {
-  onclick: () => toast('点击')
+  onClick: () => toast('点击')
 })`
         ),
 

@@ -9,16 +9,16 @@
  * vMenu(m => {
  *   m.item(it => {
  *     it.text('📋 菜单项 1')
- *       .onclick(() => console.log('点击 1'));
+ *       .onClick(() => console.log('点击 1'));
  *   });
  *   m.item(it => {
  *     it.text('📁 菜单项 2')
- *       .onclick(() => console.log('点击 2'));
+ *       .onClick(() => console.log('点击 2'));
  *   });
  *   m.divider();
  *   m.item(it => {
  *     it.text('⚙️ 设置')
- *       .onclick(() => console.log('设置'));
+ *       .onClick(() => console.log('设置'));
  *   });
  * });
  *

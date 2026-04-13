@@ -49,13 +49,13 @@
           btns.gap('12px');
           btns.marginBottom('20px');
 
-          btns.child(vButton('切换到浅色').onclick(() => {
+          btns.child(vButton('切换到浅色').onClick(() => {
             switchTheme('islands');
             setThemeMode('light');
             toast.success('已切换到浅色主题');
           }));
 
-          btns.child(vButton('切换到深色').onclick(() => {
+          btns.child(vButton('切换到深色').onClick(() => {
             switchTheme('islands');
             setThemeMode('dark');
             toast.success('已切换到深色主题');

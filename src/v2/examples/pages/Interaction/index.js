@@ -192,16 +192,16 @@ flex(f => {
             d.menu(vMenu(m => {
               m.item(it => {
                 it.text('📋 选项 1');
-                it.onclick(() => console.log('选项 1'));
+                it.onClick(() => console.log('选项 1'));
               });
               m.item(it => {
                 it.text('📁 选项 2');
-                it.onclick(() => console.log('选项 2'));
+                it.onClick(() => console.log('选项 2'));
               });
               m.divider();
               m.item(it => {
                 it.text('⚙️ 设置');
-                it.onclick(() => console.log('设置'));
+                it.onClick(() => console.log('设置'));
               });
             }));
           }),
@@ -210,16 +210,16 @@ flex(f => {
   d.menu(vMenu(m => {
     m.item(it => {
       it.text('📋 选项 1')
-      it.onclick(() => console.log('选项 1'))
+      it.onClick(() => console.log('选项 1'))
     })
     m.item(it => {
       it.text('📁 选项 2')
-      it.onclick(() => console.log('选项 2'))
+      it.onClick(() => console.log('选项 2'))
     })
     m.divider()
     m.item(it => {
       it.text('⚙️ 设置')
-      it.onclick(() => console.log('设置'))
+      it.onClick(() => console.log('设置'))
     })
   }))
 })`

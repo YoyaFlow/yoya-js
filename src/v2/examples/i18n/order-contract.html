@@ -286,7 +286,7 @@
                 fontSize: '14px'
               });
               btn.text(langName);
-              btn.onclick(() => {
+              btn.onClick(() => {
                 setLanguage(code);
                 renderPage();
                 toast.info(t('message.saveSuccess'));
@@ -377,7 +377,7 @@
               fontWeight: '500'
             });
             btn.text(t('common.edit'));
-            btn.onclick(() => toast.info(t('common.edit')));
+            btn.onClick(() => toast.info(t('common.edit')));
           });
 
           action.button(btn => {
@@ -391,7 +391,7 @@
               fontSize: '14px'
             });
             btn.text(t('common.cancel'));
-            btn.onclick(() => toast.info(t('common.cancel')));
+            btn.onClick(() => toast.info(t('common.cancel')));
           });
         });
       });

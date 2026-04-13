@@ -7,12 +7,19 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏝️</text></svg>">
     <link rel="stylesheet" href="./styles/common.css">
   <!-- 统一主题 CSS -->
-  <link rel="stylesheet" href="../../../yoya/theme/css/base.css">
-  <link rel="stylesheet" href="../../../yoya/theme/css/components/index.css">
+  <link rel="stylesheet" href="./yoya.theme.css">
 </head>
 <body>
   <div id="app"></div>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-  <script type="module" src="./index.js"></script>
+  <!-- Importmap 用于处理 bare module specifier -->
+  <script type="importmap">
+  {
+    "imports": {
+      "echarts": "./echarts.min.js"
+    }
+  }
+  </script>
+  <script src="./echarts.min.js"></script>
+  <script type="module" src="./pages/Echart/index.js"></script>
 </body>
 </html>

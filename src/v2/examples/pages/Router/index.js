@@ -902,6 +902,11 @@ export function createRouterPage() {
     });
 
     // 定义路由
+    r.route('/router', {
+      // 默认路由，显示首页
+      component: () => HomePage(),
+    });
+
     r.route('/router/home', {
       component: () => HomePage(),
     });

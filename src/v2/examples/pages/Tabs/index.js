@@ -284,7 +284,7 @@ export function createTabsPage() {
                     const addBtn = button(b => {
                       b.text('添加标签');
                       b.styles({ marginTop: '10px' });
-                      b.onclick(() => {
+                      b.onClick(() => {
                         const count = t.getTabs().length + 1;
                         t.addTab(`tab${count}`, `标签${count}`, (c) => {
                           c.styles({ padding: '20px' });
@@ -297,7 +297,7 @@ export function createTabsPage() {
                     const removeBtn = button(b => {
                       b.text('移除最后标签');
                       b.styles({ marginLeft: '10px' });
-                      b.onclick(() => {
+                      b.onClick(() => {
                         const tabs = t.getTabs();
                         if (tabs.length > 1) {
                           const lastTab = tabs[tabs.length - 1];

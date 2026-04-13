@@ -383,25 +383,25 @@ function renderApp() {
             m.item(it => {
               it.text('🏠 ' + t('menu.home'));
               it.active();
-              it.onclick(() => toast.info(t('message.itemClicked', '', { item: t('menu.home') })));
+              it.onClick(() => toast.info(t('message.itemClicked', '', { item: t('menu.home') })));
             });
             m.item(it => {
               it.text('📊 ' + t('menu.dashboard'));
-              it.onclick(() => toast.info(t('message.itemClicked', '', { item: t('menu.dashboard') })));
+              it.onClick(() => toast.info(t('message.itemClicked', '', { item: t('menu.dashboard') })));
             });
             m.item(it => {
               it.text('👤 ' + t('menu.profile'));
-              it.onclick(() => toast.info(t('message.itemClicked', '', { item: t('menu.profile') })));
+              it.onClick(() => toast.info(t('message.itemClicked', '', { item: t('menu.profile') })));
             });
             m.divider();
             m.item(it => {
               it.text('⚙️ ' + t('menu.settings'));
-              it.onclick(() => toast.info(t('message.itemClicked', '', { item: t('menu.settings') })));
+              it.onClick(() => toast.info(t('message.itemClicked', '', { item: t('menu.settings') })));
             });
             m.item(it => {
               it.text('🚪 ' + t('menu.logout'));
               it.danger();
-              it.onclick(() => toast.error(t('message.itemClicked', '', { item: t('menu.logout') })));
+              it.onClick(() => toast.error(t('message.itemClicked', '', { item: t('menu.logout') })));
             });
           });
         });

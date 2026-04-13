@@ -150,7 +150,7 @@ export const demoRoutes = [
       {
         name: 'router',
         title: 'Router 路由',
-        icon: '',
+        icon: '🧭',
         description: '路由组件',
         loader: () => import('../pages/Router/index.js').then(m => m.createRouterPage),
         route: '/router',

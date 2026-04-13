@@ -150,6 +150,7 @@ class VDragSortList extends Tag {
 
       // 使用 itemRender 渲染内容，如果没有则使用默认渲染
       if (this._itemRender) {
+        // 先调用 itemRender 让用户自定义内容
         this._itemRender(item, index, d);
       } else {
         d.text(String(item));

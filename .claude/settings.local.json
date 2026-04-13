@@ -205,7 +205,9 @@
       "Bash(git -C /home/join/code/cctest add -f .memery/00-index.md .memery/00-organization-summary.md)",
       "Bash(git -C /home/join/code/cctest status --short .memery/)",
       "Bash(git -C /home/join/code/cctest add -A .memery/)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "WebSearch",
+      "Bash(du -sh /home/join/code/cctest/dist/v2-examples/*)"
     ]
   },
   "enableAllProjectMcpServers": true,

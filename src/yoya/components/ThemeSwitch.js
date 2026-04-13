@@ -5,20 +5,12 @@
 
 import { Tag, div, span } from '../core/basic.js';
 import { getThemeMode, setThemeMode } from '../theme/index.js';
-import { toast } from './message.js';
 
 // 图标映射
 const ICONS = {
   light: '☀️',
   auto: '🔄',
   dark: '🌙'
-};
-
-// 提示文本映射
-const TOOLTIPS = {
-  light: '浅色模式',
-  auto: '自动模式（跟随系统）',
-  dark: '深色模式'
 };
 
 /**
@@ -102,8 +94,9 @@ class ThemeSwitch extends Tag {
       this._indicator = indicator;
     }));
 
-    // 初始化指示器位置
+    // 初始化指示器位置和激活状态
     this._updateIndicator();
+    this._updateActiveState();
   }
 
   /**
@@ -141,9 +134,6 @@ class ThemeSwitch extends Tag {
     if (this._onChange) {
       this._onChange(mode);
     }
-
-    // 显示提示
-    toast.info(TOOLTIPS[mode]);
   }
 
   /**

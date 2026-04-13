@@ -215,9 +215,30 @@ function updateActiveState(tocInstance, activeHref) {
 /**
  * 更新 TOC 项目
  * @param {Array} items - 新的目录项数组
+ * @param {HTMLElement|null} contentContainer - 滚动容器元素
  */
 export function updateTOCItems(tocInstance, items, contentContainer = null) {
   if (!tocInstance || !tocInstance._el) return;
+
+  // 避免重复更新相同的 items
+  const itemsChanged = !tocInstance._lastItems ||
+    items.length !== tocInstance._lastItems.length ||
+    items.some((item, index) => item.href !== tocInstance._lastItems[index]?.href);
+
+  if (!itemsChanged) {
+    // 仅更新滚动容器引用（如果需要）
+    if (contentContainer && tocInstance._contentContainer !== contentContainer) {
+      tocInstance._contentContainer = contentContainer;
+      if (tocInstance._observer) {
+        tocInstance._observer.disconnect();
+      }
+      setupScrollObserver(tocInstance, contentContainer, items);
+    }
+    return;
+  }
+
+  // 保存当前 items 用于下次比较
+  tocInstance._lastItems = items;
 
   // 清理旧的 observer
   if (tocInstance._observer) {

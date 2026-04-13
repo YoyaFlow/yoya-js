@@ -25,6 +25,14 @@
   <link rel="stylesheet" href="../../yoya/theme/css/components/switchers.css">
   <link rel="stylesheet" href="../../yoya/theme/css/components/tree.css">
   <link rel="stylesheet" href="../../yoya/theme/css/components/router.css">
+  <!-- Importmap 用于处理 bare module specifier -->
+  <script type="importmap">
+  {
+    "imports": {
+      "echarts": "https://esm.sh/echarts@5.4.3/dist/echarts.esm.min.js"
+    }
+  }
+  </script>
   <style>
     html, body {
       margin: 0;

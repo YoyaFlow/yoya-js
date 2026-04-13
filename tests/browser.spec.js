@@ -53,7 +53,7 @@ test.describe('Yoya.Basic 浏览器测试', () => {
       window.clickCount = 0;
       const btn = button(box => {
         box.text('点击我');
-        box.onclick(() => { window.clickCount++; });
+        box.onClick(() => { window.clickCount++; });
       });
       btn.bindTo('#app');
     });

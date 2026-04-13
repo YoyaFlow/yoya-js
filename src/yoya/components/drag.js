@@ -189,10 +189,15 @@ class VDraggable extends Tag {
       }
 
       isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      startLeft = element.offsetLeft;
-      startTop = element.offsetTop;
+
+      // 获取元素当前位置
+      const rect = element.getBoundingClientRect();
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      // 记录鼠标相对于元素左上角的偏移
+      startX = e.clientX - startLeft;
+      startY = e.clientY - startTop;
 
       // 设置 dragging 状态
       this.setState('dragging', true);
@@ -203,8 +208,8 @@ class VDraggable extends Tag {
           type: 'dragStart',
           target: element,
           data: this._dragData,
-          x: startX,
-          y: startY,
+          x: e.clientX,
+          y: e.clientY,
           preventDefault: () => e.preventDefault()
         });
       }
@@ -216,18 +221,17 @@ class VDraggable extends Tag {
       if (!isDragging) return;
 
       const constraint = this.getStringState('constraint');
-      let deltaX = e.clientX - startX;
-      let deltaY = e.clientY - startY;
+
+      // 计算新位置（鼠标位置减去偏移量）
+      let newLeft = e.clientX - startX;
+      let newTop = e.clientY - startY;
 
       // 应用约束
       if (constraint === 'horizontal') {
-        deltaY = 0;
+        newTop = startTop;
       } else if (constraint === 'vertical') {
-        deltaX = 0;
+        newLeft = startLeft;
       }
-
-      const newLeft = startLeft + deltaX;
-      const newTop = startTop + deltaY;
 
       element.style.left = `${newLeft}px`;
       element.style.top = `${newTop}px`;
@@ -240,8 +244,8 @@ class VDraggable extends Tag {
           data: this._dragData,
           x: e.clientX,
           y: e.clientY,
-          deltaX,
-          deltaY,
+          deltaX: e.clientX - (startLeft + startX),
+          deltaY: e.clientY - (startTop + startY),
           left: newLeft,
           top: newTop
         });

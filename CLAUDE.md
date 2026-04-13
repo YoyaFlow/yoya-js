@@ -295,16 +295,16 @@ import { menu, menuItem, menuDivider, menuGroup, dropdownMenu, contextMenu, toas
 menu(m => {
   m.item(it => {
     it.text('📋 菜单项 1')
-      .onclick(() => toast.info('菜单项 1'));
+      .onClick(() => toast.info('菜单项 1'));
   });
   m.item(it => {
     it.text('📁 菜单项 2')
-      .onclick(() => toast.info('菜单项 2'));
+      .onClick(() => toast.info('菜单项 2'));
   });
   m.divider();
   m.item(it => {
     it.text('⚙️ 设置')
-      .onclick(() => toast.info('设置'));
+      .onClick(() => toast.info('设置'));
   });
 });
 
@@ -314,11 +314,11 @@ menu(m => {
     g.label('文件操作');
     g.item(it => {
       it.text('📄 新建')
-        .onclick(() => toast.info('新建'));
+        .onClick(() => toast.info('新建'));
     });
     g.item(it => {
       it.text('📂 打开')
-        .onclick(() => toast.info('打开'));
+        .onClick(() => toast.info('打开'));
     });
   });
 });
@@ -329,7 +329,7 @@ menu(m => {
     it.text('🗑️ 删除')
       .danger()           // 红色危险样式
       .shortcut('Del')    // 快捷键
-      .onclick(() => toast.error('删除'));
+      .onClick(() => toast.error('删除'));
   });
 });
 
@@ -355,11 +355,11 @@ dropdownMenu(d => {
   d.menuContent(menu(m => {
     m.item(it => {
       it.text('📋 选项 1')
-        .onclick(() => toast.info('选项 1'));
+        .onClick(() => toast.info('选项 1'));
     });
     m.item(it => {
       it.text('⚙️ 设置')
-        .onclick(() => toast.info('设置'));
+        .onClick(() => toast.info('设置'));
     });
   }));
   d.closeOnClickOutside();
@@ -370,7 +370,7 @@ const ctxMenu = contextMenu(ctx => {
   ctx.menuContent(menu(m => {
     m.item(it => {
       it.text('✏️ 编辑')
-        .onclick(() => {
+        .onClick(() => {
           toast.info('编辑');
           ctxMenu.hide();
         });
@@ -378,7 +378,7 @@ const ctxMenu = contextMenu(ctx => {
     m.item(it => {
       it.text('🗑️ 删除')
         .danger()
-        .onclick(() => {
+        .onClick(() => {
           toast.error('删除');
           ctxMenu.hide();
         });
@@ -390,7 +390,7 @@ ctxMenu.target(document.getElementById('target'));
 
 **Menu 组件架构**：
 - `Menu` - 菜单容器，支持垂直/水平布局
-- `MenuItem` - 菜单项，支持链式调用：`text()`, `icon()`, `shortcut()`, `onclick()`, `active()`, `disabled()`, `danger()`, `hoverable()`
+- `MenuItem` - 菜单项，支持链式调用：`text()`, `icon()`, `shortcut()`, `onClick()`, `active()`, `disabled()`, `danger()`, `hoverable()`
 - `MenuDivider` - 分割线
 - `MenuGroup` - 带标签的菜单组
 - `DropdownMenu` - 下拉菜单
@@ -1057,13 +1057,13 @@ vMenu(m => {
     it.text('新建')
       .icon('📄')
       .shortcut('Ctrl+N')
-      .onclick(() => console.log('新建'));
+      .onClick(() => console.log('新建'));
   });
   m.divider();
   m.item(it => {
     it.text('设置')
       .icon('⚙️')
-      .onclick(() => console.log('设置'));
+      .onClick(() => console.log('设置'));
   });
 });
 

@@ -13,8 +13,8 @@ import { demoRoutes } from './config/routes.v2.js';
 import { AppShell, updateToc, setScrollContainer } from './framework/AppShell.js';
 
 // 引入 ECharts 并暴露到全局，供 VEchart 组件使用
-import * as echarts from 'echarts';
-window.echarts = echarts;
+// echarts 库通过 HTML 中的 <script src="./echarts.min.js"> 加载到全局
+const echarts = window.echarts;
 
 // 初始化主题系统（从 localStorage 恢复主题偏好）
 import { initTheme } from '../../yoya/index.js';
@@ -335,6 +335,8 @@ function createVRouterViewsContent() {
 
   // 创建 VRouterViews 实例并添加到容器
   const routerViews = vRouterViews(router, views => {
+    // 设置命名空间，避免与其他 VRouterViews 实例冲突
+    views.namespace('v2-demo-main');
     // 设置最大视图数量为 12
     views.setMaxViews(12);
 
@@ -350,14 +352,21 @@ function createVRouterViewsContent() {
       addedViews.add(homeItem.name);
     }
 
+    // TOC 更新防抖，避免频繁切换视图时重复渲染
+    let tocUpdateTimeout = null;
     views.onChange((viewName) => {
-      // 更新 TOC
-      const tocItems = pageTocConfigs[viewName.toLowerCase()] || [];
-      if (tocItems.length > 0) {
-        updateToc(tocItems);
+      // 使用防抖更新 TOC，避免循环调用
+      if (tocUpdateTimeout) {
+        clearTimeout(tocUpdateTimeout);
       }
-      // 更新滚动容器引用
-      updateScrollContainer();
+      tocUpdateTimeout = setTimeout(() => {
+        const tocItems = pageTocConfigs[viewName.toLowerCase()] || [];
+        if (tocItems.length > 0) {
+          updateToc(tocItems);
+        }
+        // 更新滚动容器引用
+        updateScrollContainer();
+      }, 50);
     });
   });
 
@@ -395,14 +404,11 @@ function createVRouterViewsContent() {
  * @param {string} routePath - 路由路径（如 '/button'）
  */
 export function addViewByRoutePath(routePath) {
-  if (!routerViewsInstance) {
-    return;
-  }
+  console.log('[addViewByRoutePath] 被调用，routePath:', routePath);
+  console.log('[addViewByRoutePath] routerViewsInstance:', routerViewsInstance);
 
-  // Router 路由有自己的路由器实例，不适合作为 VRouterViews 的一个视图
-  // 在新窗口中打开
-  if (routePath === '/router') {
-    window.open('/v2/examples/router.html', '_blank');
+  if (!routerViewsInstance) {
+    console.log('[addViewByRoutePath] routerViewsInstance 不存在，直接返回');
     return;
   }
 
@@ -410,13 +416,16 @@ export function addViewByRoutePath(routePath) {
   for (const category of demoRoutes) {
     for (const item of category.items) {
       if (item.route === routePath) {
+        console.log('[addViewByRoutePath] 找到路由配置:', item.name, item.route);
         // 如果视图已存在，直接切换
         if (addedViews.has(item.name)) {
+          console.log('[addViewByRoutePath] 视图已存在，切换:', item.name);
           routerViewsInstance.setActiveView(item.name);
           return;
         }
 
         // 添加新视图
+        console.log('[addViewByRoutePath] 添加新视图:', item.name);
         routerViewsInstance.addView(item.name, {
           title: item.title,
           icon: item.icon,
@@ -426,11 +435,14 @@ export function addViewByRoutePath(routePath) {
         addedViews.add(item.name);
 
         // 切换到新添加的视图
+        console.log('[addViewByRoutePath] 切换到新视图:', item.name);
         routerViewsInstance.setActiveView(item.name);
         return;
       }
     }
   }
+
+  console.log('[addViewByRoutePath] 未找到路由配置:', routePath);
 }
 
 // 先创建 VRouterViews 内容（会设置 routerInstance）

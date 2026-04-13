@@ -271,6 +271,10 @@
       d.className('draggable-box');
       d.data({ type: 'demo-box', name: '紫色方块' });
       d.text('拖拽我');
+      // 设置绝对定位和初始位置
+      d.style('position', 'absolute');
+      d.style('left', '20px');
+      d.style('top', '100px');
       d.onDragStart((e) => {
         log(`拖拽开始：${e.data?.name}`, 'info');
         // 设置原生拖拽数据
@@ -325,19 +329,15 @@
 
     const sortList = vDragSortList(list => {
       list.className('sort-list');
-      list.items(sortListData);
       list.itemKey('id');
       list.itemRender((item, index, container) => {
-        container.className('sort-item');
-        container.div(box => {
-          box.className('drag-icon');
-          box.text('⋮⋮');
-        });
-        container.div(content => {
-          content.className('item-content');
-          content.text(item.content);
-        });
+        // 设置类名和内容
+        container.attr('class', 'sort-item');
+        // 确保 content 是字符串
+        const content = typeof item.content === 'string' ? item.content : String(item.content || item);
+        container.text(content);
       });
+      list.items(sortListData);
       list.onReorder((e) => {
         log(`列表重排：从 ${e.fromIndex} 移动到 ${e.toIndex}`, 'success');
         log(`新顺序：${e.items.map((item, i) => i + 1).join(' → ')}`, 'info');

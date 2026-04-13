@@ -3,9 +3,22 @@
  * 顶部导航栏 - 使用 VTopNavbar
  */
 
-import { vTopNavbar, toast, themeSwitch } from '../../../yoya/index.js';
+import { vTopNavbar, themeSwitch, loadCssFile, getComponentCssPath } from '../../../yoya/index.js';
+
+// 标记 CSS 是否已加载
+let themeSwitchCssLoaded = false;
+
+// 加载 ThemeSwitch CSS 文件
+function loadThemeSwitchCss() {
+  if (themeSwitchCssLoaded || typeof window === 'undefined') return;
+  themeSwitchCssLoaded = true;
+  loadCssFile(getComponentCssPath('theme-switch'), { replaceExisting: false });
+}
 
 export function TopNavbar() {
+  // 加载 ThemeSwitch CSS
+  loadThemeSwitchCss();
+
   return vTopNavbar(navbar => {
     navbar.height('56px');
 
@@ -27,9 +40,6 @@ export function TopNavbar() {
     navbar.right(right => {
       right.themeSwitch(ts => {
         ts.size('small');
-        ts.onChange((mode) => {
-          toast.success(`已切换到${mode === 'light' ? '浅色' : mode === 'dark' ? '深色' : '自动'}模式`);
-        });
       });
     });
   });
