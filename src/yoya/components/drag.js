@@ -177,6 +177,7 @@ class VDraggable extends Tag {
     let startX = 0, startY = 0;
     let startLeft = 0, startTop = 0;
     let dragElement = null;
+    let positionInitialized = false;
 
     const handleMouseDown = (e) => {
       // 检查是否禁用
@@ -189,9 +190,6 @@ class VDraggable extends Tag {
       }
 
       isDragging = true;
-
-      // 确保元素使用绝对定位
-      element.style.position = 'absolute';
 
       // 获取元素当前位置（优先使用 offsetLeft/offsetTop，如果没有则使用 getBoundingClientRect）
       const rect = element.getBoundingClientRect();
@@ -225,6 +223,12 @@ class VDraggable extends Tag {
 
     const handleMouseMove = (e) => {
       if (!isDragging) return;
+
+      // 第一次拖拽时设置绝对定位
+      if (!positionInitialized) {
+        element.style.position = 'absolute';
+        positionInitialized = true;
+      }
 
       const constraint = this.getStringState('constraint');
 
