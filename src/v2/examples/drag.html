@@ -38,6 +38,13 @@
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
     }
 
+    /* 基础拖拽容器 - 需要 relative 定位上下文 */
+    #draggable-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+
     .demo-description {
       color: #909399;
       font-size: 14px;
@@ -271,10 +278,6 @@
       d.className('draggable-box');
       d.data({ type: 'demo-box', name: '紫色方块' });
       d.text('拖拽我');
-      // 设置绝对定位和初始位置
-      d.style('position', 'absolute');
-      d.style('left', '20px');
-      d.style('top', '100px');
       d.onDragStart((e) => {
         log(`拖拽开始：${e.data?.name}`, 'info');
         // 设置原生拖拽数据
