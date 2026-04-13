@@ -224,13 +224,16 @@ class VDraggable extends Tag {
     const handleMouseMove = (e) => {
       if (!isDragging) return;
 
-      // 第一次拖拽时设置绝对定位
-      if (!positionInitialized) {
-        element.style.position = 'absolute';
-        positionInitialized = true;
-      }
-
       const constraint = this.getStringState('constraint');
+
+      // 只有在自由拖拽模式下才设置绝对定位
+      // vertical/horizontal 约束模式保持原有定位方式（用于排序等场景）
+      if (constraint === 'free') {
+        if (!positionInitialized) {
+          element.style.position = 'absolute';
+          positionInitialized = true;
+        }
+      }
 
       // 计算新位置（鼠标位置减去偏移量）
       let newLeft = e.clientX - startX;
@@ -248,8 +251,11 @@ class VDraggable extends Tag {
         newLeft = startLeft;
       }
 
-      element.style.left = `${newLeft}px`;
-      element.style.top = `${newTop}px`;
+      // 只在自由拖拽模式下设置位置
+      if (constraint === 'free') {
+        element.style.left = `${newLeft}px`;
+        element.style.top = `${newTop}px`;
+      }
 
       // 触发自定义回调
       if (this._onDrag) {
