@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖拽组件演示 - YoyaJS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #303133;
+    }
+
+    h2 {
+      margin: 30px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e4e7ed;
+      color: #303133;
+    }
+
+    .demo-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-description {
+      color: #909399;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* 基础拖拽演示样式 */
+    .draggable-box {
+      width: 150px;
+      height: 100px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      cursor: grab;
+      position: relative;
+      margin: 20px;
+    }
+
+    .draggable-box:active {
+      cursor: grabbing;
+    }
+
+    .drop-zone {
+      width: 300px;
+      height: 200px;
+      border: 2px dashed #dcdfe6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #909399;
+      background: #fafafa;
+      margin: 20px;
+    }
+
+    /* 排序列表演示样式 */
+    .sort-list {
+      max-width: 400px;
+    }
+
+    .sort-item {
+      padding: 16px 20px;
+      background: white;
+      border: 1px solid #e4e7ed;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sort-item:hover {
+      background: #f5f7fa;
+    }
+
+    .sort-item:active {
+      cursor: grabbing;
+    }
+
+    .sort-item .drag-icon {
+      color: #c0c4cc;
+      font-size: 18px;
+    }
+
+    .sort-item .item-content {
+      flex: 1;
+    }
+
+    /* 布局编辑器演示样式 */
+    .layout-editor {
+      display: flex;
+      gap: 20px;
+    }
+
+    .component-panel {
+      width: 200px;
+      background: white;
+      border: 1px solid #e4e7ed;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .component-panel h3 {
+      font-size: 14px;
+      color: #909399;
+      margin-bottom: 12px;
+    }
+
+    .component-item {
+      padding: 10px 12px;
+      background: #f5f7fa;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      cursor: grab;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .component-item:hover {
+      background: #ecf5ff;
+    }
+
+    .canvas-area {
+      flex: 1;
+      min-height: 400px;
+      border: 2px dashed #dcdfe6;
+      border-radius: 8px;
+      padding: 20px;
+      background: #fafafa;
+    }
+
+    .canvas-zone {
+      border: 2px solid #e4e7ed;
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: white;
+      min-height: 100px;
+    }
+
+    .canvas-zone-label {
+      font-size: 12px;
+      color: #909399;
+      margin-bottom: 8px;
+    }
+
+    .placed-component {
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      cursor: grab;
+    }
+
+    /* 输出区域 */
+    .output-area {
+      margin-top: 20px;
+      padding: 16px;
+      background: #2d2d2d;
+      border-radius: 4px;
+      color: #a0a0a0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .output-area .log-entry {
+      margin-bottom: 4px;
+    }
+
+    .output-area .log-entry.success {
+      color: #67c23a;
+    }
+
+    .output-area .log-entry.info {
+      color: #409eff;
+    }
+
+    .output-area .log-entry.warning {
+      color: #e6a23c;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 拖拽组件演示</h1>
+
+  <!-- 基础拖拽演示 -->
+  <div class="demo-section">
+    <h2>1. 基础拖拽 (VDraggable + VDroppable)</h2>
+    <p class="demo-description">拖拽左侧的紫色方块到右侧的虚线区域</p>
+    <div style="display: flex; gap: 20px;">
+      <div id="draggable-container"></div>
+      <div id="droppable-container"></div>
+    </div>
+  </div>
+
+  <!-- 拖拽排序演示 -->
+  <div class="demo-section">
+    <h2>2. 拖拽排序 (VDragSortList)</h2>
+    <p class="demo-description">拖拽列表项改变顺序</p>
+    <div id="sort-list-container"></div>
+  </div>
+
+  <!-- 布局编辑器演示 -->
+  <div class="demo-section">
+    <h2>3. 布局编辑器 (VDragZone + VDragCanvas)</h2>
+    <p class="demo-description">从左侧组件面板拖拽组件到右侧画布区域</p>
+    <div class="layout-editor">
+      <div id="component-panel"></div>
+      <div id="canvas-area" style="flex: 1;"></div>
+    </div>
+  </div>
+
+  <!-- 输出日志 -->
+  <div class="demo-section">
+    <h2>📋 事件日志</h2>
+    <div id="output-area" class="output-area"></div>
+  </div>
+
+  <script type="module">
+    import {
+      vDraggable,
+      vDroppable,
+      vDragSortList,
+      vDragZone,
+      vDragCanvas,
+      div
+    } from '/yoya/index.js';
+
+    // 日志输出工具
+    const outputArea = document.getElementById('output-area');
+    function log(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      outputArea.appendChild(entry);
+      outputArea.scrollTop = outputArea.scrollHeight;
+    }
+
+    // ============================================
+    // 演示 1: 基础拖拽
+    // ============================================
+    const draggableBox = vDraggable(d => {
+      d.className('draggable-box');
+      d.data({ type: 'demo-box', name: '紫色方块' });
+      d.text('拖拽我');
+      d.onDragStart((e) => {
+        log(`拖拽开始：${e.data?.name}`, 'info');
+        // 设置原生拖拽数据
+        const el = d.renderDom();
+        if (el) {
+          el.setAttribute('draggable', 'true');
+          e.preventDefault?.();
+        }
+      });
+      d.onDrag((e) => {
+        log(`拖拽中：x=${e.x}, y=${e.y}`, 'info');
+      });
+      d.onDragEnd((e) => {
+        log(`拖拽结束：${e.data?.name}`, 'success');
+      });
+    });
+
+    const dropZone = vDroppable(d => {
+      d.className('drop-zone');
+      d.text('放置到这里');
+      d.accept((data) => {
+        const accepts = data?.type === 'demo-box';
+        log(`验证放置：${accepts ? '接受' : '拒绝'}`, 'info');
+        return accepts;
+      });
+      d.onDragEnter((e) => {
+        log(`拖拽进入：${e.data?.name}`, 'info');
+      });
+      d.onDragOver((e) => {
+        // log(`拖拽经过：x=${e.x}, y=${e.y}`);
+      });
+      d.onDragLeave((e) => {
+        log(`拖拽离开`, 'info');
+      });
+      d.onDrop((e) => {
+        log(`放置成功：${e.data?.name} 已放置到目标区域`, 'success');
+      });
+    });
+
+    document.getElementById('draggable-container').appendChild(draggableBox.renderDom());
+    document.getElementById('droppable-container').appendChild(dropZone.renderDom());
+
+    // ============================================
+    // 演示 2: 拖拽排序
+    // ============================================
+    const sortListData = [
+      { id: '1', content: '📝 第一项 - 拖拽我改变顺序' },
+      { id: '2', content: '📝 第二项 - 拖拽我改变顺序' },
+      { id: '3', content: '📝 第三项 - 拖拽我改变顺序' },
+      { id: '4', content: '📝 第四项 - 拖拽我改变顺序' },
+    ];
+
+    const sortList = vDragSortList(list => {
+      list.className('sort-list');
+      list.items(sortListData);
+      list.itemKey('id');
+      list.itemRender((item, index, container) => {
+        container.className('sort-item');
+        container.div(box => {
+          box.className('drag-icon');
+          box.text('⋮⋮');
+        });
+        container.div(content => {
+          content.className('item-content');
+          content.text(item.content);
+        });
+      });
+      list.onReorder((e) => {
+        log(`列表重排：从 ${e.fromIndex} 移动到 ${e.toIndex}`, 'success');
+        log(`新顺序：${e.items.map((item, i) => i + 1).join(' → ')}`, 'info');
+      });
+    });
+
+    document.getElementById('sort-list-container').appendChild(sortList.renderDom());
+
+    // ============================================
+    // 演示 3: 布局编辑器
+    // ============================================
+    const components = [
+      { id: 'btn', name: '按钮', type: 'button' },
+      { id: 'input', name: '输入框', type: 'input' },
+      { id: 'card', name: '卡片', type: 'card' },
+      { id: 'chart', name: '图表', type: 'chart' },
+    ];
+
+    // 组件面板
+    const componentPanel = div(p => {
+      p.className('component-panel');
+      p.h3(h => {
+        h.text('组件库');
+      });
+      components.forEach(comp => {
+        const draggableComp = vDraggable(d => {
+          d.className('component-item');
+          d.data({ type: 'component', ...comp });
+          d.text(comp.name);
+          d.dragHandle(null); // 整个元素都可拖拽
+          d.onDragStart((e) => {
+            log(`从组件库拖拽：${comp.name}`, 'info');
+            const el = d.renderDom();
+            if (el) {
+              el.setAttribute('draggable', 'true');
+              e.preventDefault?.();
+            }
+          });
+          d.onDragEnd((e) => {
+            log(`放置完成：${comp.name}`, 'success');
+          });
+        });
+        p.child(draggableComp);
+      });
+    });
+
+    document.getElementById('component-panel').appendChild(componentPanel.renderDom());
+
+    // 画布区域
+    const canvas = vDragCanvas(c => {
+      c.className('canvas-area');
+
+      // 头部区域
+      c.div(zone1 => {
+        zone1.className('canvas-zone');
+        zone1.attr('data-zone', 'header');
+        zone1.div(label => {
+          label.className('canvas-zone-label');
+          label.text('头部区域');
+        });
+      });
+
+      // 内容区域
+      c.div(zone2 => {
+        zone2.className('canvas-zone');
+        zone2.attr('data-zone', 'content');
+        zone2.div(label => {
+          label.className('canvas-zone-label');
+          label.text('内容区域');
+        });
+      });
+
+      // 底部区域
+      c.div(zone3 => {
+        zone3.className('canvas-zone');
+        zone3.attr('data-zone', 'footer');
+        zone3.div(label => {
+          label.className('canvas-zone-label');
+          label.text('底部区域');
+        });
+      });
+
+      c.onComponentAdd((e) => {
+        log(`组件添加：${e.component?.name}`, 'success');
+      });
+    });
+
+    document.getElementById('canvas-area').appendChild(canvas.renderDom());
+
+    // 初始化日志
+    log('拖拽组件演示已加载', 'success');
+    log('尝试拖拽左侧的方块到右侧区域', 'info');
+    log('拖拽排序列表项改变顺序', 'info');
+    log('从组件面板拖拽组件到画布', 'info');
+  </script>
+</body>
+</html>

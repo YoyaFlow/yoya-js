@@ -255,3 +255,25 @@ export {
   ThemeSwitch,
   themeSwitch,
 } from './ThemeSwitch.js';
+
+// Drag 拖拽组件
+export {
+  VDraggable,
+  VDroppable,
+  vDraggable,
+  vDroppable,
+} from './drag.js';
+
+// DragSort 拖拽排序组件
+export {
+  VDragSortList,
+  vDragSortList,
+} from './drag-sort.js';
+
+// DragZone 拖拽区域组件
+export {
+  VDragZone,
+  VDragCanvas,
+  vDragZone,
+  vDragCanvas,
+} from './drag-zone.js';

@@ -207,6 +207,15 @@ export {
 
   // ThemeSwitch 主题切换按钮组件
   ThemeSwitch, themeSwitch,
+
+  // Drag 拖拽组件
+  VDraggable, VDroppable, vDraggable, vDroppable,
+
+  // DragSort 拖拽排序组件
+  VDragSortList, vDragSortList,
+
+  // DragZone 拖拽区域组件
+  VDragZone, VDragCanvas, vDragZone, vDragCanvas,
 } from './components/index.js';
 
 // 导出主题系统

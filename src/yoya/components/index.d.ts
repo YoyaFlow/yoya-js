@@ -603,9 +603,136 @@ declare class VRouterViews extends Tag {
   getActiveView(): object | null;
   getViews(): object[];
   onChange(fn: (name: string, view: object) => void): this;
+  namespace(ns: string): this;
 }
 
 declare function vRouterViews(router: VRouter, setup?: Setup<VRouterViews>): VRouterViews;
+
+// ============================================
+// VDraggable 可拖拽元素容器
+// ============================================
+
+interface VDraggableData {
+  type?: string;
+  [key: string]: any;
+}
+
+interface VDraggableEvent {
+  type: 'dragStart' | 'drag' | 'dragEnd';
+  target: HTMLElement;
+  data?: VDraggableData;
+  x?: number;
+  y?: number;
+  deltaX?: number;
+  deltaY?: number;
+  left?: number;
+  top?: number;
+  preventDefault?: () => void;
+}
+
+declare class VDraggable extends Tag {
+  constructor(setup?: Setup<VDraggable>);
+  data(data: VDraggableData): this;
+  dragHandle(selector: string): this;
+  constraint(value: 'horizontal' | 'vertical' | 'free'): this;
+  onDragStart(handler: (e: VDraggableEvent) => void): this;
+  onDrag(handler: (e: VDraggableEvent) => void): this;
+  onDragEnd(handler: (e: VDraggableEvent) => void): this;
+}
+
+declare function vDraggable(setup?: Setup<VDraggable>): VDraggable;
+
+// ============================================
+// VDroppable 可放置区域容器
+// ============================================
+
+interface VDroppableEvent {
+  type: 'dragEnter' | 'dragOver' | 'dragLeave' | 'drop';
+  target: HTMLElement;
+  data?: any;
+  x?: number;
+  y?: number;
+}
+
+declare class VDroppable extends Tag {
+  constructor(setup?: Setup<VDroppable>);
+  accept(fn: (data: any) => boolean): this;
+  onDragEnter(handler: (e: VDroppableEvent) => void): this;
+  onDragOver(handler: (e: VDroppableEvent) => void): this;
+  onDragLeave(handler: (e: VDroppableEvent) => void): this;
+  onDrop(handler: (e: VDroppableEvent) => void): this;
+}
+
+declare function vDroppable(setup?: Setup<VDroppable>): VDroppable;
+
+// ============================================
+// VDragSortList 拖拽排序列表
+// ============================================
+
+interface VDragSortListReorderEvent {
+  type: 'reorder';
+  items: any[];
+  fromIndex: number;
+  toIndex: number;
+}
+
+declare class VDragSortList extends Tag {
+  constructor(setup?: Setup<VDragSortList>);
+  items(items: any[]): this;
+  itemKey(key: string): this;
+  itemRender(fn: (item: any, index: number, container: Tag) => void): this;
+  onReorder(handler: (e: VDragSortListReorderEvent) => void): this;
+}
+
+declare function vDragSortList(setup?: Setup<VDragSortList>): VDragSortList;
+
+// ============================================
+// VDragZone 拖拽区域
+// ============================================
+
+interface VDragZoneEvent {
+  type: 'dragEnter' | 'dragOver' | 'dragLeave' | 'drop';
+  target: HTMLElement;
+  zoneId?: string;
+  data?: any;
+  x?: number;
+  y?: number;
+  position?: 'top' | 'bottom' | 'left' | 'right' | 'center';
+}
+
+declare class VDragZone extends Tag {
+  constructor(setup?: Setup<VDragZone>);
+  zoneId(id: string): this;
+  accept(fn: (data: any) => boolean): this;
+  dropPosition(value: 'top' | 'bottom' | 'left' | 'right' | 'center' | 'auto'): this;
+  onDragEnter(handler: (e: VDragZoneEvent) => void): this;
+  onDragOver(handler: (e: VDragZoneEvent) => void): this;
+  onDragLeave(handler: (e: VDragZoneEvent) => void): this;
+  onDrop(handler: (e: VDragZoneEvent) => void): this;
+}
+
+declare function vDragZone(setup?: Setup<VDragZone>): VDragZone;
+
+// ============================================
+// VDragCanvas 拖拽画布
+// ============================================
+
+interface VDragCanvasComponentEvent {
+  component: any;
+  zoneId?: string;
+  index?: number;
+}
+
+declare class VDragCanvas extends Tag {
+  constructor(setup?: Setup<VDragCanvas>);
+  registerZone(zoneId: string, zone: VDragZone): this;
+  unregisterZone(zoneId: string): this;
+  onComponentAdd(handler: (e: VDragCanvasComponentEvent) => void): this;
+  onComponentMove(handler: (e: VDragCanvasComponentEvent) => void): this;
+  onComponentRemove(handler: (e: VDragCanvasComponentEvent) => void): this;
+}
+
+declare function vDragCanvas(setup?: Setup<VDragCanvas>): VDragCanvas;
 
 // ============================================
 // 导出
@@ -667,4 +794,13 @@ export {
 
   // VTree
   VTree, vTree,
+
+  // Drag - 拖拽组件
+  VDraggable, VDroppable, vDraggable, vDroppable,
+
+  // DragSort - 拖拽排序
+  VDragSortList, vDragSortList,
+
+  // DragZone - 拖拽区域
+  VDragZone, VDragCanvas, vDragZone, vDragCanvas,
 };
