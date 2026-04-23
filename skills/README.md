@@ -13,6 +13,15 @@
 | [yoya-svg](./yoya-svg.md) | SVG 组件 | 绘制矢量图形、图表、图标 |
 | [component-priority](./component-priority.md) | 组件优先使用原则 | 页面开发、组件选型、新组件封装 |
 
+## 新增技能
+
+| 技能 | 用途 | 触发场景 |
+|------|------|----------|
+| [yoya-echart](./yoya-echart.md) | ECharts 图表 | 数据可视化、图表配置 |
+| [yoya-theme](./yoya-theme.md) | 主题系统 | 主题切换、状态机、CSS 变量 |
+| [yoya-router](./yoya-router.md) | 路由系统 | SPA 路由、路由视图、导航守卫 |
+| [yoya-i18n](./yoya-i18n.md) | 国际化 | 多语言切换、翻译函数 |
+
 ## 快速开始
 
 ### 1. 导入库

@@ -267,7 +267,9 @@ export {
 // DragSort 拖拽排序组件
 export {
   VDragSortList,
+  VDragSortGroup,
   vDragSortList,
+  vDragSortGroup,
 } from './drag-sort.js';
 
 // DragZone 拖拽区域组件

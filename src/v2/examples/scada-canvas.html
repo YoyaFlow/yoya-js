@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCADA 画布 - 建造游戏风格</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d0d0d;
+      color: #e0e0e0;
+      overflow: hidden;
+    }
+
+    /* ========== 画布区域 - 全屏 ========== */
+    .canvas-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #1a1a2e;
+    }
+
+    #scadaCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* ========== 左侧悬浮工具栏 - 戴森球计划风格 ========== */
+    .toolbar-left {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 100;
+    }
+
+    .tool-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(20, 20, 30, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 100, 120, 0.3);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .tool-btn {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 20px;
+      color: #a0a0b0;
+      position: relative;
+    }
+
+    .tool-btn:hover {
+      background: rgba(96, 165, 255, 0.15);
+      border-color: rgba(96, 165, 255, 0.4);
+      color: #e0e0e0;
+    }
+
+    .tool-btn.active {
+      background: rgba(96, 165, 255, 0.25);
+      border-color: #60a5ff;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(96, 165, 255, 0.4);
+    }
+
+    /* 工具提示 */
+    .tool-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%) translateX(8px);
+      background: rgba(30, 30, 40, 0.95);
+      border: 1px solid rgba(100, 100, 120, 0.4);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      margin-left: 4px;
+    }
+
+    .tool-btn:hover::after {
+      opacity: 1;
+    }
+
+    /* ========== 右侧悬浮属性面板 ========== */
+    .panel-right {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: 260px;
+      max-height: calc(100vh - 24px);
+      background: rgba(20, 20, 30, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(100, 100, 120, 0.3);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(30, 30, 40, 0.8);
+      border-bottom: 1px solid rgba(100, 100, 120, 0.3);
+    }
+
+    .panel-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title .icon {
+      font-size: 14px;
+    }
+
+    .panel-close {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #707080;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .panel-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+    }
+
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .panel-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .panel-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .panel-content::-webkit-scrollbar-thumb {
+      background: rgba(100, 100, 120, 0.4);
+      border-radius: 3px;
+    }
+
+    /* 属性组 */
+    .prop-section {
+      margin-bottom: 16px;
+    }
+
+    .prop-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .prop-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #60a5ff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(100, 100, 120, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prop-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      gap: 10px;
+    }
+
+    .prop-row label {
+      font-size: 11px;
+      color: #a0a0b0;
+      flex-shrink: 0;
+    }
+
+    .prop-row input[type="number"],
+    .prop-row input[type="text"] {
+      flex: 1;
+      background: rgba(15, 15, 26, 0.8);
+      border: 1px solid rgba(42, 42, 58, 0.8);
+      border-radius: 4px;
+      padding: 5px 8px;
+      color: #e0e0e0;
+      font-size: 11px;
+      font-family: 'Consolas', monospace;
+    }
+
+    .prop-row input:focus {
+      outline: none;
+      border-color: #60a5ff;
+      background: rgba(26, 26, 46, 0.9);
+    }
+
+    .prop-row input[type="color"] {
+      width: 36px;
+      height: 24px;
+      border: 1px solid rgba(42, 42, 58, 0.8);
+      border-radius: 4px;
+      background: rgba(15, 15, 26, 0.8);
+      cursor: pointer;
+    }
+
+    .prop-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #60a5ff;
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 30px 16px;
+      color: #505060;
+    }
+
+    .empty-state .icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* ========== 底部状态栏 - 紧凑悬浮 ========== */
+    .status-bar {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(20, 20, 30, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 100, 120, 0.3);
+      border-radius: 8px;
+      padding: 6px 12px;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 8px;
+      font-size: 11px;
+      color: #a0a0b0;
+    }
+
+    .status-item:not(:last-child) {
+      border-right: 1px solid rgba(100, 100, 120, 0.3);
+    }
+
+    .status-item .label {
+      color: #707080;
+    }
+
+    .status-item .value {
+      color: #e0e0e0;
+      font-family: 'Consolas', monospace;
+      font-weight: 500;
+    }
+
+    /* ========== 顶部模式指示器 ========== */
+    .mode-indicator {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(0, 102, 204, 0.9), rgba(0, 68, 153, 0.9));
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 150, 255, 0.4);
+      border-radius: 20px;
+      padding: 6px 16px;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(0, 100, 255, 0.3);
+    }
+
+    .mode-indicator .icon {
+      font-size: 14px;
+    }
+
+    .mode-indicator .text {
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.3px;
+    }
+
+    /* ========== 快捷操作按钮（右下角） ========== */
+    .quick-actions {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 100;
+    }
+
+    .quick-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(20, 20, 30, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 100, 120, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 18px;
+      color: #a0a0b0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .quick-btn:hover {
+      background: rgba(96, 165, 255, 0.2);
+      border-color: #60a5ff;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .quick-btn:active {
+      transform: translateY(0);
+    }
+
+    /* ========== 元素添加提示 ========== */
+    .toast {
+      position: fixed;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(20, 20, 30, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 100, 120, 0.3);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #e0e0e0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ========== 工具类 ========== */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- 画布区域 -->
+  <div class="canvas-wrapper">
+    <canvas id="scadaCanvas"></canvas>
+  </div>
+
+  <!-- 左侧工具栏 -->
+  <div class="toolbar-left">
+    <div class="tool-group">
+      <button class="tool-btn active" data-tool="select" data-tooltip="选择工具">🖱️</button>
+      <button class="tool-btn" data-tool="rect" data-tooltip="矩形容器">⬜</button>
+      <button class="tool-btn" data-tool="circle" data-tooltip="圆形容器">⭕</button>
+    </div>
+
+    <div class="tool-group">
+      <button class="tool-btn" data-element="label" data-tooltip="标签">📝</button>
+      <button class="tool-btn" data-element="button" data-tooltip="按钮">🔘</button>
+      <button class="tool-btn" data-element="indicator" data-tooltip="指示灯">🟢</button>
+      <button class="tool-btn" data-element="gauge" data-tooltip="仪表盘">📊</button>
+    </div>
+  </div>
+
+  <!-- 顶部模式指示器 -->
+  <div class="mode-indicator" id="modeIndicator">
+    <span class="icon">🖱️</span>
+    <span class="text">选择模式</span>
+  </div>
+
+  <!-- 右侧属性面板 -->
+  <div class="panel-right" id="propertiesPanel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="icon">⚙️</span>
+        <span>属性</span>
+      </div>
+    </div>
+    <div class="panel-content">
+      <div class="empty-state" id="noSelection">
+        <div class="icon">📋</div>
+        <p>选择一个元素<br>以查看属性</p>
+      </div>
+
+      <div id="selectionProperties" class="hidden">
+        <!-- 位置 -->
+        <div class="prop-section">
+          <div class="prop-section-title">
+            <span>📐</span> 位置
+          </div>
+          <div class="prop-row">
+            <label>X</label>
+            <input type="number" id="propX" step="1">
+          </div>
+          <div class="prop-row">
+            <label>Y</label>
+            <input type="number" id="propY" step="1">
+          </div>
+        </div>
+
+        <!-- 大小 -->
+        <div class="prop-section">
+          <div class="prop-section-title">
+            <span>📏</span> 大小
+          </div>
+          <div class="prop-row">
+            <label>宽度</label>
+            <input type="number" id="propWidth" step="1">
+          </div>
+          <div class="prop-row">
+            <label>高度</label>
+            <input type="number" id="propHeight" step="1">
+          </div>
+        </div>
+
+        <!-- 外观 -->
+        <div class="prop-section">
+          <div class="prop-section-title">
+            <span>🎨</span> 外观
+          </div>
+          <div class="prop-row">
+            <label>填充</label>
+            <input type="color" id="propFillColor">
+          </div>
+          <div class="prop-row">
+            <label>边框</label>
+            <input type="color" id="propStrokeColor">
+          </div>
+        </div>
+
+        <!-- 状态 -->
+        <div class="prop-section">
+          <div class="prop-section-title">
+            <span>🔒</span> 状态
+          </div>
+          <div class="prop-row">
+            <label>可见</label>
+            <input type="checkbox" id="propVisible">
+          </div>
+          <div class="prop-row">
+            <label>锁定</label>
+            <input type="checkbox" id="propLocked">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部状态栏 -->
+  <div class="status-bar">
+    <div class="status-item">
+      <span class="label">缩放</span>
+      <span class="value" id="zoomDisplay">100%</span>
+    </div>
+    <div class="status-item">
+      <span class="label">坐标</span>
+      <span class="value" id="coordDisplay">0, 0</span>
+    </div>
+  </div>
+
+  <!-- 右下角快捷操作 -->
+  <div class="quick-actions">
+    <button class="quick-btn" id="btnZoomIn" data-tooltip="放大">+</button>
+    <button class="quick-btn" id="btnZoomOut" data-tooltip="缩小">−</button>
+    <button class="quick-btn" id="btnDelete" data-tooltip="删除">🗑️</button>
+  </div>
+
+  <!-- 提示 Toast -->
+  <div class="toast" id="toast">元素已添加</div>
+
+  <script type="module">
+    import {
+      ScadaCanvas,
+      LayoutContainer,
+      MouseHandler,
+      KeyboardHandler,
+      GridRenderer,
+      RulerRenderer,
+      GuideRenderer,
+      LabelElement,
+      ButtonElement,
+      IndicatorElement,
+      GaugeElement
+    } from '../../yoya/scada/index.js';
+
+    // 初始化画布
+    const canvas = document.getElementById('scadaCanvas');
+
+    function resizeCanvas() {
+      const wrapper = canvas.parentElement;
+      canvas.width = wrapper.clientWidth;
+      canvas.height = wrapper.clientHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // 创建 ScadaCanvas
+    const scadaCanvas = new ScadaCanvas(canvas, {
+      zoom: 1.0,
+      offsetX: 0,
+      offsetY: 0,
+      defaults: {
+        container: {
+          fillColor: 'rgba(100, 150, 255, 0.2)',
+          strokeColor: '#60a5ff'
+        }
+      }
+    });
+
+    // 添加渲染器
+    const gridRenderer = new GridRenderer();
+    scadaCanvas.registerRenderer('grid', gridRenderer);
+
+    const rulerRenderer = new RulerRenderer();
+    scadaCanvas.registerRenderer('rulers', rulerRenderer);
+
+    const guideRenderer = new GuideRenderer();
+    scadaCanvas.registerRenderer('guides', guideRenderer);
+
+    // 初始化鼠标交互
+    const mouseHandler = new MouseHandler(scadaCanvas, {
+      pickupOnRightClick: true,
+      zoomOnWheel: true,
+      zoomSpeed: 0.15
+    });
+    scadaCanvas.mouseHandler = mouseHandler;
+
+    // 初始化键盘交互
+    const keyboardHandler = new KeyboardHandler(scadaCanvas);
+    keyboardHandler.on('cancelPickup', () => {
+      mouseHandler.cancelPickup();
+    });
+    keyboardHandler.on('delete', () => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        scadaCanvas.containerManager.deleteContainer(selected.id);
+      }
+    });
+
+    // 当前工具
+    let currentTool = 'select';
+
+    // 更新工具按钮状态
+    function updateTool(tool) {
+      currentTool = tool;
+
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.tool === tool) {
+          btn.classList.add('active');
+        }
+      });
+
+      // 更新创建模式
+      if (['rect', 'circle', 'ellipse'].includes(tool)) {
+        mouseHandler.setCreationMode(tool);
+      } else {
+        mouseHandler.setCreationMode(null);
+      }
+
+      // 更新模式指示器
+      const modeNames = {
+        select: { icon: '🖱️', text: '选择模式' },
+        rect: { icon: '⬜', text: '创建矩形' },
+        circle: { icon: '⭕', text: '创建圆形' },
+        ellipse: { icon: '🔵', text: '创建椭圆' }
+      };
+      const mode = modeNames[tool] || { icon: '🖱️', text: '选择' };
+      const indicator = document.getElementById('modeIndicator');
+      indicator.querySelector('.icon').textContent = mode.icon;
+      indicator.querySelector('.text').textContent = mode.text;
+    }
+
+    // 工具按钮点击
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tool = btn.dataset.tool;
+        const element = btn.dataset.element;
+
+        if (tool) {
+          updateTool(tool);
+        } else if (element) {
+          addElementToCanvas(element);
+        }
+      });
+    });
+
+    // 添加元素到画布
+    function addElementToCanvas(type) {
+      const viewportCenter = scadaCanvas.viewport.screenToWorld(
+        canvas.width / 2,
+        canvas.height / 2
+      );
+
+      let element;
+      switch (type) {
+        case 'label':
+          element = new LabelElement(`label-${Date.now()}`, {
+            name: '标签',
+            x: viewportCenter.x - 50,
+            y: viewportCenter.y - 15,
+            width: 100,
+            height: 30,
+            text: '新标签',
+            fontSize: 14,
+            textColor: '#ffffff',
+            fillColor: 'rgba(100, 150, 255, 0.3)'
+          });
+          break;
+        case 'button':
+          element = new ButtonElement(`button-${Date.now()}`, {
+            name: '按钮',
+            x: viewportCenter.x - 40,
+            y: viewportCenter.y - 15,
+            width: 80,
+            height: 30,
+            text: '按钮',
+            fillColor: '#4a90d9'
+          });
+          element.onClick(() => console.log('按钮被点击！'));
+          break;
+        case 'indicator':
+          element = new IndicatorElement(`indicator-${Date.now()}`, {
+            name: '指示灯',
+            x: viewportCenter.x - 15,
+            y: viewportCenter.y - 15,
+            width: 30,
+            height: 30,
+            status: 'green',
+            label: '运行'
+          });
+          break;
+        case 'gauge':
+          element = new GaugeElement(`gauge-${Date.now()}`, {
+            name: '仪表盘',
+            x: viewportCenter.x - 50,
+            y: viewportCenter.y - 50,
+            width: 100,
+            height: 100,
+            minValue: 0,
+            maxValue: 100,
+            value: 75,
+            unit: '%'
+          });
+          break;
+      }
+
+      if (element) {
+        let container = scadaCanvas.containerManager.getAllContainers()[0];
+        if (!container) {
+          container = scadaCanvas.containerManager.createContainer({
+            type: 'rect',
+            x: viewportCenter.x - 100,
+            y: viewportCenter.y - 100,
+            width: 200,
+            height: 200,
+            name: '容器',
+            fillColor: 'rgba(100, 150, 255, 0.1)'
+          });
+        }
+        container.addElement(element);
+        scadaCanvas.containerManager.selectElement(element.id);
+        showToast('元素已添加');
+      }
+    }
+
+    // 显示提示
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // 属性监听
+    scadaCanvas.containerManager.on('change', (e) => {
+      updatePropertiesPanel();
+    });
+
+    function updatePropertiesPanel() {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      const noSelection = document.getElementById('noSelection');
+      const properties = document.getElementById('selectionProperties');
+
+      if (!selected) {
+        noSelection.classList.remove('hidden');
+        properties.classList.add('hidden');
+        return;
+      }
+
+      noSelection.classList.add('hidden');
+      properties.classList.remove('hidden');
+
+      document.getElementById('propX').value = Math.round(selected.x);
+      document.getElementById('propY').value = Math.round(selected.y);
+      document.getElementById('propWidth').value = Math.round(selected.width);
+      document.getElementById('propHeight').value = Math.round(selected.height);
+      document.getElementById('propFillColor').value = rgbToHex(selected.fillColor) || '#6496ff';
+      document.getElementById('propStrokeColor').value = rgbToHex(selected.strokeColor) || '#60a5ff';
+      document.getElementById('propVisible').checked = selected.visible !== false;
+      document.getElementById('propLocked').checked = selected.locked === true;
+    }
+
+    function rgbToHex(rgb) {
+      if (!rgb) return null;
+      if (rgb.startsWith('#')) return rgb.slice(0, 7);
+      const match = rgb.match(/\d+/g);
+      if (!match) return null;
+      const [r, g, b] = match.map(Number);
+      return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    // 属性变更
+    document.getElementById('propX').addEventListener('change', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.setPosition(parseInt(e.target.value), selected.y);
+      }
+    });
+
+    document.getElementById('propY').addEventListener('change', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.setPosition(selected.x, parseInt(e.target.value));
+      }
+    });
+
+    document.getElementById('propWidth').addEventListener('change', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.setSize(parseInt(e.target.value), selected.height);
+      }
+    });
+
+    document.getElementById('propHeight').addEventListener('change', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.setSize(selected.width, parseInt(e.target.value));
+      }
+    });
+
+    document.getElementById('propFillColor').addEventListener('input', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.fillColor = e.target.value + '99';
+      }
+    });
+
+    document.getElementById('propStrokeColor').addEventListener('input', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.strokeColor = e.target.value;
+      }
+    });
+
+    document.getElementById('propVisible').addEventListener('change', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.visible = e.target.checked;
+      }
+    });
+
+    document.getElementById('propLocked').addEventListener('change', (e) => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        selected.locked = e.target.checked;
+      }
+    });
+
+    // 快捷操作
+    document.getElementById('btnZoomIn').addEventListener('click', () => {
+      scadaCanvas.viewport.zoomIn(1.2);
+    });
+
+    document.getElementById('btnZoomOut').addEventListener('click', () => {
+      scadaCanvas.viewport.zoomOut(1.2);
+    });
+
+    document.getElementById('btnDelete').addEventListener('click', () => {
+      const selected = scadaCanvas.containerManager.getSelectedContainer();
+      if (selected) {
+        if (confirm('确定要删除选中的容器吗？')) {
+          scadaCanvas.containerManager.deleteContainer(selected.id);
+        }
+      } else {
+        showToast('请先选择要删除的容器');
+      }
+    });
+
+    // 状态更新
+    scadaCanvas.on('viewportChange', () => {
+      document.getElementById('zoomDisplay').textContent = Math.round(scadaCanvas.viewport.zoom * 100) + '%';
+    });
+
+    // 鼠标移动更新坐标
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const world = scadaCanvas.viewport.screenToWorld(
+        e.clientX - rect.left,
+        e.clientY - rect.top
+      );
+      document.getElementById('coordDisplay').textContent =
+        `${Math.round(world.x)}, ${Math.round(world.y)}`;
+    });
+
+    // 创建示例容器
+    const container1 = scadaCanvas.containerManager.createContainer({
+      type: 'rect',
+      x: 100,
+      y: 100,
+      width: 200,
+      height: 150,
+      name: '控制面板',
+      fillColor: 'rgba(100, 150, 255, 0.15)',
+      strokeColor: '#60a5ff'
+    });
+
+    // 添加示例元素
+    const label = new LabelElement('label-1', {
+      name: '状态标签',
+      x: 20,
+      y: 20,
+      width: 160,
+      height: 30,
+      text: '设备状态：运行中',
+      fontSize: 14,
+      textColor: '#ffffff'
+    });
+    container1.addElement(label);
+
+    const button = new ButtonElement('button-1', {
+      name: '启动按钮',
+      x: 20,
+      y: 70,
+      width: 80,
+      height: 35,
+      text: '启动',
+      fillColor: '#4a90d9'
+    });
+    button.onClick(() => {
+      console.log('启动按钮被点击！');
+    });
+    container1.addElement(button);
+
+    const indicator = new IndicatorElement('indicator-1', {
+      name: '运行指示灯',
+      x: 120,
+      y: 70,
+      width: 35,
+      height: 35,
+      status: 'green',
+      label: '运行'
+    });
+    container1.addElement(indicator);
+
+    // 启动渲染循环
+    scadaCanvas.startRenderLoop();
+
+    // 暴露到全局
+    window.scadaCanvas = scadaCanvas;
+    window.mouseHandler = mouseHandler;
+  </script>
+</body>
+</html>

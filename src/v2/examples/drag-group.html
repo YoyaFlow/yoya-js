@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖拽分组演示 - YoyaJS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #303133;
+    }
+
+    h2 {
+      margin: 30px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e4e7ed;
+      color: #303133;
+    }
+
+    .demo-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-description {
+      color: #909399;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* 拖拽分组演示样式 */
+    .groups-container {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .list-column {
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .list-header {
+      padding: 12px 16px;
+      background: #f5f7fa;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: #303133;
+      border: 1px solid #e4e7ed;
+    }
+
+    .sort-list {
+      min-height: 200px;
+      padding: 8px;
+      background: #fafafa;
+      border-radius: 4px;
+      border: 1px solid #e4e7ed;
+    }
+
+    .sort-item {
+      padding: 16px 20px;
+      background: white;
+      border: 1px solid #e4e7ed;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .sort-item:hover {
+      background: #f5f7fa;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .sort-item .drag-icon {
+      color: #c0c4cc;
+      font-size: 18px;
+      cursor: grab;
+    }
+
+    .sort-item .item-content {
+      flex: 1;
+      font-size: 14px;
+      color: #606266;
+    }
+
+    .sort-item .item-id {
+      font-size: 12px;
+      color: #909399;
+      background: #f0f2f5;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* 占位符样式 - 插入位置标识线 */
+    .sort-placeholder {
+      height: 4px;
+      background: #409eff;
+      border-radius: 2px;
+      margin: 0;
+      transition: all 0.15s ease;
+      box-shadow: 0 0 10px rgba(64, 158, 255, 0.8);
+      position: relative;
+    }
+
+    /* 占位符上的箭头标识 */
+    .sort-placeholder::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: -8px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 8px solid #409eff;
+      filter: drop-shadow(0 0 4px rgba(64, 158, 255, 0.8));
+    }
+
+    /* Ghost 元素样式 */
+    .drag-ghost {
+      opacity: 0.8 !important;
+      transform: scale(1.05) !important;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+      pointer-events: none !important;
+      z-index: 9999 !important;
+      transition: transform 0.1s ease !important;
+    }
+
+    /* 拖拽中的原元素样式 */
+    .sort-item.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    /* 输出区域 */
+    .output-area {
+      margin-top: 20px;
+      padding: 16px;
+      background: #2d2d2d;
+      border-radius: 4px;
+      color: #a0a0a0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .output-area .log-entry {
+      margin-bottom: 4px;
+    }
+
+    .output-area .log-entry.success {
+      color: #67c23a;
+    }
+
+    .output-area .log-entry.info {
+      color: #409eff;
+    }
+
+    .output-area .log-entry.warning {
+      color: #e6a23c;
+    }
+
+    .output-area .log-entry.error {
+      color: #f56c6c;
+    }
+
+    /* 组标识样式 */
+    .group-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .group-badge.group-a {
+      background: #e6f7ff;
+      color: #1890ff;
+      border: 1px solid #91d5ff;
+    }
+
+    .group-badge.group-b {
+      background: #f6ffed;
+      color: #52c41a;
+      border: 1px solid #b7eb8f;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 拖拽分组演示</h1>
+
+  <!-- 拖拽分组演示 -->
+  <div class="demo-section">
+    <h2>跨列表拖拽排序 (VDragSortGroup)</h2>
+    <p class="demo-description">
+      拖动左侧列表（组 A）的项目到右侧列表（组 B），或者反过来。
+      <span class="group-badge group-a">组 A</span> 和 <span class="group-badge group-b">组 B</span> 属于同一个拖拽组，可以互相拖拽。
+    </p>
+
+    <div class="groups-container">
+      <div class="list-column">
+        <div class="list-header">
+          📋 列表 A
+          <span class="group-badge group-a">组 A</span>
+        </div>
+        <div id="list-a-container"></div>
+      </div>
+
+      <div class="list-column">
+        <div class="list-header">
+          📋 列表 B
+          <span class="group-badge group-b">组 B</span>
+        </div>
+        <div id="list-b-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 输出日志 -->
+  <div class="demo-section">
+    <h2>📋 事件日志</h2>
+    <div id="output-area" class="output-area"></div>
+  </div>
+
+  <script type="module">
+    import {
+      vDragSortList,
+      vDragSortGroup,
+      div,
+      span
+    } from '/yoya/index.js';
+
+    // 日志输出工具
+    const outputArea = document.getElementById('output-area');
+    function log(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      outputArea.appendChild(entry);
+      outputArea.scrollTop = outputArea.scrollHeight;
+    }
+
+    // ============================================
+    // 演示：跨列表拖拽
+    // ============================================
+
+    // 列表 A 数据
+    const listAData = [
+      { id: 'a1', content: '📝 项目 A1', group: 'A' },
+      { id: 'a2', content: '📝 项目 A2', group: 'A' },
+      { id: 'a3', content: '📝 项目 A3', group: 'A' },
+    ];
+
+    // 列表 B 数据
+    const listBData = [
+      { id: 'b1', content: '📝 项目 B1', group: 'B' },
+      { id: 'b2', content: '📝 项目 B2', group: 'B' },
+      { id: 'b3', content: '📝 项目 B3', group: 'B' },
+    ];
+
+    // 创建列表 A
+    const listA = vDragSortList(list => {
+      list.itemKey('id');
+      list.group('shared-group');  // 关键：设置相同的组标识
+
+      list.itemRender((item, index, container) => {
+        container.attr('class', 'sort-item');
+
+        const iconSpan = span(icon => {
+          icon.className('drag-icon');
+          icon.text('☰');
+        });
+        container.child(iconSpan);
+
+        const contentSpan = span(content => {
+          content.className('item-content');
+          content.text(item.content || String(item));
+        });
+        container.child(contentSpan);
+
+        const idSpan = span(id => {
+          id.className('item-id');
+          id.text(item.id.toUpperCase());
+        });
+        container.child(idSpan);
+      });
+
+      list.items(listAData);  // itemRender 设置后再设置数据
+
+      list.onReorder((e) => {
+        log(`列表 A 重排：从 ${e.fromIndex} 移动到 ${e.toIndex}`, 'success');
+        log(`新顺序：${e.items.map(item => item.id).join(' → ')}`, 'info');
+      });
+    });
+
+    // 创建列表 B
+    const listB = vDragSortList(list => {
+      list.itemKey('id');
+      list.group('shared-group');  // 关键：设置相同的组标识
+
+      list.itemRender((item, index, container) => {
+        container.attr('class', 'sort-item');
+
+        const iconSpan = span(icon => {
+          icon.className('drag-icon');
+          icon.text('☰');
+        });
+        container.child(iconSpan);
+
+        const contentSpan = span(content => {
+          content.className('item-content');
+          content.text(item.content || String(item));
+        });
+        container.child(contentSpan);
+
+        const idSpan = span(id => {
+          id.className('item-id');
+          id.text(item.id.toUpperCase());
+        });
+        container.child(idSpan);
+      });
+
+      list.items(listBData);  // itemRender 设置后再设置数据
+
+      list.onReorder((e) => {
+        log(`列表 B 重排：从 ${e.fromIndex} 移动到 ${e.toIndex}`, 'success');
+        log(`新顺序：${e.items.map(item => item.id).join(' → ')}`, 'info');
+      });
+    });
+
+    // 创建拖拽组（可选，用于管理多个列表）
+    const dragGroup = vDragSortGroup('shared-group', group => {
+      group.addList(listA);
+      group.addList(listB);
+    });
+
+    // 渲染到页面
+    document.getElementById('list-a-container').appendChild(listA.renderDom());
+    document.getElementById('list-b-container').appendChild(listB.renderDom());
+
+    // 初始化日志
+    log('拖拽分组演示已加载', 'success');
+    log('组 A 和组 B 属于同一个拖拽组 "shared-group"', 'info');
+    log('可以跨列表拖拽项目', 'info');
+    log('尝试将项目从列表 A 拖到列表 B，或反之', 'info');
+  </script>
+</body>
+</html>

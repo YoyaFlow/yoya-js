@@ -52,7 +52,8 @@
     "docs": "jsdoc -c jsdoc.conf.json",
     "docs:clean": "rm -rf docs && jsdoc -c jsdoc.conf.json",
     "build:v2": "rollup -c rollup.v2-examples.config.js",
-    "deploy": "npm run build && npm run build:theme && npm run build:echart && npm run build:v2"
+    "build:scada": "rollup -c rollup.scada.config.js",
+    "deploy": "npm run build && npm run build:theme && npm run build:echart && npm run build:v2 && npm run build:scada"
   },
   "keywords": [
     "html",

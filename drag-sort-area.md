@@ -1,0 +1,38 @@
+- generic [active] [ref=e1]:
+  - heading "🎯 拖拽组件演示" [level=1] [ref=e2]
+  - generic [ref=e3]:
+    - heading "1. 基础拖拽 (VDraggable + VDroppable)" [level=2] [ref=e4]
+    - paragraph [ref=e5]: 拖拽左侧的紫色方块到右侧的虚线区域
+    - generic [ref=e6]:
+      - generic [ref=e8]: 拖拽我
+      - generic [ref=e9]:
+        - generic: 放置到这里
+  - generic [ref=e10]:
+    - heading "2. 拖拽排序 (VDragSortList)" [level=2] [ref=e11]
+    - paragraph [ref=e12]: 拖拽列表项改变顺序
+    - generic [ref=e14]:
+      - generic [ref=e15]: 📝 第一项 - 拖拽我改变顺序
+      - generic [ref=e16]: 📝 第二项 - 拖拽我改变顺序
+      - generic [ref=e17]: 📝 第三项 - 拖拽我改变顺序
+      - generic [ref=e18]: 📝 第四项 - 拖拽我改变顺序
+  - generic [ref=e19]:
+    - heading "3. 布局编辑器 (VDragZone + VDragCanvas)" [level=2] [ref=e20]
+    - paragraph [ref=e21]: 从左侧组件面板拖拽组件到右侧画布区域
+    - generic [ref=e22]:
+      - generic [ref=e24]:
+        - heading "组件库" [level=3] [ref=e25]
+        - generic [ref=e26]: 按钮
+        - generic [ref=e27]: 输入框
+        - generic [ref=e28]: 卡片
+        - generic [ref=e29]: 图表
+      - generic [ref=e31]:
+        - generic [ref=e33]: 头部区域
+        - generic [ref=e35]: 内容区域
+        - generic [ref=e37]: 底部区域
+  - generic [ref=e38]:
+    - heading "📋 事件日志" [level=2] [ref=e39]
+    - generic [ref=e40]:
+      - generic [ref=e41]: "[10:28:42] 拖拽组件演示已加载"
+      - generic [ref=e42]: "[10:28:42] 尝试拖拽左侧的方块到右侧区域"
+      - generic [ref=e43]: "[10:28:42] 拖拽排序列表项改变顺序"
+      - generic [ref=e44]: "[10:28:42] 从组件面板拖拽组件到画布"

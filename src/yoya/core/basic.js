@@ -680,7 +680,9 @@ class Tag {
         this._children.push(child);
         // 渲染子元素并添加到父元素的 _el
         const childEl = child.renderDom();
-        if (childEl && childEl.parentNode === null) {
+        // 只有当父元素的 _el 已存在时，才添加到 DOM
+        // 如果父元素还未渲染（_el 为 null），只添加到 _children 数组
+        if (childEl && this._el && childEl.parentNode === null) {
           this._el.appendChild(childEl);
         }
       } else if (typeof child === 'string' || typeof child === 'number') {

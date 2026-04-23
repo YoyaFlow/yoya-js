@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>布局编辑器 - YoyaJS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 顶部工具栏 */
+    .toolbar {
+      height: 50px;
+      background: #2d3436;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+      color: white;
+    }
+
+    .toolbar h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .toolbar-buttons {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .toolbar-btn {
+      padding: 8px 16px;
+      background: #0984e3;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      background: #74b9ff;
+    }
+
+    .toolbar-btn.danger {
+      background: #d63031;
+    }
+
+    .toolbar-btn.danger:hover {
+      background: #ff7675;
+    }
+
+    /* 主容器 */
+    .editor-container {
+      display: flex;
+      height: calc(100vh - 50px);
+    }
+
+    /* 左侧组件面板 */
+    .components-panel {
+      width: 200px;
+      background: white;
+      border-right: 1px solid #dfe6e9;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3436;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #dfe6e9;
+    }
+
+    .component-item {
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border: 1px solid #dfe6e9;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: grab;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .component-item:hover {
+      background: #e9ecef;
+      border-color: #0984e3;
+      transform: translateX(4px);
+    }
+
+    .component-item:active {
+      cursor: grabbing;
+    }
+
+    .component-icon {
+      margin-right: 8px;
+    }
+
+    /* 中间画布区域 */
+    .canvas-area {
+      flex: 1;
+      background: #f0f2f5;
+      padding: 20px;
+      overflow: auto;
+      position: relative;
+    }
+
+    .canvas {
+      width: 100%;
+      min-height: 600px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      /* 网格背景 */
+      background-image:
+        linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+        linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .canvas.drop-over {
+      background-color: #e6f7ff;
+      border: 2px dashed #0984e3;
+    }
+
+    /* 插入位置指示器 */
+    .drop-indicator {
+      position: absolute;
+      background: #0984e3;
+      z-index: 100;
+      pointer-events: none;
+      transition: all 0.15s ease;
+    }
+
+    .drop-indicator.horizontal {
+      height: 4px;
+      border-radius: 2px;
+    }
+
+    .drop-indicator.vertical {
+      width: 4px;
+      border-radius: 2px;
+    }
+
+    .drop-indicator::after {
+      content: '▼';
+      position: absolute;
+      color: #0984e3;
+      font-size: 12px;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* 画布中的组件 */
+    .canvas-component {
+      position: absolute;
+      border: 2px solid transparent;
+      cursor: move;
+      user-select: none;
+    }
+
+    .canvas-component.selected {
+      border-color: #0984e3;
+    }
+
+    .canvas-component:hover {
+      border-color: #74b9ff;
+    }
+
+    /* 调整大小手柄 */
+    .resize-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #0984e3;
+      border: 2px solid white;
+      border-radius: 50%;
+      z-index: 10;
+    }
+
+    .canvas-component.selected .resize-handle {
+      display: block;
+    }
+
+    .resize-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
+    .resize-handle.n { top: -5px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+    .resize-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
+    .resize-handle.e { top: 50%; right: -5px; transform: translateY(-50%); cursor: e-resize; }
+    .resize-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
+    .resize-handle.s { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+    .resize-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+    .resize-handle.w { top: 50%; left: -5px; transform: translateY(-50%); cursor: w-resize; }
+
+    /* 右侧属性面板 */
+    .properties-panel {
+      width: 280px;
+      background: white;
+      border-left: 1px solid #dfe6e9;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .property-group {
+      margin-bottom: 20px;
+    }
+
+    .property-group-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #636e72;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .property-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .property-label {
+      width: 70px;
+      font-size: 13px;
+      color: #636e72;
+    }
+
+    .property-input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid #dfe6e9;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .property-input:focus {
+      outline: none;
+      border-color: #0984e3;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #b2bec3;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    /* 组件内容样式 */
+    .component-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #2d3436;
+    }
+
+    .component-content.button {
+      background: #0984e3;
+      color: white;
+      border-radius: 4px;
+    }
+
+    .component-content.text {
+      background: transparent;
+      justify-content: flex-start;
+      padding: 8px;
+    }
+
+    .component-content.box {
+      background: #dfe6e9;
+      border-radius: 4px;
+    }
+
+    .component-content.image {
+      background: #b2bec3;
+      border-radius: 4px;
+      font-size: 32px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部工具栏 -->
+  <div class="toolbar">
+    <h1>🎨 布局编辑器</h1>
+    <div class="toolbar-buttons">
+      <button class="toolbar-btn" id="clear-canvas">清空画布</button>
+      <button class="toolbar-btn" id="export-layout">导出布局</button>
+    </div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="editor-container">
+    <!-- 左侧组件面板 -->
+    <div class="components-panel">
+      <div class="panel-title">组件库</div>
+      <div id="components-list"></div>
+    </div>
+
+    <!-- 中间画布区域 -->
+    <div class="canvas-area">
+      <div class="canvas" id="canvas"></div>
+    </div>
+
+    <!-- 右侧属性面板 -->
+    <div class="properties-panel">
+      <div class="panel-title">属性</div>
+      <div id="properties-content">
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div>选择一个组件<br>查看和编辑属性</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import {
+      vDraggable,
+      vDroppable,
+      div,
+      span
+    } from '/yoya/index.js';
+
+    // ==================== 状态管理 ====================
+    let components = [];
+    let selectedComponentId = null;
+    let componentIdCounter = 0;
+
+    // ==================== 组件库定义 ====================
+    const componentTypes = [
+      { type: 'button', label: '按钮', icon: '🔘', defaultWidth: 100, defaultHeight: 40 },
+      { type: 'text', label: '文本', icon: '📝', defaultWidth: 200, defaultHeight: 30 },
+      { type: 'box', label: '容器', icon: '📦', defaultWidth: 150, defaultHeight: 100 },
+      { type: 'image', label: '图片', icon: '🖼️', defaultWidth: 120, defaultHeight: 120 },
+    ];
+
+    // ==================== 左侧组件列表渲染 ====================
+    function renderComponentsList() {
+      const listEl = document.getElementById('components-list');
+      listEl.innerHTML = '';
+
+      componentTypes.forEach(comp => {
+        const itemEl = div(item => {
+          item.className('component-item');
+          item.attr('data-type', comp.type);
+          item.attr('data-label', comp.label);
+          item.attr('data-width', comp.defaultWidth);
+          item.attr('data-height', comp.defaultHeight);
+          item.html(`${comp.icon} ${comp.label}`);
+        }).renderDom();
+        listEl.appendChild(itemEl);
+
+        // 绑定拖拽
+        makeDraggableComponent(itemEl, comp);
+      });
+    }
+
+    // ==================== 使组件可拖拽 ====================
+    function makeDraggableComponent(el, compDef) {
+      // 将 .component-item 元素本身包装在 vDraggable 中
+      // 先获取 el 的内容和属性
+      const innerHTML = el.innerHTML;
+      const className = el.className;
+      const dataset = {
+        type: el.dataset.type,
+        label: el.dataset.label,
+        width: el.dataset.width,
+        height: el.dataset.height
+      };
+
+      // 创建 vDraggable，将原来的 el 内容放进去
+      const draggable = vDraggable(d => {
+        d.data({
+          type: 'new-component',
+          componentType: dataset.type,
+          label: dataset.label
+        });
+        d.group('layout-editor');
+        d.style('cursor', 'grab');
+        d.style('width', '100%');
+        d.style('height', '100%');
+        d.style('display', 'flex');
+        d.style('alignItems', 'center');
+        d.style('justifyContent', 'center');
+        d.html(innerHTML);
+
+        d.onDragStart((e) => {
+          el.style.opacity = '0.5';
+        });
+
+        d.onDrag((e) => {
+          // 拖拽中
+        });
+
+        d.onDragEnd((e) => {
+          el.style.opacity = '';
+        });
+      });
+
+      // 替换原元素
+      const parent = el.parentNode;
+      parent.replaceChild(draggable.renderDom(), el);
+    }
+
+    // ==================== 画布区域 ====================
+    function initCanvas() {
+      const canvas = document.getElementById('canvas');
+
+      // 画布放置区域
+      const droppable = vDroppable(d => {
+        d.className('canvas');
+        d.id('canvas-inner');
+        d.accept(['new-component']);
+
+        d.onDragEnter((e) => {
+          canvas.classList.add('drop-over');
+        });
+
+        d.onDragLeave((e) => {
+          canvas.classList.remove('drop-over');
+        });
+
+        d.onDrop((e) => {
+          canvas.classList.remove('drop-over');
+
+          if (e.data?.type === 'new-component') {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.x - rect.left;
+            const y = e.y - rect.top;
+
+            // 创建新组件
+            createCanvasComponent(e.data.componentType, e.data.label, x, y);
+          }
+        });
+      });
+
+      // 清空 canvas 并添加 droppable 元素
+      canvas.innerHTML = '';
+      canvas.appendChild(droppable.renderDom());
+    }
+
+    // ==================== 创建画布组件 ====================
+    function createCanvasComponent(type, label, x, y) {
+      const compDef = componentTypes.find(c => c.type === type);
+      const id = ++componentIdCounter;
+
+      const component = {
+        id,
+        type,
+        label,
+        x: Math.max(0, x - 50),
+        y: Math.max(0, y - 20),
+        width: compDef.defaultWidth,
+        height: compDef.defaultHeight,
+        content: label,
+        backgroundColor: getDefaultColor(type)
+      };
+
+      components.push(component);
+      renderCanvasComponent(component);
+      selectComponent(id);
+    }
+
+    function getDefaultColor(type) {
+      const colors = {
+        button: '#0984e3',
+        text: 'transparent',
+        box: '#dfe6e9',
+        image: '#b2bec3'
+      };
+      return colors[type] || '#dfe6e9';
+    }
+
+    // ==================== 渲染画布组件 ====================
+    function renderCanvasComponent(component) {
+      const canvas = document.getElementById('canvas');
+      let el = document.getElementById(`component-${component.id}`);
+
+      if (el) {
+        el.remove();
+      }
+
+      el = div(box => {
+        box.className('canvas-component');
+        box.id(`component-${component.id}`);
+        box.style('left', component.x + 'px');
+        box.style('top', component.y + 'px');
+        box.style('width', component.width + 'px');
+        box.style('height', component.height + 'px');
+        box.style('background', component.backgroundColor);
+
+        // 内容区域
+        const contentClass = component.type === 'button' ? 'button' :
+                            component.type === 'text' ? 'text' :
+                            component.type === 'image' ? 'image' : 'box';
+
+        box.child(div(content => {
+          content.className(`component-content ${contentClass}`);
+          content.text(component.content);
+        }));
+
+        // 点击选中
+        box.on('mousedown', (e) => {
+          e.stopPropagation();
+          selectComponent(component.id);
+        });
+      }).renderDom();
+
+      // 添加调整大小手柄
+      addResizeHandles(el, component);
+
+      canvas.appendChild(el);
+    }
+
+    // ==================== 添加调整大小手柄 ====================
+    function addResizeHandles(el, component) {
+      const directions = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+
+      directions.forEach(dir => {
+        const handle = div(h => {
+          h.className(`resize-handle ${dir}`);
+          h.attr('data-direction', dir);
+        }).renderDom();
+
+        el.appendChild(handle);
+        makeResizable(handle, el, component);
+      });
+    }
+
+    // ==================== 使手柄可调整大小 ====================
+    function makeResizable(handle, el, component) {
+      // 标记手柄为可拖拽
+      handle.setAttribute('draggable', 'true');
+
+      // 拖拽开始时记录初始状态
+      let startX, startY, startWidth, startHeight;
+      let direction;
+
+      const handleMouseDown = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        direction = handle.dataset.direction;
+        const rect = el.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = rect.width;
+        startHeight = rect.height;
+
+        // 添加临时事件监听
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      };
+
+      const handleMouseMove = (e) => {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+
+        let newWidth = startWidth;
+        let newHeight = startHeight;
+        let newX = component.x;
+        let newY = component.y;
+
+        // 根据拖拽方向调整大小
+        if (direction.includes('e')) {
+          newWidth = Math.max(20, startWidth + deltaX);
+        }
+        if (direction.includes('s')) {
+          newHeight = Math.max(20, startHeight + deltaY);
+        }
+        if (direction.includes('w')) {
+          newWidth = Math.max(20, startWidth - deltaX);
+          newX = component.x + (startWidth - newWidth);
+        }
+        if (direction.includes('n')) {
+          newHeight = Math.max(20, startHeight - deltaY);
+          newY = component.y + (startHeight - newHeight);
+        }
+
+        // 更新组件尺寸
+        component.width = newWidth;
+        component.height = newHeight;
+        component.x = newX;
+        component.y = newY;
+
+        // 实时更新 DOM
+        el.style.width = newWidth + 'px';
+        el.style.height = newHeight + 'px';
+        el.style.left = newX + 'px';
+        el.style.top = newY + 'px';
+      };
+
+      const handleMouseUp = (e) => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+
+        // 更新属性面板
+        updatePropertiesPanel();
+      };
+
+      handle.addEventListener('mousedown', handleMouseDown);
+    }
+
+    // ==================== 选择组件 ====================
+    function selectComponent(id) {
+      // 取消之前选中的
+      const prevSelected = document.querySelector('.canvas-component.selected');
+      if (prevSelected) {
+        prevSelected.classList.remove('selected');
+      }
+
+      selectedComponentId = id;
+
+      // 选中新的
+      const el = document.getElementById(`component-${id}`);
+      if (el) {
+        el.classList.add('selected');
+      }
+
+      updatePropertiesPanel();
+    }
+
+    // ==================== 更新属性面板 ====================
+    function updatePropertiesPanel() {
+      const contentEl = document.getElementById('properties-content');
+
+      if (!selectedComponentId) {
+        contentEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div>选择一个组件<br>查看和编辑属性</div>
+          </div>
+        `;
+        return;
+      }
+
+      const component = components.find(c => c.id === selectedComponentId);
+      if (!component) {
+        contentEl.innerHTML = '<div class="empty-state">组件不存在</div>';
+        return;
+      }
+
+      contentEl.innerHTML = `
+        <div class="property-group">
+          <div class="property-group-title">基本属性</div>
+          <div class="property-item">
+            <label class="property-label">类型</label>
+            <input class="property-input" type="text" value="${component.type}" disabled>
+          </div>
+          <div class="property-item">
+            <label class="property-label">内容</label>
+            <input class="property-input" type="text" value="${component.content}" id="prop-content">
+          </div>
+        </div>
+
+        <div class="property-group">
+          <div class="property-group-title">位置</div>
+          <div class="property-item">
+            <label class="property-label">X</label>
+            <input class="property-input" type="number" value="${Math.round(component.x)}" id="prop-x">
+          </div>
+          <div class="property-item">
+            <label class="property-label">Y</label>
+            <input class="property-input" type="number" value="${Math.round(component.y)}" id="prop-y">
+          </div>
+        </div>
+
+        <div class="property-group">
+          <div class="property-group-title">尺寸</div>
+          <div class="property-item">
+            <label class="property-label">宽度</label>
+            <input class="property-input" type="number" value="${Math.round(component.width)}" id="prop-width">
+          </div>
+          <div class="property-item">
+            <label class="property-label">高度</label>
+            <input class="property-input" type="number" value="${Math.round(component.height)}" id="prop-height">
+          </div>
+        </div>
+
+        <div class="property-group">
+          <div class="property-group-title">样式</div>
+          <div class="property-item">
+            <label class="property-label">背景色</label>
+            <input class="property-input" type="color" value="${rgbToHex(component.backgroundColor)}" id="prop-bgcolor" style="width: 100%; height: 40px;">
+          </div>
+        </div>
+      `;
+
+      // 绑定属性变更事件
+      bindPropertyEvents(component);
+    }
+
+    // ==================== 绑定属性变更事件 ====================
+    function bindPropertyEvents(component) {
+      const contentInput = document.getElementById('prop-content');
+      const xInput = document.getElementById('prop-x');
+      const yInput = document.getElementById('prop-y');
+      const widthInput = document.getElementById('prop-width');
+      const heightInput = document.getElementById('prop-height');
+      const bgcolorInput = document.getElementById('prop-bgcolor');
+
+      if (contentInput) {
+        contentInput.addEventListener('change', (e) => {
+          component.content = e.target.value;
+          renderCanvasComponent(component);
+        });
+      }
+
+      if (xInput) {
+        xInput.addEventListener('change', (e) => {
+          component.x = parseInt(e.target.value);
+          renderCanvasComponent(component);
+        });
+      }
+
+      if (yInput) {
+        yInput.addEventListener('change', (e) => {
+          component.y = parseInt(e.target.value);
+          renderCanvasComponent(component);
+        });
+      }
+
+      if (widthInput) {
+        widthInput.addEventListener('change', (e) => {
+          component.width = parseInt(e.target.value);
+          renderCanvasComponent(component);
+        });
+      }
+
+      if (heightInput) {
+        heightInput.addEventListener('change', (e) => {
+          component.height = parseInt(e.target.value);
+          renderCanvasComponent(component);
+        });
+      }
+
+      if (bgcolorInput) {
+        bgcolorInput.addEventListener('input', (e) => {
+          component.backgroundColor = e.target.value;
+          renderCanvasComponent(component);
+        });
+      }
+    }
+
+    // ==================== 工具函数 ====================
+    function rgbToHex(rgb) {
+      if (rgb.startsWith('#')) return rgb;
+      if (rgb === 'transparent') return '#dfe6e9';
+
+      const match = rgb.match(/\d+/g);
+      if (!match) return '#dfe6e9';
+
+      const r = parseInt(match[0]);
+      const g = parseInt(match[1]);
+      const b = parseInt(match[2]);
+
+      return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    // ==================== 清空画布 ====================
+    function clearCanvas() {
+      const canvas = document.getElementById('canvas');
+      canvas.innerHTML = '';
+      components = [];
+      selectedComponentId = null;
+      updatePropertiesPanel();
+    }
+
+    // ==================== 导出布局 ====================
+    function exportLayout() {
+      const layout = components.map(c => ({
+        id: c.id,
+        type: c.type,
+        label: c.label,
+        x: Math.round(c.x),
+        y: Math.round(c.y),
+        width: Math.round(c.width),
+        height: Math.round(c.height),
+        content: c.content,
+        backgroundColor: c.backgroundColor
+      }));
+
+      console.log('布局数据:', layout);
+      alert('布局数据已输出到控制台:\n' + JSON.stringify(layout, null, 2));
+    }
+
+    // ==================== 初始化 ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      renderComponentsList();
+      initCanvas();
+
+      // 绑定工具栏按钮
+      document.getElementById('clear-canvas').addEventListener('click', clearCanvas);
+      document.getElementById('export-layout').addEventListener('click', exportLayout);
+
+      // 点击画布空白处取消选中
+      document.getElementById('canvas').addEventListener('click', (e) => {
+        if (e.target.id === 'canvas') {
+          selectComponent(null);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -140,11 +140,13 @@ grid(g => {
 |------|------|
 | **基础元素** | `div`, `span`, `button`, `input`, `table`, `form`... |
 | **布局组件** | `flex`, `grid`, `vstack`, `hstack`, `center`, `container` |
-| **表单组件** | `vForm`, `vInput`, `vSelect`, `vCheckboxes`, `vTimer` |
+| **表单组件** | `vForm`, `vInput`, `vSelect`, `vCheckboxes`, `vTimer`, `vTimer2` |
 | **UI 组件** | `vCard`, `vMenu`, `vTable`, `vTabs`, `vPager`, `vModal`, `toast` |
 | **数据展示** | `vDetail`, `vField`, `vStatistic`, `vCode` |
 | **图表组件** | `vEchart` (基于 ECharts) |
 | **SVG 组件** | `svg`, `circle`, `rect`, `path`, `g`... |
+| **路由系统** | `VRouter`, `VRouterView`, `VRouterViews`, `VLink` |
+| **主题系统** | `StateMachine`, `Theme`, `themeManager` |
 
 ## 适用场景
 
@@ -287,6 +289,9 @@ npm run build
 | [DESIGN.md](./DESIGN.md) | 详细设计文档 |
 | [示例目录](./src/v2/examples/) | 完整示例代码 |
 | [主题指南](./THEME_CSS_GUIDE.md) | 主题 CSS 使用指南 |
+| [Skills](./skills/README.md) | 技能文档索引 |
+| [路由系统](./skills/yoya-router.md) | 路由系统使用指南 |
+| [主题系统](./skills/yoya-theme.md) | 状态机与主题切换指南 |
 
 ## License
 

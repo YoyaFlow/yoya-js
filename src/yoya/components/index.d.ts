@@ -614,6 +614,9 @@ declare function vRouterViews(router: VRouter, setup?: Setup<VRouterViews>): VRo
 
 interface VDraggableData {
   type?: string;
+  group?: string;
+  index?: number;
+  itemId?: string | number;
   [key: string]: any;
 }
 
@@ -627,6 +630,7 @@ interface VDraggableEvent {
   deltaY?: number;
   left?: number;
   top?: number;
+  originalEvent?: PointerEvent | MouseEvent;
   preventDefault?: () => void;
 }
 
@@ -635,6 +639,7 @@ declare class VDraggable extends Tag {
   data(data: VDraggableData): this;
   dragHandle(selector: string): this;
   constraint(value: 'horizontal' | 'vertical' | 'free'): this;
+  group(value: string): this;
   onDragStart(handler: (e: VDraggableEvent) => void): this;
   onDrag(handler: (e: VDraggableEvent) => void): this;
   onDragEnd(handler: (e: VDraggableEvent) => void): this;
@@ -652,11 +657,13 @@ interface VDroppableEvent {
   data?: any;
   x?: number;
   y?: number;
+  originalEvent?: PointerEvent | MouseEvent;
 }
 
 declare class VDroppable extends Tag {
   constructor(setup?: Setup<VDroppable>);
-  accept(fn: (data: any) => boolean): this;
+  accept(fn: ((data: any) => boolean) | string[]): this;
+  group(value: string): this;
   onDragEnter(handler: (e: VDroppableEvent) => void): this;
   onDragOver(handler: (e: VDroppableEvent) => void): this;
   onDragLeave(handler: (e: VDroppableEvent) => void): this;
@@ -681,10 +688,23 @@ declare class VDragSortList extends Tag {
   items(items: any[]): this;
   itemKey(key: string): this;
   itemRender(fn: (item: any, index: number, container: Tag) => void): this;
+  group(value: string): this;
   onReorder(handler: (e: VDragSortListReorderEvent) => void): this;
 }
 
 declare function vDragSortList(setup?: Setup<VDragSortList>): VDragSortList;
+
+// ============================================
+// VDragSortGroup 拖拽排序组
+// ============================================
+
+declare class VDragSortGroup extends Tag {
+  constructor(groupName: string, setup?: Setup<VDragSortGroup>);
+  addList(list: VDragSortList): this;
+  removeList(list: VDragSortList): this;
+}
+
+declare function vDragSortGroup(groupName: string, setup?: Setup<VDragSortGroup>): VDragSortGroup;
 
 // ============================================
 // VDragZone 拖拽区域
@@ -799,7 +819,7 @@ export {
   VDraggable, VDroppable, vDraggable, vDroppable,
 
   // DragSort - 拖拽排序
-  VDragSortList, vDragSortList,
+  VDragSortList, VDragSortGroup, vDragSortList, vDragSortGroup,
 
   // DragZone - 拖拽区域
   VDragZone, VDragCanvas, vDragZone, vDragCanvas,

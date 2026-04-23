@@ -212,7 +212,7 @@ export {
   VDraggable, VDroppable, vDraggable, vDroppable,
 
   // DragSort 拖拽排序组件
-  VDragSortList, vDragSortList,
+  VDragSortList, VDragSortGroup, vDragSortList, vDragSortGroup,
 
   // DragZone 拖拽区域组件
   VDragZone, VDragCanvas, vDragZone, vDragCanvas,

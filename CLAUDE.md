@@ -986,12 +986,24 @@ class Card extends Tag {
 
 ## 技能
 
+### 构建与开发
 - `yoya-build` - 构建 yoya.js 库
 - `yoya-add-element` - 添加新的 HTML 元素类和工厂函数
 - `yoya-check-types` - 检查 yoya.d.ts 类型定义
 - `skill-creator` - 创建新的 Claude Code 技能（slash commands）
 - `v2-router-test` - 测试 V2 VRouter 路由演示页面
 - `/simplify` - 审查代码复用性和质量
+
+### 技能文档
+- `skills/yoya-basic` - 库的核心用法
+- `skills/yoya-layout` - 布局组件（Flex、Grid、Stack）
+- `skills/yoya-form` - 表单组件
+- `skills/yoya-components` - UI 组件
+- `skills/yoya-svg` - SVG 组件
+- `skills/yoya-echart` - ECharts 图表组件
+- `skills/yoya-router` - 路由系统
+- `skills/yoya-theme` - 主题系统与状态机
+- `skills/component-priority` - 组件优先使用原则
 
 ## 组件优先使用原则
 
@@ -1221,135 +1233,316 @@ statCard(c => {
 ### ECharts 图表
 `vEchart` - ECharts 图表组件，支持柱状图、折线图、饼图、雷达图、仪表盘、散点图等
 
-## 状态机与主题系统
+### 路由系统
+`VRouter`, `VRouterView`, `VRouterViews`, `VLink` - Hash 模式 SPA 路由系统
 
-### 架构说明
+### 主题系统
+`StateMachine`, `Theme`, `themeManager` - 状态机与主题切换系统
 
-状态机和主题系统位于 `src/yoya/core/theme.js`，提供：
-- **状态机机制**：通过 `registerStateAttrs` 定义关注的状态属性
-- **多类型支持**：支持 boolean、string、number 多种状态值类型
-- **拦截器机制**：可注册状态变更拦截器进行验证和修改
-- **状态快照**：支持保存和恢复状态快照
-- **主题系统**：可插拔的主题注册和管理机制
+## 路由系统
 
-### 关键实现细节
+路由系统位于 `src/yoya/components/router.js`，提供 hash 模式的 SPA 路由能力。
 
-**避免循环依赖**：
-- `theme.js` **不导入** `Tag`，只导出 `initTagExtensions` 函数
-- `index.js` 导入 `Tag` 和 `initTagExtensions`，然后调用 `initTagExtensions(Tag)`
-- 这样确保 Tag 原型扩展在模块加载时自动初始化
+### 核心组件
+
+| 组件 | 用途 | 导入 |
+|------|------|------|
+| `VRouter` | 路由核心类 | 路由管理、导航、参数解析 |
+| `VRouterView` | 单视图容器 | 渲染当前路由匹配的视图 |
+| `VRouterViews` | 多视图容器 | tabs 式多视图界面 |
+| `VLink` | 导航链接 | 声明式导航组件 |
+
+### 基础用法
 
 ```javascript
-// theme.js - 不导入 Tag
-export function initTagExtensions(TagClass) {
-  if (!TagClass || typeof TagClass.prototype === 'undefined') return;
-  if (TagClass.prototype._stateExtensionsInitialized) return true;
+import { VRouter, VRouterView, VLink } from './yoya/components/router.js';
 
-  // 添加原型方法：registerStateAttrs, setState, getState, etc.
-  TagClass.prototype.registerStateAttrs = function(...attrs) { ... };
-  TagClass.prototype.setState = function(stateName, value) { ... };
-  // ...
+// 创建路由器
+const router = new VRouter({
+  routes: [
+    { path: '/', component: HomePage },
+    { path: '/user', component: UserPage },
+    { path: '/user/:id', component: UserDetailPage },
+  ],
+});
 
-  TagClass.prototype._stateExtensionsInitialized = true;
-}
+// 初始化（必须在绑定时机之前调用）
+router.init();
 
-// index.js - 导入并初始化
-import { Tag } from './core/basic.js';
-import { initTagExtensions } from './core/theme.js';
-initTagExtensions(Tag);  // 自动初始化原型扩展
+// 使用 VRouterView 渲染当前路由
+const app = div(app => {
+  app.nav(n => {
+    n.child(VLink({ to: '/', text: '首页' }));
+    n.child(VLink({ to: '/user', text: '用户' }));
+  });
+  app.child(router.view());  // 路由视图容器
+}).bindTo('#app');
+
+// 导航
+router.navigate('/user/123');
 ```
 
-### 状态类型和使用
+### VRouterViews 多视图容器
 
 ```javascript
-import { Tag } from '../yoya/index.js';
+import { VRouter, VRouterViews } from './yoya/components/router.js';
 
-const tag = new Tag('div');
+const router = new VRouter({
+  routes: [
+    { path: '/dashboard', component: DashboardPage, meta: { title: '仪表盘', icon: '📊' } },
+    { path: '/users', component: UsersPage, meta: { title: '用户', icon: '👥' } },
+    { path: '/settings', component: SettingsPage, meta: { title: '设置', icon: '⚙️' } },
+  ],
+});
 
-// 注册状态属性（支持类型定义）
-tag.registerStateAttrs(
-  'disabled',              // boolean（默认）
-  { size: 'string' },      // string
-  { count: 'number' }      // number
-);
+router.init();
 
-// 设置状态
-tag.setState('disabled', true);
-tag.setState('size', 'large');
-tag.setState('count', 10);
+// 创建多视图容器（tabs 式界面）
+const views = VRouterViews(router, v => {
+  v.autoAddFromRoutes();  // 自动从 routes 添加视图
+  v.enableStatePersistence();  // 启用 localStorage 持久化
+});
 
-// 获取状态
-tag.getBooleanState('disabled');  // true
-tag.getStringState('size');       // 'large'
-tag.getNumberState('count');      // 10
-tag.getAllStates();               // { disabled: true, size: 'large', count: 10 }
+// 视图操作
+views.addView({ viewId: 'new', route: '/new', title: '新页面' });
+views.removeView('new');
+views.setActiveView('dashboard');
+```
 
-// 状态快照
-tag.saveStateSnapshot('before-submit');
-tag.setState('disabled', true);
-tag.restoreStateSnapshot('before-submit');
+### 路由参数
 
-// 状态拦截器
-tag.registerStateInterceptor((stateName, value) => {
-  if (tag.hasState('disabled') && stateName !== 'disabled') {
-    return null;  // 取消操作
+```javascript
+// 动态路由参数
+const router = new VRouter({
+  routes: [
+    { path: '/user/:id', component: UserDetailPage },
+  ],
+});
+
+// 在组件中访问参数
+function UserDetailPage() {
+  const params = router.getParams();  // { id: '123' }
+  return div(d => {
+    d.h1(`用户详情 - ID: ${params.id}`);
+  });
+}
+
+// 查询参数
+const queryParams = router.getQueryParams();  // { q: 'hello', page: 2 }
+```
+
+### 导航守卫
+
+```javascript
+// 全局前置守卫
+router.beforeEach((to, from) => {
+  if (to.path.startsWith('/admin') && !isAdmin()) {
+    toast.error('无权限访问');
+    return false;  // 阻止导航
   }
-  return { stateName, value };
+  return true;
+});
+
+// 全局后置钩子
+router.afterEach((to) => {
+  document.title = to.meta?.title || '我的应用';
 });
 ```
 
-### MenuItem 组件示例
+### API 速查
 
-`src/yoya/components/menu.js` 中的 MenuItem 展示了如何使用状态机：
+```javascript
+// VRouter
+new VRouter(options)
+- init()                      // 初始化路由器
+- navigate(path, options)     // 导航到指定路径
+- getParams()                 // 获取当前路由参数
+- getQueryParams()            // 获取查询参数
+- beforeEach(fn)              // 注册全局前置守卫
+- afterEach(fn)               // 注册全局后置钩子
+- view()                      // 获取单视图容器
+
+// VRouterViews
+VRouterViews(router, setup)
+- addView(config)             // 添加视图
+- removeView(viewId)          // 移除视图
+- setActiveView(viewId)       // 激活视图
+- getActiveViewId()           // 获取当前激活的视图 ID
+- enableStatePersistence()    // 启用 localStorage 持久化
+- autoAddFromRoutes()         // 从 routes 自动添加视图
+```
+
+---
+
+## 主题系统与状态机
+
+主题系统位于 `src/yoya/core/theme.js`，提供状态机机制和主题切换功能。
+
+### 状态机（StateMachine）
+
+支持多种状态类型：boolean、string、number。
+
+```javascript
+import { Tag } from './yoya/index.js';
+
+const button = new Tag('button');
+
+// 注册状态属性
+button.registerStateAttrs(
+  'disabled',                    // boolean（默认）
+  { size: 'string' },            // string
+  { count: 'number' }            // number
+);
+
+// 设置状态
+button.setState('disabled', true);
+button.setState('size', 'large');
+button.setState('count', 10);
+
+// 获取状态
+button.getBooleanState('disabled');  // true
+button.getStringState('size');       // 'large'
+button.getNumberState('count');      // 10
+button.getAllStates();               // { disabled: true, size: 'large', count: 10 }
+
+// 状态处理器
+button.registerStateHandler('disabled', (enabled, host) => {
+  if (enabled) {
+    host.styles({ opacity: '0.5', cursor: 'not-allowed' });
+  } else {
+    host.styles({ opacity: '1', cursor: 'pointer' });
+  }
+});
+
+// 状态拦截器
+button.registerStateInterceptor((stateName, value) => {
+  if (button.hasState('disabled') && stateName !== 'disabled') {
+    return null;  // 阻止变更
+  }
+  return { stateName, value };
+});
+
+// 状态快照
+button.saveStateSnapshot('initial');
+button.restoreStateSnapshot('initial');
+```
+
+### 主题系统（Theme）
+
+```javascript
+import { themeManager, createTheme } from './yoya/core/theme.js';
+
+// 创建主题
+const darkTheme = createTheme('dark', {
+  MenuItem: {
+    disabled: { opacity: '0.5' },
+    active: { background: '#007bff', color: '#ffffff' },
+  },
+});
+
+const lightTheme = createTheme('light', {
+  MenuItem: {
+    disabled: { opacity: '0.5' },
+    active: { background: '#e3f2fd', color: '#1976d2' },
+  },
+});
+
+// 注册主题
+themeManager.registerTheme(darkTheme);
+themeManager.registerTheme(lightTheme);
+
+// 切换主题
+themeManager.setTheme('dark');
+
+// 应用主题到组件
+themeManager.applyTheme(component);
+```
+
+### 完整示例：MenuItem 组件
 
 ```javascript
 class MenuItem extends Tag {
-  static _stateAttrs = ['disabled', 'active', 'danger', 'hoverable'];
+  static _stateAttrs = ['disabled', 'active', 'danger'];
 
   constructor(content = '', setup = null) {
-    super('div', null);
-
-    // 1. 注册状态属性
+    super('div', setup);
+    
+    // 注册状态属性
     this.registerStateAttrs(...this.constructor._stateAttrs);
-
-    // 2. 注册状态处理器
-    this._registerStateHandlers();
-
-    // 3. 保存样式快照
+    
+    // 保存样式快照
     this.saveStateSnapshot('base');
-
-    // 4. 注册拦截器
-    this._registerHoverInterceptor();
-
-    // 5. 初始化状态
-    this.initializeStates({ disabled: false, active: false });
+    
+    // 注册状态处理器
+    this._registerStateHandlers();
+    
+    // 初始化状态
+    this.initializeStates({
+      disabled: false,
+      active: false,
+      danger: false,
+    });
   }
 
   _registerStateHandlers() {
-    // disabled 状态处理器
     this.registerStateHandler('disabled', (enabled, host) => {
       if (enabled) {
         host.styles({ opacity: '0.5', cursor: 'not-allowed' });
       } else {
-        host.style('opacity', '');
-        host.style('cursor', 'pointer');
+        host.styles({ opacity: '1', cursor: 'pointer' });
       }
     });
-    // ... 其他状态处理器
+
+    this.registerStateHandler('active', (isActive, host) => {
+      if (isActive) {
+        host.styles({ background: '#007bff', color: '#ffffff' });
+      } else {
+        host.styles({ background: '', color: '' });
+      }
+    });
+  }
+
+  // 链式 API
+  disabled(value = true) {
+    return this.setState('disabled', value);
+  }
+
+  active(value = true) {
+    return this.setState('active', value);
   }
 }
 ```
 
-### 状态变更流程
+### API 速查
 
-```
-用户调用 setState('disabled', true)
-        ↓
-执行拦截器链 → 返回 null 则取消
-        ↓
-更新 _currentState[stateName]
-        ↓
-执行状态处理器 (_executeHandlers)
-        ↓
-应用样式变更
+```javascript
+// StateMachine
+registerStateAttrs(...attrs)           // 注册状态属性
+setState(stateName, value)             // 设置状态值
+getState(stateName)                    // 获取状态值
+getBooleanState(stateName)             // 获取布尔状态
+getStringState(stateName)              // 获取字符串状态
+getNumberState(stateName)              // 获取数值状态
+getAllStates()                         // 获取所有状态
+hasState(stateName)                    // 检查状态（boolean）
+registerStateHandler(stateName, fn)    // 注册处理器
+registerStateInterceptor(fn)           // 注册拦截器
+saveStateSnapshot(name)                // 保存快照
+restoreStateSnapshot(name)             // 恢复快照
+initialize(defaultStates)              // 初始化状态
+reset()                                // 重置所有状态
+
+// Theme
+new Theme(name)
+setComponentStateStyles(component, state, styles)
+setComponentStateHandler(component, state, handler)
+register()
+applyToComponent(component)
+
+// ThemeManager
+registerTheme(theme)
+setTheme(name)
+getCurrentTheme()
+applyTheme(component)
+applyAllThemes(component)
 ```

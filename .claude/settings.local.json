@@ -207,7 +207,9 @@
       "Bash(git -C /home/join/code/cctest add -A .memery/)",
       "Bash(git checkout:*)",
       "WebSearch",
-      "Bash(du -sh /home/join/code/cctest/dist/v2-examples/*)"
+      "Bash(du -sh /home/join/code/cctest/dist/v2-examples/*)",
+      "Bash(pkill -f \"node server.js\")",
+      "mcp__plugin_everything-claude-code_exa__web_search_exa"
     ]
   },
   "enableAllProjectMcpServers": true,
